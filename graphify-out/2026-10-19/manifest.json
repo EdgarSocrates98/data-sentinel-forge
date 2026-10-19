@@ -114,9 +114,9 @@
     "semantic_hash": ""
   },
   "src/data_sentinel/analyzers/__init__.py": {
-    "mtime": 1792452960.3363369,
-    "seen": 1792453050.5402677,
-    "ast_hash": "5f587ecbcbe3a61ea84ad64180d70c66",
+    "mtime": 1792453166.4346898,
+    "seen": 1792453288.1540565,
+    "ast_hash": "a7c55ccde695a8129b18bae3650ccae9",
     "semantic_hash": ""
   },
   "src/data_sentinel/analyzers/cost/__init__.py": {
@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "src/data_sentinel/analyzers/sql/__init__.py": {
-    "mtime": 1792452225.8545504,
-    "seen": 1792452577.9332361,
-    "ast_hash": "88d9cd4663684d82ce51dacd25606a4f",
+    "mtime": 1792453143.7364411,
+    "seen": 1792453288.1545258,
+    "ast_hash": "619e2502215fc98eb35b1e063f09d104",
     "semantic_hash": ""
   },
   "src/data_sentinel/api/__init__.py": {
@@ -467,12 +467,6 @@
     "ast_hash": "7a6cb0414c04e36762544f61a9c9b043",
     "semantic_hash": ""
   },
-  "factory/specs/inbox/ds-0007.md": {
-    "mtime": 1792452170.703195,
-    "seen": 1792452577.9332933,
-    "ast_hash": "09f966cd82651ca87b446ef079ef6fa5",
-    "semantic_hash": ""
-  },
   "factory/specs/inbox/ds-0008.md": {
     "mtime": 1792452171.8592024,
     "seen": 1792452577.933294,
@@ -630,9 +624,9 @@
     "semantic_hash": ""
   },
   "src/data_sentinel/analyzers/protocol.py": {
-    "mtime": 1792452896.6059191,
-    "seen": 1792453050.5404751,
-    "ast_hash": "cd4df488d9852a426e8ceba193c4c42a",
+    "mtime": 1792453087.4821713,
+    "seen": 1792453288.1542685,
+    "ast_hash": "d77be7df2a98ae0de34fee1ce7de9dd2",
     "semantic_hash": ""
   },
   "src/data_sentinel/analyzers/registry.py": {
@@ -671,16 +665,70 @@
     "ast_hash": "1b5788c9fda80fe4a1d823033ffc1c51",
     "semantic_hash": ""
   },
-  "factory/specs/active/ds-0006.md": {
-    "mtime": 1792452169.4891872,
-    "seen": 1792453050.543444,
-    "ast_hash": "31dad7e8c9477e2704a3bc8c713176aa",
-    "semantic_hash": ""
-  },
   "factory/specs/archive/2026/ds-0005.md": {
     "mtime": 1792452168.3351798,
     "seen": 1792453050.543653,
     "ast_hash": "96b5bbc2f55ed0cb4e3b693e1bea73c1",
+    "semantic_hash": ""
+  },
+  "factory/reviews/ds-0006.accepted.json": {
+    "mtime": 1792453286.6641784,
+    "seen": 1792453288.1530793,
+    "ast_hash": "18a9c7ce6ea7f4618cb222f064295a5b",
+    "semantic_hash": ""
+  },
+  "factory/runs/2026-10-19T234126Z0000.ds-0007.json": {
+    "mtime": 1792453286.7241282,
+    "seen": 1792453288.1533518,
+    "ast_hash": "534e3d6342345792d85d9c1ec9c83b67",
+    "semantic_hash": ""
+  },
+  "fixtures/sql/join_no_predicate.sql": {
+    "mtime": 1792452999.8838298,
+    "seen": 1792453288.153353,
+    "ast_hash": "5e938c66934386fd37c34d41f3a7ce49",
+    "semantic_hash": ""
+  },
+  "fixtures/sql/select_star.sql": {
+    "mtime": 1792452999.8838775,
+    "seen": 1792453288.153354,
+    "ast_hash": "127dcc92f1a163ccfd2da83ca80aca3e",
+    "semantic_hash": ""
+  },
+  "src/data_sentinel/analyzers/sql/sql_analyzer.py": {
+    "mtime": 1792453262.2963197,
+    "seen": 1792453288.154527,
+    "ast_hash": "bc7d3456c657bd355d414e8980c41a73",
+    "semantic_hash": ""
+  },
+  "tests/unit/test_sql_analyzer.py": {
+    "mtime": 1792453176.7027571,
+    "seen": 1792453288.1568792,
+    "ast_hash": "90df6d62d09593bdc0ec31eb91350cda",
+    "semantic_hash": ""
+  },
+  "factory/prompts/ds-0007.implement.claude.md": {
+    "mtime": 1792453286.7239904,
+    "seen": 1792453288.1574001,
+    "ast_hash": "80d2155ff234f882bf559a061da484b5",
+    "semantic_hash": ""
+  },
+  "factory/reviews/ds-0006.review.md": {
+    "mtime": 1792453286.501423,
+    "seen": 1792453288.1576262,
+    "ast_hash": "5ee65d111e3d307004f99fce8719a288",
+    "semantic_hash": ""
+  },
+  "factory/specs/active/ds-0007.md": {
+    "mtime": 1792452170.703195,
+    "seen": 1792453288.1576273,
+    "ast_hash": "09f966cd82651ca87b446ef079ef6fa5",
+    "semantic_hash": ""
+  },
+  "factory/specs/archive/2026/ds-0006.md": {
+    "mtime": 1792452169.4891872,
+    "seen": 1792453288.1578813,
+    "ast_hash": "31dad7e8c9477e2704a3bc8c713176aa",
     "semantic_hash": ""
   }
 }

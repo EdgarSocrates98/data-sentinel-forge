@@ -1,0 +1,111 @@
+== ds-0008 verification evidence (2026-10-19T20:45:48-03:00) ==
+
+$ uv run pytest tests/unit tests/integration -q -k cli
+.........................                                                [100%]
+25 passed, 91 deselected in 0.58s
+[exit 0]
+
+$ uv run data-sentinel analyze --file fixtures/logs/glue_oom.log --json --no-persist
+{
+  "report_id": "768b06e9a5eb4758a0fd923bb7327162",
+  "schema_version": "1.0.0",
+  "request_id": "6936f63d8d454b268b64687abfec1b1e",
+  "created_at": "2026-10-19T23:45:49.240454Z",
+  "environment": null,
+  "analyzer_versions": {
+    "spark-glue-log-analyzer": "0.1.0"
+  },
+  "findings": [
+    {
+      "finding_id": "848fe0f9dc9546e1b109ec49f4637e46",
+      "category": "out_of_memory",
+      "severity": "HIGH",
+      "status": "CONFIRMED",
+      "explanation": "Assinatura inequívoca de java.lang.OutOfMemoryError indica que driver ou executor estourou o heap disponível. 2 ocorrência(s) no log analisado.",
+      "evidence_ids": [
+        "ab78c5e5e2d14eb99e029af371c789d6",
+        "2e2c3178e11d4586b84f1dddf966716f"
+      ],
+[exit 0]
+
+$ uv run data-sentinel analyze --sql fixtures/sql/join_no_predicate.sql --json --no-persist
+{
+  "report_id": "62e85fb66d204bcea9e3af949c635b8b",
+  "schema_version": "1.0.0",
+  "request_id": "8608b1b7551e42a295cabd67a842ddb5",
+  "created_at": "2026-10-19T23:45:49.519528Z",
+  "environment": null,
+  "analyzer_versions": {
+    "sql-static-analyzer": "0.1.0"
+  },
+  "findings": [
+    {
+      "finding_id": "89292c91752a49bd8f6973795e5b98da",
+      "category": "sql_antipattern",
+      "severity": "HIGH",
+      "status": "CONFIRMED",
+      "explanation": "JOIN sem predicado (produto cartesiano): JOIN sem ON/USING ou CROSS JOIN gera produto cartesiano — presença sintaticamente certa; o impacto depende do plano. (1 ocorrência(s), dialeto spark).",
+      "evidence_ids": [
+        "14514e238d484bf5891c11d5af22a333"
+      ],
+      "alternatives": [],
+[exit 0]
+
+$ uv run data-sentinel doctor
+[PASS] python 3.12.3
+[PASS] config resolvida (perfil=balanced, fontes=0)
+[PASS] store gravável (~/.local/share/data-sentinel)
+[PASS] 2 analyzer(s) registrado(s)
+[PASS] redação de segredos ativa
+[exit 0]
+
+$ uv run data-sentinel capabilities --json
+[
+  {
+    "capability_id": "spark-glue-log-analyzer",
+    "version": "0.1.0",
+    "supported_platforms": [],
+    "supported_runtimes": [
+      "log4j",
+      "glue-stdout"
+    ],
+    "required_permissions": [
+      "filesystem:read"
+    ],
+    "supported_operations": [
+      "analyze_log"
+    ],
+    "limitations": [
+      "Baseado em padrões regex curados — não cobre erros fora da biblioteca",
+      "Sem métricas de executor (Spark UI/event log não analisados neste ciclo)",
+      "Sinal POSSIBLE/PROBABLE exige corroboração humana antes de agir"
+    ]
+[exit 0]
+
+$ uv run data-sentinel config show
+profile: balanced
+log_level: INFO
+output_format: text
+max_file_bytes: None
+max_evidence_excerpt_chars: None
+redact_secrets: ***REDACTED***
+store_path: ~/.local/share/data-sentinel
+allowed_roots: []
+fontes:
+  default: - (aplicada)
+  user: /home/edgar/.config/data-sentinel/config.toml (ausente)
+  project: - (ausente)
+  env: - (ausente)
+[exit 0]
+
+$ uv run data-sentinel analyze --file ../../etc/hostname
+erro: arquivo não encontrado: ../../etc/hostname [entrada.nao_encontrada]
+[exit 1]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 48 source files
+[exit 0]
