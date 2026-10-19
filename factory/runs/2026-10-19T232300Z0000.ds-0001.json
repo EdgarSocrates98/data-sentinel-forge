@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0001.implement.claude.md)"
+  ],
+  "created_at": "2026-10-19T23:23:00+00:00",
+  "id": "ds-0001",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0001.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0001.md",
+  "spec_sha256": "af7824239ee1588c77d69e6ac67ac79e7993d569689409a00e6e2ddcefe57ee5",
+  "status": "planned",
+  "title": "Repository foundation and toolchain"
+}

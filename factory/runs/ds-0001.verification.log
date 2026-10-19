@@ -1,0 +1,38 @@
+== ds-0001 verification evidence (2026-10-19T20:25:33-03:00) ==
+
+$ uv sync --extra dev
+Resolved 43 packages in 0.95ms
+Checked 26 packages in 0.37ms
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 34 source files
+[exit 0]
+
+$ uv run pytest -q
+...                                                                      [100%]
+3 passed in 0.08s
+[exit 0]
+
+$ uv run data-sentinel --help
+                                                                                
+ Usage: data-sentinel [OPTIONS] COMMAND [ARGS]...                               
+                                                                                
+ Diagnostica workloads de engenharia de dados com evidência determinística.     
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --help          Show this message and exit.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ version  Mostra a versão instalada do data-sentinel.                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+[exit 0]
+
+$ uv run data-sentinel version
+data-sentinel 0.1.0
+[exit 0]
