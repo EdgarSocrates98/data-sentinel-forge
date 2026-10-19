@@ -1,16 +1,16 @@
 # Graph Report - data-sentinel-forge  (2026-10-19)
 
 ## Corpus Check
-- 128 files · ~28,230 words
+- 136 files · ~30,489 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1240 nodes · 1577 edges · 86 communities (83 shown, 3 thin omitted)
-- Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 79 edges (avg confidence: 0.87)
+- 1313 nodes · 1708 edges · 87 communities (82 shown, 5 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 95 edges (avg confidence: 0.87)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b57451ca`
+- Built from commit: `d8725826`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -40,9 +40,9 @@
 - Environment.schema.json
 - RequestConstraints.schema.json
 - ArtifactReference.schema.json
-- ArtifactReference
+- description
 - AccessMetadata.schema.json
-- RequestConstraints
+- allowed_roots
 - $defs
 - DiagnosticRequest
 - ds-0003.implement.claude.md
@@ -66,73 +66,74 @@
 - enum
 - .analyze
 - max_file_bytes
-- timeout_seconds
+- SentinelStore
 - Analyzer
-- Finding
-- enum
+- exceptions/__init__.py
+- ArtifactReference
 - SqlStaticAnalyzer
 - DiagnosticReport.schema.json
-- type
-- FindingStatus
+- alternatives
+- ds-0006.md
 - enum
-- TestValidationAndRegistry
+- TestValidation
 - properties
 - ds-0004.md
 - ds-0005.implement.claude.md
 - Review — ds-0005 Analyzer protocol + Spark/Glue log analyzer
 - Platform
 - supported_platforms
-- $defs
+- ds-0007.implement.claude.md
 - findings
 - limitations
 - required_permissions
 - created_at
 - evidence_ids
-- explanation
-- limitations
-- recommendations
+- Review — ds-0007 Local persistence
+- type
+- RequestConstraints
 - summary
 - validation_steps
-- test_json_schemas.py
+- references
 - AnalysisResult
 - ds-0005.md
 - ds-0006.implement.claude.md
 - Review — ds-0006 SQL static analyzer
-- SourceType
+- schema_version
 - CapabilityManifest
+- TestEnums
 
 ## God Nodes (most connected - your core abstractions)
 1. `load_config()` - 25 edges
-2. `Analyzer` - 23 edges
-3. `ContractModel` - 21 edges
-4. `read_input_file()` - 18 edges
-5. `request_for()` - 15 edges
+2. `SentinelStore` - 24 edges
+3. `Analyzer` - 23 edges
+4. `ContractModel` - 21 edges
+5. `read_input_file()` - 18 edges
 6. `safe_resolve()` - 15 edges
-7. `enum` - 15 edges
+7. `request_for()` - 15 edges
 8. `enum` - 15 edges
-9. `inputs_for()` - 14 edges
+9. `enum` - 15 edges
 10. `SparkGlueLogAnalyzer` - 14 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `inputs_for()` --calls--> `read_input_file()`  [INFERRED]
-  tests/unit/test_sql_analyzer.py → src/data_sentinel/core/security/paths.py
 - `TestValidationAndRegistry` --uses--> `AnalyzerRegistry`  [INFERRED]
   tests/unit/test_log_analyzer.py → src/data_sentinel/analyzers/registry.py
 - `inputs_for()` --calls--> `read_input_file()`  [INFERRED]
   tests/unit/test_log_analyzer.py → src/data_sentinel/core/security/paths.py
-- `sample_request()` --calls--> `DiagnosticRequest`  [EXTRACTED]
-  tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
+- `inputs_for()` --calls--> `read_input_file()`  [INFERRED]
+  tests/unit/test_sql_analyzer.py → src/data_sentinel/core/security/paths.py
 - `sample_report()` --calls--> `DiagnosticReport`  [EXTRACTED]
+  tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
+- `sample_request()` --calls--> `DiagnosticRequest`  [EXTRACTED]
   tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 3 thin omitted)
+## Communities (87 total, 5 thin omitted)
 
 ### Community 0 - "enum"
-Cohesion: 0.14
-Nodes (14): enum, configuration, cost, data_quality, data_skew, dependency, disk_space, executor_loss (+6 more)
+Cohesion: 0.04
+Nodes (48): $defs, Finding, FindingCategory, FindingStatus, Severity, additionalProperties, description, required (+40 more)
 
 ### Community 1 - "properties"
 Cohesion: 0.04
@@ -151,8 +152,8 @@ Cohesion: 0.05
 Nodes (41): additionalProperties, items, title, type, $ref, description, items, title (+33 more)
 
 ### Community 5 - "properties"
-Cohesion: 0.20
-Nodes (10): $ref, title, type, properties, category, finding_id, severity, status (+2 more)
+Cohesion: 0.14
+Nodes (14): $ref, minLength, title, type, title, type, properties, category (+6 more)
 
 ### Community 6 - "enum"
 Cohesion: 0.05
@@ -167,8 +168,8 @@ Cohesion: 0.05
 Nodes (36): captured_at, confidence, content_hash, declared, observed, provenance, sanitized_excerpt, source (+28 more)
 
 ### Community 9 - "properties"
-Cohesion: 0.14
-Nodes (14): anyOf, default, properties, environment, report_id, request_id, schema_version, title (+6 more)
+Cohesion: 0.20
+Nodes (10): anyOf, default, properties, environment, report_id, request_id, title, type (+2 more)
 
 ### Community 10 - "properties"
 Cohesion: 0.06
@@ -187,12 +188,12 @@ Cohesion: 0.05
 Nodes (36): additionalProperties, description, anyOf, default, title, anyOf, default, title (+28 more)
 
 ### Community 14 - "SentinelError"
-Cohesion: 0.17
-Nodes (13): Exception, AnalyzerError, PathViolationError, PersistenceError, Any, Domain exceptions with structured error information., A request violated a security guard (paths, secrets, limits)., A file path resolved outside the allowed roots. (+5 more)
+Cohesion: 0.25
+Nodes (6): Exception, AnalyzerError, Any, An analyzer failed to complete its deterministic pass., Base error carrying a stable code, a message, and optional details., SentinelError
 
 ### Community 15 - "test_contracts.py"
-Cohesion: 0.10
-Nodes (10): Finding, parametrize, Unit tests for the public domain contracts., sample_finding(), sample_report(), sample_request(), TestConstruction, TestEnums (+2 more)
+Cohesion: 0.11
+Nodes (17): Finding, export_schemas(), Path, Export JSON Schemas for the public contracts into schemas/. Usage: uv run…, parametrize, Path, Contract tests: exported JSON Schemas validate serialized examples., test_example_validates_against_schema() (+9 more)
 
 ### Community 16 - "Environment"
 Cohesion: 0.08
@@ -207,8 +208,8 @@ Cohesion: 0.08
 Nodes (23): additionalProperties, type, description, additionalProperties, title, type, anyOf, default (+15 more)
 
 ### Community 19 - "contracts/__init__.py"
-Cohesion: 0.11
-Nodes (21): Self, AccessMetadata, ArtifactReference, ContractModel, DiagnosticReport, Environment, ExecutionContext, Any (+13 more)
+Cohesion: 0.13
+Nodes (19): AccessMetadata, ArtifactReference, ContractModel, DiagnosticReport, Environment, Evidence, ExecutionContext, Limits the caller imposes on the analysis. (+11 more)
 
 ### Community 20 - "load_config"
 Cohesion: 0.07
@@ -230,21 +231,21 @@ Nodes (19): additionalProperties, items, title, type, description, type, anyOf, 
 Cohesion: 0.12
 Nodes (16): additionalProperties, description, anyOf, default, title, uri, properties, description (+8 more)
 
-### Community 25 - "ArtifactReference"
-Cohesion: 0.12
-Nodes (16): additionalProperties, description, properties, required, title, type, ArtifactReference, anyOf (+8 more)
+### Community 25 - "description"
+Cohesion: 0.22
+Nodes (9): properties, anyOf, default, title, description, uri, minLength, title (+1 more)
 
 ### Community 26 - "AccessMetadata.schema.json"
 Cohesion: 0.13
 Nodes (14): anyOf, default, title, anyOf, default, title, additionalProperties, description (+6 more)
 
-### Community 27 - "RequestConstraints"
-Cohesion: 0.18
-Nodes (11): items, title, type, RequestConstraints, type, allowed_roots, additionalProperties, description (+3 more)
+### Community 27 - "allowed_roots"
+Cohesion: 0.20
+Nodes (10): items, title, type, type, allowed_roots, timeout_seconds, properties, anyOf (+2 more)
 
 ### Community 28 - "$defs"
 Cohesion: 0.22
-Nodes (9): description, title, type, $defs, AnalysisMode, Platform, description, title (+1 more)
+Nodes (9): description, title, type, $defs, AnalysisMode, SourceType, description, title (+1 more)
 
 ### Community 29 - "DiagnosticRequest"
 Cohesion: 0.20
@@ -299,8 +300,8 @@ Cohesion: 0.25
 Nodes (8): config, log, metrics, other, physical_plan, spark_event_log, sql_query, enum
 
 ### Community 42 - "enum"
-Cohesion: 0.25
-Nodes (8): athena, aws_glue, databricks, generic, iceberg, spark, trino, enum
+Cohesion: 0.17
+Nodes (12): Platform, athena, aws_glue, databricks, generic, iceberg, spark, trino (+4 more)
 
 ### Community 44 - "ds-0003.md"
 Cohesion: 0.33
@@ -319,28 +320,28 @@ Cohesion: 0.40
 Nodes (5): balanced, deep, economy, offline, enum
 
 ### Community 50 - ".analyze"
-Cohesion: 0.10
-Nodes (22): FindingStatus, Path, Platform, DiagnosticRequest, InputFile, Reject requests the analyzer cannot serve. Pure validation, no IO., Run the deterministic pass. Never fabricates findings., inputs_for() (+14 more)
+Cohesion: 0.08
+Nodes (24): FindingStatus, Path, Platform, DiagnosticRequest, InputFile, Reject requests the analyzer cannot serve. Pure validation, no IO., Run the deterministic pass. Never fabricates findings., inputs_for() (+16 more)
 
 ### Community 51 - "max_file_bytes"
 Cohesion: 0.50
 Nodes (4): anyOf, default, title, max_file_bytes
 
-### Community 52 - "timeout_seconds"
-Cohesion: 0.50
-Nodes (4): timeout_seconds, anyOf, default, title
+### Community 52 - "SentinelStore"
+Cohesion: 0.07
+Nodes (32): Connection, PersistenceError, Local persistence (storage, migrations) failed., Local persistence: SQLite store + migrations., apply_migrations(), _migration_files(), Path, Append-only, transactional SQL migrations (stdlib sqlite3 only). (+24 more)
 
 ### Community 53 - "Analyzer"
-Cohesion: 0.13
-Nodes (9): ABC, Analyzer, SourceType, Analyzer protocol: the stable interface every analyzer implements (§01.3)., Deterministic, local, read-only analyzer contract., AnalyzerRegistry, SourceType, Analyzer registry: registration, discovery, lookup by source type. (+1 more)
+Cohesion: 0.11
+Nodes (10): ABC, CapabilityManifest, Analyzer, SourceType, Analyzer protocol: the stable interface every analyzer implements (§01.3)., Deterministic, local, read-only analyzer contract., AnalyzerRegistry, SourceType (+2 more)
 
-### Community 54 - "Finding"
+### Community 54 - "exceptions/__init__.py"
 Cohesion: 0.20
-Nodes (10): Finding, additionalProperties, description, required, title, type, category, explanation (+2 more)
+Nodes (9): Self, Any, ContractValidationError, PathViolationError, Domain exceptions with structured error information., A public contract failed to parse or validate., A request violated a security guard (paths, secrets, limits)., A file path resolved outside the allowed roots. (+1 more)
 
-### Community 55 - "enum"
-Cohesion: 0.20
-Nodes (10): Severity, CRITICAL, HIGH, INFO, LOW, MEDIUM, description, enum (+2 more)
+### Community 55 - "ArtifactReference"
+Cohesion: 0.29
+Nodes (7): additionalProperties, description, required, title, type, ArtifactReference, uri
 
 ### Community 56 - "SqlStaticAnalyzer"
 Cohesion: 0.20
@@ -350,21 +351,17 @@ Nodes (4): Analyzer package: protocol, registry, and built-in analyzers., Source
 Cohesion: 0.22
 Nodes (8): created_at, request_id, additionalProperties, description, required, $schema, title, type
 
-### Community 58 - "type"
-Cohesion: 0.22
-Nodes (9): items, title, type, type, alternatives, references, items, title (+1 more)
+### Community 58 - "alternatives"
+Cohesion: 0.50
+Nodes (4): items, title, type, alternatives
 
-### Community 59 - "FindingStatus"
-Cohesion: 0.22
-Nodes (9): FindingStatus, description, enum, title, type, CONFIRMED, POSSIBLE, PROBABLE (+1 more)
+### Community 59 - "ds-0006.md"
+Cohesion: 0.33
+Nodes (5): Acceptance Criteria, Constraints, Context, Grill Gate, Review Notes
 
 ### Community 60 - "enum"
 Cohesion: 0.25
 Nodes (8): athena, aws_glue, databricks, generic, iceberg, spark, trino, enum
-
-### Community 61 - "TestValidationAndRegistry"
-Cohesion: 0.18
-Nodes (3): CapabilityManifest, Unit + integration tests for the Spark/Glue log analyzer., TestValidationAndRegistry
 
 ### Community 62 - "properties"
 Cohesion: 0.29
@@ -390,9 +387,9 @@ Nodes (5): $defs, Platform, description, title, type
 Cohesion: 0.40
 Nodes (5): $ref, supported_platforms, items, title, type
 
-### Community 68 - "$defs"
+### Community 68 - "ds-0007.implement.claude.md"
 Cohesion: 0.40
-Nodes (5): $defs, FindingCategory, description, title, type
+Nodes (4): Acceptance Criteria, Constraints, Context, Review Notes
 
 ### Community 69 - "findings"
 Cohesion: 0.40
@@ -414,17 +411,17 @@ Nodes (4): format, title, type, created_at
 Cohesion: 0.50
 Nodes (4): items, title, type, evidence_ids
 
-### Community 74 - "explanation"
-Cohesion: 0.50
-Nodes (4): minLength, title, type, explanation
+### Community 74 - "Review — ds-0007 Local persistence"
+Cohesion: 0.40
+Nodes (4): Acceptance criteria check, Findings / notes, Review — ds-0007 Local persistence, Verdict
 
-### Community 75 - "limitations"
-Cohesion: 0.50
-Nodes (4): items, title, type, limitations
+### Community 75 - "type"
+Cohesion: 0.22
+Nodes (9): type, items, title, type, limitations, recommendations, items, title (+1 more)
 
-### Community 76 - "recommendations"
-Cohesion: 0.50
-Nodes (4): recommendations, items, title, type
+### Community 76 - "RequestConstraints"
+Cohesion: 0.40
+Nodes (5): RequestConstraints, additionalProperties, description, title, type
 
 ### Community 77 - "summary"
 Cohesion: 0.50
@@ -434,9 +431,9 @@ Nodes (4): summary, default, title, type
 Cohesion: 0.50
 Nodes (4): validation_steps, items, title, type
 
-### Community 79 - "test_json_schemas.py"
-Cohesion: 0.16
-Nodes (11): export_schemas(), Path, Export JSON Schemas for the public contracts into schemas/. Usage: uv run…, Evidence, A traceable excerpt supporting findings (§4)., parametrize, Path, Contract tests: exported JSON Schemas validate serialized examples. (+3 more)
+### Community 79 - "references"
+Cohesion: 0.50
+Nodes (4): references, items, title, type
 
 ### Community 80 - "AnalysisResult"
 Cohesion: 0.22
@@ -454,29 +451,29 @@ Nodes (4): Acceptance Criteria, Constraints, Context, Review Notes
 Cohesion: 0.40
 Nodes (4): Acceptance criteria check, Findings / notes, Review — ds-0006 SQL static analyzer, Verdict
 
-### Community 84 - "SourceType"
+### Community 84 - "schema_version"
 Cohesion: 0.50
-Nodes (4): SourceType, description, title, type
+Nodes (4): schema_version, default, title, type
 
 ## Knowledge Gaps
-- **600 isolated node(s):** `Context`, `Acceptance Criteria`, `Constraints`, `Review Notes`, `Acceptance criteria check` (+595 more)
+- **612 isolated node(s):** `Context`, `Acceptance Criteria`, `Constraints`, `Review Notes`, `Acceptance criteria check` (+607 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ConfigurationError` connect `load_config` to `SentinelError`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **Why does `SentinelError` connect `SentinelError` to `contracts/__init__.py`, `load_config`, `Analyzer`, `read_input_file`?**
-  _High betweenness centrality (0.013) - this node is a cross-community bridge._
+- **Why does `read_input_file()` connect `read_input_file` to `.analyze`?**
+  _High betweenness centrality (0.016) - this node is a cross-community bridge._
+- **Why does `ConfigurationError` connect `load_config` to `exceptions/__init__.py`, `SentinelError`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
 - **Are the 14 inferred relationships involving `load_config()` (e.g. with `SentinelConfig` and `ConfigurationError`) actually correct?**
   _`load_config()` has 14 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 10 inferred relationships involving `SentinelStore` (e.g. with `.test_corrupted_db_raises_domain_error()` and `.test_readonly_dir_raises_domain_error()`) actually correct?**
+  _`SentinelStore` has 10 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 11 inferred relationships involving `read_input_file()` (e.g. with `InputValidationError` and `.test_allow_binary_decodes_with_replacement()`) actually correct?**
   _`read_input_file()` has 11 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Context`, `Acceptance Criteria`, `Constraints` to the rest of the system?**
-  _600 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _612 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `enum` be split into smaller, more focused modules?**
-  _Cohesion score 0.14285714285714285 - nodes in this community are weakly interconnected._
-- **Should `properties` be split into smaller, more focused modules?**
   _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._

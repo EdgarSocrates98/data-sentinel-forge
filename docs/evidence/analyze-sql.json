@@ -1,0 +1,55 @@
+{
+  "report_id": "46fc62c428ae4220bbd127b43c27b73c",
+  "schema_version": "1.0.0",
+  "request_id": "fb62d6ab7ca04e8e9a84ed4add14a74e",
+  "created_at": "2026-10-19T23:46:35.255346Z",
+  "environment": null,
+  "analyzer_versions": {
+    "sql-static-analyzer": "0.1.0"
+  },
+  "findings": [
+    {
+      "finding_id": "5c0644c4508c45e88e358bf6f98258aa",
+      "category": "sql_antipattern",
+      "severity": "HIGH",
+      "status": "CONFIRMED",
+      "explanation": "JOIN sem predicado (produto cartesiano): JOIN sem ON/USING ou CROSS JOIN gera produto cartesiano — presença sintaticamente certa; o impacto depende do plano. (1 ocorrência(s), dialeto spark).",
+      "evidence_ids": [
+        "a67a8e1166984b2ab366319f15607c52"
+      ],
+      "alternatives": [],
+      "recommendations": [
+        "Adicionar predicado de junção ou confirmar intenção de CROSS JOIN."
+      ],
+      "validation_steps": [
+        "Revisar a ocorrência indicada na evidência",
+        "Confirmar intenção antes de reescrever"
+      ]
+    },
+    {
+      "finding_id": "83c8c4feb60344f49eeb357dd34d1441",
+      "category": "sql_antipattern",
+      "severity": "LOW",
+      "status": "POSSIBLE",
+      "explanation": "ORDER BY sem LIMIT: Ordenação global completa é cara e raramente necessária sem limite. (1 ocorrência(s), dialeto spark).",
+      "evidence_ids": [
+        "c9929ecbb530458b81f762af1498712d"
+      ],
+      "alternatives": [],
+      "recommendations": [
+        "Avaliar LIMIT ou ordenar somente no consumidor."
+      ],
+      "validation_steps": [
+        "Revisar a ocorrência indicada na evidência",
+        "Confirmar intenção antes de reescrever"
+      ]
+    }
+  ],
+  "limitations": [
+    "Análise estática: não observa execução física (plano, métricas, estatísticas)."
+  ],
+  "summary": "2 achado(s): CONFIRMED=1, POSSIBLE=1",
+  "references": [
+    "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/sql/join_no_predicate.sql"
+  ]
+}

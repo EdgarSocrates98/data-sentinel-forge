@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0009.implement.claude.md)"
+  ],
+  "created_at": "2026-10-19T23:45:58+00:00",
+  "id": "ds-0009",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0009.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0009.md",
+  "spec_sha256": "3af6c1d347476c597d1d2e27a688abc7f0a04a293423578eb24dd54c57999792",
+  "status": "planned",
+  "title": "Documentation, ADRs, and Cycle 01 acceptance evidence"
+}

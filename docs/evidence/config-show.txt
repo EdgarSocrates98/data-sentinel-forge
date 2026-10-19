@@ -1,0 +1,13 @@
+profile: balanced
+log_level: INFO
+output_format: text
+max_file_bytes: None
+max_evidence_excerpt_chars: None
+redact_secrets: ***REDACTED***
+store_path: ~/.local/share/data-sentinel
+allowed_roots: []
+fontes:
+  default: - (aplicada)
+  user: /home/edgar/.config/data-sentinel/config.toml (ausente)
+  project: - (ausente)
+  env: - (ausente)

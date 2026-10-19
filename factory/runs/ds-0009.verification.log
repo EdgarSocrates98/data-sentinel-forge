@@ -1,0 +1,55 @@
+== ds-0009 verification evidence (2026-10-19T20:49:08-03:00) ==
+
+$ uv run pytest -q
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+168 passed in 0.91s
+[exit 0]
+
+$ uv run pytest --cov=data_sentinel --cov-report=term-missing -q
+src/data_sentinel/intelligence/memory/__init__.py              0      0      0      0   100%
+src/data_sentinel/intelligence/orchestration/__init__.py       0      0      0      0   100%
+src/data_sentinel/intelligence/retrieval/__init__.py           0      0      0      0   100%
+src/data_sentinel/lineage/__init__.py                          0      0      0      0   100%
+src/data_sentinel/mcp/__init__.py                              0      0      0      0   100%
+src/data_sentinel/observability/__init__.py                    0      0      0      0   100%
+src/data_sentinel/persistence/__init__.py                      3      0      0      0   100%
+src/data_sentinel/persistence/migrations.py                   25      2      4      0    93%   44-45
+src/data_sentinel/persistence/store.py                        87      4     14      1    95%   50->58, 110-111, 142-143
+------------------------------------------------------------------------------------------------------
+TOTAL                                                       1018     56    196     21    93%
+168 passed in 2.27s
+[exit 0]
+
+$ test -f README.md && test -d docs/adr && grep -c '' README.md
+119
+[exit 0]
+
+$ uv run ruff check src tests && uv run mypy src
+All checks passed!
+Success: no issues found in 48 source files
+[exit 0]
+
+$ data-sentinel analyze --file fixtures/logs/mixed.log -o /tmp/rel.json --no-persist && uv run data-sentinel report --input /tmp/rel.json
+bash: linha 1: data-sentinel: comando não encontrado
+[exit 127]
+
+$ uv run data-sentinel analyze --file ../../etc/hostname
+erro: arquivo não encontrado: ../../etc/hostname [entrada.nao_encontrada]
+[exit 1]
+
+$ uv run data-sentinel analyze --sql fixtures/sql/select_star.sql
+[MEDIUM/POSSIBLE] sql_antipattern
+  Predicado não-sargable (função envolvendo coluna): Função sobre coluna em WHERE impede uso de estatísticas/partição pelo otimizador. (3 ocorrência(s), dialeto spark).
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/sql/select_star.sql:1
+    CAST(e.event_ts AS DATE) = '2026-10-01' AND UPPER(e.region) = 'US-EAST'
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/sql/select_star.sql:4
+    CAST(e.event_ts AS DATE)
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/sql/select_star.sql:5
+    UPPER(e.region)
+  recomendação: Mover a função para o lado literal ou materializar a coluna.
+
+limitações:
+  - Análise estática: não observa execução física (plano, métricas, estatísticas).
+[exit 0]

@@ -1,0 +1,59 @@
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.3-final-0 ________________
+
+Name                                                       Stmts   Miss Branch BrPart  Cover   Missing
+------------------------------------------------------------------------------------------------------
+src/data_sentinel/__init__.py                                  1      0      0      0   100%
+src/data_sentinel/analyzers/__init__.py                        7      0      0      0   100%
+src/data_sentinel/analyzers/cost/__init__.py                   0      0      0      0   100%
+src/data_sentinel/analyzers/glue/__init__.py                   0      0      0      0   100%
+src/data_sentinel/analyzers/iceberg/__init__.py                0      0      0      0   100%
+src/data_sentinel/analyzers/lakeformation/__init__.py          0      0      0      0   100%
+src/data_sentinel/analyzers/protocol.py                       44      1     14      5    90%   42->exit, 46->exit, 50->exit, 54->exit, 58->exit, 85
+src/data_sentinel/analyzers/quality/__init__.py                0      0      0      0   100%
+src/data_sentinel/analyzers/registry.py                       24      6      4      0    71%   26-27, 33-36
+src/data_sentinel/analyzers/spark/__init__.py                  3      0      0      0   100%
+src/data_sentinel/analyzers/spark/log_analyzer.py             56      2     16      1    96%   46, 108
+src/data_sentinel/analyzers/spark/patterns.py                 21      0      0      0   100%
+src/data_sentinel/analyzers/sql/__init__.py                    2      0      0      0   100%
+src/data_sentinel/analyzers/sql/sql_analyzer.py              120      4     30      3    95%   66, 216, 286-287
+src/data_sentinel/api/__init__.py                              0      0      0      0   100%
+src/data_sentinel/cli/__init__.py                            197     29     52      5    85%   57, 62-65, 153, 162-165, 171-172, 197->exit, 293-296, 312-314, 339-343, 384-386, 387->394, 392-393
+src/data_sentinel/connectors/__init__.py                       0      0      0      0   100%
+src/data_sentinel/connectors/aws/__init__.py                   0      0      0      0   100%
+src/data_sentinel/connectors/databricks/__init__.py            0      0      0      0   100%
+src/data_sentinel/connectors/local/__init__.py                 0      0      0      0   100%
+src/data_sentinel/connectors/telemetry/__init__.py             0      0      0      0   100%
+src/data_sentinel/core/__init__.py                             0      0      0      0   100%
+src/data_sentinel/core/configuration/__init__.py               3      0      0      0   100%
+src/data_sentinel/core/configuration/loader.py                77      4     24      3    93%   51-52, 58, 67, 130->132
+src/data_sentinel/core/configuration/models.py                56      0     10      0   100%
+src/data_sentinel/core/contracts/__init__.py                   3      0      0      0   100%
+src/data_sentinel/core/contracts/entities.py                 124      1      4      0    99%   70
+src/data_sentinel/core/contracts/enums.py                     58      0      0      0   100%
+src/data_sentinel/core/domain/__init__.py                      0      0      0      0   100%
+src/data_sentinel/core/exceptions/__init__.py                 16      1      0      0    94%   22
+src/data_sentinel/core/models/__init__.py                      0      0      0      0   100%
+src/data_sentinel/core/security/__init__.py                    4      0      0      0   100%
+src/data_sentinel/core/security/paths.py                      53      2     18      3    93%   63->76, 65, 83
+src/data_sentinel/core/security/redact.py                     14      0      2      0   100%
+src/data_sentinel/core/security/sanitize.py                   20      0      4      0   100%
+src/data_sentinel/diagnostics/__init__.py                      0      0      0      0   100%
+src/data_sentinel/intelligence/__init__.py                     0      0      0      0   100%
+src/data_sentinel/intelligence/agents/__init__.py              0      0      0      0   100%
+src/data_sentinel/intelligence/evaluation/__init__.py          0      0      0      0   100%
+src/data_sentinel/intelligence/memory/__init__.py              0      0      0      0   100%
+src/data_sentinel/intelligence/orchestration/__init__.py       0      0      0      0   100%
+src/data_sentinel/intelligence/retrieval/__init__.py           0      0      0      0   100%
+src/data_sentinel/lineage/__init__.py                          0      0      0      0   100%
+src/data_sentinel/mcp/__init__.py                              0      0      0      0   100%
+src/data_sentinel/observability/__init__.py                    0      0      0      0   100%
+src/data_sentinel/persistence/__init__.py                      3      0      0      0   100%
+src/data_sentinel/persistence/migrations.py                   25      2      4      0    93%   44-45
+src/data_sentinel/persistence/store.py                        87      4     14      1    95%   50->58, 110-111, 142-143
+------------------------------------------------------------------------------------------------------
+TOTAL                                                       1018     56    196     21    93%
+168 passed in 2.21s

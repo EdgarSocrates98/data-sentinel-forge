@@ -1,0 +1,8 @@
+spark-glue-log-analyzer v0.1.0
+  operações: analyze_log
+  plataformas: -
+  limitações: 3 declarada(s)
+sql-static-analyzer v0.1.0
+  operações: sql_query
+  plataformas: spark, aws_glue, trino, athena, generic
+  limitações: 3 declarada(s)
