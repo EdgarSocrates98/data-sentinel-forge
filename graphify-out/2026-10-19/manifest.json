@@ -467,12 +467,6 @@
     "ast_hash": "7a6cb0414c04e36762544f61a9c9b043",
     "semantic_hash": ""
   },
-  "factory/specs/inbox/ds-0003.md": {
-    "mtime": 1792452166.0221648,
-    "seen": 1792452577.9332893,
-    "ast_hash": "e9ec41c03ad81c0dfba97d574ace5bf5",
-    "semantic_hash": ""
-  },
   "factory/specs/inbox/ds-0004.md": {
     "mtime": 1792452167.1851723,
     "seen": 1792452577.93329,
@@ -513,6 +507,36 @@
     "mtime": 1792451755.317822,
     "seen": 1792452577.9332962,
     "ast_hash": "41b1ae339df5970f8998d7ca8cf1715c",
+    "semantic_hash": ""
+  },
+  "factory/reviews/ds-0001.accepted.json": {
+    "mtime": 1792452595.2761772,
+    "seen": 1792452596.7937338,
+    "ast_hash": "ae41f85e57bf65a9446442f129109a14",
+    "semantic_hash": ""
+  },
+  "factory/reviews/ds-0002.accepted.json": {
+    "mtime": 1792452590.634482,
+    "seen": 1792452596.79374,
+    "ast_hash": "843bd31a0e989d03948c5f63c9a73b69",
+    "semantic_hash": ""
+  },
+  "factory/runs/2026-10-19T232955Z0000.ds-0003.json": {
+    "mtime": 1792452595.4773529,
+    "seen": 1792452596.793748,
+    "ast_hash": "de0acf902ffed02cc4d450ea344113f2",
+    "semantic_hash": ""
+  },
+  "factory/prompts/ds-0003.implement.claude.md": {
+    "mtime": 1792452595.4770803,
+    "seen": 1792452596.7938368,
+    "ast_hash": "f9962268bf7de49fa80a304cc9589905",
+    "semantic_hash": ""
+  },
+  "factory/specs/active/ds-0003.md": {
+    "mtime": 1792452166.0221648,
+    "seen": 1792452596.7938404,
+    "ast_hash": "e9ec41c03ad81c0dfba97d574ace5bf5",
     "semantic_hash": ""
   }
 }

@@ -1,0 +1,14 @@
+== ds-0004 verification evidence (2026-10-19T20:34:18-03:00) ==
+
+$ uv run pytest tests/unit tests/security -q -k "security or sanitizer or redact or path"
+.............................................                            [100%]
+45 passed, 37 deselected in 0.16s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 41 source files
+[exit 0]

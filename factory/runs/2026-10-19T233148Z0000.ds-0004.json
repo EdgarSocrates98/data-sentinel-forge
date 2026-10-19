@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0004.implement.claude.md)"
+  ],
+  "created_at": "2026-10-19T23:31:48+00:00",
+  "id": "ds-0004",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0004.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0004.md",
+  "spec_sha256": "f637ec9ef67355e55d5e96794ca47b665dd39f6298ff7ef8a56e962e57463f95",
+  "status": "planned",
+  "title": "Security primitives \u2014 path guard, sanitizer, secret redaction"
+}
