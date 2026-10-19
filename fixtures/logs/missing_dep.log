@@ -1,0 +1,4 @@
+26/10/19 08:00:00 INFO SparkContext: Added JAR s3://libs/iceberg-spark.jar
+26/10/19 08:00:05 ERROR Executor: Exception in task 0.0
+java.lang.ClassNotFoundException: org.apache.iceberg.spark.source.IcebergSource
+26/10/19 08:00:06 ERROR Job: Job aborted

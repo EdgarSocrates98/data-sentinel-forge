@@ -1,0 +1,5 @@
+26/10/19 14:10:00 INFO DAGScheduler: Submitting ShuffleMapStage 7
+26/10/19 14:11:12 WARN TaskSetManager: Lost task 12.0 in stage 7.0 (TID 301, executor 9): FetchFailedException: Failed to connect to ip-10-0-3-44/10.0.3.44:7337
+26/10/19 14:11:13 WARN TaskSchedulerImpl: Lost executor 9 on ip-10-0-3-44: Executor lost failure (executor 9 exited)
+26/10/19 14:11:40 ERROR TaskSetManager: Task 12.0 in stage 7.0 failed 4 times; aborting job
+26/10/19 14:11:41 ERROR DAGScheduler: ShuffleMapStage 7 failed due to ExecutorLostFailure

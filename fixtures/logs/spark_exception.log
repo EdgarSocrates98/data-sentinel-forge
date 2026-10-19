@@ -1,0 +1,4 @@
+26/10/19 16:00:00 INFO DAGScheduler: Job 0 failed
+26/10/19 16:00:01 ERROR SparkContext: Error initializing SparkContext.
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 5 in stage 0.0 failed 4 times
+26/10/19 16:00:02 ERROR Job: Glue job exited with error

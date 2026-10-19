@@ -1,0 +1,4 @@
+26/10/19 09:30:00 INFO TaskSetManager: Starting task 3.0 in stage 1.0
+26/10/19 09:31:05 WARN ExternalSorter: Spilling in-memory map of 1.8 GB to disk (5th time so far)
+26/10/19 09:31:06 WARN ExternalAppendOnlyMap: Spill(ing) 2.1 GB to disk
+26/10/19 09:32:00 INFO TaskSetManager: Finished task 3.0 in stage 1.0 in 120000 ms

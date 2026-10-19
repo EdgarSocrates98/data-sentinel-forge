@@ -1,0 +1,4 @@
+26/10/19 11:20:00 INFO SparkSqlParser: Parsing query select * from lake.sales
+26/10/19 11:20:02 ERROR TaskSetManager: Job aborted
+org.apache.iceberg.exceptions.NoSuchTableException: Cannot find table 'lake.sales' in catalog 'glue_catalog'
+26/10/19 11:20:03 ERROR Job: AnalysisException propagated

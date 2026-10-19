@@ -1,0 +1,5 @@
+26/10/19 07:00:00 INFO Scheduler: custom workload started
+26/10/19 07:00:01 INFO Worker: processing shard 1/10
+26/10/19 07:00:02 INFO Worker: processing shard 2/10
+26/10/19 07:00:03 WARN Metrics: queue depth 512
+26/10/19 07:00:04 INFO Worker: done

@@ -1,0 +1,5 @@
+26/10/19 09:30:00 INFO TaskSetManager: Starting task 3.0 in stage 1.0
+26/10/19 09:35:12 ERROR FileDiskBlockManager: Failed to create local dir
+java.io.IOException: No space left on device
+	at java.base/java.io.FileOutputStream.writeBytes(Native Method)
+26/10/19 09:35:13 ERROR TaskSetManager: Task 3.0 in stage 1.0 failed 1 times

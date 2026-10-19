@@ -1,0 +1,4 @@
+26/10/19 18:00:00 INFO Job: Glue job run jr_timeout starting
+26/10/19 19:00:01 ERROR Job: Job run timed out after 3600 seconds
+26/10/19 19:00:02 WARN DAGScheduler: Cancelling all running tasks
+java.util.concurrent.TimeoutException: Futures timed out after [300 seconds]

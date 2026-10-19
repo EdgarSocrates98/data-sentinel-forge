@@ -1,16 +1,16 @@
 # Graph Report - data-sentinel-forge  (2026-10-19)
 
 ## Corpus Check
-- 89 files · ~18,211 words
+- 96 files · ~20,323 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 925 nodes · 1013 edges · 47 communities (43 shown, 4 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.93)
+- 992 nodes · 1142 edges · 42 communities (39 shown, 3 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 32 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `335b9230`
+- Built from commit: `2dfc2d3a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -18,7 +18,7 @@
 - enum
 - properties
 - ExecutionContext.schema.json
-- Environment
+- ExecutionContext
 - properties
 - properties
 - enum
@@ -26,16 +26,16 @@
 - Evidence.schema.json
 - properties
 - properties
-- ExecutionMetadata.schema.json
+- enum
 - properties
 - properties
 - exceptions/__init__.py
 - test_contracts.py
-- Environment
+- properties
 - contracts/__init__.py
 - ResourceContext.schema.json
 - entities.py
-- ResourceContext
+- load_config
 - CapabilityManifest.schema.json
 - Environment.schema.json
 - RequestConstraints.schema.json
@@ -45,55 +45,50 @@
 - RequestConstraints
 - $defs
 - ExecutionMetadata
-- enum
-- enum
+- ds-0003.implement.claude.md
+- Review — ds-0003 Configuration system
 - Review — ds-0001 Repository foundation and toolchain
 - ds-0001.md
 - TestValidation
 - ds-0001.review.claude.md
 - ds-0002.implement.claude.md
 - Review — ds-0002 Core domain contracts and versioning
-- enum
 - ds-0002.md
-- max_file_bytes
-- timeout_seconds
-- TestEnums
 - scripts/__init__.py
-- Platform
 - data-sentinel
 
 ## God Nodes (most connected - your core abstractions)
-1. `ContractModel` - 21 edges
-2. `enum` - 15 edges
+1. `load_config()` - 25 edges
+2. `ContractModel` - 21 edges
 3. `enum` - 15 edges
-4. `SentinelError` - 11 edges
-5. `Platform` - 8 edges
-6. `DiagnosticRequest` - 8 edges
-7. `enum` - 8 edges
-8. `enum` - 8 edges
-9. `$defs` - 8 edges
+4. `enum` - 15 edges
+5. `SentinelConfig` - 13 edges
+6. `SentinelError` - 11 edges
+7. `write()` - 9 edges
+8. `DiagnosticRequest` - 8 edges
+9. `Platform` - 8 edges
 10. `enum` - 8 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `sample_request()` --calls--> `DiagnosticRequest`  [EXTRACTED]
-  tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
-- `Evidence` --uses--> `EvidenceProvenance`  [INFERRED]
-  src/data_sentinel/core/contracts/entities.py → src/data_sentinel/core/contracts/enums.py
-- `ExecutionMetadata` --uses--> `ExecutionStatus`  [INFERRED]
-  src/data_sentinel/core/contracts/entities.py → src/data_sentinel/core/contracts/enums.py
 - `sample_report()` --calls--> `DiagnosticReport`  [EXTRACTED]
   tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
 - `sample_evidence()` --calls--> `Evidence`  [EXTRACTED]
   tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
+- `sample_request()` --calls--> `DiagnosticRequest`  [EXTRACTED]
+  tests/unit/test_contracts.py → src/data_sentinel/core/contracts/entities.py
+- `_load_toml()` --calls--> `ConfigurationError`  [INFERRED]
+  src/data_sentinel/core/configuration/loader.py → src/data_sentinel/core/exceptions/__init__.py
+- `load_config()` --calls--> `ConfigurationError`  [INFERRED]
+  src/data_sentinel/core/configuration/loader.py → src/data_sentinel/core/exceptions/__init__.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (47 total, 4 thin omitted)
+## Communities (42 total, 3 thin omitted)
 
 ### Community 0 - "enum"
-Cohesion: 0.04
-Nodes (48): $defs, Finding, FindingCategory, FindingStatus, Severity, additionalProperties, description, required (+40 more)
+Cohesion: 0.05
+Nodes (45): $defs, Environment, FindingCategory, FindingStatus, Severity, additionalProperties, description, required (+37 more)
 
 ### Community 1 - "properties"
 Cohesion: 0.04
@@ -103,17 +98,17 @@ Nodes (46): proposed_change, rationale, target, additionalProperties, descriptio
 Cohesion: 0.05
 Nodes (43): additionalProperties, type, anyOf, default, title, $defs, Environment, description (+35 more)
 
-### Community 3 - "Environment"
-Cohesion: 0.05
-Nodes (42): type, anyOf, default, title, Environment, ExecutionContext, additionalProperties, title (+34 more)
+### Community 3 - "ExecutionContext"
+Cohesion: 0.06
+Nodes (35): type, anyOf, default, title, ExecutionContext, additionalProperties, title, type (+27 more)
 
 ### Community 4 - "properties"
 Cohesion: 0.05
 Nodes (41): additionalProperties, items, title, type, $ref, description, items, title (+33 more)
 
 ### Community 5 - "properties"
-Cohesion: 0.06
-Nodes (39): items, title, type, $ref, items, title, type, minLength (+31 more)
+Cohesion: 0.04
+Nodes (49): items, title, type, $ref, Finding, items, title, type (+41 more)
 
 ### Community 6 - "enum"
 Cohesion: 0.05
@@ -135,29 +130,29 @@ Nodes (35): created_at, request_id, additionalProperties, format, title, type, d
 Cohesion: 0.06
 Nodes (33): anyOf, default, format, title, type, maximum, minimum, title (+25 more)
 
-### Community 11 - "ExecutionMetadata.schema.json"
-Cohesion: 0.06
-Nodes (30): CANCELLED, FAILED, RUNNING, SUCCEEDED, additionalProperties, $defs, ExecutionStatus, Platform (+22 more)
+### Community 11 - "enum"
+Cohesion: 0.04
+Nodes (46): CANCELLED, FAILED, RUNNING, SUCCEEDED, type, $defs, ExecutionStatus, Platform (+38 more)
 
 ### Community 12 - "properties"
 Cohesion: 0.08
 Nodes (29): title, type, $ref, type, items, title, type, properties (+21 more)
 
 ### Community 13 - "properties"
-Cohesion: 0.07
-Nodes (29): anyOf, default, title, anyOf, default, title, $ref, properties (+21 more)
+Cohesion: 0.05
+Nodes (36): additionalProperties, description, anyOf, default, title, anyOf, default, title (+28 more)
 
 ### Community 14 - "exceptions/__init__.py"
 Cohesion: 0.13
 Nodes (19): Exception, AnalyzerError, ConfigurationError, ContractValidationError, InputValidationError, PathViolationError, PersistenceError, Any (+11 more)
 
 ### Community 15 - "test_contracts.py"
-Cohesion: 0.10
-Nodes (19): Finding, export_schemas(), Path, Export JSON Schemas for the public contracts into schemas/. Usage: uv run…, DiagnosticReport, Evidence, A traceable excerpt supporting findings (§4)., Versioned output contract aggregating findings (§4). (+11 more)
+Cohesion: 0.09
+Nodes (18): Finding, export_schemas(), Path, Export JSON Schemas for the public contracts into schemas/. Usage: uv run…, parametrize, Path, Contract tests: exported JSON Schemas validate serialized examples., test_example_validates_against_schema() (+10 more)
 
-### Community 16 - "Environment"
-Cohesion: 0.08
-Nodes (25): type, additionalProperties, title, type, Environment, additionalProperties, title, type (+17 more)
+### Community 16 - "properties"
+Cohesion: 0.11
+Nodes (18): type, additionalProperties, title, type, additionalProperties, title, type, properties (+10 more)
 
 ### Community 17 - "contracts/__init__.py"
 Cohesion: 0.15
@@ -168,12 +163,12 @@ Cohesion: 0.08
 Nodes (23): additionalProperties, type, description, additionalProperties, title, type, anyOf, default (+15 more)
 
 ### Community 19 - "entities.py"
-Cohesion: 0.11
-Nodes (20): BaseModel, datetime, Self, AccessMetadata, ArtifactReference, ContractModel, _ensure_utc(), Environment (+12 more)
+Cohesion: 0.10
+Nodes (23): datetime, Self, AccessMetadata, ArtifactReference, ContractModel, DiagnosticReport, _ensure_utc(), Environment (+15 more)
 
-### Community 20 - "ResourceContext"
-Cohesion: 0.09
-Nodes (23): type, ResourceContext, additionalProperties, title, type, anyOf, default, title (+15 more)
+### Community 20 - "load_config"
+Cohesion: 0.07
+Nodes (34): BaseModel, Configuration system with documented precedence (§01.5)., _discover_project_config(), _env_overrides(), load_config(), _load_toml(), _merge(), Any (+26 more)
 
 ### Community 21 - "CapabilityManifest.schema.json"
 Cohesion: 0.09
@@ -200,24 +195,24 @@ Cohesion: 0.13
 Nodes (14): anyOf, default, title, anyOf, default, title, additionalProperties, description (+6 more)
 
 ### Community 27 - "RequestConstraints"
-Cohesion: 0.18
-Nodes (11): items, title, type, RequestConstraints, type, allowed_roots, additionalProperties, description (+3 more)
+Cohesion: 0.11
+Nodes (19): items, title, type, RequestConstraints, type, anyOf, default, title (+11 more)
 
 ### Community 28 - "$defs"
-Cohesion: 0.22
-Nodes (9): description, title, type, $defs, AnalysisMode, SourceType, description, title (+1 more)
+Cohesion: 0.05
+Nodes (41): balanced, config, deep, economy, log, metrics, offline, other (+33 more)
 
 ### Community 29 - "ExecutionMetadata"
-Cohesion: 0.20
-Nodes (8): CapabilityManifest, ExecutionMetadata, OptimizationRecommendation, A proposed change with rationale, risk and rollback (§4)., Metadata about the job run the artifacts came from (§4)., Declared capabilities and limitations of an analyzer/component (§4)., sample_request(), TestConstruction
+Cohesion: 0.29
+Nodes (6): CapabilityManifest, ExecutionMetadata, OptimizationRecommendation, A proposed change with rationale, risk and rollback (§4)., Metadata about the job run the artifacts came from (§4)., Declared capabilities and limitations of an analyzer/component (§4).
 
-### Community 30 - "enum"
-Cohesion: 0.25
-Nodes (8): config, log, metrics, other, physical_plan, spark_event_log, sql_query, enum
+### Community 30 - "ds-0003.implement.claude.md"
+Cohesion: 0.40
+Nodes (4): Acceptance Criteria, Constraints, Context, Review Notes
 
-### Community 31 - "enum"
-Cohesion: 0.25
-Nodes (8): athena, aws_glue, databricks, generic, iceberg, spark, trino, enum
+### Community 31 - "Review — ds-0003 Configuration system"
+Cohesion: 0.40
+Nodes (4): Acceptance criteria check, Findings / notes, Review — ds-0003 Configuration system, Verdict
 
 ### Community 32 - "Review — ds-0001 Repository foundation and toolchain"
 Cohesion: 0.33
@@ -239,45 +234,29 @@ Nodes (4): Acceptance Criteria, Constraints, Context, Review Notes
 Cohesion: 0.40
 Nodes (4): Acceptance criteria check, Notes, Review — ds-0002 Core domain contracts and versioning, Verdict
 
-### Community 38 - "enum"
-Cohesion: 0.40
-Nodes (5): balanced, deep, economy, offline, enum
-
 ### Community 39 - "ds-0002.md"
 Cohesion: 0.33
 Nodes (5): Acceptance Criteria, Constraints, Context, Grill Gate, Review Notes
 
-### Community 40 - "max_file_bytes"
-Cohesion: 0.50
-Nodes (4): anyOf, default, title, max_file_bytes
-
-### Community 41 - "timeout_seconds"
-Cohesion: 0.50
-Nodes (4): timeout_seconds, anyOf, default, title
-
-### Community 44 - "Platform"
-Cohesion: 0.50
-Nodes (4): Platform, description, title, type
-
 ## Knowledge Gaps
-- **556 isolated node(s):** `Grill Gate`, `Context`, `Acceptance Criteria`, `Constraints`, `Review Notes` (+551 more)
+- **563 isolated node(s):** `Context`, `Acceptance Criteria`, `Constraints`, `Review Notes`, `Acceptance criteria check` (+558 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `$defs` connect `$defs` to `Environment`, `properties`, `Platform`, `ArtifactReference`, `RequestConstraints`?**
-  _High betweenness centrality (0.021) - this node is a cross-community bridge._
-- **Why does `$defs` connect `enum` to `Environment`, `properties`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **Why does `properties` connect `properties` to `Environment`, `properties`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
-- **What connects `Grill Gate`, `Context`, `Acceptance Criteria` to the rest of the system?**
-  _556 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `$defs` connect `$defs` to `RequestConstraints`, `ArtifactReference`, `ExecutionContext`, `properties`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Why does `$defs` connect `enum` to `properties`, `properties`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
+- **Why does `properties` connect `properties` to `properties`, `properties`?**
+  _High betweenness centrality (0.009) - this node is a cross-community bridge._
+- **Are the 14 inferred relationships involving `load_config()` (e.g. with `SentinelConfig` and `ConfigurationError`) actually correct?**
+  _`load_config()` has 14 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 5 inferred relationships involving `SentinelConfig` (e.g. with `_env_overrides()` and `load_config()`) actually correct?**
+  _`SentinelConfig` has 5 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Context`, `Acceptance Criteria`, `Constraints` to the rest of the system?**
+  _563 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `enum` be split into smaller, more focused modules?**
-  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
-- **Should `properties` be split into smaller, more focused modules?**
-  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
-- **Should `ExecutionContext.schema.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.046511627906976744 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.045454545454545456 - nodes in this community are weakly interconnected._

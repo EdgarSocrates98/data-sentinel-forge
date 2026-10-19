@@ -1,0 +1,6 @@
+26/10/19 13:00:00 INFO PythonRunner: Running python task
+26/10/19 13:00:12 ERROR Executor: Python worker exited unexpectedly (crashed)
+org.apache.spark.api.python.PythonException: Traceback (most recent call last):
+  File "worker.py", line 42, in main
+    raise ValueError("bad partition data")
+26/10/19 13:00:13 ERROR TaskSetManager: Task 1.0 in stage 0.0 failed 1 times

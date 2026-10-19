@@ -1,0 +1,4 @@
+26/10/19 10:05:00 INFO GlueContext: Reading catalog table glue_db.orders
+26/10/19 10:05:03 ERROR GlueContext: Failed to read table metadata
+com.amazonaws.services.glue.model.AccessDeniedException: User: arn:aws:sts::123456789012:assumed-role/GlueJobRole/GlueJobRunner is not authorized to perform: glue:GetTable on resource: arn:aws:glue:us-east-1:123456789012:table/glue_db/orders (Service: AWSGlue; Status Code: 403)
+26/10/19 10:05:04 ERROR Job: Job run failed

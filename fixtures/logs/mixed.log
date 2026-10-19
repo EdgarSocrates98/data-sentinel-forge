@@ -1,0 +1,4 @@
+26/10/19 20:00:00 INFO Job: jr_mixed starting
+26/10/19 20:01:10 ERROR GlueContext: AccessDeniedException: User: arn:aws:sts::123:assumed-role/R/x is not authorized to perform: s3:GetObject
+26/10/19 20:02:20 ERROR Executor: java.lang.OutOfMemoryError: GC overhead limit exceeded
+26/10/19 20:02:21 ERROR Job: failed

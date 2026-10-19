@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0005.implement.claude.md)"
+  ],
+  "created_at": "2026-10-19T23:34:19+00:00",
+  "id": "ds-0005",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0005.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0005.md",
+  "spec_sha256": "6872cb6b0602d8d3a98cda507bc9b690856438c67bbee7c8901566fc7673b46d",
+  "status": "planned",
+  "title": "Analyzer protocol and deterministic Spark/Glue log analyzer"
+}
