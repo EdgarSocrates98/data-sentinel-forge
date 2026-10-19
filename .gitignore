@@ -26,3 +26,7 @@ data/sentinel.db
 .idea/
 .vscode/
 .DS_Store
+
+graphify-out/
+prompt_evo*md
+prompt_inicial.md
