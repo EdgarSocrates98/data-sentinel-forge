@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "AccessMetadata": {
+      "additionalProperties": false,
+      "description": "How an evidence artifact was accessed.",
+      "properties": {
+        "access_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Method"
+        },
+        "accessed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accessed By"
+        }
+      },
+      "title": "AccessMetadata",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "description": "How a piece of evidence was obtained (\u00a72.4).",
+      "enum": [
+        "declared",
+        "static_inferred",
+        "observed"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A traceable excerpt supporting findings (\u00a74).",
+  "properties": {
+    "access_metadata": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AccessMetadata"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "captured_at": {
+      "format": "date-time",
+      "title": "Captured At",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "content_hash": {
+      "minLength": 1,
+      "title": "Content Hash",
+      "type": "string"
+    },
+    "evidence_id": {
+      "title": "Evidence Id",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/EvidenceProvenance"
+    },
+    "sanitized_excerpt": {
+      "title": "Sanitized Excerpt",
+      "type": "string"
+    },
+    "source": {
+      "minLength": 1,
+      "title": "Source",
+      "type": "string"
+    },
+    "source_location": {
+      "minLength": 1,
+      "title": "Source Location",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source",
+    "source_location",
+    "captured_at",
+    "content_hash",
+    "sanitized_excerpt",
+    "provenance",
+    "confidence"
+  ],
+  "title": "Evidence",
+  "type": "object"
+}

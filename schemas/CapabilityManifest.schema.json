@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "Platform": {
+      "description": "Execution platform an artifact or workload belongs to.",
+      "enum": [
+        "spark",
+        "aws_glue",
+        "databricks",
+        "trino",
+        "athena",
+        "iceberg",
+        "generic"
+      ],
+      "title": "Platform",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Declared capabilities and limitations of an analyzer/component (\u00a74).",
+  "properties": {
+    "capability_id": {
+      "title": "Capability Id",
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "required_permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Permissions",
+      "type": "array"
+    },
+    "supported_operations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported Operations",
+      "type": "array"
+    },
+    "supported_platforms": {
+      "items": {
+        "$ref": "#/$defs/Platform"
+      },
+      "title": "Supported Platforms",
+      "type": "array"
+    },
+    "supported_runtimes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported Runtimes",
+      "type": "array"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "capability_id",
+    "version"
+  ],
+  "title": "CapabilityManifest",
+  "type": "object"
+}

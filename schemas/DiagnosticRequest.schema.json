@@ -1,0 +1,265 @@
+{
+  "$defs": {
+    "AnalysisMode": {
+      "description": "Analysis depth profile (\u00a76).",
+      "enum": [
+        "economy",
+        "balanced",
+        "deep",
+        "offline"
+      ],
+      "title": "AnalysisMode",
+      "type": "string"
+    },
+    "ArtifactReference": {
+      "additionalProperties": false,
+      "description": "Pointer to an input artifact (file, table, URI) under analysis.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "uri": {
+          "minLength": 1,
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uri"
+      ],
+      "title": "ArtifactReference",
+      "type": "object"
+    },
+    "Environment": {
+      "additionalProperties": false,
+      "description": "Environment a workload ran in.",
+      "properties": {
+        "details": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Details",
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Environment",
+      "type": "object"
+    },
+    "ExecutionContext": {
+      "additionalProperties": false,
+      "description": "Context identifying the workload execution under analysis.",
+      "properties": {
+        "application_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Application Id"
+        },
+        "environment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Environment"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "extra": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Extra",
+          "type": "object"
+        },
+        "job_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Job Name"
+        }
+      },
+      "title": "ExecutionContext",
+      "type": "object"
+    },
+    "Platform": {
+      "description": "Execution platform an artifact or workload belongs to.",
+      "enum": [
+        "spark",
+        "aws_glue",
+        "databricks",
+        "trino",
+        "athena",
+        "iceberg",
+        "generic"
+      ],
+      "title": "Platform",
+      "type": "string"
+    },
+    "RequestConstraints": {
+      "additionalProperties": false,
+      "description": "Limits the caller imposes on the analysis.",
+      "properties": {
+        "allowed_roots": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Roots",
+          "type": "array"
+        },
+        "max_file_bytes": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max File Bytes"
+        },
+        "timeout_seconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeout Seconds"
+        }
+      },
+      "title": "RequestConstraints",
+      "type": "object"
+    },
+    "SourceType": {
+      "description": "Kind of input artifact described by a DiagnosticRequest.",
+      "enum": [
+        "log",
+        "sql_query",
+        "spark_event_log",
+        "physical_plan",
+        "metrics",
+        "config",
+        "other"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Input describing what should be analyzed and how (\u00a74).",
+  "properties": {
+    "analysis_mode": {
+      "$ref": "#/$defs/AnalysisMode",
+      "default": "balanced"
+    },
+    "artifact_references": {
+      "items": {
+        "$ref": "#/$defs/ArtifactReference"
+      },
+      "minItems": 1,
+      "title": "Artifact References",
+      "type": "array"
+    },
+    "constraints": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RequestConstraints"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "execution_context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExecutionContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "platform": {
+      "$ref": "#/$defs/Platform"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "runtime_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runtime Version"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType"
+    }
+  },
+  "required": [
+    "source_type",
+    "artifact_references",
+    "platform"
+  ],
+  "title": "DiagnosticRequest",
+  "type": "object"
+}

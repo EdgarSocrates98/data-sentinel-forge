@@ -1,0 +1,173 @@
+{
+  "$defs": {
+    "ExecutionStatus": {
+      "description": "Status of a job execution described by ExecutionMetadata.",
+      "enum": [
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELLED",
+        "UNKNOWN"
+      ],
+      "title": "ExecutionStatus",
+      "type": "string"
+    },
+    "Platform": {
+      "description": "Execution platform an artifact or workload belongs to.",
+      "enum": [
+        "spark",
+        "aws_glue",
+        "databricks",
+        "trino",
+        "athena",
+        "iceberg",
+        "generic"
+      ],
+      "title": "Platform",
+      "type": "string"
+    },
+    "ResourceContext": {
+      "additionalProperties": false,
+      "description": "Observed resource shape of a workload execution.",
+      "properties": {
+        "details": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Details",
+          "type": "object"
+        },
+        "executor_cores": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Cores"
+        },
+        "executor_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Count"
+        },
+        "executor_memory": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor Memory"
+        }
+      },
+      "title": "ResourceContext",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Metadata about the job run the artifacts came from (\u00a74).",
+  "properties": {
+    "end_time": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "End Time"
+    },
+    "engine": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Engine"
+    },
+    "platform": {
+      "$ref": "#/$defs/Platform"
+    },
+    "resource_context": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResourceContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Run Id"
+    },
+    "runtime": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Runtime"
+    },
+    "start_time": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Start Time"
+    },
+    "status": {
+      "$ref": "#/$defs/ExecutionStatus",
+      "default": "UNKNOWN"
+    }
+  },
+  "required": [
+    "platform"
+  ],
+  "title": "ExecutionMetadata",
+  "type": "object"
+}

@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "Environment": {
+      "additionalProperties": false,
+      "description": "Environment a workload ran in.",
+      "properties": {
+        "details": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Details",
+          "type": "object"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "region": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Region"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "Environment",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Context identifying the workload execution under analysis.",
+  "properties": {
+    "application_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Application Id"
+    },
+    "environment": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Environment"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "extra": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Extra",
+      "type": "object"
+    },
+    "job_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Job Name"
+    }
+  },
+  "title": "ExecutionContext",
+  "type": "object"
+}

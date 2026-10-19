@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0002.implement.claude.md)"
+  ],
+  "created_at": "2026-10-19T23:26:50+00:00",
+  "id": "ds-0002",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0002.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0002.md",
+  "spec_sha256": "e0a29c0717df4170c837ae60fe88a40c0b8bd9f2cbd9d1789e972cb69d74802c",
+  "status": "planned",
+  "title": "Core domain contracts and versioning"
+}

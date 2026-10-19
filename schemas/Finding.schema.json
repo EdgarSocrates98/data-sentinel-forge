@@ -1,0 +1,107 @@
+{
+  "$defs": {
+    "FindingCategory": {
+      "description": "Classification of a finding's technical domain.",
+      "enum": [
+        "out_of_memory",
+        "disk_space",
+        "data_skew",
+        "configuration",
+        "permissions",
+        "network_io",
+        "dependency",
+        "timeout",
+        "executor_loss",
+        "sql_antipattern",
+        "data_quality",
+        "cost",
+        "security",
+        "unknown"
+      ],
+      "title": "FindingCategory",
+      "type": "string"
+    },
+    "FindingStatus": {
+      "description": "Certainty taxonomy for findings (\u00a72.1).",
+      "enum": [
+        "CONFIRMED",
+        "PROBABLE",
+        "POSSIBLE",
+        "UNKNOWN"
+      ],
+      "title": "FindingStatus",
+      "type": "string"
+    },
+    "Severity": {
+      "description": "Impact severity of a finding or recommendation.",
+      "enum": [
+        "INFO",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "An evidence-backed diagnostic conclusion (\u00a74).",
+  "properties": {
+    "alternatives": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Alternatives",
+      "type": "array"
+    },
+    "category": {
+      "$ref": "#/$defs/FindingCategory"
+    },
+    "evidence_ids": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Ids",
+      "type": "array"
+    },
+    "explanation": {
+      "minLength": 1,
+      "title": "Explanation",
+      "type": "string"
+    },
+    "finding_id": {
+      "title": "Finding Id",
+      "type": "string"
+    },
+    "recommendations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Recommendations",
+      "type": "array"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "status": {
+      "$ref": "#/$defs/FindingStatus"
+    },
+    "validation_steps": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Validation Steps",
+      "type": "array"
+    }
+  },
+  "required": [
+    "category",
+    "severity",
+    "status",
+    "explanation"
+  ],
+  "title": "Finding",
+  "type": "object"
+}
