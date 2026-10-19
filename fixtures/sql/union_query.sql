@@ -1,0 +1,3 @@
+SELECT id FROM a
+UNION
+SELECT id FROM b;

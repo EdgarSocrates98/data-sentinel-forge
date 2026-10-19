@@ -30,6 +30,7 @@ class AnalysisResult:
     findings: list[Finding]
     evidence: list[Evidence]
     limitations: list[str]
+    metadata: dict[str, object] = field(default_factory=dict)
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 

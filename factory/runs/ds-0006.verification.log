@@ -1,0 +1,18 @@
+== ds-0006 verification evidence (2026-10-19T20:41:25-03:00) ==
+
+$ uv run pytest tests/unit -q -k sql
+.....................                                                    [100%]
+21 passed, 61 deselected in 0.23s
+[exit 0]
+
+$ uv run python -c "import sqlglot; print(sqlglot.__version__)"
+30.23.0
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 46 source files
+[exit 0]
