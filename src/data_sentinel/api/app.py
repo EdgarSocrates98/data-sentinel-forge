@@ -31,6 +31,12 @@ except ImportError as exc:  # pragma: no cover
         "pip install 'data-sentinel[api]'"
     ) from exc
 
+from data_sentinel.agents.memory import remember
+from data_sentinel.agents.operations import (
+    OperationalTrigger,
+    TriggerKind,
+    trigger_investigation,
+)
 from data_sentinel.core.contracts.enums import Severity
 from data_sentinel.core.contracts.snapshot import (
     BaselineKind,
@@ -185,6 +191,10 @@ def _secretish(key: str) -> bool:
 class InvestigationCreate(BaseModel):
     problem: str = Field(min_length=1, max_length=4000)
     files: dict[str, str] = Field(default_factory=dict)
+    # §9.1 — trigger operacional opcional: {kind, summary,
+    # source_refs[], payload{}}. Quando presente, o problema é
+    # derivado do trigger (problem vira contexto adicional).
+    trigger: dict[str, Any] | None = None
 
 class CompareBody(BaseModel):
     snapshot_id: str
@@ -370,12 +380,28 @@ def create_app(allowed_roots: list[str] | None = None,
                        {"investigation_id": inv_id})
             try:
                 state.store.transition(inv_id, InvState.RUNNING)
-                rep = await asyncio.to_thread(
-                    investigate, body.problem, files)
+                if body.trigger is not None:
+                    trig = OperationalTrigger(
+                        kind=TriggerKind(
+                            str(body.trigger.get("kind", "alert"))),
+                        summary=str(body.trigger.get("summary",
+                                                     body.problem)),
+                        source_refs=[str(r) for r in body.trigger.get(
+                            "source_refs", [])][:50],
+                        payload=dict(body.trigger.get("payload", {})))
+                    rep = await asyncio.to_thread(
+                        trigger_investigation, trig, files)
+                else:
+                    rep = await asyncio.to_thread(
+                        investigate, body.problem, files)
                 rep.investigation_id = inv_id
                 rep.report_id = inv_id
                 state.store.save_report(
                     inv_id, rep.model_dump(mode="json"))
+                with contextlib.suppress(Exception):
+                    # §9.5 — resumo sanitizado na memória; nunca falha
+                    # a investigação por causa da memória
+                    remember(rep, state.store.db_path)
                 for t in rep.tools_used:
                     state.emit(inv_id, "TOOL_COMPLETED", {"tool": t})
                 for h in rep.hypotheses_supported:
