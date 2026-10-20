@@ -27,6 +27,8 @@ from data_sentinel.core.contracts import (
     OptimizationRecommendation,
     RequestConstraints,
     ResourceContext,
+    ExternalDiagnosticBundle,
+    CapabilityDescriptor,
 )
 
 ENTITIES: dict[str, Any] = {
@@ -50,6 +52,8 @@ ENTITIES: dict[str, Any] = {
         LakehouseOperation,
         RequestConstraints,
         ResourceContext,
+        ExternalDiagnosticBundle,
+        CapabilityDescriptor,
     )
 }
 

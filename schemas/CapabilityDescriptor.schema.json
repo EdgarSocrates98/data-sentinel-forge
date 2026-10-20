@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "\u00a73.1 capability descriptor for discovery (ds-0035 consumer).",
+  "properties": {
+    "capability_id": {
+      "title": "Capability Id",
+      "type": "string"
+    },
+    "input_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Types",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "output_types": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Types",
+      "type": "array"
+    },
+    "permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Permissions",
+      "type": "array"
+    },
+    "provider": {
+      "title": "Provider",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "capability_id",
+    "provider",
+    "version"
+  ],
+  "title": "CapabilityDescriptor",
+  "type": "object"
+}

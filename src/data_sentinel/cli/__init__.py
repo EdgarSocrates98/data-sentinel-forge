@@ -279,8 +279,18 @@ def capabilities(
     json_mode: Annotated[
         bool, typer.Option("--json", help="Saída em JSON.")
     ] = False,
+    descriptors: Annotated[
+        bool,
+        typer.Option("--descriptors",
+                     help="Emite CapabilityDescriptor (interop §5) "
+                          "para descoberta por orquestradores."),
+    ] = False,
 ) -> None:
     """Lista as capacidades declaradas dos analyzers registrados."""
+    if descriptors:
+        from data_sentinel.diagnostics.capabilities import all_descriptors
+        _emit_json([d.model_dump(mode="json") for d in all_descriptors()])
+        return
     manifests = [a.capabilities() for a in registry.all()]
     if json_mode:
         _emit_json([m.model_dump(mode="json") for m in manifests])
@@ -362,12 +372,14 @@ report_app = typer.Typer(
     invoke_without_command=True,
 )
 lakehouse_app = typer.Typer(help="Diagnósticos lakehouse (Iceberg, acesso, operações).")
+import_app = typer.Typer(help="Importação opcional de bundles externos (Doctor).")
 
 app.add_typer(glue_app, name="glue")
 app.add_typer(spark_app, name="spark")
 app.add_typer(sql_app, name="sql")
 app.add_typer(report_app, name="report")
 app.add_typer(lakehouse_app, name="lakehouse")
+app.add_typer(import_app, name="import")
 
 _COMMON_JSON = Annotated[bool, typer.Option("--json", help="Saída em JSON.")]
 _QUIET = Annotated[bool, typer.Option("--quiet", "-q", help="Somente resumo.")]
@@ -851,3 +863,46 @@ def lakehouse_compat(
         typer.echo(f"  - {c}")
     for r in a.documentation_references:
         typer.echo(f"  ref: {r}")
+
+
+@import_app.command("doctor-bundle")
+def import_doctor_bundle_cmd(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
+                                       help="Bundle JSON produzido pelo Forge Doctor.")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Importa findings de um bundle Forge Doctor (offline, opcional).
+
+    Findings importados preservam proveniência externa e nunca viram
+    CONFIRMED automaticamente.
+    """
+    from data_sentinel.adapters.doctor import DoctorBundleError, import_doctor_bundle
+
+    try:
+        result = import_doctor_bundle(file)
+    except DoctorBundleError as exc:
+        typer.echo(f"erro: {exc}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+
+    if json_mode:
+        _emit_json({
+            "format": result.format,
+            "producer": result.bundle.producer.model_dump(mode="json"),
+            "findings": [f.model_dump(mode="json") for f in result.findings],
+            "evidence": [e.model_dump(mode="json") for e in result.evidence],
+            "unknowns": len(result.bundle.unknowns),
+            "limitations": result.bundle.limitations,
+            "warnings": result.warnings,
+        })
+        return
+    typer.echo(
+        f"bundle {result.format} de {result.bundle.producer.name}"
+        f" {result.bundle.producer.version or ''}".strip()
+    )
+    typer.echo(f"findings importados: {len(result.findings)}")
+    for w in result.warnings:
+        typer.echo(f"  aviso: {w}")
+    for f in result.findings[:20]:
+        typer.echo(f"  [{f.severity.value}/{f.status.value}] {f.explanation[:120]}")
+    if len(result.findings) > 20:
+        typer.echo(f"  ... +{len(result.findings) - 20}")
