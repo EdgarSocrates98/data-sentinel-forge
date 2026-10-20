@@ -169,6 +169,58 @@ export interface AnalyzeRequest {
   file: string;
 }
 
+/* ---- Typed shapes inside analyze responses (per-tool payloads). ----
+   The endpoint returns `dict[str, Any]`; these interfaces document the
+   known per-tool shapes and are populated via defensive guards, never
+   assumed. */
+
+/** DatasetReference (core/contracts/quality.py). */
+export interface DatasetRef {
+  namespace: string;
+  name: string;
+  platform: string;
+  catalog: string;
+  account: string;
+  region: string;
+  version: string;
+  identifier: string;
+}
+
+/** QualityObservation (core/contracts/quality.py). */
+export interface QualityObservation {
+  observation_id: string;
+  rule_id: string;
+  dataset: DatasetRef | null;
+  run_id: string;
+  /** ISO-8601 or null — may be absent on the wire. */
+  timestamp: string | null;
+  observed_value: unknown;
+  expected_value: unknown;
+  /** PASS | FAIL | WARN | UNKNOWN */
+  status: string;
+  source: string;
+  metric_name: string;
+  unit: string;
+  provenance: string;
+  limitations: string[];
+}
+
+/** Payload of `sentinel.quality.assess` through POST /analyze. */
+export interface QualityAssessResult {
+  observations: QualityObservation[];
+  count: number;
+}
+
+/** Payload of `sentinel.lineage.ingest` through POST /analyze. */
+export interface LineageIngestResult {
+  events: number;
+  /** observed | static */
+  kind: string;
+  /** dataset key ("namespace/name") → downstream dataset keys. */
+  downstream: Record<string, string[]>;
+  limitations: string[];
+}
+
 /**
  * One message received on the SSE stream
  * `GET /api/v1/investigations/{id}/stream`. The backend emits the event

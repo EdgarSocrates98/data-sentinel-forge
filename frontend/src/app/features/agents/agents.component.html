@@ -1,0 +1,201 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.agents.title" | t }}</h1>
+    <p class="lead">{{ "pages.agents.lead" | t }}</p>
+  </header>
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="agents-error-title">
+      <h2 id="agents-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "agents.error" | t }}</p>
+      <button type="button" class="ds-btn" (click)="load()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (state() === "ok") {
+    <!-- ===== Specialist registry ===== -->
+    <section class="ds-card panel" aria-labelledby="registry-title">
+      <h2 id="registry-title">
+        {{ "agents.registry.title" | t }} ({{ sortedAgents().length }})
+      </h2>
+      @if (sortedAgents().length === 0) {
+        <p class="muted">{{ "agents.registry.empty" | t }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption class="sr-only">
+              {{ "agents.registry.caption" | t }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ "agents.col.id" | t }}</th>
+                <th scope="col">{{ "agents.col.name" | t }}</th>
+                <th scope="col">{{ "agents.col.responsibility" | t }}</th>
+                <th scope="col">{{ "agents.col.tools" | t }}</th>
+                <th scope="col">{{ "agents.col.policy" | t }}</th>
+                <th scope="col">{{ "agents.col.limits" | t }}</th>
+                <th scope="col">{{ "agents.col.model" | t }}</th>
+                <th scope="col">{{ "agents.col.version" | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of sortedAgents(); track a.agent_id) {
+                <tr>
+                  <td><code>{{ a.agent_id }}</code></td>
+                  <td>{{ a.name }}</td>
+                  <td class="resp">{{ a.responsibility }}</td>
+                  <td>
+                    @if (a.allowed_tools.length) {
+                      <ul class="tool-chips">
+                        @for (t of a.allowed_tools; track t) {
+                          <li><code>{{ t }}</code></li>
+                        }
+                      </ul>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                  <td><code>{{ a.policy }}</code></td>
+                  <td class="limits">
+                    {{ "agents.limits.iterations" | t }}: {{ a.max_iterations }}<br />
+                    {{ "agents.limits.toolCalls" | t }}: {{ a.max_tool_calls }}
+                  </td>
+                  <td><code>{{ a.model_profile }}</code></td>
+                  <td>{{ a.version }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <!-- ===== Tool manifest ===== -->
+    <section class="ds-card panel" aria-labelledby="tools-title">
+      <details class="tools-details">
+        <summary id="tools-title">
+          <h2 class="inline-heading">
+            {{ "agents.tools.title" | t }} ({{ tools().length }})
+          </h2>
+        </summary>
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption class="sr-only">{{ "agents.tools.caption" | t }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ "agents.col.id" | t }}</th>
+                <th scope="col">{{ "agents.col.description" | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of tools(); track t.name) {
+                <tr>
+                  <td><code>{{ t.name }}</code></td>
+                  <td>{{ t.description }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+
+    <!-- ===== Per-investigation activity ===== -->
+    <section class="ds-card panel" aria-labelledby="activity-title">
+      <h2 id="activity-title">{{ "agents.activity.title" | t }}</h2>
+      <p class="muted">{{ "agents.activity.hint" | t }}</p>
+
+      @if (invState() === "ok" && investigations().length === 0) {
+        <p class="muted">{{ "agents.activity.empty" | t }}</p>
+        <a class="ds-btn ds-btn--primary" routerLink="/investigations/new">
+          {{ "investigations.new.action" | t }}
+        </a>
+      }
+
+      @if (investigations().length) {
+        <div class="field">
+          <label for="inv-select">{{ "graph.picker.label" | t }}</label>
+          <select
+            id="inv-select"
+            [value]="selectedInv()"
+            (change)="selectInvestigation($any($event.target).value)"
+          >
+            <option value="">
+              {{ "graph.picker.placeholder" | t }}
+            </option>
+            @for (inv of investigations(); track inv.investigation_id) {
+              <option [value]="inv.investigation_id">
+                {{ inv.investigation_id }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+
+      <div aria-live="polite">
+        @if (reportState() === "loading") {
+          <p class="muted" role="status">{{ "status.loading" | t }}</p>
+        }
+        @if (reportState() === "error") {
+          <p class="field-error" role="alert">
+            {{ "graph.loadError" | t }}
+          </p>
+        }
+      </div>
+
+      @if (report(); as rep) {
+        <dl class="kv stats">
+          <div>
+            <dt>{{ "investigations.detail.tokens" | t }}</dt>
+            <dd>{{ rep.tokens_used }}</dd>
+          </div>
+          <div>
+            <dt>{{ "investigations.detail.cost" | t }}</dt>
+            <dd>{{ rep.cost_usd }}</dd>
+          </div>
+          <div>
+            <dt>{{ "investigations.detail.duration" | t }}</dt>
+            <dd>{{ rep.duration_seconds }}s</dd>
+          </div>
+        </dl>
+        <p class="muted small">{{ "agents.activity.noBudget" | t }}</p>
+
+        <div class="chips-block">
+          <h3>{{ "investigations.detail.agentsUsed" | t }}</h3>
+          @if (rep.agents_used.length) {
+            <ul class="chips">
+              @for (a of rep.agents_used; track a) {
+                <li class="ds-badge">{{ a }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">{{ "investigations.detail.none" | t }}</p>
+          }
+        </div>
+        <div class="chips-block">
+          <h3>{{ "investigations.detail.toolsUsed" | t }}</h3>
+          @if (rep.tools_used.length) {
+            <ul class="chips">
+              @for (t of rep.tools_used; track t) {
+                <li class="ds-badge">{{ t }}</li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">{{ "investigations.detail.none" | t }}</p>
+          }
+        </div>
+        <p class="open-link">
+          <a [routerLink]="['/investigations', rep.investigation_id]">
+            {{ "investigations.open" | t }} →
+          </a>
+        </p>
+      }
+    </section>
+  }
+</article>

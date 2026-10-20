@@ -229,53 +229,217 @@ export const PT_BR: TranslationDict = {
 
   "pages.workloads.title": "Workloads — Glue & EMR",
   "pages.workloads.lead":
-    "Investigação operacional dos motores AWS suportados: jobs Glue e clusters EMR.",
-  "pages.workloads.planned.0":
-    "Glue: job, run ID, status, runtime, início/fim, duração, erros, métricas e findings",
-  "pages.workloads.planned.1":
-    "EMR on EC2: clusters, steps e artefatos exportados quando disponíveis",
-  "pages.workloads.planned.2":
-    "Somente fontes offline/exportadas até existir conector online funcional",
+    "Análise offline de artefatos exportados: Glue, EMR, Spark, SQL, Iceberg, Lake Formation e IAM via ferramentas reais do registro.",
+
+  "workloads.analyze.title": "Análise por arquivo",
+  "workloads.analyze.hint":
+    "Escolha uma ferramenta do registro e um arquivo local acessível ao processo da API. Somente ferramentas que aceitam um único arquivo (`file`) são listadas — o endpoint POST /api/v1/analyze/{id} não aceita outros parâmetros.",
+  "workloads.analyze.tool": "Analisador",
+  "workloads.analyze.submit": "Analisar",
+  "workloads.analyze.running": "Analisando…",
+  "workloads.analyze.error": "A análise falhou.",
+  "workloads.emr.title": "EMR",
+  "workloads.emr.hint":
+    "Diagnóstico das três modalidades EMR a partir de artefatos exportados (modo offline — nenhuma coleta direta em cluster ou Kubernetes).",
+  "workloads.emr.platform": "Modalidade EMR",
+  "workloads.emr.platform.ec2": "EMR on EC2",
+  "workloads.emr.platform.serverless": "EMR Serverless",
+  "workloads.emr.platform.eks": "EMR on EKS",
+  "workloads.emr.unavailable": "indisponível no registro",
+  "workloads.emr.cost.title": "Estimativa de custo EMR",
+  "workloads.emr.cost.unavailable":
+    "A estimativa de custo não é baseada em arquivo — exige parâmetros que este endpoint não encaminha. Não está disponível via esta API ainda; nenhum custo é estimado ou inventado aqui.",
+  "workloads.emr.cost.required": "entradas exigidas pela ferramenta",
+  "workloads.emr.cost.notRegistered":
+    "A ferramenta de estimativa de custo não está registrada no manifesto.",
+  "workloads.results.title": "Resultados da sessão",
+  "workloads.results.hint":
+    "Resultados obtidos nesta sessão — marque dois ou mais para comparar.",
+  "workloads.compare.select": "Incluir na comparação",
+  "workloads.compare.title": "Comparação entre resultados",
+  "workloads.compare.hint":
+    "Diferenças descritivas entre os resultados selecionados — somente campos reais dos payloads.",
+  "workloads.compare.caption":
+    "Métricas lado a lado dos resultados selecionados",
+  "workloads.compare.metric": "Métrica",
+  "workloads.compare.result": "Resultado",
+  "workloads.compare.tool": "Ferramenta",
+  "workloads.compare.file": "Arquivo",
+  "workloads.compare.findingsTotal": "Findings (total)",
+  "workloads.compare.severityPrefix": "Findings por severidade",
+  "workloads.compare.statusPrefix": "Findings por status",
+  "workloads.compare.limitations": "Limitações declaradas",
+  "workloads.compare.disclaimer":
+    "Comparação descritiva: diferenças são destacadas, mas nenhuma modalidade é declarada superior — custos exibidos seriam estimativas, nunca valores faturados.",
 
   "pages.sparkPlans.title": "Planos Spark",
   "pages.sparkPlans.lead":
-    "Explorador de planos de execução Spark (EXPLAIN) com árvore de operadores e métricas de custo.",
-  "pages.sparkPlans.planned.0":
-    "Árvore de operadores do plano físico e lógico",
-  "pages.sparkPlans.planned.1":
-    "Métricas de custo, shuffle, skew e estágios",
-  "pages.sparkPlans.planned.2":
-    "Comparação de planos quando múltiplos artefatos estiverem disponíveis",
+    "Explorador de planos de execução Spark: envia um artefato local aos analisadores sentinel.spark.* e renderiza o resultado real.",
+
+  "spark.form.title": "Analisar plano",
+  "spark.form.hint":
+    "Forneça o caminho de um plano físico exportado (texto EXPLAIN, JSON ou artefato aceito pelo analisador).",
+  "spark.form.submit": "Analisar plano",
+  "spark.form.noTools":
+    "Nenhuma ferramenta Spark baseada em arquivo disponível no registro.",
+  "spark.error": "A análise do plano falhou.",
+  "spark.empty.title": "Nenhum plano analisado ainda",
+  "spark.empty.body":
+    "Envie um arquivo de plano para ver findings reais (shuffles, scans, skew, broadcasts). Nenhuma árvore é fabricada — quando o payload não traz estrutura de plano, a tabela de findings é a saída honesta.",
+  "spark.result.title": "Resultado da análise",
+  "spark.tree.title": "Estrutura do plano",
 
   "pages.qualityLineage.title": "Qualidade e linhagem",
   "pages.qualityLineage.lead":
-    "Observações de qualidade de dados e linhagem via eventos OpenLineage.",
-  "pages.qualityLineage.planned.0":
-    "Observações de qualidade associadas a datasets e runs",
-  "pages.qualityLineage.planned.1":
-    "Linhagem dataset→dataset a partir de eventos OpenLineage importados",
-  "pages.qualityLineage.planned.2":
-    "Ligação entre violações de qualidade e findings da investigação",
+    "Observações de qualidade normalizadas e linhagem dataset→dataset derivada de eventos OpenLineage reais.",
+
+  "ql.tabs.label": "Seções de qualidade e linhagem",
+  "ql.tabs.quality": "Qualidade",
+  "ql.tabs.lineage": "Linhagem",
+  "ql.toolNotRegistered": "Ferramenta não registrada no manifesto da API.",
+  "ql.toolNotFileCompatible":
+    "A ferramenta está registrada mas exige entradas além de `file` — não é executável por este endpoint.",
+  "ql.requiredInputs": "entradas exigidas pela ferramenta",
+  "ql.quality.title": "Observações de qualidade",
+  "ql.quality.hint":
+    "Normaliza um export de resultados de qualidade (Great Expectations, Deequ/PyDeequ, linhas genéricas) via sentinel.quality.assess.",
+  "ql.quality.fileHint":
+    "Arquivo de resultados exportado (JSON/JSONL) acessível ao processo da API.",
+  "ql.quality.submit": "Avaliar qualidade",
+  "ql.quality.error": "A avaliação de qualidade falhou.",
+  "ql.quality.count": "observações normalizadas",
+  "ql.quality.empty": "Nenhuma observação reconhecida neste arquivo.",
+  "ql.quality.caption": "Observações de qualidade normalizadas do arquivo",
+  "ql.col.metric": "Métrica",
+  "ql.col.dataset": "Dataset",
+  "ql.col.observed": "Observado",
+  "ql.col.expected": "Esperado",
+  "ql.col.status": "Status",
+  "ql.col.source": "Origem",
+  "ql.col.timestamp": "Timestamp",
+  "ql.col.rule": "Regra",
+  "ql.col.run": "Run",
+  "ql.col.provenance": "Proveniência",
+  "ql.col.unit": "Unidade",
+  "ql.drift.title": "Drift (baseline × atual)",
+  "ql.drift.unavailable":
+    "sentinel.quality.detect_drift exige dois arquivos (baseline + atual) e este endpoint só encaminha um único `file`. A detecção estatística de drift não está disponível via esta API ainda — nenhum resultado é fabricado.",
+  "ql.lineage.title": "Explorador de linhagem",
+  "ql.lineage.hint":
+    "Ingere eventos OpenLineage exportados e deriva a linhagem dataset→dataset real (arestas e nós, sem biblioteca de grafo).",
+  "ql.lineage.fileHint":
+    "Arquivo de eventos OpenLineage (.jsonl) acessível ao processo da API.",
+  "ql.lineage.submit": "Ingerir linhagem",
+  "ql.lineage.error": "A ingestão de linhagem falhou.",
+  "ql.lineage.events": "Eventos ingeridos",
+  "ql.lineage.kind": "Tipo de linhagem",
+  "ql.lineage.datasets": "Datasets",
+  "ql.lineage.edges": "Arestas",
+  "ql.lineage.empty":
+    "Nenhuma relação dataset→dataset derivada destes eventos.",
+  "ql.lineage.datasetsTitle": "Datasets",
+  "ql.lineage.edgesTitle": "Relações dataset→dataset",
+  "ql.lineage.edgesCaption":
+    "Arestas de linhagem: dataset de origem para dataset de destino",
+  "ql.lineage.from": "Origem (dataset)",
+  "ql.lineage.to": "Destino (dataset)",
+  "ql.impact.title": "Análise de impacto",
+  "ql.impact.unavailable":
+    "sentinel.lineage.impact exige um parâmetro `target` que este endpoint não encaminha — não está disponível via esta API ainda.",
+  "ql.impact.potential":
+    "Quando disponível, o impacto reportado é sempre alcançabilidade potencial no grafo — nunca falha comprovadamente propagada.",
 
   "pages.agents.title": "Agentes",
   "pages.agents.lead":
-    "Catálogo de agentes especializados determinísticos e ferramentas registradas.",
-  "pages.agents.planned.0":
-    "Descritores de agentes (GET /api/v1/agents): responsabilidade, ferramentas permitidas e limites",
-  "pages.agents.planned.1":
-    "Manifesto de ferramentas (GET /api/v1/tools) com schemas de entrada",
-  "pages.agents.planned.2":
-    "Atividade de agentes por investigação quando o stream estiver disponível",
+    "Registro real de agentes especializados determinísticos e atividade agêntica por investigação.",
+
+  "agents.error": "Não foi possível carregar o registro de agentes.",
+  "agents.registry.title": "Registro de especialistas",
+  "agents.registry.empty": "Nenhum agente registrado pela API.",
+  "agents.registry.caption":
+    "Agentes especializados registrados na API com ferramentas e limites",
+  "agents.col.id": "ID",
+  "agents.col.name": "Nome",
+  "agents.col.responsibility": "Responsabilidade",
+  "agents.col.tools": "Ferramentas permitidas",
+  "agents.col.policy": "Política",
+  "agents.col.limits": "Limites",
+  "agents.col.model": "Perfil de modelo",
+  "agents.col.version": "Versão",
+  "agents.col.description": "Descrição",
+  "agents.limits.iterations": "máx. iterações",
+  "agents.limits.toolCalls": "máx. chamadas de ferramenta",
+  "agents.tools.title": "Manifesto de ferramentas",
+  "agents.tools.caption": "Ferramentas registradas e descrições",
+  "agents.activity.title": "Atividade por investigação",
+  "agents.activity.hint":
+    "Agentes, ferramentas e tokens reais registrados no relatório de uma investigação concluída.",
+  "agents.activity.empty":
+    "Nenhuma investigação concluída nesta sessão — inicie uma para ver atividade real.",
+  "agents.activity.noBudget":
+    "Valores reportados pelo backend, sem estimativas — orçamento configurável não é exposto por esta API.",
 
   "pages.reports.title": "Relatórios",
   "pages.reports.lead":
-    "Relatórios de investigação concluídos com findings, evidências e proveniência.",
-  "pages.reports.planned.0":
-    "Listagem de investigações concluídas (GET /api/v1/investigations)",
-  "pages.reports.planned.1":
-    "Relatório completo: findings, hipóteses, conclusões, recomendações e limitações",
-  "pages.reports.planned.2":
-    "Exportação do relatório preservando proveniência",
+    "Relatórios de investigação concluídos: exportação JSON real, histórico da sessão e comparação lado a lado.",
+
+  "reports.historyNote":
+    "Histórico da sessão atual: a API mantém investigações em memória por processo — a lista é esvaziada ao reiniciar o backend.",
+  "reports.empty.title": "Nenhum relatório ainda",
+  "reports.empty.body":
+    "Nenhuma investigação concluída neste processo da API — inicie a primeira.",
+  "reports.list.title": "Relatórios disponíveis",
+  "reports.list.caption":
+    "Investigações concluídas nesta sessão com exportação JSON",
+  "reports.filter.label": "Filtrar por id",
+  "reports.filter.noMatch": "Nenhum relatório corresponde ao filtro.",
+  "reports.col.export": "Exportar relatório",
+  "reports.export": "Exportar JSON",
+  "reports.exporting": "Exportando…",
+  "reports.exportError": "Não foi possível exportar o relatório",
+  "reports.cmp.title": "Comparar relatórios",
+  "reports.cmp.hint":
+    "Escolha duas investigações concluídas para um diff lado a lado de métricas reais.",
+  "reports.cmp.needTwo":
+    "São necessárias pelo menos duas investigações concluídas para comparar.",
+  "reports.cmp.pickA": "Relatório A",
+  "reports.cmp.pickB": "Relatório B",
+  "reports.cmp.error": "Não foi possível carregar ambos os relatórios.",
+  "reports.cmp.caption": "Métricas lado a lado dos dois relatórios",
+  "reports.cmp.metric": "Métrica",
+  "reports.cmp.problem": "Problema",
+  "reports.cmp.findingsTotal": "Findings (total)",
+  "reports.cmp.severityPrefix": "Findings por severidade",
+  "reports.cmp.statusPrefix": "Findings por status",
+  "reports.cmp.tokens": "Tokens usados",
+  "reports.cmp.cost": "Custo (USD)",
+  "reports.cmp.duration": "Duração",
+  "reports.cmp.conclusions": "Conclusões (total)",
+  "reports.cmp.limitations": "Limitações (total)",
+  "reports.cmp.toolsTitle": "Ferramentas utilizadas",
+  "reports.cmp.toolsOnlyA": "Somente em A",
+  "reports.cmp.toolsOnlyB": "Somente em B",
+  "reports.cmp.toolsBoth": "Em ambos",
+  "reports.cmp.conclusionsTitle": "Conclusões",
+  "reports.cmp.disclaimer":
+    "Diff descritivo derivado dos payloads reais — não implica melhoria ou regressão sem contexto adicional.",
+
+  "analysis.noFindings": "Nenhum finding produzido por esta análise.",
+  "analysis.findingsCaption": "Findings produzidos pela análise",
+  "analysis.col.severity": "Severidade",
+  "analysis.col.status": "Status",
+  "analysis.col.category": "Categoria",
+  "analysis.col.explanation": "Explicação",
+  "analysis.col.evidence": "Evidências",
+  "analysis.expand": "Expandir",
+  "analysis.collapse": "Recolher",
+  "analysis.evidenceIds": "IDs de evidência",
+  "analysis.recommendations": "Recomendações",
+  "analysis.validationSteps": "Passos de validação",
+  "analysis.alternatives": "Alternativas",
+  "analysis.limitations": "Limitações",
+
+  "investigations.detail.openAgents": "Ver agentes",
 
   "api.error.unreachable":
     "Não foi possível alcançar a API em 127.0.0.1:8790. Verifique se o backend está em execução.",
@@ -502,50 +666,217 @@ export const EN: TranslationDict = {
 
   "pages.workloads.title": "Workloads — Glue & EMR",
   "pages.workloads.lead":
-    "Operational investigation for supported AWS engines: Glue jobs and EMR clusters.",
-  "pages.workloads.planned.0":
-    "Glue: job, run ID, status, runtime, start/end, duration, errors, metrics and findings",
-  "pages.workloads.planned.1":
-    "EMR on EC2: clusters, steps and exported artifacts when available",
-  "pages.workloads.planned.2":
-    "Offline/exported sources only until a working online connector exists",
+    "Offline analysis of exported artifacts: Glue, EMR, Spark, SQL, Iceberg, Lake Formation and IAM via real registry tools.",
+
+  "workloads.analyze.title": "File-based analysis",
+  "workloads.analyze.hint":
+    "Pick a registry tool and a local file path readable by the API process. Only tools accepting a single `file` input are listed — the POST /api/v1/analyze/{id} endpoint forwards no other parameters.",
+  "workloads.analyze.tool": "Analyzer",
+  "workloads.analyze.submit": "Analyze",
+  "workloads.analyze.running": "Analyzing…",
+  "workloads.analyze.error": "The analysis failed.",
+  "workloads.emr.title": "EMR",
+  "workloads.emr.hint":
+    "Diagnostics for the three EMR modalities from exported artifacts (offline mode — no direct cluster or Kubernetes collection).",
+  "workloads.emr.platform": "EMR modality",
+  "workloads.emr.platform.ec2": "EMR on EC2",
+  "workloads.emr.platform.serverless": "EMR Serverless",
+  "workloads.emr.platform.eks": "EMR on EKS",
+  "workloads.emr.unavailable": "unavailable in the registry",
+  "workloads.emr.cost.title": "EMR cost estimation",
+  "workloads.emr.cost.unavailable":
+    "Cost estimation is not file-based — it requires parameters this endpoint does not forward. It is not available via this API yet; no cost is estimated or invented here.",
+  "workloads.emr.cost.required": "inputs required by the tool",
+  "workloads.emr.cost.notRegistered":
+    "The cost-estimation tool is not registered in the manifest.",
+  "workloads.results.title": "Session results",
+  "workloads.results.hint":
+    "Results obtained in this session — select two or more to compare.",
+  "workloads.compare.select": "Include in comparison",
+  "workloads.compare.title": "Cross-result comparison",
+  "workloads.compare.hint":
+    "Descriptive differences between the selected results — only real payload fields.",
+  "workloads.compare.caption":
+    "Side-by-side metrics of the selected results",
+  "workloads.compare.metric": "Metric",
+  "workloads.compare.result": "Result",
+  "workloads.compare.tool": "Tool",
+  "workloads.compare.file": "File",
+  "workloads.compare.findingsTotal": "Findings (total)",
+  "workloads.compare.severityPrefix": "Findings by severity",
+  "workloads.compare.statusPrefix": "Findings by status",
+  "workloads.compare.limitations": "Declared limitations",
+  "workloads.compare.disclaimer":
+    "Descriptive comparison: differences are highlighted, but no modality is declared superior — any displayed cost would be an estimate, never billed usage.",
 
   "pages.sparkPlans.title": "Spark Plans",
   "pages.sparkPlans.lead":
-    "Spark execution plan explorer (EXPLAIN) with operator tree and cost metrics.",
-  "pages.sparkPlans.planned.0": "Physical and logical plan operator tree",
-  "pages.sparkPlans.planned.1": "Cost, shuffle, skew and stage metrics",
-  "pages.sparkPlans.planned.2":
-    "Plan comparison when multiple artifacts are available",
+    "Spark execution plan explorer: submits a local artifact to the sentinel.spark.* analyzers and renders the real result.",
+
+  "spark.form.title": "Analyze plan",
+  "spark.form.hint":
+    "Provide the path to an exported physical plan (EXPLAIN text, JSON, or any artifact accepted by the analyzer).",
+  "spark.form.submit": "Analyze plan",
+  "spark.form.noTools":
+    "No file-based Spark tool available in the registry.",
+  "spark.error": "The plan analysis failed.",
+  "spark.empty.title": "No plan analyzed yet",
+  "spark.empty.body":
+    "Submit a plan file to see real findings (shuffles, scans, skew, broadcasts). No tree is fabricated — when the payload carries no plan structure, the findings table is the honest output.",
+  "spark.result.title": "Analysis result",
+  "spark.tree.title": "Plan structure",
 
   "pages.qualityLineage.title": "Quality & Lineage",
   "pages.qualityLineage.lead":
-    "Data quality observations and lineage from OpenLineage events.",
-  "pages.qualityLineage.planned.0":
-    "Quality observations linked to datasets and runs",
-  "pages.qualityLineage.planned.1":
-    "Dataset-to-dataset lineage from imported OpenLineage events",
-  "pages.qualityLineage.planned.2":
-    "Link between quality violations and investigation findings",
+    "Normalized quality observations and dataset→dataset lineage derived from real OpenLineage events.",
+
+  "ql.tabs.label": "Quality and lineage sections",
+  "ql.tabs.quality": "Quality",
+  "ql.tabs.lineage": "Lineage",
+  "ql.toolNotRegistered": "Tool not registered in the API manifest.",
+  "ql.toolNotFileCompatible":
+    "The tool is registered but requires inputs beyond `file` — it cannot run through this endpoint.",
+  "ql.requiredInputs": "inputs required by the tool",
+  "ql.quality.title": "Quality observations",
+  "ql.quality.hint":
+    "Normalizes an exported quality result file (Great Expectations, Deequ/PyDeequ, generic rows) via sentinel.quality.assess.",
+  "ql.quality.fileHint":
+    "Exported results file (JSON/JSONL) readable by the API process.",
+  "ql.quality.submit": "Assess quality",
+  "ql.quality.error": "The quality assessment failed.",
+  "ql.quality.count": "normalized observations",
+  "ql.quality.empty": "No observation recognized in this file.",
+  "ql.quality.caption": "Normalized quality observations from the file",
+  "ql.col.metric": "Metric",
+  "ql.col.dataset": "Dataset",
+  "ql.col.observed": "Observed",
+  "ql.col.expected": "Expected",
+  "ql.col.status": "Status",
+  "ql.col.source": "Source",
+  "ql.col.timestamp": "Timestamp",
+  "ql.col.rule": "Rule",
+  "ql.col.run": "Run",
+  "ql.col.provenance": "Provenance",
+  "ql.col.unit": "Unit",
+  "ql.drift.title": "Drift (baseline × current)",
+  "ql.drift.unavailable":
+    "sentinel.quality.detect_drift requires two files (baseline + current) and this endpoint only forwards a single `file`. Statistical drift detection is not available via this API yet — no result is fabricated.",
+  "ql.lineage.title": "Lineage explorer",
+  "ql.lineage.hint":
+    "Ingests exported OpenLineage events and derives the real dataset→dataset lineage (edges and nodes, no graph library).",
+  "ql.lineage.fileHint":
+    "OpenLineage events file (.jsonl) readable by the API process.",
+  "ql.lineage.submit": "Ingest lineage",
+  "ql.lineage.error": "Lineage ingestion failed.",
+  "ql.lineage.events": "Ingested events",
+  "ql.lineage.kind": "Lineage kind",
+  "ql.lineage.datasets": "Datasets",
+  "ql.lineage.edges": "Edges",
+  "ql.lineage.empty":
+    "No dataset→dataset relation derived from these events.",
+  "ql.lineage.datasetsTitle": "Datasets",
+  "ql.lineage.edgesTitle": "Dataset→dataset relations",
+  "ql.lineage.edgesCaption":
+    "Lineage edges: source dataset to target dataset",
+  "ql.lineage.from": "Source (dataset)",
+  "ql.lineage.to": "Target (dataset)",
+  "ql.impact.title": "Impact analysis",
+  "ql.impact.unavailable":
+    "sentinel.lineage.impact requires a `target` parameter this endpoint does not forward — it is not available via this API yet.",
+  "ql.impact.potential":
+    "When available, reported impact is always potential graph reachability — never proven propagated failure.",
 
   "pages.agents.title": "Agents",
   "pages.agents.lead":
-    "Catalog of deterministic specialist agents and registered tools.",
-  "pages.agents.planned.0":
-    "Agent descriptors (GET /api/v1/agents): responsibility, allowed tools and limits",
-  "pages.agents.planned.1":
-    "Tool manifest (GET /api/v1/tools) with input schemas",
-  "pages.agents.planned.2":
-    "Per-investigation agent activity once the stream is available",
+    "Real registry of deterministic specialist agents and per-investigation agent activity.",
+
+  "agents.error": "Could not load the agent registry.",
+  "agents.registry.title": "Specialist registry",
+  "agents.registry.empty": "No agents registered by the API.",
+  "agents.registry.caption":
+    "Specialist agents registered in the API with tools and limits",
+  "agents.col.id": "ID",
+  "agents.col.name": "Name",
+  "agents.col.responsibility": "Responsibility",
+  "agents.col.tools": "Allowed tools",
+  "agents.col.policy": "Policy",
+  "agents.col.limits": "Limits",
+  "agents.col.model": "Model profile",
+  "agents.col.version": "Version",
+  "agents.col.description": "Description",
+  "agents.limits.iterations": "max iterations",
+  "agents.limits.toolCalls": "max tool calls",
+  "agents.tools.title": "Tool manifest",
+  "agents.tools.caption": "Registered tools and descriptions",
+  "agents.activity.title": "Per-investigation activity",
+  "agents.activity.hint":
+    "Real agents, tools and tokens recorded in a completed investigation report.",
+  "agents.activity.empty":
+    "No completed investigation in this session — start one to see real activity.",
+  "agents.activity.noBudget":
+    "Values reported by the backend with no estimates — configurable budgets are not exposed by this API.",
 
   "pages.reports.title": "Reports",
   "pages.reports.lead":
-    "Completed investigation reports with findings, evidence and provenance.",
-  "pages.reports.planned.0":
-    "List of completed investigations (GET /api/v1/investigations)",
-  "pages.reports.planned.1":
-    "Full report: findings, hypotheses, conclusions, recommendations and limitations",
-  "pages.reports.planned.2": "Report export preserving provenance",
+    "Completed investigation reports: real JSON export, session history and side-by-side comparison.",
+
+  "reports.historyNote":
+    "Current session history: the API keeps investigations in memory per process — the list is emptied when the backend restarts.",
+  "reports.empty.title": "No reports yet",
+  "reports.empty.body":
+    "No investigation completed in this API process — start the first one.",
+  "reports.list.title": "Available reports",
+  "reports.list.caption":
+    "Investigations completed in this session with JSON export",
+  "reports.filter.label": "Filter by id",
+  "reports.filter.noMatch": "No report matches the filter.",
+  "reports.col.export": "Export report",
+  "reports.export": "Export JSON",
+  "reports.exporting": "Exporting…",
+  "reports.exportError": "Could not export report",
+  "reports.cmp.title": "Compare reports",
+  "reports.cmp.hint":
+    "Pick two completed investigations for a side-by-side diff of real metrics.",
+  "reports.cmp.needTwo":
+    "At least two completed investigations are required to compare.",
+  "reports.cmp.pickA": "Report A",
+  "reports.cmp.pickB": "Report B",
+  "reports.cmp.error": "Could not load both reports.",
+  "reports.cmp.caption": "Side-by-side metrics of the two reports",
+  "reports.cmp.metric": "Metric",
+  "reports.cmp.problem": "Problem",
+  "reports.cmp.findingsTotal": "Findings (total)",
+  "reports.cmp.severityPrefix": "Findings by severity",
+  "reports.cmp.statusPrefix": "Findings by status",
+  "reports.cmp.tokens": "Tokens used",
+  "reports.cmp.cost": "Cost (USD)",
+  "reports.cmp.duration": "Duration",
+  "reports.cmp.conclusions": "Conclusions (total)",
+  "reports.cmp.limitations": "Limitations (total)",
+  "reports.cmp.toolsTitle": "Tools used",
+  "reports.cmp.toolsOnlyA": "Only in A",
+  "reports.cmp.toolsOnlyB": "Only in B",
+  "reports.cmp.toolsBoth": "In both",
+  "reports.cmp.conclusionsTitle": "Conclusions",
+  "reports.cmp.disclaimer":
+    "Descriptive diff derived from real payloads — does not imply improvement or regression without further context.",
+
+  "analysis.noFindings": "No findings produced by this analysis.",
+  "analysis.findingsCaption": "Findings produced by the analysis",
+  "analysis.col.severity": "Severity",
+  "analysis.col.status": "Status",
+  "analysis.col.category": "Category",
+  "analysis.col.explanation": "Explanation",
+  "analysis.col.evidence": "Evidence",
+  "analysis.expand": "Expand",
+  "analysis.collapse": "Collapse",
+  "analysis.evidenceIds": "Evidence IDs",
+  "analysis.recommendations": "Recommendations",
+  "analysis.validationSteps": "Validation steps",
+  "analysis.alternatives": "Alternatives",
+  "analysis.limitations": "Limitations",
+
+  "investigations.detail.openAgents": "View agents",
 
   "api.error.unreachable":
     "Could not reach the API at 127.0.0.1:8790. Check that the backend is running.",

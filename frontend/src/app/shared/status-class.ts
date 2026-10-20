@@ -39,6 +39,20 @@ export function confidenceClass(value: string | number): string {
   }
 }
 
+/** Quality observation verdict → `status-<x>` modifier. */
+export function observationStatusClass(status: string): string {
+  switch (status.toUpperCase()) {
+    case "PASS":
+      return "status-ok";
+    case "FAIL":
+      return "status-error";
+    case "WARN":
+      return "status-warn";
+    default:
+      return "status-neutral";
+  }
+}
+
 /** Investigation/hypothesis lifecycle → `status-<x>` modifier. */
 export function statusClass(status: string): string {
   switch (status.toLowerCase()) {

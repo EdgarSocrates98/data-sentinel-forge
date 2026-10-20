@@ -1,0 +1,139 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.sparkPlans.title" | t }}</h1>
+    <p class="lead">{{ "pages.sparkPlans.lead" | t }}</p>
+  </header>
+
+  <!-- ===== Analysis form ===== -->
+  <section class="ds-card panel" aria-labelledby="spark-form-title">
+    <h2 id="spark-form-title">{{ "spark.form.title" | t }}</h2>
+    <p class="muted">{{ "spark.form.hint" | t }}</p>
+
+    @if (toolsState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (toolsState() === "error") {
+      <p class="field-error" role="alert">
+        {{ "investigations.new.toolsError" | t }}
+      </p>
+      <button type="button" class="ds-btn" (click)="loadTools()">
+        {{ "status.retry" | t }}
+      </button>
+    }
+    @if (toolsState() === "ok" && sparkTools().length === 0) {
+      <p class="muted">{{ "spark.form.noTools" | t }}</p>
+    }
+
+    @if (toolsState() === "ok" && sparkTools().length) {
+      <form class="form" [formGroup]="form" (ngSubmit)="runAnalysis()">
+        <div class="field">
+          <label for="sp-tool">{{ "workloads.analyze.tool" | t }}</label>
+          <select id="sp-tool" formControlName="tool">
+            @for (tool of sparkTools(); track tool.name) {
+              <option [value]="tool.name">{{ tool.name }}</option>
+            }
+          </select>
+          @if (toolDescription(form.controls.tool.value); as desc) {
+            <p class="tool-desc">{{ desc }}</p>
+          }
+        </div>
+        <div class="field">
+          <label for="sp-file">{{ "investigations.new.path" | t }}</label>
+          <input
+            id="sp-file"
+            type="text"
+            formControlName="file"
+            placeholder="/abs/path/plan.txt"
+            aria-describedby="sp-file-hint"
+          />
+          <p id="sp-file-hint" class="tool-desc">
+            {{ "investigations.new.filesHint" | t }}
+          </p>
+        </div>
+        <div class="actions">
+          <button
+            type="submit"
+            class="ds-btn ds-btn--primary"
+            [disabled]="form.invalid || running()"
+          >
+            {{
+              (running()
+                ? "workloads.analyze.running"
+                : "spark.form.submit"
+              ) | t
+            }}
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+
+  <!-- ===== Async status (live region) ===== -->
+  <div aria-live="polite">
+    @if (running()) {
+      <p class="muted" role="status">{{ "workloads.analyze.running" | t }}</p>
+    }
+    @if (analyzeError(); as detail) {
+      <p class="field-error" role="alert">
+        {{ "spark.error" | t }}
+        @if (detail) {
+          <code>{{ detail }}</code>
+        }
+      </p>
+    }
+  </div>
+
+  <!-- ===== Honest empty state ===== -->
+  @if (!result() && !running() && !analyzeError()) {
+    <section class="ds-card panel" aria-labelledby="spark-empty-title">
+      <h2 id="spark-empty-title">{{ "spark.empty.title" | t }}</h2>
+      <p class="muted">{{ "spark.empty.body" | t }}</p>
+    </section>
+  }
+
+  <!-- ===== Result ===== -->
+  @if (result(); as res) {
+    <section class="ds-card panel" aria-labelledby="spark-result-title">
+      <h2 id="spark-result-title">{{ "spark.result.title" | t }}</h2>
+
+      @if (planTree(); as tree) {
+        <section class="plan-tree" aria-labelledby="plan-tree-title">
+          <h3 id="plan-tree-title">{{ "spark.tree.title" | t }}</h3>
+          @if (tree.kind === "text") {
+            <pre class="plan-text" tabindex="0">{{ tree.text }}</pre>
+          } @else {
+            <ul class="tree">
+              @for (node of tree.nodes; track $index) {
+                <li>
+                  {{ node.label }}
+                  @if (node.children.length) {
+                    <ng-container
+                      *ngTemplateOutlet="treeLevel; context: { $implicit: node.children }"
+                    />
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <ds-analysis-result [result]="res" idPrefix="spark" />
+    </section>
+  }
+
+  <ng-template #treeLevel let-nodes>
+    <ul>
+      @for (node of nodes; track $index) {
+        <li>
+          {{ node.label }}
+          @if (node.children.length) {
+            <ng-container
+              *ngTemplateOutlet="treeLevel; context: { $implicit: node.children }"
+            />
+          }
+        </li>
+      }
+    </ul>
+  </ng-template>
+</article>

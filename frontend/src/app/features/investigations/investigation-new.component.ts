@@ -16,6 +16,7 @@ import { Router, RouterLink } from "@angular/router";
 import type { ToolManifestEntry } from "../../core/api.models";
 import { ApiService } from "../../core/api.service";
 import { TranslatePipe } from "../../core/i18n/translate.pipe";
+import { acceptsSingleFile } from "../../shared/tool-manifest";
 
 const PROBLEM_MAX = 4000;
 
@@ -155,17 +156,4 @@ export class InvestigationNewComponent {
         },
       });
   }
-}
-
-/** A manifest entry is file-compatible when `file` covers its inputs. */
-function acceptsSingleFile(tool: ToolManifestEntry): boolean {
-  const schema = tool.inputSchema;
-  const required = Array.isArray(schema["required"])
-    ? (schema["required"] as unknown[])
-    : [];
-  const properties =
-    schema["properties"] && typeof schema["properties"] === "object"
-      ? (schema["properties"] as Record<string, unknown>)
-      : {};
-  return required.every((r) => r === "file") && "file" in properties;
 }

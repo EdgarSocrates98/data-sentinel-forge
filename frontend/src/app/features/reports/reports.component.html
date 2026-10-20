@@ -1,0 +1,268 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.reports.title" | t }}</h1>
+    <p class="lead">{{ "pages.reports.lead" | t }}</p>
+  </header>
+
+  <p class="muted note-line">{{ "reports.historyNote" | t }}</p>
+
+  @if (listState() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (listState() === "error") {
+    <section class="ds-card panel" aria-labelledby="reports-error-title">
+      <h2 id="reports-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "investigations.list.error" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refresh()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (listState() === "ok") {
+    @if (items().length === 0) {
+      <section class="ds-card panel" aria-labelledby="reports-empty-title">
+        <h2 id="reports-empty-title">{{ "reports.empty.title" | t }}</h2>
+        <p class="muted">{{ "reports.empty.body" | t }}</p>
+        <a class="ds-btn ds-btn--primary" routerLink="/investigations/new">
+          {{ "investigations.new.action" | t }}
+        </a>
+      </section>
+    } @else {
+      <!-- ===== Report list / session history ===== -->
+      <section class="ds-card panel" aria-labelledby="reports-list-title">
+        <h2 id="reports-list-title">{{ "reports.list.title" | t }}</h2>
+
+        <div class="field">
+          <label for="report-filter">{{ "reports.filter.label" | t }}</label>
+          <input
+            id="report-filter"
+            type="text"
+            [value]="filter()"
+            (input)="onFilterInput($event)"
+            placeholder="inv-…"
+          />
+        </div>
+
+        @if (exportError(); as failedId) {
+          <p class="field-error" role="alert">
+            {{ "reports.exportError" | t }} <code>{{ failedId }}</code>
+          </p>
+        }
+
+        @if (filtered().length === 0) {
+          <p class="muted">{{ "reports.filter.noMatch" | t }}</p>
+        } @else {
+          <div class="table-scroll">
+            <table class="data-table">
+              <caption class="sr-only">{{ "reports.list.caption" | t }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ "investigations.col.id" | t }}</th>
+                  <th scope="col">{{ "investigations.col.created" | t }}</th>
+                  <th scope="col">
+                    <span class="sr-only">
+                      {{ "investigations.col.open" | t }}
+                    </span>
+                  </th>
+                  <th scope="col">
+                    <span class="sr-only">{{ "reports.col.export" | t }}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (inv of filtered(); track inv.investigation_id) {
+                  <tr>
+                    <td><code>{{ inv.investigation_id }}</code></td>
+                    <td>{{ formatCreated(inv.created) }}</td>
+                    <td>
+                      <a
+                        [routerLink]="['/investigations', inv.investigation_id]"
+                        class="row-link"
+                      >
+                        {{ "investigations.open" | t }}
+                      </a>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        class="ds-btn export-btn"
+                        [disabled]="exporting().has(inv.investigation_id)"
+                        (click)="exportReport(inv.investigation_id)"
+                      >
+                        {{
+                          (exporting().has(inv.investigation_id)
+                            ? "reports.exporting"
+                            : "reports.export"
+                          ) | t
+                        }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+
+      <!-- ===== Two-report comparison ===== -->
+      <section class="ds-card panel" aria-labelledby="cmp-title">
+        <h2 id="cmp-title">{{ "reports.cmp.title" | t }}</h2>
+        <p class="muted">{{ "reports.cmp.hint" | t }}</p>
+
+        @if (items().length < 2) {
+          <p class="muted">{{ "reports.cmp.needTwo" | t }}</p>
+        } @else {
+          <div class="cmp-selects">
+            <div class="field">
+              <label for="cmp-a">{{ "reports.cmp.pickA" | t }}</label>
+              <select
+                id="cmp-a"
+                [value]="cmpA()"
+                (change)="selectCompare('a', $any($event.target).value)"
+              >
+                <option value="">{{ "graph.picker.placeholder" | t }}</option>
+                @for (inv of items(); track inv.investigation_id) {
+                  <option
+                    [value]="inv.investigation_id"
+                    [disabled]="inv.investigation_id === cmpB()"
+                  >
+                    {{ inv.investigation_id }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="field">
+              <label for="cmp-b">{{ "reports.cmp.pickB" | t }}</label>
+              <select
+                id="cmp-b"
+                [value]="cmpB()"
+                (change)="selectCompare('b', $any($event.target).value)"
+              >
+                <option value="">{{ "graph.picker.placeholder" | t }}</option>
+                @for (inv of items(); track inv.investigation_id) {
+                  <option
+                    [value]="inv.investigation_id"
+                    [disabled]="inv.investigation_id === cmpA()"
+                  >
+                    {{ inv.investigation_id }}
+                  </option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div aria-live="polite">
+            @if (cmpState() === "loading") {
+              <p class="muted" role="status">{{ "status.loading" | t }}</p>
+            }
+            @if (cmpState() === "error") {
+              <p class="field-error" role="alert">
+                {{ "reports.cmp.error" | t }}
+              </p>
+            }
+          </div>
+
+          @if (cmpState() === "ok" && reportA() && reportB()) {
+            <div class="table-scroll">
+              <table class="data-table cmp-table">
+                <caption>
+                  {{ "reports.cmp.caption" | t }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ "reports.cmp.metric" | t }}</th>
+                    <th scope="col"><code>{{ cmpA() }}</code></th>
+                    <th scope="col"><code>{{ cmpB() }}</code></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of diffRows(); track row.labelKey + row.suffix) {
+                    <tr [class.differs]="row.differs">
+                      <th scope="row">{{ row.labelKey | t }} {{ row.suffix }}</th>
+                      <td>{{ row.a }}</td>
+                      <td>{{ row.b }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            @if (toolDiff(); as td) {
+              <h3>{{ "reports.cmp.toolsTitle" | t }}</h3>
+              <div class="tool-diff">
+                <div>
+                  <h4>{{ "reports.cmp.toolsOnlyA" | t }}</h4>
+                  @if (td.onlyA.length) {
+                    <ul class="chips">
+                      @for (t of td.onlyA; track t) {
+                        <li><code>{{ t }}</code></li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="muted">—</p>
+                  }
+                </div>
+                <div>
+                  <h4>{{ "reports.cmp.toolsOnlyB" | t }}</h4>
+                  @if (td.onlyB.length) {
+                    <ul class="chips">
+                      @for (t of td.onlyB; track t) {
+                        <li><code>{{ t }}</code></li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="muted">—</p>
+                  }
+                </div>
+                <div>
+                  <h4>{{ "reports.cmp.toolsBoth" | t }}</h4>
+                  @if (td.both.length) {
+                    <ul class="chips">
+                      @for (t of td.both; track t) {
+                        <li><code>{{ t }}</code></li>
+                      }
+                    </ul>
+                  } @else {
+                    <p class="muted">—</p>
+                  }
+                </div>
+              </div>
+            }
+
+            <h3>{{ "reports.cmp.conclusionsTitle" | t }}</h3>
+            <div class="conclusions-diff">
+              <div>
+                <h4><code>{{ cmpA() }}</code></h4>
+                @if (reportA()!.conclusions.length) {
+                  <ul>
+                    @for (c of reportA()!.conclusions; track c) {
+                      <li>{{ c }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="muted">{{ "investigations.detail.none" | t }}</p>
+                }
+              </div>
+              <div>
+                <h4><code>{{ cmpB() }}</code></h4>
+                @if (reportB()!.conclusions.length) {
+                  <ul>
+                    @for (c of reportB()!.conclusions; track c) {
+                      <li>{{ c }}</li>
+                    }
+                  </ul>
+                } @else {
+                  <p class="muted">{{ "investigations.detail.none" | t }}</p>
+                }
+              </div>
+            </div>
+            <p class="muted small">{{ "reports.cmp.disclaimer" | t }}</p>
+          }
+        }
+      </section>
+    }
+  }
+</article>

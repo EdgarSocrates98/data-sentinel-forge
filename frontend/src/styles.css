@@ -185,6 +185,12 @@ kbd {
   border-color: var(--ds-error);
 }
 
+.ds-badge--status-warn {
+  color: var(--ds-warning);
+  background: var(--ds-warning-bg);
+  border-color: var(--ds-warning);
+}
+
 .ds-btn {
   display: inline-flex;
   align-items: center;

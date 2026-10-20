@@ -1,0 +1,229 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.workloads.title" | t }}</h1>
+    <p class="lead">{{ "pages.workloads.lead" | t }}</p>
+  </header>
+
+  <!-- ===== File-based analysis ===== -->
+  <section class="ds-card panel" aria-labelledby="analyze-title">
+    <h2 id="analyze-title">{{ "workloads.analyze.title" | t }}</h2>
+    <p class="muted">{{ "workloads.analyze.hint" | t }}</p>
+
+    @if (toolsState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (toolsState() === "error") {
+      <p class="field-error" role="alert">
+        {{ "investigations.new.toolsError" | t }}
+      </p>
+      <button type="button" class="ds-btn" (click)="loadTools()">
+        {{ "status.retry" | t }}
+      </button>
+    }
+    @if (toolsState() === "ok" && workloadTools().length === 0) {
+      <p class="muted">{{ "investigations.new.noFileTools" | t }}</p>
+    }
+
+    @if (toolsState() === "ok" && workloadTools().length) {
+      <form class="form" [formGroup]="form" (ngSubmit)="runAnalysis()">
+        <div class="field">
+          <label for="wl-tool">{{ "workloads.analyze.tool" | t }}</label>
+          <select id="wl-tool" formControlName="tool">
+            <option value="" disabled>
+              {{ "investigations.new.toolPlaceholder" | t }}
+            </option>
+            @for (tool of workloadTools(); track tool.name) {
+              <option [value]="tool.name">{{ tool.name }}</option>
+            }
+          </select>
+          @if (toolDescription(form.controls.tool.value); as desc) {
+            <p class="tool-desc">{{ desc }}</p>
+          }
+        </div>
+        <div class="field">
+          <label for="wl-file">{{ "investigations.new.path" | t }}</label>
+          <input
+            id="wl-file"
+            type="text"
+            formControlName="file"
+            placeholder="/abs/path/artifact.json"
+            aria-describedby="wl-file-hint"
+          />
+          <p id="wl-file-hint" class="tool-desc">
+            {{ "investigations.new.filesHint" | t }}
+          </p>
+        </div>
+        <div class="actions">
+          <button
+            type="submit"
+            class="ds-btn ds-btn--primary"
+            [disabled]="form.invalid || running()"
+          >
+            {{
+              (running()
+                ? "workloads.analyze.running"
+                : "workloads.analyze.submit"
+              ) | t
+            }}
+          </button>
+        </div>
+      </form>
+    }
+  </section>
+
+  <!-- ===== EMR ===== -->
+  <section class="ds-card panel" aria-labelledby="emr-title">
+    <h2 id="emr-title">{{ "workloads.emr.title" | t }}</h2>
+    <p class="muted">{{ "workloads.emr.hint" | t }}</p>
+
+    @if (toolsState() === "ok") {
+      <form class="form" [formGroup]="emrForm" (ngSubmit)="runEmrAnalysis()">
+        <fieldset class="platforms">
+          <legend>{{ "workloads.emr.platform" | t }}</legend>
+          @for (p of emrPlatforms(); track p.id) {
+            <label class="platform">
+              <input
+                type="radio"
+                name="emr-platform"
+                [value]="p.id"
+                [checked]="emrPlatform() === p.id"
+                [disabled]="!p.available"
+                (change)="emrPlatform.set(p.id)"
+              />
+              <span>{{ "workloads.emr.platform." + p.id | t }}</span>
+              @if (!p.available) {
+                <span class="muted">
+                  ({{ "workloads.emr.unavailable" | t }})
+                </span>
+              }
+            </label>
+          }
+        </fieldset>
+        <div class="field">
+          <label for="emr-file">{{ "investigations.new.path" | t }}</label>
+          <input
+            id="emr-file"
+            type="text"
+            formControlName="file"
+            placeholder="/abs/path/emr-export.json"
+          />
+        </div>
+        <div class="actions">
+          <button
+            type="submit"
+            class="ds-btn ds-btn--primary"
+            [disabled]="
+              emrForm.invalid || running() || !emrPlatformAvailable()
+            "
+          >
+            {{
+              (running()
+                ? "workloads.analyze.running"
+                : "workloads.analyze.submit"
+              ) | t
+            }}
+          </button>
+        </div>
+      </form>
+
+      <!-- Honest limitation: cost estimation is not file-compatible. -->
+      <div class="note" role="note">
+        <h3>{{ "workloads.emr.cost.title" | t }}</h3>
+        @if (emrCostTool(); as costTool) {
+          <p class="muted">
+            {{ "workloads.emr.cost.unavailable" | t }}
+          </p>
+          <p class="muted small">
+            <code>{{ costTool.name }}</code> —
+            {{ "workloads.emr.cost.required" | t }}:
+            @for (inp of emrCostMissing(); track inp; let last = $last) {
+              <code>{{ inp }}</code>{{ last ? "" : ", " }}
+            }
+          </p>
+        } @else {
+          <p class="muted">{{ "workloads.emr.cost.notRegistered" | t }}</p>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ===== Async status + results (live region) ===== -->
+  <div aria-live="polite">
+    @if (running()) {
+      <p class="muted" role="status">{{ "workloads.analyze.running" | t }}</p>
+    }
+    @if (analyzeError(); as detail) {
+      <p class="field-error" role="alert">
+        {{ "workloads.analyze.error" | t }}
+        @if (detail) {
+          <code>{{ detail }}</code>
+        }
+      </p>
+    }
+  </div>
+
+  @if (results().length) {
+    <section class="ds-card panel" aria-labelledby="results-title">
+      <h2 id="results-title">
+        {{ "workloads.results.title" | t }} ({{ results().length }})
+      </h2>
+      <p class="muted">{{ "workloads.results.hint" | t }}</p>
+      <ul class="result-list">
+        @for (res of results(); track res; let i = $index) {
+          <li class="result-item">
+            <label class="compare-check">
+              <input
+                type="checkbox"
+                [checked]="compareSel().has(i)"
+                (change)="toggleCompare(i)"
+              />
+              <span>{{ "workloads.compare.select" | t }}</span>
+            </label>
+            <ds-analysis-result
+              [result]="res"
+              [idPrefix]="'wl-' + i"
+            />
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- ===== Cross-result comparison ===== -->
+  @if (selectedResults().length >= 2) {
+    <section class="ds-card panel" aria-labelledby="compare-title">
+      <h2 id="compare-title">{{ "workloads.compare.title" | t }}</h2>
+      <p class="muted">{{ "workloads.compare.hint" | t }}</p>
+      <div class="table-scroll">
+        <table class="data-table compare-table">
+          <caption>
+            {{ "workloads.compare.caption" | t }}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ "workloads.compare.metric" | t }}</th>
+              @for (res of selectedResults(); track res; let i = $index) {
+                <th scope="col">
+                  {{ "workloads.compare.result" | t }} {{ i + 1 }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of compareRows(); track row.labelKey + row.suffix) {
+              <tr [class.differs]="row.differs">
+                <th scope="row">
+                  {{ row.labelKey | t }} {{ row.suffix }}
+                </th>
+                @for (v of row.values; track $index) {
+                  <td>{{ v }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">{{ "workloads.compare.disclaimer" | t }}</p>
+    </section>
+  }
+</article>

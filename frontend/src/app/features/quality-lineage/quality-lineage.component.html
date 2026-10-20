@@ -1,0 +1,425 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.qualityLineage.title" | t }}</h1>
+    <p class="lead">{{ "pages.qualityLineage.lead" | t }}</p>
+  </header>
+
+  <div
+    class="tabs"
+    role="tablist"
+    [attr.aria-label]="'ql.tabs.label' | t"
+    (keydown)="onTabKeydown($event)"
+  >
+    <button
+      type="button"
+      role="tab"
+      id="tab-quality"
+      class="tab"
+      [class.tab--active]="tab() === 'quality'"
+      [attr.aria-selected]="tab() === 'quality'"
+      [attr.tabindex]="tab() === 'quality' ? 0 : -1"
+      aria-controls="panel-quality"
+      (click)="selectTab('quality')"
+    >
+      {{ "ql.tabs.quality" | t }}
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="tab-lineage"
+      class="tab"
+      [class.tab--active]="tab() === 'lineage'"
+      [attr.aria-selected]="tab() === 'lineage'"
+      [attr.tabindex]="tab() === 'lineage' ? 0 : -1"
+      aria-controls="panel-lineage"
+      (click)="selectTab('lineage')"
+    >
+      {{ "ql.tabs.lineage" | t }}
+    </button>
+  </div>
+
+  @if (toolsState() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+  @if (toolsState() === "error") {
+    <section class="ds-card panel" aria-labelledby="ql-error-title">
+      <h2 id="ql-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "investigations.new.toolsError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="loadTools()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (toolsState() === "ok") {
+    <!-- ===== Quality tab ===== -->
+    <div
+      role="tabpanel"
+      id="panel-quality"
+      aria-labelledby="tab-quality"
+      [hidden]="tab() !== 'quality'"
+    >
+      <section class="ds-card panel" aria-labelledby="quality-title">
+        <h2 id="quality-title">{{ "ql.quality.title" | t }}</h2>
+        <p class="muted">{{ "ql.quality.hint" | t }}</p>
+
+        @if (!toolAvailable(toolIds.assess)) {
+          <p class="muted">
+            {{
+              (toolRegistered(toolIds.assess)
+                ? "ql.toolNotFileCompatible"
+                : "ql.toolNotRegistered"
+              ) | t
+            }}
+          </p>
+        } @else {
+          <form class="form" [formGroup]="qualityForm" (ngSubmit)="runQuality()">
+            <div class="field">
+              <label for="q-file">{{ "investigations.new.path" | t }}</label>
+              <input
+                id="q-file"
+                type="text"
+                formControlName="file"
+                placeholder="/abs/path/quality-export.json"
+                aria-describedby="q-file-hint"
+              />
+              <p id="q-file-hint" class="tool-desc">
+                {{ "ql.quality.fileHint" | t }}
+              </p>
+            </div>
+            <div class="actions">
+              <button
+                type="submit"
+                class="ds-btn ds-btn--primary"
+                [disabled]="qualityForm.invalid || qualityRunning()"
+              >
+                {{
+                  (qualityRunning()
+                    ? "workloads.analyze.running"
+                    : "ql.quality.submit"
+                  ) | t
+                }}
+              </button>
+            </div>
+          </form>
+        }
+
+        <div aria-live="polite">
+          @if (qualityRunning()) {
+            <p class="muted" role="status">
+              {{ "workloads.analyze.running" | t }}
+            </p>
+          }
+          @if (qualityError(); as detail) {
+            <p class="field-error" role="alert">
+              {{ "ql.quality.error" | t }}
+              @if (detail) {
+                <code>{{ detail }}</code>
+              }
+            </p>
+          }
+        </div>
+
+        @if (quality(); as res) {
+          <div class="result">
+            <p class="muted small">
+              <code>{{ qualityFile() }}</code> —
+              {{ "ql.quality.count" | t }}: {{ res.count }}
+            </p>
+            @if (res.observations.length === 0) {
+              <p class="muted">{{ "ql.quality.empty" | t }}</p>
+            } @else {
+              <div class="table-scroll">
+                <table class="data-table">
+                  <caption class="sr-only">
+                    {{ "ql.quality.caption" | t }}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ "ql.col.metric" | t }}</th>
+                      <th scope="col">{{ "ql.col.dataset" | t }}</th>
+                      <th scope="col">{{ "ql.col.observed" | t }}</th>
+                      <th scope="col">{{ "ql.col.expected" | t }}</th>
+                      <th scope="col">{{ "ql.col.status" | t }}</th>
+                      <th scope="col">{{ "ql.col.source" | t }}</th>
+                      <th scope="col">{{ "ql.col.timestamp" | t }}</th>
+                      <th scope="col">
+                        <span class="sr-only">{{ "analysis.expand" | t }}</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (o of res.observations; track o.observation_id) {
+                      <tr>
+                        <td><code>{{ o.metric_name || "—" }}</code></td>
+                        <td><code>{{ datasetLabel(o.dataset) }}</code></td>
+                        <td>{{ scalarLabel(o.observed_value) }}</td>
+                        <td>{{ scalarLabel(o.expected_value) }}</td>
+                        <td>
+                          <span
+                            class="ds-badge"
+                            [class]="
+                              'ds-badge ds-badge--' +
+                              observationStatusClass(o.status)
+                            "
+                          >
+                            {{ o.status }}
+                          </span>
+                        </td>
+                        <td>{{ o.source || "—" }}</td>
+                        <td>{{ o.timestamp || "—" }}</td>
+                        <td>
+                          @if (hasObsDetail(o)) {
+                            <button
+                              type="button"
+                              class="ds-btn expand-btn"
+                              (click)="toggleObs(o.observation_id)"
+                              [attr.aria-expanded]="
+                                expandedObs().has(o.observation_id)
+                              "
+                              [attr.aria-controls]="'obs-' + o.observation_id"
+                            >
+                              {{
+                                (expandedObs().has(o.observation_id)
+                                  ? "analysis.collapse"
+                                  : "analysis.expand"
+                                ) | t
+                              }}
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                      @if (
+                        expandedObs().has(o.observation_id) && hasObsDetail(o)
+                      ) {
+                        <tr class="detail-row" [id]="'obs-' + o.observation_id">
+                          <td colspan="8">
+                            <dl class="kv">
+                              @if (o.rule_id) {
+                                <div>
+                                  <dt>{{ "ql.col.rule" | t }}</dt>
+                                  <dd><code>{{ o.rule_id }}</code></dd>
+                                </div>
+                              }
+                              @if (o.run_id) {
+                                <div>
+                                  <dt>{{ "ql.col.run" | t }}</dt>
+                                  <dd><code>{{ o.run_id }}</code></dd>
+                                </div>
+                              }
+                              @if (o.provenance) {
+                                <div>
+                                  <dt>{{ "ql.col.provenance" | t }}</dt>
+                                  <dd><code>{{ o.provenance }}</code></dd>
+                                </div>
+                              }
+                              @if (o.unit) {
+                                <div>
+                                  <dt>{{ "ql.col.unit" | t }}</dt>
+                                  <dd>{{ o.unit }}</dd>
+                                </div>
+                              }
+                            </dl>
+                            @if (o.limitations.length) {
+                              <h4>{{ "analysis.limitations" | t }}</h4>
+                              <ul>
+                                @for (lim of o.limitations; track lim) {
+                                  <li>{{ lim }}</li>
+                                }
+                              </ul>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Honest limitation: drift needs two files. -->
+        <div class="note" role="note">
+          <h3>{{ "ql.drift.title" | t }}</h3>
+          @if (toolRegistered(toolIds.drift)) {
+            <p class="muted">{{ "ql.drift.unavailable" | t }}</p>
+            <p class="muted small">
+              <code>{{ toolIds.drift }}</code> —
+              {{ "ql.requiredInputs" | t }}:
+              @for (
+                inp of toolMissingInputs(toolIds.drift);
+                track inp;
+                let last = $last
+              ) {
+                <code>{{ inp }}</code>{{ last ? "" : ", " }}
+              }
+            </p>
+          } @else {
+            <p class="muted">{{ "ql.toolNotRegistered" | t }}</p>
+          }
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Lineage tab ===== -->
+    <div
+      role="tabpanel"
+      id="panel-lineage"
+      aria-labelledby="tab-lineage"
+      [hidden]="tab() !== 'lineage'"
+    >
+      <section class="ds-card panel" aria-labelledby="lineage-title">
+        <h2 id="lineage-title">{{ "ql.lineage.title" | t }}</h2>
+        <p class="muted">{{ "ql.lineage.hint" | t }}</p>
+
+        @if (!toolAvailable(toolIds.ingest)) {
+          <p class="muted">
+            {{
+              (toolRegistered(toolIds.ingest)
+                ? "ql.toolNotFileCompatible"
+                : "ql.toolNotRegistered"
+              ) | t
+            }}
+          </p>
+        } @else {
+          <form class="form" [formGroup]="lineageForm" (ngSubmit)="runLineage()">
+            <div class="field">
+              <label for="l-file">{{ "investigations.new.path" | t }}</label>
+              <input
+                id="l-file"
+                type="text"
+                formControlName="file"
+                placeholder="/abs/path/openlineage.jsonl"
+                aria-describedby="l-file-hint"
+              />
+              <p id="l-file-hint" class="tool-desc">
+                {{ "ql.lineage.fileHint" | t }}
+              </p>
+            </div>
+            <div class="actions">
+              <button
+                type="submit"
+                class="ds-btn ds-btn--primary"
+                [disabled]="lineageForm.invalid || lineageRunning()"
+              >
+                {{
+                  (lineageRunning()
+                    ? "workloads.analyze.running"
+                    : "ql.lineage.submit"
+                  ) | t
+                }}
+              </button>
+            </div>
+          </form>
+        }
+
+        <div aria-live="polite">
+          @if (lineageRunning()) {
+            <p class="muted" role="status">
+              {{ "workloads.analyze.running" | t }}
+            </p>
+          }
+          @if (lineageError(); as detail) {
+            <p class="field-error" role="alert">
+              {{ "ql.lineage.error" | t }}
+              @if (detail) {
+                <code>{{ detail }}</code>
+              }
+            </p>
+          }
+        </div>
+
+        @if (lineage(); as res) {
+          <div class="result">
+            <dl class="kv stats">
+              <div>
+                <dt>{{ "ql.lineage.events" | t }}</dt>
+                <dd>{{ res.events }}</dd>
+              </div>
+              <div>
+                <dt>{{ "ql.lineage.kind" | t }}</dt>
+                <dd><code>{{ res.kind || "—" }}</code></dd>
+              </div>
+              <div>
+                <dt>{{ "ql.lineage.datasets" | t }}</dt>
+                <dd>{{ nodes().length }}</dd>
+              </div>
+              <div>
+                <dt>{{ "ql.lineage.edges" | t }}</dt>
+                <dd>{{ edges().length }}</dd>
+              </div>
+            </dl>
+            <p class="muted small"><code>{{ lineageFile() }}</code></p>
+
+            @if (edges().length === 0) {
+              <p class="muted">{{ "ql.lineage.empty" | t }}</p>
+            } @else {
+              <h3>{{ "ql.lineage.datasetsTitle" | t }}</h3>
+              <ul class="node-list">
+                @for (n of nodes(); track n) {
+                  <li><code>{{ n }}</code></li>
+                }
+              </ul>
+              <h3>{{ "ql.lineage.edgesTitle" | t }}</h3>
+              <div class="table-scroll">
+                <table class="data-table">
+                  <caption class="sr-only">
+                    {{ "ql.lineage.edgesCaption" | t }}
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ "ql.lineage.from" | t }}</th>
+                      <th scope="col">{{ "ql.lineage.to" | t }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (e of edges(); track e.from + '→' + e.to) {
+                      <tr>
+                        <td><code>{{ e.from }}</code></td>
+                        <td><code>{{ e.to }}</code></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+
+            @if (res.limitations.length) {
+              <div class="limitations">
+                <h3>{{ "analysis.limitations" | t }}</h3>
+                <ul>
+                  @for (lim of res.limitations; track lim) {
+                    <li>{{ lim }}</li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Honest limitation: impact needs a target input. -->
+        <div class="note" role="note">
+          <h3>{{ "ql.impact.title" | t }}</h3>
+          @if (toolRegistered(toolIds.impact)) {
+            <p class="muted">{{ "ql.impact.unavailable" | t }}</p>
+            <p class="muted small">
+              <code>{{ toolIds.impact }}</code> —
+              {{ "ql.requiredInputs" | t }}:
+              @for (
+                inp of toolMissingInputs(toolIds.impact);
+                track inp;
+                let last = $last
+              ) {
+                <code>{{ inp }}</code>{{ last ? "" : ", " }}
+              }
+            </p>
+            <p class="muted small">{{ "ql.impact.potential" | t }}</p>
+          } @else {
+            <p class="muted">{{ "ql.toolNotRegistered" | t }}</p>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</article>

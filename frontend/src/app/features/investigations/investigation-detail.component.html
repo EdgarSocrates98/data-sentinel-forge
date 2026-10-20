@@ -18,6 +18,9 @@
         >
           {{ "investigations.detail.openGraph" | t }}
         </a>
+        <a class="ds-btn" [routerLink]="['/agents']">
+          {{ "investigations.detail.openAgents" | t }}
+        </a>
         <button type="button" class="ds-btn" (click)="exportReport()">
           {{ "investigations.detail.export" | t }}
         </button>
