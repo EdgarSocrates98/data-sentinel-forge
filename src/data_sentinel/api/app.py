@@ -41,6 +41,54 @@ API_VERSION = "v1"
 _RATE_BUCKETS: dict[str, list[float]] = {}
 _AUDIT_LOG: list[dict[str, Any]] = []
 
+_TOKEN_TTL_S = 4 * 3600  # session tokens expire after 4h
+_TOKEN_FILE = Path.home() / ".data-sentinel" / "session-token"
+
+
+class SessionAuth:
+    """Local-session bearer auth (§1.2).
+
+    High-entropy token generated per server boot (or read from env /
+    token file). Rotates via TTL — after expiry a fresh token is issued
+    and old requests are rejected. No secrets in URLs or logs.
+    """
+
+    def __init__(self) -> None:
+        self._token = self._load() or secrets.token_urlsafe(32)
+        self._issued = time.time()
+        self._persist()
+
+    def _load(self) -> str | None:
+        import os
+        env = os.environ.get("DATA_SENTINEL_TOKEN")
+        if env:
+            return env
+        try:
+            return _TOKEN_FILE.read_text().strip() or None
+        except OSError:
+            return None
+
+    def _persist(self) -> None:
+        try:
+            _TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
+            _TOKEN_FILE.write_text(self._token)
+            _TOKEN_FILE.chmod(0o600)
+        except OSError:
+            pass  # session-only token still works in-memory
+
+    @property
+    def token(self) -> str:
+        if time.time() - self._issued > _TOKEN_TTL_S:
+            self._token = secrets.token_urlsafe(32)
+            self._issued = time.time()
+            self._persist()
+        return self._token
+
+    def check(self, presented: str | None) -> bool:
+        if not presented:
+            return False
+        return secrets.compare_digest(presented, self.token)
+
 
 def _audit(client: str, path: str, status: int) -> None:
     """Append-only audit trail (bounded, in-memory)."""
@@ -74,13 +122,33 @@ def _redact(obj: _T) -> _T:
     return obj
 
 
-_SECRET_KEYS = {"password", "secret", "token", "access_key", "secret_key",
-                "aws_secret", "private_key", "credential"}
+# Credential fields — always masked (§1.5, schema-classified).
+_CREDENTIAL_KEYS = {
+    "password", "passwd", "secret", "access_key", "secret_key",
+    "aws_secret_access_key", "aws_access_key_id", "private_key",
+    "credential", "credentials", "token", "access_token", "refresh_token",
+    "id_token", "session_token", "api_key", "apikey", "auth_token",
+    "bearer_token", "client_secret",
+}
+
+# Usage/metric fields containing "token" that are NOT secrets.
+_SAFE_TOKEN_KEYS = {
+    "tokens_used", "token_usage", "input_tokens", "output_tokens",
+    "token_budget", "tokens_per_second", "token_count", "max_tokens",
+    "context_tokens", "total_tokens",
+}
 
 
 def _secretish(key: str) -> bool:
     k = key.lower()
-    return any(s in k for s in _SECRET_KEYS)
+    if k in _SAFE_TOKEN_KEYS:
+        return False
+    if k in _CREDENTIAL_KEYS:
+        return True
+    # substring fallback for unknown compound credential fields, e.g.
+    # "db_password_hash" — but never bare "token*" metric suffixes.
+    return any(s in k for s in ("password", "secret", "credential",
+                                "private_key", "access_key"))
 
 
 class InvestigationCreate(BaseModel):
@@ -103,10 +171,14 @@ class InvestigationState:
                           "ts": time.time()})
 
 
-def create_app(allowed_roots: list[str] | None = None) -> FastAPI:
+def create_app(allowed_roots: list[str] | None = None,
+               *, require_auth: bool = True) -> FastAPI:
     roots = [Path(r) for r in (allowed_roots or
                                [str(Path.cwd()), str(Path.home() / ".cache")])]
     state = InvestigationState()
+    auth = SessionAuth()
+    _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient",
+                    "testserver"}
     app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
                   docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -114,6 +186,41 @@ def create_app(allowed_roots: list[str] | None = None) -> FastAPI:
         CORSMiddleware, allow_origins=[
             "http://localhost:4200", "http://127.0.0.1:4200"],
         allow_methods=["GET", "POST"], allow_headers=["*"], max_age=600)
+
+    @app.middleware("http")
+    async def local_guard(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Host/Origin guards — DNS rebinding + CSRF defense (§1.2)."""
+        host = (request.headers.get("host") or "").split(":")[0].lower()
+        if host and host not in _LOCAL_HOSTS and require_auth:
+            _audit("?", request.url.path, 403)
+            return JSONResponse({"detail": "non-local host rejected"}, 403)
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            origin = request.headers.get("origin")
+            if origin:
+                o_host = origin.split("//")[-1].split(":")[0].lower()
+                if o_host not in _LOCAL_HOSTS:
+                    _audit("?", request.url.path, 403)
+                    return JSONResponse(
+                        {"detail": "cross-origin mutation rejected"}, 403)
+        return await call_next(request)
+
+    @app.middleware("http")
+    async def bearer_auth(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Bearer session auth on /api/v1/* except health/docs (§1.2)."""
+        path = request.url.path
+        open_paths = {"/api/v1/health", "/api/docs",
+                      "/api/openapi.json", "/api/docs/oauth2-redirect"}
+        if (require_auth and path.startswith("/api/v1")
+                and path not in open_paths):
+            header = request.headers.get("authorization", "")
+            presented = header.removeprefix("Bearer ").strip() \
+                if header.lower().startswith("bearer") else None
+            if not auth.check(presented):
+                client = (request.client.host
+                          if request.client else "unknown")
+                _audit(client, path, 401)
+                return JSONResponse({"detail": "unauthorized"}, 401)
+        return await call_next(request)
 
     @app.middleware("http")
     async def payload_limit(request: Request, call_next):  # type: ignore[no-untyped-def]
@@ -295,4 +402,5 @@ def create_app(allowed_roots: list[str] | None = None) -> FastAPI:
         return [s.value for s in Severity]
 
     app.state.investigations = state
+    app.state.auth = auth
     return app

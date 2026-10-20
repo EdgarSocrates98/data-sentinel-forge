@@ -15,7 +15,7 @@ from data_sentinel.agents.guardrails import (
 )
 from data_sentinel.agents.specialists import get_specialist, route
 from data_sentinel.core.contracts.agent import InvestigationReport, ToolInvocation
-from data_sentinel.core.contracts.entities import Finding
+from data_sentinel.core.contracts.entities import Evidence, Finding
 from data_sentinel.reasoning import EvidenceValidator, RootCauseEngine
 from data_sentinel.tools.registry import execute_tool
 
@@ -36,6 +36,8 @@ def investigate(problem: str, files: dict[str, str]
     rep.agents_used = route(problem)
 
     findings: list[Finding] = []
+    evidence: list[Evidence] = []
+    seen_evidence: set[str] = set()
     for tool_id, path in sorted(files.items()):
         try:
             check_tool_permission(tool_id, PermissionClass.READ_LOCAL)
@@ -60,11 +62,20 @@ def investigate(problem: str, files: dict[str, str]
             except Exception:
                 rep.limitations.append(
                     f"{tool_id}: finding malformado ignorado")
+        for ev in out.get("evidence", []):
+            try:
+                parsed = Evidence.model_validate(ev)
+                if parsed.evidence_id not in seen_evidence:
+                    seen_evidence.add(parsed.evidence_id)
+                    evidence.append(parsed)
+            except Exception:
+                rep.limitations.append(
+                    f"{tool_id}: evidence malformada ignorada")
         for lim in out.get("limitations", []):
             rep.limitations.append(f"{tool_id}: {lim}")
 
     rep.findings = findings
-    rep.evidence = []
+    rep.evidence = sorted(evidence, key=lambda e: e.evidence_id)
 
     # independent validation (§8.3)
     vrep = EvidenceValidator().validate(findings)

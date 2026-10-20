@@ -201,6 +201,7 @@ def _run_diagnostics(tool: ToolDescriptor, source: SourceType,
     return {
         "report_id": rep.report_id,
         "findings": [f.model_dump(mode="json") for f in rep.findings],
+        "evidence": [e.model_dump(mode="json") for e in outcome.evidence],
         "summary": rep.summary,
         "limitations": rep.limitations,
     }

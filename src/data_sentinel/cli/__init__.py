@@ -1248,8 +1248,13 @@ def serve(
                    "'data-sentinel[api]'", err=True)
         raise typer.Exit(code=EXIT_USAGE) from None
     from data_sentinel.api import create_app
+
     if host not in ("127.0.0.1", "localhost"):
         typer.echo("aviso: bind não-local — a API expõe arquivos locais; "
                    "use apenas em rede confiável", err=True)
     app_obj = create_app(allowed_roots=root)
+    token = app_obj.state.auth.token
+    typer.echo(f"Control Center API: http://{host}:{port}/api/v1")
+    typer.echo(f"session token (Authorization: Bearer): {token}")
+    typer.echo("também em ~/.data-sentinel/session-token", err=True)
     uvicorn.run(app_obj, host=host, port=port, log_level="warning")

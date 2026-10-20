@@ -18,7 +18,10 @@ FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
 @pytest.fixture
 def client() -> TestClient:
     api_mod._RATE_BUCKETS.clear()
-    return TestClient(create_app(allowed_roots=[str(FIXTURES)]))
+    app = create_app(allowed_roots=[str(FIXTURES)])
+    c = TestClient(app)
+    c.headers["Authorization"] = f"Bearer {app.state.auth.token}"
+    return c
 
 
 def test_path_traversal_variants(client: TestClient) -> None:
@@ -83,3 +86,39 @@ def test_no_glue_job_cancellation_endpoint(client: TestClient) -> None:
     assert "cancel" not in paths
     assert "delete" not in {m for p in spec["paths"].values()
                           for m in p}
+
+
+def test_redaction_schema_classification() -> None:
+    """§1.5: credential fields masked, usage metrics preserved."""
+    creds = {"access_token": "abc", "refresh_token": "r"}
+    for k in creds:
+        assert api_mod._redact({k: creds[k]})[k] == "***"
+    assert api_mod._redact({"tokens_used": 1234})["tokens_used"] == 1234
+    assert api_mod._redact({"token_usage": 5})["token_usage"] == 5
+    assert api_mod._redact({"input_tokens": 7})["input_tokens"] == 7
+    assert api_mod._redact({"output_tokens": 9})["output_tokens"] == 9
+    assert api_mod._redact({"token_budget": 100})["token_budget"] == 100
+
+
+def test_auth_required(client: TestClient) -> None:
+    """Protected endpoint rejects missing/wrong bearer."""
+    c = TestClient(client.app)
+    assert c.get("/api/v1/capabilities").status_code == 401
+    c.headers["Authorization"] = "Bearer wrong"
+    assert c.get("/api/v1/capabilities").status_code == 401
+    # health stays open for liveness checks
+    assert c.get("/api/v1/health").status_code == 200
+
+
+def test_non_local_host_rejected() -> None:
+    app = create_app(allowed_roots=[str(FIXTURES)])
+    c = TestClient(app, base_url="http://evil.example")
+    r = c.get("/api/v1/health")
+    assert r.status_code == 403
+
+
+def test_cross_origin_mutation_rejected(client: TestClient) -> None:
+    r = client.post("/api/v1/investigations",
+                    headers={"Origin": "https://evil.example"},
+                    json={"problem": "x", "files": {}})
+    assert r.status_code == 403

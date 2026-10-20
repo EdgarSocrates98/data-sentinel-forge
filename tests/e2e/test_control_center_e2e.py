@@ -30,15 +30,21 @@ def _free_port() -> int:
     return port
 
 
+TEST_TOKEN = "e2e-test-token"  # noqa: S105 - local test fixture
+AUTH = {"Authorization": f"Bearer {TEST_TOKEN}"}
+
+
 @pytest.fixture(scope="module")
 def server() -> str:
+    import os
     port = _free_port()
+    env = dict(os.environ, DATA_SENTINEL_TOKEN=TEST_TOKEN)
     proc = subprocess.Popen(  # noqa: S603 - local test server
         [sys.executable, "-c",
          "import uvicorn; from data_sentinel.api import create_app;"
          f"uvicorn.run(create_app(allowed_roots=['{FIXTURES}']),"
          f" host='127.0.0.1', port={port}, log_level='error')"],
-        cwd=ROOT)
+        cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
     try:
         for _ in range(100):
@@ -62,17 +68,17 @@ def test_e2e_real_server_investigation_flow(server: str) -> None:
     # A: portal backend is real and healthy
     assert httpx.get(f"{base}/health").json()["status"] == "ok"
     # capabilities include EMR — truthful declarations
-    caps = httpx.get(f"{base}/capabilities").json()
+    caps = httpx.get(f"{base}/capabilities", headers=AUTH).json()
     assert any(c["capability_id"] == "sentinel.emr.ec2" for c in caps)
     # B: create investigation referencing a real fixture via a real tool
     sql = FIXTURES / "sql" / "cycle2" / "cast_keys.sql"
-    r = httpx.post(f"{base}/investigations", json={
+    r = httpx.post(f"{base}/investigations", headers=AUTH, json={
         "problem": "SQL join explosion risk",
         "files": {"sentinel.sql.analyze": str(sql)}})
     assert r.status_code == 201
     inv_id = r.json()["investigation_id"]
     for _ in range(100):
-        rep = httpx.get(f"{base}/investigations/{inv_id}").json()
+        rep = httpx.get(f"{base}/investigations/{inv_id}", headers=AUTH).json()
         if rep.get("status") != "running":
             break
         time.sleep(0.1)
@@ -80,7 +86,7 @@ def test_e2e_real_server_investigation_flow(server: str) -> None:
     assert len(rep["findings"]) >= 1
     # C: evidence graph endpoint returns real nodes; edges only when the
     #    report actually carries evidence links (never fabricated).
-    g = httpx.get(f"{base}/investigations/{inv_id}/graph").json()
+    g = httpx.get(f"{base}/investigations/{inv_id}/graph", headers=AUTH).json()
     assert g["nodes"]
     assert any(n["kind"] == "DiagnosticFinding" for n in g["nodes"])
     # export-equivalent: full report round-trips as JSON
@@ -90,6 +96,6 @@ def test_e2e_real_server_investigation_flow(server: str) -> None:
 def test_e2e_real_server_analyze(server: str) -> None:
     sql = FIXTURES / "sql" / "cycle2" / "cast_keys.sql"
     r = httpx.post(f"{server}/api/v1/analyze/sql.analyze",
-                   json={"file": str(sql)})
+                   headers=AUTH, json={"file": str(sql)})
     assert r.status_code == 200
     assert r.json()["findings"]

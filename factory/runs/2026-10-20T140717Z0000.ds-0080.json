@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0080.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T14:07:17+00:00",
+  "id": "ds-0080",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0080.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0080.md",
+  "spec_sha256": "ee1993cd67ffe80bac1284a652081d47e1074d78844f13ba1120739350bf34af",
+  "status": "planned",
+  "title": "Hardening gate (07.0)"
+}
