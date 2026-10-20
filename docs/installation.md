@@ -1,49 +1,35 @@
-# Instalação
+# Instalação — Cycle 08 (ds-0093)
 
-## Requisitos
+## Verificado nesta sessão
 
-- Python **≥ 3.11** (desenvolvimento testado em 3.12; CI cobre 3.11 e 3.12 em
-  Linux, Windows e macOS).
-- Nenhuma credencial cloud ou acesso de rede é necessário — o produto opera
-  100% offline sobre artefatos locais.
+| Verificação | Método | Resultado |
+|---|---|---|
+| Wheel limpa | `uv build` → `dist/data_sentinel-0.1.0-py3-none-any.whl` | OK |
+| Instalação em venv limpa | `uv venv --seed /tmp/ds8-venv` + `uv pip install dist/*.whl` | OK |
+| Import | `python -c "import data_sentinel"` | OK |
+| CLI | `data-sentinel --help`, `capabilities`, `investigate run` | OK — 2 findings reais em fixture Spark |
+| Offline | toda a verificação acima sem rede (deps já em cache uv) | OK |
 
-## Com uv (recomendado)
+## Plataformas suportadas
 
-```bash
-git clone <repo> && cd data-sentinel-forge
-uv sync                          # cria venv e instala deps (dev incluídas)
-uv run data-sentinel --help
-uv run data-sentinel doctor      # verifica a instalação
-```
+- Python ≥ 3.11 (testado em 3.12).
+- Linux (desenvolvimento/verificação); macOS/Windows por Python puro —
+  sem binários nativos na wheel core.
+- Node 22 + npm apenas para o frontend Angular (opcional, dev-only).
 
-## Com pip
+## Extras
 
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install .                    # runtime: pydantic, typer, sqlglot
-data-sentinel --help
-```
+aws (boto3), api (fastapi/uvicorn), mcp, stats (numpy/scipy), dev — nomes exatos em pyproject.toml.
+`api` (fastapi/uvicorn), `mcp`, `stats` (numpy/scipy), `dev`.
 
-Para desenvolvimento com pip: `pip install -e ".[dev]"`.
+## Offline
 
-## Verificação rápida
+O pacote core não faz chamadas de rede. Conectores AWS existem mas são
+opt-in via extra `aws` + credenciais explícitas; sem credenciais, nada
+é tentado (ver `docs/cycles/cycle-08-aws-homologation.md`).
 
-```bash
-data-sentinel version     # imprime a versão instalada
-data-sentinel doctor      # checks PASS/WARN/FAIL com dicas de remediação
-```
+## Atualização / desinstalação
 
-`doctor` retorna `0` quando tudo passa e `1` quando existe `FAIL` — cada linha
-FAIL vem com dica de remediação. Exemplo de saída real em
-[evidence/doctor.txt](evidence/doctor.txt).
-
-## Dependências de runtime
-
-Apenas três (ver [ADR 0007](adr/0007-dependency-policy.md)):
-
-- `pydantic` — contratos públicos e validação de configuração
-- `typer` — CLI
-- `sqlglot` — parsing estático de SQL
-
-Integrações futuras (boto3, fastapi) serão **extras opcionais**, nunca
-requisito do núcleo.
+`pip install -U data-sentinel` / `pip uninstall data-sentinel`.
+Dados locais em `~/.data-sentinel/` (SQLite + token) sobrevivem à
+desinstalação — remover manualmente se desejado.
