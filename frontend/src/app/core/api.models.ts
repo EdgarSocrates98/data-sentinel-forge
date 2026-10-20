@@ -77,10 +77,13 @@ export interface Evidence {
   evidence_id: string;
   source: string;
   source_location: string;
+  /** ISO-8601 UTC timestamp. */
   captured_at: string;
   content_hash: string;
   sanitized_excerpt: string;
-  provenance: Record<string, unknown>;
+  /** EvidenceProvenance enum wire value (e.g. "observed"). */
+  provenance: string;
+  /** 0.0–1.0 */
   confidence: number;
   access_metadata: Record<string, unknown> | null;
 }
@@ -100,13 +103,30 @@ export interface Finding {
 export interface Hypothesis {
   hypothesis_id: string;
   statement: string;
+  /** open | supported | refuted | dropped */
   status: string;
+  /** evidence_ids supporting this hypothesis (RCA clusters). */
   supporting_evidence: string[];
   contradicting_evidence: string[];
+  /** CONFIRMED | PROBABLE | POSSIBLE | UNKNOWN */
   confidence: string;
   alternatives: string[];
   causal_claim: boolean;
+  /** correlation | suspected_cause | proven */
   causal_label: string;
+}
+
+/** OptimizationRecommendation (core/contracts/entities.py). */
+export interface OptimizationRecommendation {
+  recommendation_id: string;
+  target: string;
+  proposed_change: string;
+  rationale: string;
+  expected_effect: string | null;
+  estimated_risk: string | null;
+  validation_plan: string | null;
+  rollback_plan: string | null;
+  evidence_ids: string[];
 }
 
 /** GET /api/v1/investigations/{id} — InvestigationReport dump. */
@@ -121,7 +141,7 @@ export interface InvestigationReport {
   hypotheses_supported: Hypothesis[];
   hypotheses_refuted: Hypothesis[];
   conclusions: string[];
-  recommendations: Record<string, unknown>[];
+  recommendations: OptimizationRecommendation[];
   evidence: Evidence[];
   limitations: string[];
   tokens_used: number;
@@ -137,12 +157,24 @@ export interface InvestigationRunning {
 
 export type InvestigationDetail = InvestigationReport | InvestigationRunning;
 
+/** Narrow an `InvestigationDetail` to a finished report. */
+export function isInvestigationReport(
+  detail: InvestigationDetail,
+): detail is InvestigationReport {
+  return "findings" in detail;
+}
+
 /** POST /api/v1/analyze/{analyzer_id} — request body. */
 export interface AnalyzeRequest {
   file: string;
 }
 
-/** SSE event emitted by /api/v1/investigations/{id}/stream. */
+/**
+ * One message received on the SSE stream
+ * `GET /api/v1/investigations/{id}/stream`. The backend emits the event
+ * name in the `event:` field and a JSON payload in `data:`; `ts` is
+ * stamped client-side on receipt (the wire payload carries no clock).
+ */
 export interface InvestigationStreamEvent {
   event:
     | "INVESTIGATION_STARTED"
@@ -150,8 +182,10 @@ export interface InvestigationStreamEvent {
     | "HYPOTHESIS_CREATED"
     | "INVESTIGATION_COMPLETED"
     | "INVESTIGATION_FAILED"
+    | "ERROR"
     | string;
   data: Record<string, unknown>;
+  /** Client-side receipt timestamp (ms since epoch), 0 when unknown. */
   ts: number;
 }
 

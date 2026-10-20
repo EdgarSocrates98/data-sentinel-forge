@@ -110,6 +110,81 @@ kbd {
   border-color: var(--ds-warning);
 }
 
+/* severity modifiers (impact of findings) */
+.ds-badge--severity-CRITICAL {
+  color: var(--ds-severity-critical);
+  background: var(--ds-severity-critical-bg);
+  border-color: var(--ds-severity-critical);
+}
+
+.ds-badge--severity-HIGH {
+  color: var(--ds-severity-high);
+  background: var(--ds-severity-high-bg);
+  border-color: var(--ds-severity-high);
+}
+
+.ds-badge--severity-MEDIUM {
+  color: var(--ds-severity-medium);
+  background: var(--ds-severity-medium-bg);
+  border-color: var(--ds-severity-medium);
+}
+
+.ds-badge--severity-LOW {
+  color: var(--ds-severity-low);
+  background: var(--ds-severity-low-bg);
+  border-color: var(--ds-severity-low);
+}
+
+.ds-badge--severity-INFO {
+  color: var(--ds-severity-info);
+  background: var(--ds-severity-info-bg);
+  border-color: var(--ds-severity-info);
+}
+
+/* confidence modifiers (support verdicts — distinct from severity) */
+.ds-badge--confidence-HIGH {
+  color: var(--ds-confidence-high);
+  background: var(--ds-confidence-high-bg);
+  border-color: var(--ds-confidence-high);
+}
+
+.ds-badge--confidence-MEDIUM {
+  color: var(--ds-confidence-medium);
+  background: var(--ds-confidence-medium-bg);
+  border-color: var(--ds-confidence-medium);
+}
+
+.ds-badge--confidence-LOW {
+  color: var(--ds-confidence-low);
+  background: var(--ds-confidence-low-bg);
+  border-color: var(--ds-confidence-low);
+}
+
+.ds-badge--confidence-UNKNOWN {
+  color: var(--ds-confidence-unknown);
+  background: var(--ds-confidence-unknown-bg);
+  border-color: var(--ds-confidence-unknown);
+}
+
+/* lifecycle status modifiers */
+.ds-badge--status-ok {
+  color: var(--ds-success);
+  background: var(--ds-success-bg);
+  border-color: var(--ds-success);
+}
+
+.ds-badge--status-running {
+  color: var(--ds-info);
+  background: var(--ds-info-bg);
+  border-color: var(--ds-info);
+}
+
+.ds-badge--status-error {
+  color: var(--ds-error);
+  background: var(--ds-error-bg);
+  border-color: var(--ds-error);
+}
+
 .ds-btn {
   display: inline-flex;
   align-items: center;

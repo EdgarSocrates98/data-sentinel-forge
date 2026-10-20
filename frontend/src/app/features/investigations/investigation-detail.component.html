@@ -1,0 +1,572 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <a class="back" routerLink="/investigations">
+        ← {{ "investigations.detail.back" | t }}
+      </a>
+      <h1 id="page-title">
+        {{ "investigations.detail.title" | t }}
+        <code class="inv-id">{{ investigationId() }}</code>
+      </h1>
+    </div>
+    <div class="header-actions">
+      @if (state() === "report") {
+        <a
+          class="ds-btn"
+          [routerLink]="['/evidence-graph']"
+          [queryParams]="{ investigation: investigationId() }"
+        >
+          {{ "investigations.detail.openGraph" | t }}
+        </a>
+        <button type="button" class="ds-btn" (click)="exportReport()">
+          {{ "investigations.detail.export" | t }}
+        </button>
+      }
+      <button type="button" class="ds-btn" (click)="load()">
+        {{ "status.retry" | t }}
+      </button>
+    </div>
+  </header>
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "running") {
+    <section class="ds-card panel" aria-labelledby="running-title">
+      <h2 id="running-title">
+        <span class="ds-badge ds-badge--status-running">
+          {{ "investigations.status.running" | t }}
+        </span>
+        {{ "investigations.detail.progress" | t }}
+      </h2>
+      <p class="muted">{{ "investigations.detail.progressHint" | t }}</p>
+      @if (streamError()) {
+        <p class="field-error" role="alert">
+          {{ "investigations.detail.streamError" | t }}
+        </p>
+      }
+      <ol class="events" aria-live="polite" aria-relevant="additions">
+        @for (e of events(); track $index) {
+          <li>
+            <span
+              class="ds-badge"
+              [class.ds-badge--status-error]="
+                e.event === 'INVESTIGATION_FAILED'
+              "
+              [class.ds-badge--status-ok]="e.event === 'INVESTIGATION_COMPLETED'"
+            >
+              {{ eventLabel(e) }}
+            </span>
+          </li>
+        } @empty {
+          <li class="muted">{{ "investigations.detail.noEvents" | t }}</li>
+        }
+      </ol>
+    </section>
+  }
+
+  @if (state() === "failed") {
+    <section class="ds-card panel" aria-labelledby="failed-title">
+      <h2 id="failed-title" class="status-err">
+        {{ "investigations.detail.failed" | t }}
+      </h2>
+      @if (failureMessage(); as msg) {
+        <p class="muted"><code>{{ msg }}</code></p>
+      }
+      <p class="muted">{{ "investigations.detail.failedHint" | t }}</p>
+    </section>
+  }
+
+  @if (state() === "notfound") {
+    <section class="ds-card panel" aria-labelledby="nf-title">
+      <h2 id="nf-title">{{ "investigations.detail.notFound" | t }}</h2>
+      <p class="muted">{{ "investigations.detail.notFoundHint" | t }}</p>
+    </section>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="err-title">
+      <h2 id="err-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "investigations.detail.errorHint" | t }}</p>
+      <button type="button" class="ds-btn" (click)="load()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (report(); as rep) {
+    <!-- ===== Investigation Summary ===== -->
+    <section class="ds-card panel" aria-labelledby="summary-title">
+      <h2 id="summary-title">{{ "investigations.detail.summary" | t }}</h2>
+      <p class="problem">{{ rep.problem || "—" }}</p>
+      <dl class="kv">
+        <div>
+          <dt>{{ "investigations.detail.tokens" | t }}</dt>
+          <dd>{{ rep.tokens_used }}</dd>
+        </div>
+        <div>
+          <dt>{{ "investigations.detail.duration" | t }}</dt>
+          <dd>{{ rep.duration_seconds }}s</dd>
+        </div>
+        <div>
+          <dt>{{ "investigations.detail.cost" | t }}</dt>
+          <dd>{{ rep.cost_usd }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- ===== Agent / tool activity ===== -->
+    <section class="ds-card panel" aria-labelledby="activity-title">
+      <h2 id="activity-title">{{ "investigations.detail.activity" | t }}</h2>
+      <div class="chips-block">
+        <h3>{{ "investigations.detail.agentsUsed" | t }}</h3>
+        @if (rep.agents_used.length) {
+          <ul class="chips">
+            @for (a of rep.agents_used; track a) {
+              <li class="ds-badge">{{ a }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">{{ "investigations.detail.none" | t }}</p>
+        }
+      </div>
+      <div class="chips-block">
+        <h3>{{ "investigations.detail.toolsUsed" | t }}</h3>
+        @if (rep.tools_used.length) {
+          <ul class="chips">
+            @for (t of rep.tools_used; track t) {
+              <li class="ds-badge">{{ t }}</li>
+            }
+          </ul>
+        } @else {
+          <p class="muted">{{ "investigations.detail.none" | t }}</p>
+        }
+        @if (toolCalls().length) {
+          <ul class="tool-calls">
+            @for (call of toolCalls(); track call.toolId) {
+              <li>
+                <code>{{ call.toolId }}</code>
+                <span
+                  class="ds-badge"
+                  [class]="
+                    'ds-badge ds-badge--' +
+                    (call.ok ? 'status-ok' : 'status-error')
+                  "
+                >
+                  {{
+                    (call.ok
+                      ? "investigations.detail.toolOk"
+                      : "investigations.detail.toolFailed"
+                    ) | t
+                  }}
+                </span>
+                @if (call.durationMs !== null) {
+                  <span class="muted">{{ call.durationMs }}ms</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      @if (validation(); as v) {
+        <div class="chips-block">
+          <h3>{{ "investigations.detail.validation" | t }}</h3>
+          <p class="muted">
+            {{ "investigations.detail.validationChecked" | t }}: {{ v.checked }}
+          </p>
+          @for (w of v.warnings; track w) {
+            <p class="validation-warn">⚠ {{ w }}</p>
+          }
+          @for (e of v.errors; track e) {
+            <p class="field-error">✕ {{ e }}</p>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- ===== Findings ===== -->
+    <section class="ds-card panel" aria-labelledby="findings-title">
+      <h2 id="findings-title">
+        {{ "investigations.detail.findings" | t }} ({{ rep.findings.length }})
+      </h2>
+      @if (rep.findings.length === 0) {
+        <p class="muted">{{ "investigations.detail.noFindings" | t }}</p>
+      } @else {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ "investigations.col.severity" | t }}</th>
+              <th scope="col">{{ "investigations.col.status" | t }}</th>
+              <th scope="col">{{ "investigations.col.category" | t }}</th>
+              <th scope="col">{{ "investigations.col.explanation" | t }}</th>
+              <th scope="col">{{ "investigations.col.evidence" | t }}</th>
+              <th scope="col">
+                <span class="sr-only">
+                  {{ "investigations.detail.expand" | t }}
+                </span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of rep.findings; track f.finding_id) {
+              <tr>
+                <td>
+                  <span
+                    class="ds-badge"
+                    [class]="'ds-badge ds-badge--' + severityClass(f.severity)"
+                  >
+                    {{ f.severity }}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    class="ds-badge"
+                    [class]="'ds-badge ds-badge--' + confidenceClass(f.status)"
+                  >
+                    {{ f.status }}
+                  </span>
+                </td>
+                <td><code>{{ f.category }}</code></td>
+                <td class="explanation">{{ f.explanation }}</td>
+                <td>{{ f.evidence_ids.length }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="ds-btn expand-btn"
+                    (click)="toggleFinding(f.finding_id)"
+                    [attr.aria-expanded]="expandedFindings().has(f.finding_id)"
+                    [attr.aria-controls]="'fd-' + f.finding_id"
+                  >
+                    {{
+                      (expandedFindings().has(f.finding_id)
+                        ? "investigations.detail.collapse"
+                        : "investigations.detail.expand"
+                      ) | t
+                    }}
+                  </button>
+                </td>
+              </tr>
+              @if (expandedFindings().has(f.finding_id)) {
+                <tr class="detail-row" [id]="'fd-' + f.finding_id">
+                  <td colspan="6">
+                    <dl class="kv">
+                      <div>
+                        <dt>{{ "investigations.col.id" | t }}</dt>
+                        <dd><code>{{ f.finding_id }}</code></dd>
+                      </div>
+                      @if (f.evidence_ids.length) {
+                        <div class="kv-block">
+                          <dt>{{ "investigations.detail.evidenceIds" | t }}</dt>
+                          <dd>
+                            <ul class="inline-list">
+                              @for (eid of f.evidence_ids; track eid) {
+                                <li><code>{{ eid }}</code></li>
+                              }
+                            </ul>
+                          </dd>
+                        </div>
+                      }
+                      @if (f.recommendations.length) {
+                        <div class="kv-block">
+                          <dt>
+                            {{ "investigations.detail.findingRecs" | t }}
+                          </dt>
+                          <dd>
+                            <ul>
+                              @for (r of f.recommendations; track r) {
+                                <li>{{ r }}</li>
+                              }
+                            </ul>
+                          </dd>
+                        </div>
+                      }
+                      @if (f.validation_steps.length) {
+                        <div class="kv-block">
+                          <dt>
+                            {{ "investigations.detail.validationSteps" | t }}
+                          </dt>
+                          <dd>
+                            <ul>
+                              @for (s of f.validation_steps; track s) {
+                                <li>{{ s }}</li>
+                              }
+                            </ul>
+                          </dd>
+                        </div>
+                      }
+                      @if (f.alternatives.length) {
+                        <div class="kv-block">
+                          <dt>
+                            {{ "investigations.detail.alternatives" | t }}
+                          </dt>
+                          <dd>
+                            <ul>
+                              @for (a of f.alternatives; track a) {
+                                <li>{{ a }}</li>
+                              }
+                            </ul>
+                          </dd>
+                        </div>
+                      }
+                    </dl>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+
+    <!-- ===== Hypotheses ===== -->
+    <section class="ds-card panel" aria-labelledby="hyp-title">
+      <h2 id="hyp-title">{{ "investigations.detail.hypotheses" | t }}</h2>
+      <p class="muted causal-note">
+        {{ "investigations.detail.causalNote" | t }}
+      </p>
+
+      <h3 class="group-title">
+        {{ "investigations.detail.hypSupported" | t }}
+        ({{ rep.hypotheses_supported.length }})
+      </h3>
+      @if (rep.hypotheses_supported.length === 0) {
+        <p class="muted">{{ "investigations.detail.none" | t }}</p>
+      } @else {
+        <ul class="hyp-list">
+          @for (h of rep.hypotheses_supported; track h.hypothesis_id) {
+            <li class="hyp-card">
+              <div class="hyp-head">
+                <code class="hyp-id">{{ h.hypothesis_id }}</code>
+                <span
+                  class="ds-badge"
+                  [class]="'ds-badge ds-badge--' + statusClass(h.status)"
+                >
+                  {{ h.status }}
+                </span>
+                <span
+                  class="ds-badge"
+                  [class]="
+                    'ds-badge ds-badge--' + confidenceClass(h.confidence)
+                  "
+                >
+                  {{ h.confidence }}
+                </span>
+                <span class="ds-badge" [title]="h.causal_label">
+                  {{ h.causal_label }}
+                </span>
+              </div>
+              <p>{{ h.statement }}</p>
+              @if (h.supporting_evidence.length) {
+                <p class="muted small">
+                  {{ "investigations.detail.supportingEvidence" | t }}:
+                  <code>{{ h.supporting_evidence.join(", ") }}</code>
+                </p>
+              }
+              @if (h.alternatives.length) {
+                <details class="alts">
+                  <summary>
+                    {{ "investigations.detail.alternatives" | t }}
+                    ({{ h.alternatives.length }})
+                  </summary>
+                  <ul>
+                    @for (a of h.alternatives; track a) {
+                      <li>{{ a }}</li>
+                    }
+                  </ul>
+                </details>
+              }
+            </li>
+          }
+        </ul>
+      }
+
+      <h3 class="group-title">
+        {{ "investigations.detail.hypRefuted" | t }}
+        ({{ rep.hypotheses_refuted.length }})
+      </h3>
+      @if (rep.hypotheses_refuted.length === 0) {
+        <p class="muted">{{ "investigations.detail.none" | t }}</p>
+      } @else {
+        <ul class="hyp-list">
+          @for (h of rep.hypotheses_refuted; track h.hypothesis_id) {
+            <li class="hyp-card">
+              <div class="hyp-head">
+                <span
+                  class="ds-badge"
+                  [class]="'ds-badge ds-badge--' + statusClass(h.status)"
+                >
+                  {{ h.status }}
+                </span>
+                <span
+                  class="ds-badge"
+                  [class]="
+                    'ds-badge ds-badge--' + confidenceClass(h.confidence)
+                  "
+                >
+                  {{ h.confidence }}
+                </span>
+              </div>
+              <p>{{ h.statement }}</p>
+              @if (h.contradicting_evidence.length) {
+                <p class="muted small">
+                  {{ "investigations.detail.contradictingEvidence" | t }}:
+                  <code>{{ h.contradicting_evidence.join(", ") }}</code>
+                </p>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- ===== Evidence inspector ===== -->
+    <section class="ds-card panel" aria-labelledby="ev-title">
+      <h2 id="ev-title">
+        {{ "investigations.detail.evidence" | t }} ({{ rep.evidence.length }})
+      </h2>
+      @if (rep.evidence.length === 0) {
+        <p class="muted">{{ "investigations.detail.noEvidence" | t }}</p>
+      } @else {
+        <ul class="ev-list">
+          @for (ev of rep.evidence; track ev.evidence_id) {
+            <li>
+              <details class="ev-item">
+                <summary>
+                  <span class="ev-source">{{ ev.source }}</span>
+                  <span
+                    class="ds-badge"
+                    [class]="
+                      'ds-badge ds-badge--' + confidenceClass(ev.confidence)
+                    "
+                  >
+                    {{ ev.confidence }}
+                  </span>
+                </summary>
+                <dl class="kv">
+                  <div>
+                    <dt>{{ "investigations.ev.sourceLocation" | t }}</dt>
+                    <dd><code>{{ ev.source_location }}</code></dd>
+                  </div>
+                  <div>
+                    <dt>{{ "investigations.ev.capturedAt" | t }}</dt>
+                    <dd>{{ ev.captured_at }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ "investigations.ev.hash" | t }}</dt>
+                    <dd><code>{{ ev.content_hash }}</code></dd>
+                  </div>
+                  <div>
+                    <dt>{{ "investigations.ev.provenance" | t }}</dt>
+                    <dd><code>{{ ev.provenance }}</code></dd>
+                  </div>
+                  @if (ev.access_metadata) {
+                    <div class="kv-block">
+                      <dt>{{ "investigations.ev.access" | t }}</dt>
+                      <dd>
+                        <dl class="kv kv--nested">
+                          @for (
+                            pair of kvEntries(ev.access_metadata);
+                            track pair[0]
+                          ) {
+                            <div>
+                              <dt>{{ pair[0] }}</dt>
+                              <dd>{{ pair[1] }}</dd>
+                            </div>
+                          }
+                        </dl>
+                      </dd>
+                    </div>
+                  }
+                </dl>
+                @if (ev.sanitized_excerpt) {
+                  <pre class="excerpt"><code>{{ ev.sanitized_excerpt }}</code></pre>
+                }
+              </details>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- ===== Conclusions ===== -->
+    <section class="ds-card panel" aria-labelledby="conc-title">
+      <h2 id="conc-title">
+        {{ "investigations.detail.conclusions" | t }}
+        ({{ rep.conclusions.length }})
+      </h2>
+      @if (rep.conclusions.length === 0) {
+        <p class="muted">{{ "investigations.detail.none" | t }}</p>
+      } @else {
+        <ul>
+          @for (c of rep.conclusions; track c) {
+            <li>{{ c }}</li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- ===== Recommendations ===== -->
+    <section class="ds-card panel" aria-labelledby="rec-title">
+      <h2 id="rec-title">
+        {{ "investigations.detail.recommendations" | t }}
+        ({{ rep.recommendations.length }})
+      </h2>
+      @if (rep.recommendations.length === 0) {
+        <p class="muted">{{ "investigations.detail.none" | t }}</p>
+      } @else {
+        <ul class="rec-list">
+          @for (r of rep.recommendations; track r.recommendation_id) {
+            <li class="hyp-card">
+              <p><strong>{{ r.target }}</strong> — {{ r.proposed_change }}</p>
+              <p class="muted">{{ r.rationale }}</p>
+              <dl class="kv kv--nested">
+                @if (r.expected_effect) {
+                  <div>
+                    <dt>{{ "investigations.rec.expected" | t }}</dt>
+                    <dd>{{ r.expected_effect }}</dd>
+                  </div>
+                }
+                @if (r.estimated_risk) {
+                  <div>
+                    <dt>{{ "investigations.rec.risk" | t }}</dt>
+                    <dd>{{ r.estimated_risk }}</dd>
+                  </div>
+                }
+                @if (r.validation_plan) {
+                  <div>
+                    <dt>{{ "investigations.rec.validation" | t }}</dt>
+                    <dd>{{ r.validation_plan }}</dd>
+                  </div>
+                }
+                @if (r.rollback_plan) {
+                  <div>
+                    <dt>{{ "investigations.rec.rollback" | t }}</dt>
+                    <dd>{{ r.rollback_plan }}</dd>
+                  </div>
+                }
+              </dl>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- ===== Limitations ===== -->
+    <section class="ds-card panel" aria-labelledby="lim-title">
+      <h2 id="lim-title">
+        {{ "investigations.detail.limitations" | t }}
+        ({{ rep.limitations.length }})
+      </h2>
+      @if (rep.limitations.length === 0) {
+        <p class="muted">{{ "investigations.detail.none" | t }}</p>
+      } @else {
+        <ul class="lim-list">
+          @for (l of rep.limitations; track l) {
+            <li>{{ l }}</li>
+          }
+        </ul>
+      }
+    </section>
+  }
+</article>

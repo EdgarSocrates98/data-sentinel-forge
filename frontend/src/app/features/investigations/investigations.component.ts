@@ -1,31 +1,62 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from "@angular/core";
+import { RouterLink } from "@angular/router";
 
-import { PageShellComponent } from "../../shared/page-shell/page-shell.component";
+import type { InvestigationSummary } from "../../core/api.models";
+import { ApiService } from "../../core/api.service";
+import { I18nService } from "../../core/i18n/i18n.service";
+import { TranslatePipe } from "../../core/i18n/translate.pipe";
+import { statusClass } from "../../shared/status-class";
+
+type LoadState = "loading" | "ok" | "error";
 
 /**
- * InvestigationsComponent — real route for a studio shipping in a later phase
- * (ds-0072: minimal real routes, never simulated functionality).
+ * Investigation Studio — list of investigations recorded by the
+ * Control Center API (GET /api/v1/investigations). Real data only;
+ * empty/error states are explicit. Entry point to the new-investigation
+ * form and to each investigation detail workspace.
  */
 @Component({
   selector: "ds-investigations",
   standalone: true,
-  imports: [PageShellComponent],
+  imports: [RouterLink, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ds-page-shell
-      titleKey="pages.investigations.title"
-      leadKey="pages.investigations.lead"
-      [plannedKeys]="planned"
-    />
-  `,
+  templateUrl: "./investigations.component.html",
+  styleUrl: "./investigations.component.css",
 })
 export class InvestigationsComponent {
-  protected readonly planned: readonly string[] = [
-    "pages.investigations.planned.0",
-    "pages.investigations.planned.1",
-    "pages.investigations.planned.2",
-    "pages.investigations.planned.3",
-    "pages.investigations.planned.4",
-    "pages.investigations.planned.5",
-  ];
+  private readonly api = inject(ApiService);
+  protected readonly i18n = inject(I18nService);
+  protected readonly statusClass = statusClass;
+
+  protected readonly state = signal<LoadState>("loading");
+  protected readonly items = signal<InvestigationSummary[]>([]);
+
+  constructor() {
+    this.refresh();
+  }
+
+  protected refresh(): void {
+    this.state.set("loading");
+    this.api.listInvestigations().subscribe({
+      next: (items) => {
+        this.items.set(items);
+        this.state.set("ok");
+      },
+      error: () => {
+        this.items.set([]);
+        this.state.set("error");
+      },
+    });
+  }
+
+  /** `created` is epoch seconds on the wire (time.time()). */
+  protected formatCreated(epochSeconds: number | null): string {
+    if (epochSeconds === null) return "—";
+    return new Date(epochSeconds * 1000).toLocaleString(this.i18n.locale());
+  }
 }

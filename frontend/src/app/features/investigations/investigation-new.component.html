@@ -1,0 +1,146 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "investigations.new.title" | t }}</h1>
+    <p class="lead">{{ "investigations.new.lead" | t }}</p>
+  </header>
+
+  <form
+    class="ds-card panel form"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+    aria-describedby="form-hint"
+  >
+    <p id="form-hint" class="muted">
+      {{ "investigations.new.hint" | t }}
+    </p>
+
+    <div class="field">
+      <label for="problem">
+        {{ "investigations.new.problem" | t }}
+        <span aria-hidden="true">*</span>
+      </label>
+      <textarea
+        id="problem"
+        formControlName="problem"
+        rows="5"
+        [attr.maxlength]="problemMax"
+        [attr.aria-invalid]="
+          form.controls.problem.invalid && form.controls.problem.touched
+        "
+        [attr.aria-describedby]="
+          form.controls.problem.invalid && form.controls.problem.touched
+            ? 'problem-error'
+            : 'problem-counter'
+        "
+      ></textarea>
+      <div class="field-meta">
+        @if (form.controls.problem.touched && form.controls.problem.invalid) {
+          <p id="problem-error" class="field-error" role="alert">
+            {{ "investigations.new.problemRequired" | t }}
+          </p>
+        }
+        <p id="problem-counter" class="counter">
+          {{ problemLength() }}/{{ problemMax }}
+        </p>
+      </div>
+    </div>
+
+    <fieldset class="files">
+      <legend>{{ "investigations.new.files" | t }}</legend>
+      <p class="muted">{{ "investigations.new.filesHint" | t }}</p>
+
+      @if (toolsState() === "loading") {
+        <p class="muted" role="status">{{ "status.loading" | t }}</p>
+      }
+      @if (toolsState() === "error") {
+        <p class="field-error" role="alert">
+          {{ "investigations.new.toolsError" | t }}
+        </p>
+        <button type="button" class="ds-btn" (click)="loadTools()">
+          {{ "status.retry" | t }}
+        </button>
+      }
+      @if (toolsState() === "ok" && fileTools().length === 0) {
+        <p class="muted">{{ "investigations.new.noFileTools" | t }}</p>
+      }
+
+      <div formArrayName="files" class="file-rows">
+        @for (row of files.controls; track row; let i = $index) {
+          <div class="file-row" [formGroupName]="i">
+            <div class="field">
+              <label [for]="'tool-' + i">
+                {{ "investigations.new.tool" | t }}
+              </label>
+              <select [id]="'tool-' + i" formControlName="tool_id">
+                <option value="" disabled>
+                  {{ "investigations.new.toolPlaceholder" | t }}
+                </option>
+                @for (tool of fileTools(); track tool.name) {
+                  <option [value]="tool.name">{{ tool.name }}</option>
+                }
+              </select>
+              @if (toolDescription(row.value.tool_id); as desc) {
+                <p class="tool-desc">{{ desc }}</p>
+              }
+            </div>
+            <div class="field field--grow">
+              <label [for]="'path-' + i">
+                {{ "investigations.new.path" | t }}
+              </label>
+              <input
+                [id]="'path-' + i"
+                type="text"
+                formControlName="path"
+                placeholder="/abs/path/artifact.json"
+              />
+            </div>
+            <button
+              type="button"
+              class="ds-btn remove"
+              (click)="removeFileRow(i)"
+              [attr.aria-label]="'investigations.new.removeFile' | t"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="ds-btn"
+        (click)="addFileRow()"
+        [disabled]="toolsState() !== 'ok' || fileTools().length === 0"
+      >
+        {{ "investigations.new.addFile" | t }}
+      </button>
+    </fieldset>
+
+    @if (duplicateToolError()) {
+      <p class="field-error" role="alert">
+        {{ "investigations.new.duplicateTool" | t }}
+      </p>
+    }
+    @if (submitError(); as detail) {
+      <p class="field-error" role="alert">{{ detail }}</p>
+    }
+
+    <div class="actions">
+      <button
+        type="submit"
+        class="ds-btn ds-btn--primary"
+        [disabled]="form.invalid || submitting()"
+      >
+        {{
+          (submitting()
+            ? "investigations.new.submitting"
+            : "investigations.new.submit"
+          ) | t
+        }}
+      </button>
+      <a class="ds-btn" routerLink="/investigations">
+        {{ "investigations.new.cancel" | t }}
+      </a>
+    </div>
+  </form>
+</article>

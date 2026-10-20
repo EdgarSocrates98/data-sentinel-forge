@@ -24,6 +24,24 @@ export const routes: Routes = [
       ),
   },
   {
+    path: "investigations/new",
+    title: "investigations.new.title",
+    data: { labelKey: "nav.investigations" },
+    loadComponent: () =>
+      import(
+        "./features/investigations/investigation-new.component"
+      ).then((m) => m.InvestigationNewComponent),
+  },
+  {
+    path: "investigations/:id",
+    title: "investigations.detail.title",
+    data: { labelKey: "nav.investigations" },
+    loadComponent: () =>
+      import(
+        "./features/investigations/investigation-detail.component"
+      ).then((m) => m.InvestigationDetailComponent),
+  },
+  {
     path: "evidence-graph",
     title: "pages.evidenceGraph.title",
     data: { labelKey: "nav.evidenceGraph" },

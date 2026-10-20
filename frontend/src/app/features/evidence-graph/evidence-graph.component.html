@@ -1,0 +1,307 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.evidenceGraph.title" | t }}</h1>
+    <p class="lead">{{ "pages.evidenceGraph.lead" | t }}</p>
+  </header>
+
+  <section class="ds-card panel" aria-labelledby="picker-title">
+    <h2 id="picker-title">{{ "graph.picker.title" | t }}</h2>
+
+    @if (listState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (listState() === "error") {
+      <p class="field-error" role="alert">
+        {{ "graph.picker.error" | t }}
+      </p>
+      <button type="button" class="ds-btn" (click)="loadList()">
+        {{ "status.retry" | t }}
+      </button>
+    }
+    @if (listState() === "ok") {
+      @if (investigations().length === 0) {
+        <p class="muted">{{ "graph.picker.empty" | t }}</p>
+        <a class="ds-btn" routerLink="/investigations/new">
+          {{ "investigations.new.action" | t }}
+        </a>
+      } @else {
+        <div class="picker-row">
+          <label for="inv-select">{{ "graph.picker.label" | t }}</label>
+          <select
+            id="inv-select"
+            (change)="onPick($any($event.target).value)"
+          >
+            <option value="" disabled [selected]="!selectedInvestigation()">
+              {{ "graph.picker.placeholder" | t }}
+            </option>
+            @for (inv of investigations(); track inv.investigation_id) {
+              <option
+                [value]="inv.investigation_id"
+                [selected]="inv.investigation_id === selectedInvestigation()"
+              >
+                {{ inv.investigation_id }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+    }
+  </section>
+
+  @if (reportState() === "idle" && listState() === "ok" && investigations().length) {
+    <p class="muted">{{ "graph.picker.hint" | t }}</p>
+  }
+
+  @if (reportState() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (reportState() === "running") {
+    <section class="ds-card panel">
+      <p class="muted">
+        {{ "graph.running" | t }}
+        <a [routerLink]="['/investigations', selectedInvestigation()]">
+          {{ "graph.openInvestigation" | t }}
+        </a>
+      </p>
+    </section>
+  }
+
+  @if (reportState() === "error") {
+    <section class="ds-card panel">
+      <p class="field-error" role="alert">{{ "graph.loadError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="loadReport()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (graph(); as g) {
+    <section class="ds-card panel" aria-labelledby="graph-title">
+      <div class="graph-head">
+        <h2 id="graph-title">
+          {{ "graph.title" | t }} — <code>{{ selectedInvestigation() }}</code>
+        </h2>
+        <div class="graph-controls">
+          <label class="sr-only" for="graph-search">
+            {{ "graph.searchLabel" | t }}
+          </label>
+          <input
+            id="graph-search"
+            type="search"
+            [placeholder]="'graph.searchPlaceholder' | t"
+            [value]="query()"
+            (input)="onSearch($any($event.target).value)"
+          />
+        </div>
+      </div>
+      <p class="muted small">
+        {{ "graph.stats" | t }}: {{ g.nodes.length }}
+        {{ "graph.statsNodes" | t }} · {{ g.edges.length }}
+        {{ "graph.statsEdges" | t }}
+      </p>
+
+      <ds-graph-canvas
+        [model]="g"
+        [selectedId]="selectedNodeId()"
+        [query]="query()"
+        (select)="onNodeSelected($event)"
+      />
+
+      @if (g.limitations.length) {
+        <details class="limitations">
+          <summary>
+            {{ "graph.limitations" | t }} ({{ g.limitations.length }})
+          </summary>
+          <ul>
+            @for (l of g.limitations; track l) {
+              <li>{{ l }}</li>
+            }
+          </ul>
+        </details>
+      }
+    </section>
+
+    <div class="below">
+      <!-- ===== Selection detail panel ===== -->
+      <section class="ds-card panel" aria-labelledby="detail-title">
+        <h2 id="detail-title">{{ "graph.detail.title" | t }}</h2>
+        @if (selectedNode(); as n) {
+          <p>
+            <span class="ds-badge">{{ kindLabelKey(n.kind) | t }}</span>
+            <code class="node-id">{{ n.id }}</code>
+          </p>
+
+          @if (asFinding(n); as f) {
+            <dl class="kv">
+              <div>
+                <dt>{{ "investigations.col.severity" | t }}</dt>
+                <dd>
+                  <span
+                    class="ds-badge"
+                    [class]="
+                      'ds-badge ds-badge--' + severityClass(f.severity)
+                    "
+                  >
+                    {{ f.severity }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ "investigations.col.status" | t }}</dt>
+                <dd>
+                  <span
+                    class="ds-badge"
+                    [class]="
+                      'ds-badge ds-badge--' + confidenceClass(f.status)
+                    "
+                  >
+                    {{ f.status }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ "investigations.col.category" | t }}</dt>
+                <dd><code>{{ f.category }}</code></dd>
+              </div>
+              <div class="kv-block">
+                <dt>{{ "investigations.col.explanation" | t }}</dt>
+                <dd>{{ f.explanation }}</dd>
+              </div>
+            </dl>
+          }
+
+          @if (asEvidence(n); as ev) {
+            <dl class="kv">
+              <div>
+                <dt>{{ "investigations.ev.sourceLocation" | t }}</dt>
+                <dd><code>{{ ev.source_location }}</code></dd>
+              </div>
+              <div>
+                <dt>{{ "investigations.ev.capturedAt" | t }}</dt>
+                <dd>{{ ev.captured_at }}</dd>
+              </div>
+              <div>
+                <dt>{{ "investigations.ev.hash" | t }}</dt>
+                <dd><code>{{ ev.content_hash }}</code></dd>
+              </div>
+              <div>
+                <dt>{{ "investigations.ev.provenance" | t }}</dt>
+                <dd><code>{{ ev.provenance }}</code></dd>
+              </div>
+            </dl>
+            @if (ev.sanitized_excerpt) {
+              <pre class="excerpt"><code>{{ ev.sanitized_excerpt }}</code></pre>
+            }
+          }
+
+          @if (n.kind === "evidence" && n.referencedOnly) {
+            <p class="muted">{{ "graph.detail.referencedOnly" | t }}</p>
+          }
+
+          @if (asHypothesis(n); as h) {
+            <dl class="kv">
+              <div>
+                <dt>{{ "investigations.col.status" | t }}</dt>
+                <dd>
+                  <span class="ds-badge">{{ h.status }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ "graph.detail.confidence" | t }}</dt>
+                <dd>
+                  <span
+                    class="ds-badge"
+                    [class]="
+                      'ds-badge ds-badge--' + confidenceClass(h.confidence)
+                    "
+                  >
+                    {{ h.confidence }}
+                  </span>
+                </dd>
+              </div>
+              <div>
+                <dt>{{ "graph.detail.causalLabel" | t }}</dt>
+                <dd><code>{{ h.causal_label }}</code></dd>
+              </div>
+              <div class="kv-block">
+                <dt>{{ "graph.detail.statement" | t }}</dt>
+                <dd>{{ h.statement }}</dd>
+              </div>
+            </dl>
+          }
+
+          @if (asReport(n); as rep) {
+            <p class="muted">{{ rep.problem }}</p>
+            <a
+              class="ds-btn"
+              [routerLink]="['/investigations', rep.investigation_id]"
+            >
+              {{ "graph.openInvestigation" | t }}
+            </a>
+          }
+
+          @if (n.kind === "tool" || n.kind === "agent") {
+            <p class="muted">
+              <code>{{ n.data }}</code>
+            </p>
+          }
+        } @else {
+          <p class="muted">{{ "graph.detail.empty" | t }}</p>
+        }
+      </section>
+
+      <!-- ===== Accessible textual equivalent ===== -->
+      <section class="ds-card panel" aria-labelledby="a11y-title">
+        <h2 id="a11y-title">{{ "graph.a11y.title" | t }}</h2>
+        <p class="muted small">{{ "graph.a11y.hint" | t }}</p>
+
+        <h3 class="tbl-title">{{ "graph.a11y.nodes" | t }}</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ "graph.a11y.colNode" | t }}</th>
+              <th scope="col">{{ "graph.a11y.colKind" | t }}</th>
+              <th scope="col">{{ "graph.a11y.colLabel" | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (n of g.nodes; track n.id) {
+              <tr>
+                <td><code>{{ n.id }}</code></td>
+                <td>{{ kindLabelKey(n.kind) | t }}</td>
+                <td>{{ n.label }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <h3 class="tbl-title">{{ "graph.a11y.edges" | t }}</h3>
+        @if (g.edges.length === 0) {
+          <p class="muted">{{ "graph.a11y.noEdges" | t }}</p>
+        } @else {
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">{{ "graph.a11y.colFrom" | t }}</th>
+                <th scope="col">{{ "graph.a11y.colRel" | t }}</th>
+                <th scope="col">{{ "graph.a11y.colTo" | t }}</th>
+                <th scope="col">{{ "graph.a11y.colJust" | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of g.edges; track e.id) {
+                <tr>
+                  <td><code>{{ e.src }}</code></td>
+                  <td><span class="ds-badge">{{ e.kind }}</span></td>
+                  <td><code>{{ e.dst }}</code></td>
+                  <td><code>{{ e.justification }}</code></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+    </div>
+  }
+</article>

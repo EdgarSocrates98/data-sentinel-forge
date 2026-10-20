@@ -103,3 +103,23 @@ def test_sse_stream_events(client: TestClient) -> None:
                        f"/api/v1/investigations/{inv_id}/stream") as s:
         body = "".join(s.iter_text())
     assert "INVESTIGATION_STARTED" in body
+
+
+def test_investigation_graph(client: TestClient) -> None:
+    r = client.post("/api/v1/investigations", json={
+        "problem": "Spark OOM on stage 3", "files": {}})
+    inv_id = r.json()["investigation_id"]
+    for _ in range(50):
+        g = client.get(f"/api/v1/investigations/{inv_id}")
+        if g.json().get("status") != "running":
+            break
+    r = client.get(f"/api/v1/investigations/{inv_id}/graph")
+    assert r.status_code == 200
+    body = r.json()
+    assert "nodes" in body and "edges" in body
+    for n in body["nodes"]:
+        assert "node_id" in n and "kind" in n
+
+
+def test_graph_404_missing(client: TestClient) -> None:
+    assert client.get("/api/v1/investigations/nope/graph").status_code == 404

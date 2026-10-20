@@ -1,0 +1,146 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-6);
+  max-width: 56rem;
+}
+
+h1 {
+  font-size: var(--ds-text-2xl);
+}
+
+.lead {
+  color: var(--ds-fg-muted);
+  font-size: var(--ds-text-lg);
+}
+
+.panel {
+  padding: var(--ds-space-6);
+}
+
+.muted {
+  color: var(--ds-fg-muted);
+  font-size: var(--ds-text-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+}
+
+.field--grow {
+  flex: 1 1 auto;
+}
+
+label,
+legend {
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-p-weight-medium);
+  color: var(--ds-fg);
+}
+
+textarea,
+input[type="text"],
+select {
+  font: inherit;
+  font-size: var(--ds-text-sm);
+  color: var(--ds-fg);
+  background: var(--ds-surface-2);
+  border: 1px solid var(--ds-border-strong);
+  border-radius: var(--ds-radius-md);
+  padding: var(--ds-space-2) var(--ds-space-3);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+textarea[aria-invalid="true"],
+input[aria-invalid="true"] {
+  border-color: var(--ds-error);
+}
+
+.field-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ds-space-3);
+}
+
+.counter {
+  margin: 0;
+  margin-left: auto;
+  font-size: var(--ds-text-xs);
+  color: var(--ds-fg-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--ds-error);
+  font-size: var(--ds-text-sm);
+}
+
+fieldset.files {
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  padding: var(--ds-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.file-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.file-row {
+  display: flex;
+  gap: var(--ds-space-4);
+  align-items: flex-start;
+}
+
+.file-row .remove {
+  margin-top: var(--ds-space-6);
+}
+
+.tool-desc {
+  margin: 0;
+  font-size: var(--ds-text-xs);
+  color: var(--ds-fg-subtle);
+}
+
+.actions {
+  display: flex;
+  gap: var(--ds-space-3);
+  align-items: center;
+}
+
+.ds-btn--primary {
+  color: var(--ds-btn-primary-fg);
+  background: var(--ds-btn-primary-bg);
+  border-color: transparent;
+  text-decoration: none;
+}
+
+.ds-btn--primary:hover:not(:disabled) {
+  background: var(--ds-btn-primary-bg-hover);
+}
+
+.ds-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+a.ds-btn {
+  text-decoration: none;
+}

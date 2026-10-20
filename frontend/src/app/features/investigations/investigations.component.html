@@ -1,0 +1,79 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.investigations.title" | t }}</h1>
+      <p class="lead">{{ "pages.investigations.lead" | t }}</p>
+    </div>
+    <a class="ds-btn ds-btn--primary" routerLink="/investigations/new">
+      {{ "investigations.new.action" | t }}
+    </a>
+  </header>
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="inv-error-title">
+      <h2 id="inv-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "investigations.list.error" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refresh()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (state() === "ok") {
+    @if (items().length === 0) {
+      <section class="ds-card panel" aria-labelledby="inv-empty-title">
+        <h2 id="inv-empty-title">{{ "investigations.list.empty.title" | t }}</h2>
+        <p class="muted">{{ "investigations.list.empty.body" | t }}</p>
+        <a class="ds-btn ds-btn--primary" routerLink="/investigations/new">
+          {{ "investigations.new.action" | t }}
+        </a>
+      </section>
+    } @else {
+      <section class="ds-card panel" aria-labelledby="inv-list-title">
+        <h2 id="inv-list-title">{{ "investigations.list.title" | t }}</h2>
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ "investigations.col.id" | t }}</th>
+              <th scope="col">{{ "investigations.col.status" | t }}</th>
+              <th scope="col">{{ "investigations.col.created" | t }}</th>
+              <th scope="col">
+                <span class="sr-only">{{ "investigations.col.open" | t }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (inv of items(); track inv.investigation_id) {
+              <tr>
+                <td>
+                  <code>{{ inv.investigation_id }}</code>
+                </td>
+                <td>
+                  <span
+                    class="ds-badge"
+                    [class]="'ds-badge ds-badge--' + statusClass(inv.status)"
+                  >
+                    {{ "investigations.status." + inv.status | t }}
+                  </span>
+                </td>
+                <td>{{ formatCreated(inv.created) }}</td>
+                <td>
+                  <a
+                    [routerLink]="['/investigations', inv.investigation_id]"
+                    class="row-link"
+                  >
+                    {{ "investigations.open" | t }}
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  }
+</article>

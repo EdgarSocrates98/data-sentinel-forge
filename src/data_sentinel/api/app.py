@@ -213,6 +213,24 @@ def create_app(allowed_roots: list[str] | None = None) -> FastAPI:
 
         return StreamingResponse(gen(), media_type="text/event-stream")
 
+    @app.get("/api/v1/investigations/{inv_id}/graph")
+    def investigation_graph(inv_id: str) -> dict[str, Any]:
+        """Evidence graph for an investigation — delegates to core."""
+        from dataclasses import asdict
+
+        from data_sentinel.diagnostics.incident import build_incident_graph, context_from_hints
+        rep = state.reports.get(inv_id)
+        if rep is None:
+            raise HTTPException(404, "investigation not found")
+        hints = dict(rep.context.get("hints", {}))
+        ctx = context_from_hints(hints)
+        g = build_incident_graph(ctx, rep.findings, rep.evidence)
+        return {
+            "investigation_id": inv_id,
+            "nodes": [asdict(n) for n in g.nodes.values()],
+            "edges": [asdict(e) for e in g.edges],
+        }
+
     # ---- analyzer-backed read endpoints (thin delegation) ----
 
     @app.post("/api/v1/analyze/{analyzer_id}")
