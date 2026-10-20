@@ -17,9 +17,9 @@ export const appConfig: ApplicationConfig = {
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: "top" }),
     ),
-    // authInterceptor must run before httpErrorInterceptor so a 401 is
-    // already handled (session cleared + routed to the gate) by the time
-    // the generic error toast would otherwise fire.
+    // authInterceptor is OUTERMOST: its catchError runs after
+    // httpErrorInterceptor's, so it must recognize the normalized
+    // ApiError shape (status 401), not the raw HttpErrorResponse.
     provideHttpClient(
       withInterceptors([authInterceptor, httpErrorInterceptor]),
     ),

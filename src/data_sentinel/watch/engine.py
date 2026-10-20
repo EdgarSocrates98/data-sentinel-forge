@@ -60,6 +60,7 @@ class AlertEngine:
         self.cooldown_s = cooldown_s
         self._last_emit: dict[str, float] = {}
         self._open: dict[str, Alert] = {}
+        self._seq = 0  # per-engine counter — ms timestamps collide
         self.history: list[Alert] = []
 
     def evaluate(self, watch: WatchDefinition,
@@ -104,8 +105,9 @@ class AlertEngine:
             *, dedup: str, sev: str | None = None,
             findings: list[dict[str, Any]] | None = None) -> Alert:
         key = f"{watch.watch_id}:{dedup}"
+        self._seq += 1
         return Alert(
-            alert_id=f"alert-{int(time.time() * 1000)}",
+            alert_id=f"alert-{int(time.time() * 1000)}-{self._seq}",
             watch_id=watch.watch_id, kind=kind,
             severity=self._kind_sev(watch, sev), message=msg,
             ts=time.time(), dedup_key=key, findings=findings or [])
@@ -129,8 +131,13 @@ class AlertEngine:
             last = self._last_emit.get(a.dedup_key, 0.0)
             if not a.recovered and now - last < self.cooldown_s:
                 continue  # suppressed within cooldown
-            self._last_emit[a.dedup_key] = now
-            if not a.recovered:
+            if a.recovered:
+                # Recovery must RELEASE the dedup slot — stamping it
+                # would suppress a brand-new failure for a whole
+                # cooldown window (review).
+                self._last_emit.pop(a.dedup_key, None)
+            else:
+                self._last_emit[a.dedup_key] = now
                 self._open[a.dedup_key] = a
             emit.append(a)
             self.history.append(a)
@@ -222,7 +229,9 @@ _KIND_MAP = {
     "input_bytes": "duration_regression",
     "output_bytes": "duration_regression",
     "data_freshness_s": "freshness_issue",
+    "freshness_s": "freshness_issue",
     "quality_score": "quality_regression",
+    "dq_pass_rate": "quality_regression",
     "iceberg_file_count": "duration_regression",
     "estimated_cost": "cost_anomaly",
 }

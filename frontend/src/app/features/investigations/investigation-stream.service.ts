@@ -31,12 +31,10 @@ const TERMINAL_EVENTS = new Set<string>([
  * instead. The public API — `open(url): Observable<InvestigationStreamEvent>`
  * — is unchanged so `InvestigationDetailComponent` needs no changes.
  *
- * Reconnection carries `Last-Event-ID` when the backend has supplied an
- * `id:` frame. Backend contract note (ds-0101): the current
- * `/investigations/{id}/stream` handler does not emit `id:` frames, so
- * reconnects today replay from the start of the backend's buffered
- * history rather than resuming precisely — this client is ready for
- * `id:` support but cannot fabricate it.
+ * The backend emits `id: <seq>` on every frame and honors
+ * `Last-Event-ID` by replaying only events after that sequence — this
+ * client tracks the last seen id for reconnect support (per ADR-0014,
+ * reconnect itself is a deliberate manual retry, not automatic).
  */
 @Injectable({ providedIn: "root" })
 export class InvestigationStreamService {

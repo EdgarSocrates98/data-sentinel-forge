@@ -212,3 +212,113 @@ def test_401_has_www_authenticate(tmp_path: Path) -> None:
     r = c.get("/api/v1/capabilities")
     assert r.status_code == 401
     assert r.headers.get("WWW-Authenticate") == "Bearer"
+
+
+# ---- cycle-08.1 independent review findings ----
+
+def test_cors_preflight_on_protected_path(client: TestClient) -> None:
+    """BLOCKER: CORS must be outermost — a preflight OPTIONS on a
+    bearer-protected route must be answered by CORSMiddleware with
+    Access-Control-* headers, never a bare 401 from bearer_auth
+    (which would kill every authenticated browser call)."""
+    r = client.options(
+        "/api/v1/capabilities",
+        headers={
+            "Origin": "http://localhost:4200",
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "authorization",
+        })
+    assert r.status_code == 200
+    allow = r.headers.get("access-control-allow-origin")
+    assert allow in {"http://localhost:4200", "*"}
+    assert "authorization" in \
+        r.headers.get("access-control-allow-headers", "").lower()
+    # Non-allowed origins still get no grant
+    r2 = client.options(
+        "/api/v1/capabilities",
+        headers={"Origin": "https://evil.example",
+                 "Access-Control-Request-Method": "GET"})
+    assert r2.headers.get("access-control-allow-origin") != \
+        "https://evil.example"
+
+
+def test_bearer_scheme_case_insensitive(client: TestClient) -> None:
+    """RFC 7235: auth scheme is case-insensitive."""
+    token = client.app.state.auth.token
+    r = client.get("/api/v1/capabilities",
+                   headers={"Authorization": f"bearer {token}"})
+    assert r.status_code == 200
+
+
+def test_bearer_prefix_without_space_rejected(client: TestClient) -> None:
+    """`bearerXYZ` is not a Bearer credential — the space is required."""
+    token = client.app.state.auth.token
+    r = client.get("/api/v1/capabilities",
+                   headers={"Authorization": f"bearer{token}"})
+    assert r.status_code == 401
+
+
+def test_malformed_content_length_400(client: TestClient) -> None:
+    """A non-numeric Content-Length must not crash into a 500."""
+    r = client.post("/api/v1/investigations",
+                    headers={"content-length": "not-a-number"},
+                    content=b"{}")
+    assert r.status_code in {400, 422}  # never 500
+
+
+def test_token_file_mode_enforced_on_rewrite(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A pre-existing permissive token file must be tightened to 0600
+    on persist — O_CREAT mode alone cannot fix it (review)."""
+    import os
+    import stat
+    tok = tmp_path / "session-token"
+    tok.write_text("old", encoding="utf-8")
+    tok.chmod(0o644)
+    monkeypatch.setattr(api_mod, "_TOKEN_FILE", tok)
+    api_mod.SessionAuth()
+    if os.name != "nt":
+        assert stat.S_IMODE(tok.stat().st_mode) == 0o600
+
+
+def _snap(**kw: object) -> object:
+    from data_sentinel.core.contracts.snapshot import ExecutionSnapshot
+    base: dict[str, object] = {
+        "snapshot_id": "s", "platform": "glue", "job_id": "j",
+        "run_id": "r", "duration_s": 10.0, "input_bytes": 1_000,
+        "failure": False, "provenance": "imported"}
+    base.update(kw)
+    return ExecutionSnapshot(**base)  # type: ignore[arg-type]
+
+
+def test_watch_alert_ids_unique() -> None:
+    """Alerts produced inside one millisecond must not share an id —
+    `INSERT OR REPLACE` in the alerts table would silently overwrite."""
+    from data_sentinel.watch.engine import AlertEngine, WatchDefinition
+    eng = AlertEngine()
+    w = WatchDefinition(watch_id="w", workload="x", platform="glue",
+                        source="local", metrics=["duration_s"],
+                        rule="regression")
+    hist = [_snap(started_at=f"2024-01-{i:02d}T00:00:00Z")
+            for i in range(1, 8)]
+    cur = _snap(started_at="2024-02-01T00:00:00Z", duration_s=999.0,
+                input_bytes=10**12)
+    alerts = eng.evaluate(w, hist, cur)
+    ids = [a.alert_id for a in alerts]
+    assert len(ids) == len(set(ids)), ids
+
+
+def test_recovery_releases_dedup_slot() -> None:
+    """fail → recover → fail inside cooldown must alert again —
+    recovery releases the dedup slot instead of stamping it."""
+    from data_sentinel.watch.engine import AlertEngine, WatchDefinition
+    eng = AlertEngine(cooldown_s=9999.0)
+    w = WatchDefinition(watch_id="w", workload="x", platform="glue",
+                        source="local", rule="failure")
+    first = eng.evaluate(w, [], _snap(started_at="t1", failure=True))
+    rec = eng.evaluate(w, [], _snap(started_at="t2"))
+    second = eng.evaluate(w, [], _snap(started_at="t3", failure=True))
+    assert any(a.kind == "job_failure" for a in first)
+    assert any(a.recovered for a in rec)
+    assert any(a.kind == "job_failure" and not a.recovered
+               for a in second), "post-recovery failure suppressed"

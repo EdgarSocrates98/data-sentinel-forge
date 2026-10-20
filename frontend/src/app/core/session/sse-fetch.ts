@@ -6,10 +6,8 @@
  * and parse the `text/event-stream` framing themselves.
  *
  * Supports reconnection via `Last-Event-ID` when the caller tracks the
- * last seen frame id (the backend does not currently emit `id:` frames —
- * see the ds-0101 backend-contract note in
- * `investigation-stream.service.ts` — but this client honors `id:` when
- * present and is ready for that addition).
+ * last seen frame id — the backend emits `id: <seq>` on every frame and
+ * honors `Last-Event-ID` by replaying only events after that sequence.
  */
 
 export interface SseFrame {

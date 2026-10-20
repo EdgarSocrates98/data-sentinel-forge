@@ -135,6 +135,10 @@ export class InvestigationDetailComponent implements OnDestroy {
     this.state.set("loading");
     this.streamError.set(false);
     this.failureMessage.set(null);
+    // Reset per-investigation view state — switching ids must not
+    // leak a previous investigation's events or findings (review).
+    this.events.set([]);
+    this.expandedFindings.set(new Set());
     this.api.getInvestigation(id).subscribe({
       next: (detail) => {
         if (isInvestigationReport(detail)) {
@@ -169,6 +173,14 @@ export class InvestigationDetailComponent implements OnDestroy {
         }
       },
       error: () => this.streamError.set(true),
+      // The server closes the stream after the terminal event; if it
+      // ends without one (edge cases), reconcile state instead of
+      // leaving the page stuck in "running" (review).
+      complete: () => {
+        if (this.state() === "running") {
+          this.refreshReport();
+        }
+      },
     });
   }
 

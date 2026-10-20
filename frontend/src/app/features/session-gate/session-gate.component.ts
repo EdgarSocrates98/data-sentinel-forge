@@ -48,7 +48,11 @@ export class SessionGateComponent {
         this.session.acknowledgeExpiry();
         const redirect =
           this.route.snapshot.queryParamMap.get("redirect") ?? "/";
-        void this.router.navigateByUrl(redirect);
+        // In-app navigation only — a redirect param must stay a local
+        // path (review).
+        void this.router.navigateByUrl(
+          redirect.startsWith("/") ? redirect : "/",
+        );
       } else {
         this.state.set("invalid");
       }

@@ -64,14 +64,19 @@ def detect_regressions(
             continue
         med = median(vals)
         mad = _mad(vals, med)
+        # Direction-aware regression: quality signals degrade by
+        # DROPPING (Cycle 08.1 §7.4). `dir_` flips every comparison so
+        # an improvement never alerts and a drop is never missed.
+        dir_ = -1.0 if signal in DECREASE_IS_BAD else 1.0
 
         # absolute threshold
         if abs_thresholds and signal in abs_thresholds:
             lim = abs_thresholds[signal]
-            if cur > lim:
+            if (cur - lim) * dir_ > 0:
                 findings.append(_finding(
                     signal, med, cur, "absolute_threshold",
-                    f"valor {cur} acima do limite {lim}"))
+                    f"valor {cur} {'acima' if dir_ > 0 else 'abaixo'} "
+                    f"do limite {lim}"))
 
         # relative threshold (duration & volumes mainly)
         if med > 0:
@@ -89,21 +94,25 @@ def detect_regressions(
         # robust z-score via MAD (needs >=5 points)
         if len(vals) >= 5 and mad > 0:
             z = 0.6745 * (cur - med) / mad
-            if z > z_threshold:
+            if z * dir_ > z_threshold:
                 findings.append(_finding(
                     signal, med, cur, "robust_zscore",
                     f"z={z:.2f} (limiar {z_threshold})", z))
 
-        # simple trend: last 3 medians monotonically increasing
+        # simple trend: last 3 medians monotonic in the BAD direction
         if len(vals) >= 6:
             thirds = [vals[len(vals) // 3 * i:len(vals) // 3 * (i + 1)]
                       for i in range(3)]
             meds = [median(t) for t in thirds if t]
-            if len(meds) == 3 and meds[0] < meds[1] < meds[2] \
-                    and cur > meds[2]:
-                findings.append(_finding(
-                    signal, med, cur, "trend",
-                    "tendência monotônica crescente nos últimos terços"))
+            if len(meds) == 3:
+                rising = meds[0] < meds[1] < meds[2] and cur > meds[2]
+                falling = meds[0] > meds[1] > meds[2] and cur < meds[2]
+                if rising if dir_ > 0 else falling:
+                    findings.append(_finding(
+                        signal, med, cur, "trend",
+                        "tendência monotônica "
+                        f"{'crescente' if dir_ > 0 else 'decrescente'} "
+                        "nos últimos terços"))
 
 
 

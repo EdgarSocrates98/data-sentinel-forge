@@ -775,6 +775,7 @@ export const PT_BR: TranslationDict = {
     "Token inválido ou expirado. Verifique o valor e tente novamente.",
   "session.gate.expired": "Sessão expirada — gere um novo token.",
   "session.gate.required": "Informe um token para continuar.",
+  "session.logout": "Encerrar sessão",
 };
 
 export const EN: TranslationDict = {
@@ -1537,4 +1538,5 @@ export const EN: TranslationDict = {
     "Invalid or expired token. Check the value and try again.",
   "session.gate.expired": "Session expired — generate a new token.",
   "session.gate.required": "Enter a token to continue.",
+  "session.logout": "Sign out",
 };

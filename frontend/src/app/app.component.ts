@@ -4,7 +4,12 @@ import {
   effect,
   inject,
 } from "@angular/core";
-import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from "@angular/router";
 
 import { ApiErrorStore } from "./core/api-error.store";
 import { I18nService } from "./core/i18n/i18n.service";
@@ -12,6 +17,7 @@ import { LocalizedTitleStrategy } from "./core/i18n/localized-title.strategy";
 import { TranslatePipe } from "./core/i18n/translate.pipe";
 import { ThemeService } from "./core/theme.service";
 import { NavIconComponent } from "./core/nav-icon.component";
+import { SessionService } from "./core/session/session.service";
 
 interface NavItem {
   path: string;
@@ -38,6 +44,8 @@ export class AppComponent {
   protected readonly i18n = inject(I18nService);
   protected readonly themeService = inject(ThemeService);
   protected readonly errorStore = inject(ApiErrorStore);
+  protected readonly session = inject(SessionService);
+  private readonly router = inject(Router);
   private readonly titleStrategy = inject(LocalizedTitleStrategy);
 
   protected readonly navItems: readonly NavItem[] = [
@@ -100,5 +108,11 @@ export class AppComponent {
 
   protected dismissError(): void {
     this.errorStore.dismiss();
+  }
+
+  /** Explicit logout — clears the bearer session and returns to the gate. */
+  protected logout(): void {
+    this.session.clear();
+    void this.router.navigate(["/session"]);
   }
 }

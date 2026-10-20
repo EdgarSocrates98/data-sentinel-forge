@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn } from "@angular/common/http";
+import { HttpInterceptorFn } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { Router } from "@angular/router";
 import { catchError, throwError } from "rxjs";
@@ -36,12 +36,16 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(outgoing).pipe(
     catchError((err: unknown) => {
+      // Match on `status`, not `instanceof HttpErrorResponse`: this
+      // interceptor is registered outermost, so by the time its
+      // catchError runs, httpErrorInterceptor has already normalized
+      // the error into an ApiError — the raw HttpErrorResponse never
+      // arrives here (review).
       if (
         isApiRequest &&
         !isOpenPath &&
         !candidate &&
-        err instanceof HttpErrorResponse &&
-        err.status === 401
+        (err as { status?: number })?.status === 401
       ) {
         session.expire();
         void router.navigate(["/session"], {

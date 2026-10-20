@@ -73,13 +73,14 @@ stream, since `EventSource` cannot set custom headers.
 ## Backend contract gap (reported, not worked around)
 
 - `POST`-free routes still return a bare `{"detail": "unauthorized"}`
-  on 401 with no expiry/issued-at metadata, and the stream endpoint
-  does not emit SSE `id:` frames. The frontend's `Last-Event-ID`
-  support is therefore inert today (no backend to resume from); it is
-  implemented and tested so it activates automatically if the backend
-  adds `id:` frames. The 4h TTL is likewise tracked only client-side,
-  from the moment `establish()` succeeds — if the server clock and
-  client clock drift, or the server token was already partially aged
-  (e.g. reused across tabs), the client's expiry estimate will be
-  honest about *its own* uncertainty but cannot be exact without the
-  backend returning real issuance/expiry data.
+  on 401 with no expiry/issued-at metadata. The 4h TTL is tracked only
+  client-side, from the moment `establish()` succeeds — if the server
+  clock and client clock drift, or the server token was already
+  partially aged (e.g. reused across tabs), the client's expiry
+  estimate will be honest about *its own* uncertainty but cannot be
+  exact without the backend returning real issuance/expiry data.
+
+  Correction (cycle-08.1 review): the stream endpoint **does** emit
+  `id: <seq>` frames and honors `Last-Event-ID` — the earlier claim
+  that this support was inert was wrong. Reconnect remains a manual
+  retry by design.

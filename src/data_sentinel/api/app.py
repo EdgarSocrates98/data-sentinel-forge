@@ -18,7 +18,7 @@ import os
 import secrets
 import time
 from collections import deque
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from typing import Any, TypeVar, cast
 
@@ -119,8 +119,13 @@ class SessionAuth:
             _TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
             # Atomic 0600-from-creation: mode applies at O_CREAT —
             # no window where the token is world-readable (ds-0103).
-            fd = os.open(_TOKEN_FILE,
-                         os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
+            flags |= getattr(os, "O_NOFOLLOW", 0)  # no symlink clobber
+            fd = os.open(_TOKEN_FILE, flags, 0o600)
+            # fchmod covers a pre-existing file left with a permissive
+            # mode — O_CREAT mode only applies at creation (review).
+            with contextlib.suppress(OSError):
+                os.fchmod(fd, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 fh.write(self._token)
         except OSError:
@@ -148,7 +153,9 @@ class SessionAuth:
 
     def revoke(self) -> None:
         """§2.4 — revoga sessão: remove arquivo e gera token novo
-        in-memory (o antigo passa a ser rejeitado)."""
+        in-memory (o antigo passa a ser rejeitado). O novo token não é
+        persistido nem exposto — acesso futuro exige restart do processo
+        ou DATA_SENTINEL_TOKEN; é um encerramento, não uma rotação."""
         self._token = secrets.token_urlsafe(32)
         self._issued = time.time()
         with contextlib.suppress(OSError):
@@ -173,11 +180,12 @@ def _safe_path(raw: str, roots: list[Path]) -> Path:
     raise HTTPException(403, f"path outside allowed roots: {raw}")
 
 
-def _safe_error(exc: Exception) -> str:
+def _safe_error(exc: Exception,
+                extra_paths: Iterable[str] = ()) -> str:
     """Error string for the event stream — strips absolute paths and
     home-dir prefixes so internal layout never leaks (ds-0103)."""
     msg = f"{type(exc).__name__}: {exc}"
-    for p in {str(Path.home()), str(Path.cwd())}:
+    for p in {str(Path.home()), str(Path.cwd()), *extra_paths}:
         if p:
             msg = msg.replace(p, "<path>")
     return msg[:500]
@@ -292,10 +300,11 @@ class InvestigationState:
                 self.queues.pop(inv_id, None)
 
     def emit(self, inv_id: str, event: str, data: dict[str, Any]) -> None:
-        seq = self.store.emit(inv_id, event, _redact(data))
+        redacted = _redact(data)
+        seq = self.store.emit(inv_id, event, redacted)
         for q in self.queues.get(inv_id, ()):
             q.put_nowait({"seq": seq, "event": event,
-                          "data": _redact(data), "ts": time.time()})
+                          "data": redacted, "ts": time.time()})
 
     @property
     def reports(self) -> dict[str, Any]:
@@ -312,7 +321,6 @@ def create_app(allowed_roots: list[str] | None = None,
                store: InvestigationStore | None = None) -> FastAPI:
     roots = [Path(r) for r in (allowed_roots or
                                [str(Path.cwd()), str(Path.home() / ".cache")])]
-    import os
     db = (db_path or os.environ.get("DATA_SENTINEL_DB")
           or DEFAULT_DB)
     state = InvestigationState(
@@ -324,11 +332,6 @@ def create_app(allowed_roots: list[str] | None = None,
     rate_buckets: dict[str, list[float]] = {}  # app-scoped (ds-0103)
     app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
                   docs_url="/api/docs", openapi_url="/api/openapi.json")
-
-    app.add_middleware(
-        CORSMiddleware, allow_origins=[
-            "http://localhost:4200", "http://127.0.0.1:4200"],
-        allow_methods=["GET", "POST"], allow_headers=["*"], max_age=600)
 
     @app.middleware("http")
     async def local_guard(request: Request, call_next):  # type: ignore[no-untyped-def]
@@ -358,7 +361,11 @@ def create_app(allowed_roots: list[str] | None = None,
             client = (request.client.host
                       if request.client else "unknown")
             # §2.4 — lockout temporário após falhas repetidas (anti
-            # brute-force local); janela deslizante por cliente
+            # brute-force local); janela deslizante por cliente.
+            # Bounded like rate_buckets — many distinct client keys
+            # cannot grow the map without limit (review).
+            if len(auth_failures) >= _MAX_RATE_CLIENTS:
+                auth_failures.clear()
             fails = [t for t in auth_failures.get(client, [])
                      if time.time() - t < _AUTH_LOCKOUT_S]
             auth_failures[client] = fails
@@ -368,8 +375,10 @@ def create_app(allowed_roots: list[str] | None = None,
                     {"detail": "muitas falhas de autenticação — "
                                "tente em instantes"}, 429)
             header = request.headers.get("authorization", "")
-            presented = header.removeprefix("Bearer ").strip() \
-                if header.lower().startswith("bearer") else None
+            # RFC 7235: scheme is case-insensitive; require the space so
+            # "bearerXYZ" is not treated as a Bearer credential.
+            presented = (header[7:].strip()
+                         if header[:7].lower() == "bearer " else None)
             if not auth.check(presented):
                 fails.append(time.time())
                 _audit(client, path, 401)
@@ -382,8 +391,14 @@ def create_app(allowed_roots: list[str] | None = None,
     @app.middleware("http")
     async def payload_limit(request: Request, call_next):  # type: ignore[no-untyped-def]
         length = request.headers.get("content-length")
-        if length and int(length) > MAX_PAYLOAD:
-            return JSONResponse({"detail": "payload too large"}, 413)
+        if length:
+            try:
+                if int(length) > MAX_PAYLOAD:
+                    return JSONResponse(
+                        {"detail": "payload too large"}, 413)
+            except ValueError:
+                return JSONResponse(
+                    {"detail": "malformed content-length"}, 400)
         return await call_next(request)
 
     @app.middleware("http")
@@ -404,6 +419,15 @@ def create_app(allowed_roots: list[str] | None = None,
         response = await call_next(request)
         _audit(client, request.url.path, response.status_code)
         return response
+
+    # CORS registered LAST so it is the OUTERMOST middleware — a
+    # preflight OPTIONS must be answered by CORSMiddleware, not by a
+    # bare 401 from bearer_auth (which would lack Access-Control-*
+    # headers and make every authenticated browser call fail).
+    app.add_middleware(
+        CORSMiddleware, allow_origins=[
+            "http://localhost:4200", "http://127.0.0.1:4200"],
+        allow_methods=["GET", "POST"], allow_headers=["*"], max_age=600)
 
     # ---- health / capabilities ----
 
@@ -479,14 +503,18 @@ def create_app(allowed_roots: list[str] | None = None,
                 for h in rep.hypotheses_supported:
                     state.emit(inv_id, "HYPOTHESIS_CREATED",
                                h.model_dump(mode="json"))
-                state.store.transition(inv_id, InvState.COMPLETED)
+                # emit BEFORE transition: a terminal state must imply
+                # the terminal event is already in the store — stream
+                # readers use the state check to decide to stop.
                 state.emit(inv_id, "INVESTIGATION_COMPLETED",
                            {"findings": len(rep.findings)})
+                state.store.transition(inv_id, InvState.COMPLETED)
             except Exception as exc:
+                state.emit(inv_id, "INVESTIGATION_FAILED",
+                           {"error": _safe_error(
+                               exc, (str(r) for r in roots))})
                 with contextlib.suppress(ValueError):
                     state.store.transition(inv_id, InvState.FAILED)
-                state.emit(inv_id, "INVESTIGATION_FAILED",
-                           {"error": _safe_error(exc)})
             finally:
                 for q in list(state.queues.get(inv_id, ())):
                     q.put_nowait({"event": "__end__", "data": {},
@@ -536,6 +564,14 @@ def create_app(allowed_roots: list[str] | None = None,
                 if rec is not None and rec.state in {
                         InvState.COMPLETED, InvState.FAILED,
                         InvState.CANCELLED}:
+                    # Terminal state ⇒ terminal event already committed
+                    # (emit-before-transition in _run). Drain the store
+                    # once — events between the replay snapshot and the
+                    # state check must not be dropped (review).
+                    for e in state.store.events(
+                            inv_id, after_seq=last):
+                        yield (f"id: {e['seq']}\nevent: {e['event']}\n"
+                               f"data: {json.dumps(e['data'])}\n\n")
                     return
                 while True:
                     item = await q.get()

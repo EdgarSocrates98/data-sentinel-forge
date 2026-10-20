@@ -185,8 +185,10 @@ def build_default_registry() -> ToolRegistry:
 
 def _roots_for(file: str,
                allowed_roots: list[Path] | None) -> list[Path]:
-    """Explicit roots when a caller restricts scope (MCP); otherwise the
-    CLI convenience of the file's own dir + cwd (ds-0106)."""
+    """Explicit roots when a caller restricts scope (MCP). Without them
+    the fallback is the file's own dir + cwd — effectively unrestricted
+    for a readable path (a file is always inside its parent); that is
+    the intended CLI behavior, not a sandbox (ds-0106, review)."""
     if allowed_roots is not None:
         return allowed_roots
     return [Path(file).resolve().parent, Path.cwd()]

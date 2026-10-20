@@ -30,6 +30,16 @@
       >
         {{ i18n.locale() === "pt-BR" ? "EN" : "PT" }}
       </button>
+      @if (session.isAuthenticated()) {
+        <button
+          type="button"
+          class="ds-btn"
+          (click)="logout()"
+          [attr.aria-label]="'session.logout' | t"
+        >
+          {{ "session.logout" | t }}
+        </button>
+      }
       <button
         type="button"
         class="ds-btn"

@@ -3,22 +3,22 @@
   "results": {
     "metadata_parse": {
       "snapshots_100": 0.0009,
-      "snapshots_1000": 0.0066,
-      "snapshots_5000": 0.0394,
+      "snapshots_1000": 0.0064,
+      "snapshots_5000": 0.036,
       "peak_bytes_5000_snaps": 6620575,
       "input_bytes": 1302760
     },
     "knowledge": {
       "rules": 10,
-      "load_s": 0.0108,
-      "select_10k_s": 0.0842
+      "load_s": 0.0103,
+      "select_10k_s": 0.0797
     },
     "iam_eval": {
       "statements": 500,
-      "eval_1000_s": 0.7911
+      "eval_1000_s": 0.7347
     },
     "analyzer": {
-      "iceberg_analyze_100_s": 0.0362
+      "iceberg_analyze_100_s": 0.0319
     }
   }
 }
