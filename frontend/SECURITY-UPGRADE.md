@@ -124,3 +124,95 @@ Final state: **0 axe violations** across 64 scans (8 routes × 2 themes ×
   jump and already clears the remaining build-dep advisories.
 - Backend bearer token has no SPA affordance yet — E2E covers shell and
   error states; authenticated data flows remain unit-test-covered only.
+
+## 4. Cycle 08: Vitest migration (ds-0095 §6.2 + §6.3)
+
+Date: 2026-10-20. Same environment as Cycle 07 (Node 22.23.2, npm 10.9.8).
+
+### What changed
+
+Unit tests moved off the EOL Karma/Jasmine stack onto Angular 20's
+experimental `@angular/build:unit-test` builder with the **Vitest** runner
+(`jsdom` environment — no browser binary required):
+
+- `angular.json` — `test` target: builder
+  `@angular-devkit/build-angular:karma` → `@angular/build:unit-test`,
+  `runner: "vitest"`, `buildTarget: "frontend:build:development"`.
+  `zone.js/testing` is auto-injected by the builder; the browser TestBed
+  init runs via the builder's virtual setup module.
+- `tsconfig.spec.json` — types `jasmine` → `vitest/globals`; the setup
+  file is now part of the spec compilation.
+- `src/test-setup.ts` (new) — small Jasmine-compat shim installed via the
+  builder's `setupFiles` option so **all spec files stay unchanged**:
+  - `spyOn(obj, "m")` global returning a spy with `.and.returnValue/
+    callFake/callThrough/stub` and `.calls.mostRecent()` accessors —
+    semantics match Jasmine (stub-by-default, restored after each test);
+    also stubs DOM APIs jsdom lacks (`URL.createObjectURL`,
+    `URL.revokeObjectURL`).
+  - `toBeTrue()` / `toBeFalse()` matchers via `expect.extend`.
+- `package.json` — removed `karma`, `karma-chrome-launcher`,
+  `karma-coverage`, `karma-jasmine`, `karma-jasmine-html-reporter`,
+  `jasmine-core`, `@types/jasmine`; added `vitest@^3.2.4` (resolved 3.2.7,
+  the newest 3.x — `@angular/build@20.3.40` peers `vitest ^3.1.1`) and
+  `jsdom@^26.1.0`. `npm test` is unchanged (`ng test`).
+- **Lockfile regenerated** (`rm -rf node_modules package-lock.json &&
+  npm install`): `karma` is an *optional peer* of `@angular/build` and
+  kept being reinstalled from the stale lock resolution; a fresh lock
+  drops it. Tree went 1013 → 923 packages.
+
+### New override
+
+| Package | Pinned | Why |
+|---|---|---|
+| `tinypool` | `2.2.0` | `vitest@3.2.7` requires `^1.1.1`; advisories GHSA-5gmw-xhrv-c9v3 + GHSA-85c8-ppgw-ccpr (**critical**, prototype-pollution → RCE in `run()` options) affect `<=2.1.1`. tinypool 2.x is ESM-only/Node ≥20 — vitest 3.x is ESM on Node 22; verified working (64/64 tests run inside tinypool workers). |
+
+### npm audit — before/after
+
+| | critical | high | moderate | low/info | total |
+|---|---|---|---|---|---|
+| Before (karma stack) | 0 | 12 | 0 | 0 | **12** |
+| After (vitest stack) | 0 | 8 | 3 | 0 | **11** |
+
+The Cycle-07 "12 high" was entirely the `braces@3.0.3` root; removing
+karma eliminated its three package-level advisories (`karma`,
+`karma-jasmine`, `karma-jasmine-html-reporter`) plus karma's private
+`chokidar@3` copy. Without the `tinypool` override the migration would
+have *added* two critical advisories — the pin prevents that.
+
+### What remains (honest list)
+
+- **8 high — unchanged root cause.** `braces` still has no published fix
+  (advisory covers `*`) and is still reachable through *hard* deps inside
+  `@angular-devkit/build-angular`: `fast-glob` (asset globbing →
+  `micromatch`) and `@angular-devkit/build-webpack` → `webpack-dev-server`
+  (`chokidar@3`, `http-proxy-middleware` → `micromatch`). These ship with
+  the legacy webpack builders bundled in the package — not removable on
+  Angular 20. Upgrading to Angular 21+ (vite-only toolchain) is the
+  durable fix.
+- **3 moderate — new, vitest-side.** `@vitest/mocker`
+  (GHSA-82fw-gwwq-j7x9, path traversal / arbitrary file read via
+  redirect mocks) affects `2.1.0–4.1.10` — **no 3.x backport exists**;
+  the fix needs vitest ≥4.1.11, which `@angular/build@20` cannot use
+  (peer `^3.1.1`, plus `injectTestProjects` is a v3 API). Its parents
+  `vitest` and `@angular/build` are counted in the same chain.
+  Exploitability requires a malicious mock declaration inside the repo's
+  own test suite — dev-only, low real risk; documented, not hidden.
+
+### Verification
+
+- `npx ng test` → **15 files, 64/64 tests passed** (~6 s; was
+  `ng test --browsers=ChromeHeadless`). One cosmetic `NG04002` stderr
+  line (unmatched `investigations/inv-9` route in
+  `investigation-new` spec) — same navigation attempt happened under
+  Karma; test still passes.
+- `npx ng build` — production bundle clean.
+- `npx tsc -p tsconfig.spec.json --noEmit` — clean (shim's global
+  declarations typecheck the unchanged specs).
+- Playwright config/specs untouched.
+
+### SBOM artifacts (§6.3)
+
+- `frontend/sbom.cyclonedx.json` — CycloneDX 1.5, 925 components
+  (`npm sbom --sbom-format cyclonedx`).
+- `docs/evidence/python-deps.json` — 72 installed packages
+  (`uv pip list --format json`).
