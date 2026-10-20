@@ -43,8 +43,9 @@ def server(tmp_path_factory: pytest.TempPathFactory) -> str:
     proc = subprocess.Popen(  # noqa: S603 - local test server
         [sys.executable, "-c",
          "import uvicorn; from data_sentinel.api import create_app;"
-         f"uvicorn.run(create_app(allowed_roots=['{FIXTURES}'],"
-         f" db_path='{db}'),"
+         f"uvicorn.run(create_app("
+         f"allowed_roots=['{FIXTURES.as_posix()}'],"
+         f" db_path='{db.as_posix()}'),"
          f" host='127.0.0.1', port={port}, log_level='error')"],
         cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"
