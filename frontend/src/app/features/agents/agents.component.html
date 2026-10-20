@@ -27,7 +27,12 @@
       @if (sortedAgents().length === 0) {
         <p class="muted">{{ "agents.registry.empty" | t }}</p>
       } @else {
-        <div class="table-scroll">
+        <div
+          class="table-scroll"
+          tabindex="0"
+          role="region"
+          [attr.aria-label]="'agents.registry.caption' | t"
+        >
           <table class="data-table">
             <caption class="sr-only">
               {{ "agents.registry.caption" | t }}
@@ -84,7 +89,12 @@
             {{ "agents.tools.title" | t }} ({{ tools().length }})
           </h2>
         </summary>
-        <div class="table-scroll">
+        <div
+          class="table-scroll"
+          tabindex="0"
+          role="region"
+          [attr.aria-label]="'agents.tools.caption' | t"
+        >
           <table class="data-table">
             <caption class="sr-only">{{ "agents.tools.caption" | t }}</caption>
             <thead>

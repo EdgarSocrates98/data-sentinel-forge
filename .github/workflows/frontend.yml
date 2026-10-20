@@ -1,0 +1,130 @@
+name: Frontend
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    name: strict TS + unit tests + build + bundle gate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+
+      - name: TypeScript strict checks
+        run: |
+          npx tsc --noEmit -p tsconfig.app.json
+          npx tsc --noEmit -p tsconfig.spec.json
+          npx tsc --noEmit -p tsconfig.e2e.json
+
+      - name: Unit tests (Vitest via Angular builder)
+        run: npx ng test --no-watch
+
+      - name: Production build
+        run: npx ng build
+
+      - name: Initial bundle ≤ 600 kB raw
+        run: node scripts/check-bundle-size.mjs
+
+      - name: Production dependency audit (enforced)
+        run: npm audit --omit=dev
+
+      - name: Full audit report (dev-toolchain advisories — informational)
+        run: |
+          npm audit || true
+          npm audit --json > audit-report.json || true
+          echo "Dev-toolchain residuals are classified in docs/security/frontend-residuals.md"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-report
+          path: frontend/audit-report.json
+          if-no-files-found: ignore
+
+  e2e:
+    name: playwright ${{ matrix.project }} (+ axe sweep)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Acceptance browsers for ds-0102. "-auth" projects hold the
+        # rate-limit-sensitive authenticated journey (serialized by
+        # project dependencies in playwright.config.ts). WebKit runs
+        # in the separate non-blocking job below.
+        project: [chromium-auth, chromium, firefox-auth, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - working-directory: frontend
+        run: npx playwright install --with-deps ${{ matrix.project }}
+      # Playwright spawns both servers itself: the FastAPI backend via
+      # `uv run data-sentinel serve --port 8790` (pinned test token +
+      # isolated SQLite under test-results/) and `ng serve` on :4200.
+      - working-directory: frontend
+        run: npx playwright test --project=${{ matrix.project }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-${{ matrix.project }}-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          if-no-files-found: ignore
+
+  e2e-webkit:
+    # ds-0102: WebKit coverage is ATTEMPTED, not silently skipped. If the
+    # runner image ever lacks WebKit system deps (historically libavif on
+    # some hosts), this job documents the limitation instead of hiding it.
+    # Non-blocking while host support is not guaranteed.
+    name: playwright webkit (best effort)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - working-directory: frontend
+        run: npm ci
+      - working-directory: frontend
+        run: npx playwright install --with-deps webkit
+      # Rate-limit quiet window: the journey runs alone first (CI has
+      # no project-dependency chain — see playwright.config.ts).
+      - working-directory: frontend
+        run: npx playwright test e2e/authenticated.spec.ts --project=webkit-auth
+      - working-directory: frontend
+        run: npx playwright test --project=webkit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-webkit-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          if-no-files-found: ignore

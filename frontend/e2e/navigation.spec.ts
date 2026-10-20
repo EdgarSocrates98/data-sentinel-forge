@@ -1,17 +1,23 @@
 import { expect, test } from "@playwright/test";
 
 import { NAV_ROUTES, gotoRoute, seedPrefs } from "./helpers";
+import { seedSession } from "./session";
 
 /**
  * Boot + navigation smoke tests against a real backend
  * (`uv run data-sentinel serve --port 8790`, spawned by playwright.config).
  *
- * The API requires a bearer session token that the SPA does not yet
- * provide, so data endpoints answer 401 and surfaces show their error
- * states — these specs assert shell/routing/i18n/theme behavior, not data.
+ * Every feature route sits behind `authGuard` (ds-0101), so each test
+ * seeds an established session in sessionStorage (the spawned backend
+ * accepts `E2E_SESSION_TOKEN` — see e2e/session.ts). These specs still
+ * assert shell/routing/i18n/theme behavior rather than data payloads.
  */
 
 const API_HEALTH = "http://127.0.0.1:8790/api/v1/health";
+
+test.beforeEach(async ({ page }) => {
+  await seedSession(page);
+});
 
 test("real backend is up and healthy", async ({ request }, testInfo) => {
   // One browser project only: the API rate-limits 127.0.0.1 at 120 req/min
@@ -20,9 +26,17 @@ test("real backend is up and healthy", async ({ request }, testInfo) => {
     testInfo.project.name !== "chromium",
     "single-project smoke check",
   );
-  const res = await request.get(API_HEALTH);
-  expect(res.status()).toBe(200);
-  const body = await res.json();
+  // The shared rate bucket can transiently return 429 under the
+  // parallel a11y/navigation wave — retry within a short window rather
+  // than flake on a contract that is intentionally throttled.
+  let res;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    res = await request.get(API_HEALTH);
+    if (res.status() !== 429) break;
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  expect(res!.status()).toBe(200);
+  const body = await res!.json();
   expect(body.status).toBe("ok");
   expect(body.api).toBe("v1");
 });

@@ -1,0 +1,11 @@
+/* Type-check for Playwright E2E specs (ds-0102 CI gate).
+   Node types come from the transitive @types/node in the lockfile. */
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/e2e",
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["e2e/**/*.ts", "playwright.config.ts"]
+}
