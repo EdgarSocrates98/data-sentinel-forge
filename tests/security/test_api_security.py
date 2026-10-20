@@ -16,9 +16,10 @@ FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
 
 
 @pytest.fixture
-def client() -> TestClient:
+def client(tmp_path: Path) -> TestClient:
     api_mod._RATE_BUCKETS.clear()
-    app = create_app(allowed_roots=[str(FIXTURES)])
+    app = create_app(allowed_roots=[str(FIXTURES)],
+                     db_path=tmp_path / "sec.db")
     c = TestClient(app)
     c.headers["Authorization"] = f"Bearer {app.state.auth.token}"
     return c
@@ -110,8 +111,9 @@ def test_auth_required(client: TestClient) -> None:
     assert c.get("/api/v1/health").status_code == 200
 
 
-def test_non_local_host_rejected() -> None:
-    app = create_app(allowed_roots=[str(FIXTURES)])
+def test_non_local_host_rejected(tmp_path: Path) -> None:
+    app = create_app(allowed_roots=[str(FIXTURES)],
+                     db_path=tmp_path / "h.db")
     c = TestClient(app, base_url="http://evil.example")
     r = c.get("/api/v1/health")
     assert r.status_code == 403

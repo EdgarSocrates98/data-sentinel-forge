@@ -17,6 +17,10 @@ export const appConfig: ApplicationConfig = {
       withInMemoryScrolling({ scrollPositionRestoration: "top" }),
     ),
     provideHttpClient(withInterceptors([httpErrorInterceptor])),
-    { provide: TitleStrategy, useClass: LocalizedTitleStrategy },
+    // useExisting: a single instance shared by the Router (TitleStrategy
+    // token) and AppComponent's locale-refresh effect. With useClass the
+    // component would inject a *different* root instance whose
+    // lastSnapshot is never set, leaving <title> stale on locale change.
+    { provide: TitleStrategy, useExisting: LocalizedTitleStrategy },
   ],
 };

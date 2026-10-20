@@ -12,6 +12,7 @@ Security defaults (spec 06.1/3.4):
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import secrets
 import time
@@ -31,6 +32,13 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 from data_sentinel.core.contracts.enums import Severity
+from data_sentinel.persistence.investigations import (
+    DEFAULT_DB,
+    InvestigationStore,
+)
+from data_sentinel.persistence.investigations import (
+    State as InvState,
+)
 
 MAX_PAYLOAD = 10 * 1024 * 1024  # 10 MB
 ALLOWED_FILE_EXTS = {".json", ".log", ".txt", ".sql", ".yaml", ".yml", ".plan",
@@ -157,25 +165,41 @@ class InvestigationCreate(BaseModel):
 
 
 class InvestigationState:
-    """In-memory investigation store — per-process, truthful about scope."""
+    """Persistent investigation state (§2) — SQLite-backed, with live
+    queues only for subscribers currently attached."""
 
-    def __init__(self) -> None:
-        self.reports: dict[str, Any] = {}
-        self.events: dict[str, asyncio.Queue[dict[str, Any]]] = {}
-        self.created: dict[str, float] = {}
+    def __init__(self, store: InvestigationStore | None = None) -> None:
+        self.store = store or InvestigationStore()
+        self.queues: dict[str, asyncio.Queue[dict[str, Any]]] = {}
+        # hydrate in-memory reports dict from persisted rows
+        for rec in self.store.list_all():
+            if rec.report is not None:
+                pass  # reports read lazily via store.get()
 
     def emit(self, inv_id: str, event: str, data: dict[str, Any]) -> None:
-        q = self.events.get(inv_id)
+        seq = self.store.emit(inv_id, event, _redact(data))
+        q = self.queues.get(inv_id)
         if q is not None:
-            q.put_nowait({"event": event, "data": _redact(data),
-                          "ts": time.time()})
+            q.put_nowait({"seq": seq, "event": event,
+                          "data": _redact(data), "ts": time.time()})
+
+    @property
+    def reports(self) -> dict[str, Any]:
+        return {}  # compat shim — real data via store
+
+    @property
+    def events(self) -> dict[str, asyncio.Queue[dict[str, Any]]]:
+        return self.queues
 
 
 def create_app(allowed_roots: list[str] | None = None,
-               *, require_auth: bool = True) -> FastAPI:
+               *, require_auth: bool = True,
+               db_path: Path | str | None = None,
+               store: InvestigationStore | None = None) -> FastAPI:
     roots = [Path(r) for r in (allowed_roots or
                                [str(Path.cwd()), str(Path.home() / ".cache")])]
-    state = InvestigationState()
+    state = InvestigationState(
+        store=store or InvestigationStore(db_path or DEFAULT_DB))
     auth = SessionAuth()
     _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient",
                     "testserver"}
@@ -284,27 +308,34 @@ def create_app(allowed_roots: list[str] | None = None,
             files[tool_id] = str(p)
 
         q: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
-        state.events[inv_id] = q
-        state.created[inv_id] = time.time()
+        state.queues[inv_id] = q
+        state.store.create(inv_id, body.problem)
+        state.store.transition(inv_id, InvState.QUEUED)
 
         async def _run() -> None:
             state.emit(inv_id, "INVESTIGATION_STARTED",
                        {"investigation_id": inv_id})
             try:
+                state.store.transition(inv_id, InvState.RUNNING)
                 rep = await asyncio.to_thread(
                     investigate, body.problem, files)
                 rep.investigation_id = inv_id
                 rep.report_id = inv_id
-                state.reports[inv_id] = rep
+                state.store.save_report(
+                    inv_id, rep.model_dump(mode="json"))
                 for t in rep.tools_used:
                     state.emit(inv_id, "TOOL_COMPLETED", {"tool": t})
                 for h in rep.hypotheses_supported:
                     state.emit(inv_id, "HYPOTHESIS_CREATED",
                                h.model_dump(mode="json"))
+                state.store.transition(inv_id, InvState.COMPLETED)
                 state.emit(inv_id, "INVESTIGATION_COMPLETED",
                            {"findings": len(rep.findings)})
             except Exception as exc:
-                state.emit(inv_id, "INVESTIGATION_FAILED", {"error": str(exc)})
+                with contextlib.suppress(ValueError):
+                    state.store.transition(inv_id, InvState.FAILED)
+                state.emit(inv_id, "INVESTIGATION_FAILED",
+                           {"error": str(exc)})
             finally:
                 q.put_nowait({"event": "__end__", "data": {}, "ts": 0.0})
 
@@ -313,34 +344,49 @@ def create_app(allowed_roots: list[str] | None = None,
 
     @app.get("/api/v1/investigations")
     def list_investigations() -> list[dict[str, Any]]:
-        return [{"investigation_id": i, "status": "completed",
-                 "created": state.created.get(i)}
-                for i in sorted(state.reports)]
+        return [{"investigation_id": r.investigation_id,
+                 "status": r.state.value.lower(),
+                 "created": r.created_at, "updated": r.updated_at,
+                 "problem": r.problem}
+                for r in state.store.list_all()]
 
     @app.get("/api/v1/investigations/{inv_id}")
     def get_investigation(inv_id: str) -> dict[str, Any]:
-        rep = state.reports.get(inv_id)
-        if rep is None:
-            if inv_id in state.events:
-                return {"investigation_id": inv_id, "status": "running"}
+        rec = state.store.get(inv_id)
+        if rec is None:
             raise HTTPException(404, "investigation not found")
-        return _redact(rep.model_dump(mode="json"))
+        if rec.report is None:
+            return {"investigation_id": inv_id,
+                    "status": rec.state.value.lower()}
+        report = dict(rec.report)
+        report["status"] = rec.state.value.lower()
+        return _redact(report)
 
     @app.get("/api/v1/investigations/{inv_id}/stream")
-    async def stream(inv_id: str) -> StreamingResponse:
-        if inv_id not in state.events and inv_id not in state.reports:
+    async def stream(request: Request, inv_id: str) -> StreamingResponse:
+        if state.store.get(inv_id) is None:
             raise HTTPException(404, "investigation not found")
+        last_id = request.headers.get("last-event-id")
+        after = int(last_id) if last_id and last_id.isdigit() else 0
 
         async def gen() -> AsyncIterator[str]:
-            q = state.events.get(inv_id)
+            # replay persisted events first (§2.4)
+            for e in state.store.events(inv_id, after_seq=after):
+                yield (f"id: {e['seq']}\nevent: {e['event']}\n"
+                       f"data: {json.dumps(e['data'])}\n\n")
+            rec = state.store.get(inv_id)
+            if rec is not None and rec.state in {
+                    InvState.COMPLETED, InvState.FAILED,
+                    InvState.CANCELLED}:
+                return
+            q = state.queues.get(inv_id)
             if q is None:
-                yield 'event: INVESTIGATION_COMPLETED\ndata: {}\n\n'
                 return
             while True:
                 item = await q.get()
                 if item["event"] == "__end__":
                     break
-                yield (f"event: {item['event']}\n"
+                yield (f"id: {item['seq']}\nevent: {item['event']}\n"
                        f"data: {json.dumps(item['data'])}\n\n")
 
         return StreamingResponse(gen(), media_type="text/event-stream")
@@ -350,10 +396,12 @@ def create_app(allowed_roots: list[str] | None = None,
         """Evidence graph for an investigation — delegates to core."""
         from dataclasses import asdict
 
+        from data_sentinel.core.contracts.agent import InvestigationReport
         from data_sentinel.diagnostics.incident import build_incident_graph, context_from_hints
-        rep = state.reports.get(inv_id)
-        if rep is None:
+        rec = state.store.get(inv_id)
+        if rec is None or rec.report is None:
             raise HTTPException(404, "investigation not found")
+        rep = InvestigationReport.model_validate(rec.report)
         hints = dict(rep.context.get("hints", {}))
         ctx = context_from_hints(hints)
         g = build_incident_graph(ctx, rep.findings, rep.evidence)

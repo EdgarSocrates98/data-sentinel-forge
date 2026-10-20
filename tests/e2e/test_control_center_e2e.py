@@ -35,14 +35,16 @@ AUTH = {"Authorization": f"Bearer {TEST_TOKEN}"}
 
 
 @pytest.fixture(scope="module")
-def server() -> str:
+def server(tmp_path_factory: pytest.TempPathFactory) -> str:
     import os
+    db = tmp_path_factory.mktemp("db") / "e2e.db"
     port = _free_port()
     env = dict(os.environ, DATA_SENTINEL_TOKEN=TEST_TOKEN)
     proc = subprocess.Popen(  # noqa: S603 - local test server
         [sys.executable, "-c",
          "import uvicorn; from data_sentinel.api import create_app;"
-         f"uvicorn.run(create_app(allowed_roots=['{FIXTURES}']),"
+         f"uvicorn.run(create_app(allowed_roots=['{FIXTURES}'],"
+         f" db_path='{db}'),"
          f" host='127.0.0.1', port={port}, log_level='error')"],
         cwd=ROOT, env=env)
     base = f"http://127.0.0.1:{port}"

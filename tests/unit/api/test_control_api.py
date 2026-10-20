@@ -16,7 +16,8 @@ FIXTURES = Path(__file__).resolve().parents[3] / "fixtures"
 
 @pytest.fixture
 def client(tmp_path: Path) -> TestClient:
-    app = create_app(allowed_roots=[str(FIXTURES), str(tmp_path)])
+    app = create_app(allowed_roots=[str(FIXTURES), str(tmp_path)],
+                     db_path=tmp_path / "test.db")
     c = TestClient(app)
     c.headers["Authorization"] = f"Bearer {app.state.auth.token}"
     return c

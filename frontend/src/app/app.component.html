@@ -22,7 +22,12 @@
         type="button"
         class="ds-btn"
         (click)="toggleLocale()"
-        [attr.aria-label]="'lang.switch' | t"
+        [attr.aria-label]="
+          ('lang.switch' | t) +
+          ' (' +
+          (i18n.locale() === 'pt-BR' ? 'EN' : 'PT') +
+          ')'
+        "
       >
         {{ i18n.locale() === "pt-BR" ? "EN" : "PT" }}
       </button>
