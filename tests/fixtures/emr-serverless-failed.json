@@ -1,0 +1,7 @@
+{"calls":{
+ "application":{"applicationId":"00fxxxx","name":"etl-srv","state":"STARTED","releaseLabel":"emr-6.15.0"},
+ "jobRuns":[
+  {"jobRunId":"jr-1","state":"FAILED","attempt":2,"createdAt":1729400000,"startedAt":1729400420,"stateDetails":"Driver failed: OutOfMemoryError in driver pod",
+   "totalResourceUtilization":{"vCPUHour":12.5,"memoryGBHour":80.0}},
+  {"jobRunId":"jr-2","state":"SUCCESS","attempt":1,"createdAt":1729400000,"startedAt":1729400010}]
+}}
