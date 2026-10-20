@@ -38,6 +38,18 @@ dev = [
     "jsonschema>=4.21",
 ]
 
+[dependency-groups]
+# Auto-installed by `uv sync` (uv-native dev workflow).
+# Kept in sync with the `dev` optional-dependency extra above, which serves
+# `pip install -e ".[dev]"` users.
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "jsonschema>=4.21",
+]
+
 [project.scripts]
 data-sentinel = "data_sentinel.cli:app"
 

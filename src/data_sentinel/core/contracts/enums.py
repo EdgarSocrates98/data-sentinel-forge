@@ -89,4 +89,7 @@ class SourceType(StrEnum):
     PHYSICAL_PLAN = "physical_plan"
     METRICS = "metrics"
     CONFIG = "config"
+    SPARK_PLAN = "spark_plan"
+    GLUE_JOB = "glue_job"
+    CLOUDWATCH_LOG = "cloudwatch_log"
     OTHER = "other"

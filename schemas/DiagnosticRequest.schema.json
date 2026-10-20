@@ -188,6 +188,9 @@
         "physical_plan",
         "metrics",
         "config",
+        "spark_plan",
+        "glue_job",
+        "cloudwatch_log",
         "other"
       ],
       "title": "SourceType",

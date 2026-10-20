@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0010.implement.claude.md)"
+  ],
+  "created_at": "2026-10-20T00:01:37+00:00",
+  "id": "ds-0010",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0010.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0010.md",
+  "spec_sha256": "cd2fed36d0a08822c08cc8e7d6e98720a00386dddf9a639548426b98c97983c8",
+  "status": "planned",
+  "title": "Cycle 01 audit + Cycle 02 baseline & architecture scaffolding"
+}

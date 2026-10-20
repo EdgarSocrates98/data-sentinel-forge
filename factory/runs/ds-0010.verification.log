@@ -1,0 +1,45 @@
+== ds-0010 clean-room verification (2026-10-19T21:02:52-03:00) ==
+(retry após fix dependency-groups — primeira execução revelou gap documentado na baseline)
+
+$ uv sync
+Resolved 48 packages in 0.97ms
+Checked 31 packages in 0.38ms
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 42%]
+........................................................................ [ 85%]
+........................                                                 [100%]
+168 passed in 0.98s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 49 source files
+[exit 0]
+
+$ uv build
+Building source distribution...
+Building wheel from source distribution...
+Successfully built dist/data_sentinel-0.1.0.tar.gz
+Successfully built dist/data_sentinel-0.1.0-py3-none-any.whl
+[exit 0]
+
+$ uv run data-sentinel version
+data-sentinel 0.1.0
+[exit 0]
+
+$ uv run data-sentinel analyze --file fixtures/logs/mixed.log --json --no-persist | python3 -c 'import json,sys; r=json.load(sys.stdin); print(r["report_id"], r["summary"])'
+bb46be02a0174e069945ad281f415824 2 achado(s): CONFIRMED=2
+[exit 0]
+
+$ uv run data-sentinel doctor
+[PASS] python 3.12.3
+[PASS] config resolvida (perfil=balanced, fontes=0)
+[PASS] store gravável (~/.local/share/data-sentinel)
+[PASS] 2 analyzer(s) registrado(s)
+[PASS] redação de segredos ativa
+[exit 0]

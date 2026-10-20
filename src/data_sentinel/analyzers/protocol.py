@@ -31,6 +31,7 @@ class AnalysisResult:
     evidence: list[Evidence]
     limitations: list[str]
     metadata: dict[str, object] = field(default_factory=dict)
+    duration_ms: int | None = None
     analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
