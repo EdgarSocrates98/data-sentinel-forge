@@ -1,22 +1,9 @@
-"""API/MCP readiness contracts (Cycle 02 scope: contracts only).
+"""Control Center API — real FastAPI surface over the Sentinel core (ds-0071).
 
-Per the cycle grill decision, a live FastAPI surface and MCP server are
-deferred — these versioned contracts define the shape a future server
-must honor, and readiness tests guard the contract.
+No diagnostic logic lives in endpoints: every route delegates to the
+existing registry, analyzers, tool registry, or investigator.
 """
 
-from data_sentinel.api.contracts import (
-    ApiCapabilitiesResponse,
-    ApiDiagnosticRequest,
-    ApiDiagnosticResponse,
-    ApiError,
-    McpToolDescriptor,
-)
+from .app import create_app
 
-__all__ = [
-    "ApiCapabilitiesResponse",
-    "ApiDiagnosticRequest",
-    "ApiDiagnosticResponse",
-    "ApiError",
-    "McpToolDescriptor",
-]
+__all__ = ["create_app"]

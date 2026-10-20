@@ -1231,3 +1231,25 @@ def emr_cost(
                "não é billing real)")
     for k, v in est.components.items():
         typer.echo(f"  {k}: US${v:.4f}")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Bind host")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Bind port")] = 8790,
+    root: Annotated[list[str] | None, typer.Option(
+        "--root", help="Allowed file root (repeatable)")] = None,
+) -> None:
+    """Start the Control Center API (uvicorn, local bind by default)."""
+    try:
+        import uvicorn
+    except ImportError:
+        typer.echo("erro: instale o extra `api` — pip install "
+                   "'data-sentinel[api]'", err=True)
+        raise typer.Exit(code=EXIT_USAGE) from None
+    from data_sentinel.api import create_app
+    if host not in ("127.0.0.1", "localhost"):
+        typer.echo("aviso: bind não-local — a API expõe arquivos locais; "
+                   "use apenas em rede confiável", err=True)
+    app_obj = create_app(allowed_roots=root)
+    uvicorn.run(app_obj, host=host, port=port, log_level="warning")
