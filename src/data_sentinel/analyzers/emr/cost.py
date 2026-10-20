@@ -22,6 +22,16 @@ PRICES: dict[str, dict[str, float]] = {
     "emr-eks": {"emr_vcpu_hour": 0.01012,
                 "emr_gb_hour": 0.00111125,
                 "eks_cluster_hour": 0.10},
+    "glue": {"dpu_hour_standard": 0.44,
+             "dpu_hour_flex": 0.29,
+             "min_billable_seconds": 60.0},
+}
+# Glue worker type -> DPUs por worker (Glue 2.0+, AWS docs).
+GLUE_WORKER_DPU: dict[str, float] = {
+    "standard": 1.0, "g.025x": 0.25, "g.1x": 1.0, "g.2x": 2.0,
+    "g.4x": 4.0, "g.8x": 8.0, "g.12x": 12.0, "g.16x": 16.0,
+    "r.1x": 1.0, "r.2x": 2.0, "r.4x": 4.0, "r.8x": 8.0,
+    "z.1x": 1.0, "z.2x": 2.0,
 }
 PRICE_SOURCE = "static-table-2025-01,us-east-1"
 CURRENCY = "USD"
@@ -143,3 +153,87 @@ def cost_recommendations(estimates: list[CostEstimate]
                         "antes de otimizar — sem trocar por menor "
                         "sem validar desempenho")
     return recs
+
+
+def estimate_glue(worker_type: str | None, workers: int | None,
+                  duration_seconds: float | None, *,
+                  execution_class: str = "STANDARD",
+                  retries: int = 0,
+                  region: str = "us-east-1") -> CostEstimate:
+    """§6.1 — DPU-hour billing estimate. Observado ≠ cobrança real."""
+    if worker_type is None or workers is None or duration_seconds is None:
+        return _unk("glue", "worker_type/workers/duração não declarados")
+    dpu_per = GLUE_WORKER_DPU.get(worker_type.lower())
+    if dpu_per is None:
+        return CostEstimate(
+            platform="glue", region=region, amount=None,
+            confidence="UNKNOWN",
+            exclusions=[f"worker_type '{worker_type}' fora da tabela "
+                        "DPU — sem estimativa em vez de inventar"])
+    p = PRICES["glue"]
+    billable_s = max(duration_seconds, p["min_billable_seconds"])
+    hours = billable_s / 3600.0
+    total_workers = workers * (1 + max(0, retries))
+    dpu_hours = total_workers * dpu_per * hours
+    is_flex = execution_class.upper() == "FLEX"
+    rate = p["dpu_hour_flex"] if is_flex else p["dpu_hour_standard"]
+    comp = {"dpu_hours": round(dpu_hours, 4),
+            "compute": round(dpu_hours * rate, 4)}
+    assumptions = ["on-demand; billing mínimo 60s por execução (Glue 2.0+)"]
+    if retries:
+        assumptions.append(f"{retries} retry(ies) cobrados como "
+                           "execuções adicionais")
+    if is_flex:
+        assumptions.append("FLEX: menor custo, execução não garantida "
+                           "— não declarar 'mais barato' sem SLA")
+    return CostEstimate(
+        platform="glue", region=region,
+        amount=round(comp["compute"], 4), components=comp,
+        billing_model="flex" if is_flex else "on_demand",
+        assumptions=assumptions,
+        exclusions=["job queuing/wait time não faturado",
+                    "observability", "S3 requests", "egress",
+                    "interactive sessions", "Data Quality charges"],
+        confidence="POSSIBLE")
+
+
+@dataclass
+class WhatIfResult:
+    """§6.6 — comparação de cenários; NUNCA afirma resultado real."""
+    hypothesis: str
+    baseline: CostEstimate
+    candidate: CostEstimate
+    delta_amount: float | None = None
+    delta_pct: float | None = None
+    limitations: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"hypothesis": self.hypothesis,
+                "baseline": self.baseline.to_dict(),
+                "candidate": self.candidate.to_dict(),
+                "delta_amount": self.delta_amount,
+                "delta_pct": self.delta_pct,
+                "limitations": list(self.limitations)}
+
+
+def what_if(hypothesis: str, baseline: CostEstimate,
+            candidate: CostEstimate) -> WhatIfResult:
+    lims = [
+        "simulação não representa resultado real de execução",
+        "duração sob outro dimensionamento é desconhecida — "
+        "assumida constante salvo declaração explícita",
+    ]
+    if baseline.platform != candidate.platform:
+        lims.append("plataformas distintas — comparação de custo não "
+                    "implica equivalência de desempenho/SLA")
+    res = WhatIfResult(hypothesis=hypothesis, baseline=baseline,
+                       candidate=candidate, limitations=lims)
+    if (baseline.amount is not None and candidate.amount is not None
+            and baseline.amount > 0):
+        res.delta_amount = round(candidate.amount - baseline.amount, 4)
+        res.delta_pct = round(100.0 * res.delta_amount
+                              / baseline.amount, 2)
+    else:
+        res.limitations.append("delta indisponível — baseline ou "
+                               "candidato UNKNOWN")
+    return res

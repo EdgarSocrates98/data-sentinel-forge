@@ -32,12 +32,35 @@ except ImportError as exc:  # pragma: no cover
     ) from exc
 
 from data_sentinel.core.contracts.enums import Severity
+from data_sentinel.core.contracts.snapshot import (
+    BaselineKind,
+    ExecutionSnapshot,
+)
+from data_sentinel.history.compare import (
+    compare_snapshots,
+    select_baseline,
+)
+from data_sentinel.history.regression import detect_regressions
 from data_sentinel.persistence.investigations import (
     DEFAULT_DB,
     InvestigationStore,
 )
 from data_sentinel.persistence.investigations import (
     State as InvState,
+)
+from data_sentinel.remediation import (
+    RemediationPlan,
+    approve,
+    dry_run,
+    execute_local,
+    plan_for_finding,
+    reject,
+    submit_for_approval,
+)
+from data_sentinel.watch.engine import (
+    MIN_INTERVAL_S,
+    AlertEngine,
+    WatchDefinition,
 )
 
 MAX_PAYLOAD = 10 * 1024 * 1024  # 10 MB
@@ -162,6 +185,36 @@ def _secretish(key: str) -> bool:
 class InvestigationCreate(BaseModel):
     problem: str = Field(min_length=1, max_length=4000)
     files: dict[str, str] = Field(default_factory=dict)
+
+class CompareBody(BaseModel):
+    snapshot_id: str
+    baseline: str = "previous"  # previous | median | reference
+    reference_id: str | None = None
+
+
+class WatchBody(BaseModel):
+    watch_id: str
+    workload: str
+    platform: str
+    source: str = "local"
+    metrics: list[str] = Field(default_factory=list)
+    rule: str = "regression"
+    interval_s: float = 300.0
+    severity: str = "MEDIUM"
+
+
+class PlanBody(BaseModel):
+    investigation_id: str | None = None
+    finding_id: str | None = None
+    title: str | None = None
+    # alternativa: finding embutido (sem investigação)
+    finding: dict[str, Any] | None = None
+
+
+class ApprovalBody(BaseModel):
+    approver: str | None = None
+    reason: str | None = None
+
 
 
 class InvestigationState:
@@ -449,6 +502,242 @@ def create_app(allowed_roots: list[str] | None = None,
     def severities() -> list[str]:
         return [s.value for s in Severity]
 
+    # ---- operational endpoints (Cycle 07 §3-§7) ----
+    # Snapshots são ingeridos (CLI/exports reais) — nunca fabricados.
+    snapshots: dict[str, ExecutionSnapshot] = {}
+    watches: dict[str, WatchDefinition] = {}
+    alert_engine = AlertEngine()
+    plans: dict[str, RemediationPlan] = {}
+
+    @app.post("/api/v1/snapshots", status_code=201)
+    def ingest_snapshot(body: ExecutionSnapshot) -> dict[str, Any]:
+        if not body.provenance:
+            raise HTTPException(400, "provenance required")
+        snapshots[body.snapshot_id] = body
+        return {"snapshot_id": body.snapshot_id,
+                "provenance": body.provenance}
+
+    @app.get("/api/v1/snapshots")
+    def list_snapshots(platform: str | None = None,
+                       job_id: str | None = None
+                       ) -> list[dict[str, Any]]:
+        out = [s for s in snapshots.values()
+               if (platform is None or s.platform == platform)
+               and (job_id is None or s.job_id == job_id)]
+        return [s.model_dump() for s in
+                sorted(out, key=lambda s: s.started_at or "")]
+
+    @app.post("/api/v1/history/compare")
+    def history_compare(body: CompareBody) -> dict[str, Any]:
+        cur = snapshots.get(body.snapshot_id)
+        if cur is None:
+            raise HTTPException(404, "snapshot not found")
+        peers = [s for s in snapshots.values()
+                 if s.job_id == cur.job_id
+                 and s.snapshot_id != cur.snapshot_id]
+        base = select_baseline(
+            peers, BaselineKind(kind=body.baseline,
+                                reference_run_id=body.reference_id))
+        if not base:
+            return {"comparable": False,
+                    "incomparability_reasons":
+                        ["nenhum baseline elegível"],
+                    "limitations": ["histórico insuficiente — "
+                                    "comparação não fabricada"]}
+        res = compare_snapshots(cur, base)
+        findings = detect_regressions(base, cur)
+        out = res.model_dump()
+        out["baseline_snapshot_ids"] = [b.snapshot_id for b in base]
+        out["regression_findings"] = findings
+        return out
+
+    @app.get("/api/v1/history/regressions")
+    def history_regressions(job_id: str,
+                            current_id: str) -> list[dict[str, Any]]:
+        cur = snapshots.get(current_id)
+        if cur is None:
+            raise HTTPException(404, "snapshot not found")
+        hist = [s for s in snapshots.values()
+                if s.job_id == job_id
+                and s.snapshot_id != current_id]
+        return detect_regressions(hist, cur)
+
+    @app.post("/api/v1/watches", status_code=201)
+    def create_watch(body: WatchBody) -> dict[str, Any]:
+        if body.watch_id in watches:
+            raise HTTPException(409, "watch_id já existe")
+        if body.source == "aws":
+            raise HTTPException(
+                400, "source=aws requer opt-in explícito via CLI com "
+                     "profile/region declarados — não via API")
+        if body.interval_s < MIN_INTERVAL_S:
+            raise HTTPException(
+                400, f"interval abaixo do mínimo {MIN_INTERVAL_S}s")
+        w = WatchDefinition(
+            watch_id=body.watch_id, workload=body.workload,
+            platform=body.platform, source=body.source,
+            metrics=body.metrics, rule=body.rule,
+            interval_s=body.interval_s, severity=body.severity,
+            enabled=False)  # §8.5: nunca inicia sem ação explícita
+        watches[w.watch_id] = w
+        return {"watch_id": w.watch_id, "enabled": w.enabled}
+
+    @app.get("/api/v1/watches")
+    def list_watches() -> list[dict[str, Any]]:
+        return [{"watch_id": w.watch_id, "workload": w.workload,
+                 "platform": w.platform, "rule": w.rule,
+                 "interval_s": w.interval_s, "enabled": w.enabled,
+                 "severity": w.severity}
+                for w in watches.values()]
+
+    @app.post("/api/v1/watches/{wid}/run")
+    def run_watch(wid: str) -> list[dict[str, Any]]:
+        w = watches.get(wid)
+        if w is None:
+            raise HTTPException(404, "watch not found")
+        snaps = [s for s in snapshots.values()
+                 if s.job_id == w.workload]
+        if not snaps:
+            return []
+        snaps.sort(key=lambda s: s.started_at or "")
+        alerts = alert_engine.evaluate(w, snaps[:-1], snaps[-1])
+        return [{"alert_id": a.alert_id, "kind": a.kind,
+                 "severity": a.severity, "message": a.message,
+                 "recovered": a.recovered,
+                 "findings": a.findings} for a in alerts]
+
+    @app.post("/api/v1/watches/{wid}/pause")
+    def pause_watch(wid: str) -> dict[str, Any]:
+        w = watches.get(wid)
+        if w is None:
+            raise HTTPException(404, "watch not found")
+        w.enabled = False
+        return {"watch_id": wid, "enabled": False}
+
+    @app.post("/api/v1/watches/{wid}/resume")
+    def resume_watch(wid: str) -> dict[str, Any]:
+        w = watches.get(wid)
+        if w is None:
+            raise HTTPException(404, "watch not found")
+        w.enabled = True  # still manual: só roda via /run
+        return {"watch_id": wid, "enabled": True,
+                "note": "avaliação manual via POST /run — sem loop "
+                        "automático na API"}
+
+    @app.post("/api/v1/watches/{wid}/delete")
+    def delete_watch(wid: str) -> dict[str, Any]:
+        if watches.pop(wid, None) is None:
+            raise HTTPException(404, "watch not found")
+        return {"deleted": wid}
+
+    @app.get("/api/v1/alerts")
+    def list_alerts() -> list[dict[str, Any]]:
+        return [{"alert_id": a.alert_id, "watch_id": a.watch_id,
+                 "kind": a.kind, "severity": a.severity,
+                 "message": a.message, "ts": a.ts,
+                 "recovered": a.recovered}
+                for a in alert_engine.history]
+
+    @app.post("/api/v1/remediation/plans", status_code=201)
+    def create_plan(body: PlanBody) -> dict[str, Any]:
+        from data_sentinel.core.contracts.entities import Finding
+        finding: Finding | None = None
+        if body.finding is not None:
+            finding = Finding.model_validate(body.finding)
+        elif body.investigation_id and body.finding_id:
+            rec = state.store.get(body.investigation_id)
+            if rec is None or rec.report is None:
+                raise HTTPException(404, "investigation not found")
+            for f in rec.report.get("findings", []):
+                if f.get("finding_id") == body.finding_id:
+                    finding = Finding.model_validate(f)
+                    break
+            if finding is None:
+                raise HTTPException(404, "finding not found")
+        else:
+            raise HTTPException(
+                400, "forneça finding embutido ou "
+                     "investigation_id+finding_id")
+        plan = plan_for_finding(finding, title=body.title)
+        plans[plan.plan_id] = plan
+        return {"plan_id": plan.plan_id, "state": str(plan.state)}
+
+    @app.get("/api/v1/remediation/plans")
+    def list_plans() -> list[dict[str, Any]]:
+        return [{"plan_id": p.plan_id, "title": p.title,
+                 "type": str(p.remediation_type),
+                 "state": str(p.state),
+                 "finding_ids": p.finding_ids}
+                for p in plans.values()]
+
+    @app.get("/api/v1/remediation/plans/{pid}")
+    def get_plan(pid: str) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        return p.model_dump()
+
+    @app.post("/api/v1/remediation/plans/{pid}/submit")
+    def submit_plan(pid: str) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        try:
+            submit_for_approval(p)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        return {"plan_id": pid, "state": str(p.state)}
+
+    @app.post("/api/v1/remediation/plans/{pid}/approve")
+    def approve_plan(pid: str, body: ApprovalBody) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        if not body.approver:
+            raise HTTPException(400, "approver obrigatório")
+        try:
+            approve(p, body.approver)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        _audit("api", f"remediation.approve:{pid}:{body.approver}", 200)
+        return {"plan_id": pid, "state": str(p.state),
+                "note": "aprovação NÃO executa nada — ver "
+                        "POST .../execute-local para ações locais"}
+
+    @app.post("/api/v1/remediation/plans/{pid}/reject")
+    def reject_plan(pid: str, body: ApprovalBody) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        try:
+            reject(p, body.reason or "")
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        return {"plan_id": pid, "state": str(p.state)}
+
+    @app.post("/api/v1/remediation/plans/{pid}/dry-run")
+    def plan_dry_run(pid: str) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        return dry_run(p)
+
+    @app.post("/api/v1/remediation/plans/{pid}/execute-local")
+    def plan_execute(pid: str) -> dict[str, Any]:
+        p = plans.get(pid)
+        if p is None:
+            raise HTTPException(404, "plan not found")
+        try:
+            res = execute_local(p)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        _audit("api", f"remediation.execute-local:{pid}", 200)
+        return res
+
     app.state.investigations = state
     app.state.auth = auth
+    app.state.snapshots = snapshots
+    app.state.watches = watches
+    app.state.alert_engine = alert_engine
+    app.state.plans = plans
     return app
