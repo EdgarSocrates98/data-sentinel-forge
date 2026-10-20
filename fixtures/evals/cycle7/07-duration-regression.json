@@ -1,0 +1,28 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": [
+   100,
+   105,
+   98,
+   102
+  ],
+  "current": 300
+ },
+ "expected": {
+  "finding": true,
+  "metric": "duration_s"
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [
+  "delta_pct"
+ ],
+ "limitations": [],
+ "ground_truth": "3x duration → regression finding",
+ "scenario_id": "duration-regression",
+ "title": "Duration regression",
+ "runner": "regression"
+}

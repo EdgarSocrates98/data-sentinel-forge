@@ -1,0 +1,28 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": [
+   100,
+   300,
+   100,
+   300
+  ],
+  "current": 300,
+  "seasonality": true
+ },
+ "expected": {
+  "seasonality_declared_or_conservative": true
+ },
+ "forbidden": [
+  "regressão ignorando sazonalidade"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "padrão sazonal declarado ou tratado conservadoramente",
+ "scenario_id": "seasonal-workload",
+ "title": "Seasonal workload",
+ "runner": "regression"
+}

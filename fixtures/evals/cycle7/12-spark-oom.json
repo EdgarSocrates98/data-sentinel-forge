@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.spark.optimize",
+  "file": "fixtures/golden/spark-oom.json"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "causa CONFIRMED sem evidência"
+ ],
+ "evidence": [
+  "evidence_ids"
+ ],
+ "limitations": [],
+ "ground_truth": "analyzer real ou UNKNOWN explícito",
+ "scenario_id": "spark-oom",
+ "title": "Spark OOM",
+ "runner": "analyzer"
+}

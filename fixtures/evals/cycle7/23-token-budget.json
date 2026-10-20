@@ -1,0 +1,24 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "budget": {
+   "max_tokens": 10
+  },
+  "task": "long"
+ },
+ "expected": {
+  "budget_exceeded": true
+ },
+ "forbidden": [
+  "execução ilimitada"
+ ],
+ "evidence": [
+  "BudgetExceededError"
+ ],
+ "limitations": [],
+ "ground_truth": "budget estoura com erro explícito",
+ "scenario_id": "token-budget",
+ "title": "Token budget exceeded",
+ "runner": "runtime"
+}

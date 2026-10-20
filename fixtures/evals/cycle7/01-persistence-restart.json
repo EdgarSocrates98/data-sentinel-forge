@@ -1,0 +1,23 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "investigations": 1,
+  "restart": true
+ },
+ "expected": {
+  "survives": true,
+  "listed": true
+ },
+ "forbidden": [
+  "report fabricado após restart"
+ ],
+ "evidence": [
+  "store.record"
+ ],
+ "limitations": [],
+ "ground_truth": "SQLite persiste lifecycle completo; restart não perde registros",
+ "scenario_id": "persistence-restart",
+ "title": "Persistência após restart",
+ "runner": "persistence"
+}

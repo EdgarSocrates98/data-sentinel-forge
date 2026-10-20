@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.emr.analyze_serverless",
+  "file": "fixtures/emr-serverless-failed.json"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "recomendação sem SLA caveat"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "startup delay analisado ou UNKNOWN",
+ "scenario_id": "emr-serverless-delay",
+ "title": "EMR Serverless startup delay",
+ "runner": "analyzer"
+}

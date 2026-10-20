@@ -1,0 +1,25 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "events": 3,
+  "disconnect_after": 1,
+  "last_event_id": 1
+ },
+ "expected": {
+  "replayed": 2,
+  "duplicates": 0
+ },
+ "forbidden": [
+  "evento repetido",
+  "evento perdido"
+ ],
+ "evidence": [
+  "event.seq monotônico"
+ ],
+ "limitations": [],
+ "ground_truth": "Last-Event-ID retoma sem duplicar",
+ "scenario_id": "sse-reconnect",
+ "title": "SSE reconnect",
+ "runner": "sse"
+}

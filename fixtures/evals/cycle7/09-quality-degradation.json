@@ -1,0 +1,32 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "snapshots": [
+   {
+    "resource_metrics": {
+     "dq_pass_rate": 0.99
+    }
+   },
+   {
+    "resource_metrics": {
+     "dq_pass_rate": 0.5
+    }
+   }
+  ]
+ },
+ "expected": {
+  "alert_emitted_or_declared": true
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [
+  "findings[]"
+ ],
+ "limitations": [],
+ "ground_truth": "queda de pass_rate detectada ou UNKNOWN declarado",
+ "scenario_id": "quality-degradation",
+ "title": "Quality degradation",
+ "runner": "watch"
+}

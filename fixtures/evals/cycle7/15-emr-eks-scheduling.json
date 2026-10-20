@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.emr.analyze_eks",
+  "file": "fixtures/emr/eks-imagepull.yaml"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "causa sem evento"
+ ],
+ "evidence": [
+  "evidence_ids"
+ ],
+ "limitations": [],
+ "ground_truth": "FailedScheduling/Pending → finding com evidência",
+ "scenario_id": "emr-eks-scheduling",
+ "title": "EMR EKS scheduling failure",
+ "runner": "analyzer"
+}

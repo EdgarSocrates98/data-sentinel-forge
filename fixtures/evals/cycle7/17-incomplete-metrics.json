@@ -1,0 +1,25 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": [
+   100
+  ],
+  "current": null
+ },
+ "expected": {
+  "finding": false,
+  "unknown": true
+ },
+ "forbidden": [
+  "regressão inventada"
+ ],
+ "evidence": [
+  "missing-data INFO"
+ ],
+ "limitations": [],
+ "ground_truth": "sem métricas → UNKNOWN/missing_data, não regressão",
+ "scenario_id": "incomplete-metrics",
+ "title": "Incomplete metrics",
+ "runner": "regression"
+}

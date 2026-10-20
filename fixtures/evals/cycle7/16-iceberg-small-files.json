@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.iceberg.inspect_metadata",
+  "file": "fixtures/iceberg/many_snapshots.json"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "reescrita automática sugerida"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "small files → finding, nunca reescrita automática",
+ "scenario_id": "iceberg-small-files",
+ "title": "Iceberg small-file growth",
+ "runner": "analyzer"
+}

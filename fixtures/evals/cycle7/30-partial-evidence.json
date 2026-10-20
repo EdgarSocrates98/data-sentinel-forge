@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.spark.optimize",
+  "file": "fixtures/logs/spark_exception.log"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "evidência inventada para lacuna"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "evidência parcial → findings limitados + lacuna declarada",
+ "scenario_id": "partial-evidence",
+ "title": "Partial operational evidence",
+ "runner": "analyzer"
+}

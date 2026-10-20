@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline_bytes": 1000000,
+  "current_bytes": 4000000
+ },
+ "expected": {
+  "volume_change_flagged": true
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [
+  "input_bytes ratio"
+ ],
+ "limitations": [],
+ "ground_truth": "4x volume vira related_change/hipótese, não causa",
+ "scenario_id": "volume-growth",
+ "title": "Data volume growth",
+ "runner": "regression"
+}

@@ -1,0 +1,7 @@
+{
+ "cycle": 7,
+ "created_200_investigations_ms": 1966.8,
+ "replay_1000_events_ms": 7.3,
+ "list_200_ms": 2.0,
+ "watch_eval_100x20snap_ms": 6.5
+}

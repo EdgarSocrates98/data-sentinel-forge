@@ -1,0 +1,27 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "investigations": 1,
+  "interrupt": "RUNNING"
+ },
+ "expected": {
+  "recoverable": true,
+  "state_in": [
+   "RUNNING",
+   "CANCELLED",
+   "FAILED"
+  ]
+ },
+ "forbidden": [
+  "estado LOST sem transição"
+ ],
+ "evidence": [
+  "events.seq"
+ ],
+ "limitations": [],
+ "ground_truth": "processo morto em RUNNING: recovery reabre ou marca CANCELLED",
+ "scenario_id": "interrupted-investigation",
+ "title": "Investigação interrompida",
+ "runner": "persistence"
+}

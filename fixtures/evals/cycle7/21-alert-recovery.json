@@ -1,0 +1,29 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "snapshots": [
+   {
+    "failure": true
+   },
+   {
+    "failure": false
+   }
+  ],
+  "sequential": true
+ },
+ "expected": {
+  "recovered": true
+ },
+ "forbidden": [
+  "recovery sem abertura"
+ ],
+ "evidence": [
+  "alert.recovered"
+ ],
+ "limitations": [],
+ "ground_truth": "falha → sucesso emite recovery",
+ "scenario_id": "alert-recovery",
+ "title": "Alert recovery",
+ "runner": "watch"
+}

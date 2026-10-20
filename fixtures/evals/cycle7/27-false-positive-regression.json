@@ -1,0 +1,26 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": [
+   98,
+   102,
+   101
+  ],
+  "current": 103
+ },
+ "expected": {
+  "finding": false
+ },
+ "forbidden": [
+  "regressão em ruído"
+ ],
+ "evidence": [
+  "threshold"
+ ],
+ "limitations": [],
+ "ground_truth": "variação normal não alerta",
+ "scenario_id": "false-positive-regression",
+ "title": "False positive regression",
+ "runner": "regression"
+}

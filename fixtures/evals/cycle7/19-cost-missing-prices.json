@@ -1,0 +1,24 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "worker_type": "X.99X",
+  "workers": 10,
+  "duration_s": 3600
+ },
+ "expected": {
+  "amount": null,
+  "confidence": "UNKNOWN"
+ },
+ "forbidden": [
+  "preço inventado"
+ ],
+ "evidence": [
+  "exclusions[]"
+ ],
+ "limitations": [],
+ "ground_truth": "tipo fora da tabela → UNKNOWN, não chute",
+ "scenario_id": "cost-missing-prices",
+ "title": "Cost with missing prices",
+ "runner": "cost"
+}

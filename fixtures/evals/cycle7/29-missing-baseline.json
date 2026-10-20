@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "snapshots": 1
+ },
+ "expected": {
+  "comparable": false,
+  "limitations": true
+ },
+ "forbidden": [
+  "comparação fabricada"
+ ],
+ "evidence": [
+  "incomparability_reasons"
+ ],
+ "limitations": [],
+ "ground_truth": "sem baseline elegível → não comparável honesto",
+ "scenario_id": "missing-baseline",
+ "title": "Missing baseline",
+ "runner": "compare"
+}

@@ -68,7 +68,12 @@ export interface InvestigationCreateResponse {
 export interface InvestigationSummary {
   investigation_id: string;
   status: string;
+  /** Epoch seconds (time.time()). */
   created: number | null;
+  /** Epoch seconds — last state change recorded by the store. */
+  updated: number | null;
+  /** Problem statement recorded at creation. */
+  problem: string;
 }
 
 export type Severity = "INFO" | "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
@@ -247,4 +252,305 @@ export interface ApiError {
   message: string;
   detail: string | null;
   url: string;
+}
+
+/* ==================================================================
+   Operational endpoints (Cycle 07 §3–§7) — snapshots, history,
+   watches, alerts, remediation plans. Mirrors
+   `core/contracts/snapshot.py`, `history/regression.py`,
+   `watch/engine.py` and `remediation/plans.py` wire shapes.
+   ================================================================== */
+
+/**
+ * ExecutionSnapshot (core/contracts/snapshot.py) — point-in-time
+ * observation of one workload execution. Snapshots are ingested via
+ * POST /snapshots, never fabricated; `provenance` declares how the
+ * data was obtained (e.g. "direct", "imported").
+ */
+export interface ExecutionSnapshot {
+  snapshot_id: string;
+  platform: string;
+  job_id: string | null;
+  run_id: string | null;
+  runtime: string | null;
+  /** ISO-8601 strings — the engine carries no wall-clock. */
+  started_at: string | null;
+  ended_at: string | null;
+  duration_s: number | null;
+  input_bytes: number | null;
+  output_bytes: number | null;
+  resource_metrics: Record<string, number>;
+  /** null = unknown. */
+  failure: boolean | null;
+  config_fingerprint: string | null;
+  dataset_refs: string[];
+  cost_observations: Record<string, number>;
+  provenance: string;
+  limitations: string[];
+}
+
+/** POST /api/v1/snapshots — 201 response. */
+export interface SnapshotIngestResponse {
+  snapshot_id: string;
+  provenance: string;
+}
+
+/** POST /api/v1/history/compare — request body (CompareBody). */
+export type BaselineKind = "previous" | "median" | "reference";
+
+export interface CompareRequest {
+  snapshot_id: string;
+  baseline: BaselineKind;
+  /** Required when baseline === "reference" (matched on run_id). */
+  reference_id?: string | null;
+}
+
+/**
+ * One regression signal emitted by history.regression.detect_regressions
+ * (§4). A regression is a labeled signal — `causal_label` is always
+ * "suspected_cause", never a confirmed root cause.
+ */
+export interface RegressionFinding {
+  metric: string;
+  baseline: number;
+  current_value: number;
+  magnitude: number;
+  magnitude_pct: number | null;
+  method: string;
+  z_score: number | null;
+  rationale: string;
+  provenance: string;
+  limitations: string[];
+  related_changes: unknown[];
+  investigation_recommendation: string;
+  /** e.g. "POSSIBLE" — findings are never CONFIRMED by the engine. */
+  confidence: string;
+  causal_label: string;
+}
+
+/**
+ * POST /api/v1/history/compare — response. Success returns a full
+ * ComparisonResult dump plus `baseline_snapshot_ids` and
+ * `regression_findings`; when no baseline is eligible the backend
+ * early-returns only `comparable`, `incomparability_reasons` and
+ * `limitations` — hence every other field is optional on the wire.
+ */
+export interface CompareResponse {
+  comparable: boolean;
+  incomparability_reasons?: string[];
+  duration_delta_s?: number | null;
+  duration_delta_pct?: number | null;
+  resource_deltas?: Record<string, number>;
+  volume_delta_input?: number | null;
+  volume_delta_output?: number | null;
+  /** True = a new failure appeared vs the baseline. */
+  failure_regression?: boolean | null;
+  config_drift?: string[];
+  quality_changes?: string[];
+  cost_delta?: Record<string, number>;
+  limitations?: string[];
+  baseline_snapshot_ids?: string[];
+  regression_findings?: RegressionFinding[];
+}
+
+/** POST /api/v1/watches — request body (WatchBody). */
+export interface WatchCreateRequest {
+  watch_id: string;
+  workload: string;
+  platform: string;
+  /** Only "local" is accepted via the API — "aws" is rejected. */
+  source: "local";
+  metrics: string[];
+  /** regression | failure | threshold */
+  rule: string;
+  /** Server enforces >= 30s. */
+  interval_s: number;
+  severity: Severity;
+}
+
+/** GET /api/v1/watches — list item. */
+export interface WatchSummary {
+  watch_id: string;
+  workload: string;
+  platform: string;
+  rule: string;
+  interval_s: number;
+  /** Watches are created disabled; enabled only via explicit resume. */
+  enabled: boolean;
+  severity: string;
+}
+
+/** POST /api/v1/watches — 201 response. */
+export interface WatchCreateResponse {
+  watch_id: string;
+  enabled: boolean;
+}
+
+/** POST /api/v1/watches/{id}/pause|resume — response. */
+export interface WatchStateResponse {
+  watch_id: string;
+  enabled: boolean;
+  note?: string;
+}
+
+/** POST /api/v1/watches/{id}/delete — response. */
+export interface WatchDeleteResponse {
+  deleted: string;
+}
+
+/**
+ * POST /api/v1/watches/{id}/run — one alert emitted by that manual
+ * evaluation (no `watch_id`/`ts` on this shape — see AlertRecord).
+ */
+export interface WatchRunAlert {
+  alert_id: string;
+  kind: string;
+  severity: string;
+  message: string;
+  recovered: boolean;
+  findings: Record<string, unknown>[];
+}
+
+/** GET /api/v1/alerts — alert-history item (§5.4). */
+export interface AlertRecord {
+  alert_id: string;
+  watch_id: string;
+  /** job_failure | sla_breach | duration_regression | ... | recovery */
+  kind: string;
+  severity: string;
+  message: string;
+  /** Epoch seconds. */
+  ts: number;
+  recovered: boolean;
+}
+
+/**
+ * Embedded Finding payload for POST /remediation/plans (PlanBody).
+ * `finding_id` is optional — the backend assigns one when absent.
+ */
+export interface FindingPayload {
+  finding_id?: string;
+  category: string;
+  severity: string;
+  status: string;
+  explanation: string;
+  evidence_ids?: string[];
+  alternatives?: string[];
+  recommendations?: string[];
+  validation_steps?: string[];
+}
+
+/** POST /api/v1/remediation/plans — request body (PlanBody). */
+export interface PlanCreateRequest {
+  investigation_id?: string;
+  finding_id?: string;
+  title?: string;
+  finding?: FindingPayload;
+}
+
+/** POST /api/v1/remediation/plans — 201 response. */
+export interface PlanCreateResponse {
+  plan_id: string;
+  state: string;
+}
+
+/** GET /api/v1/remediation/plans — list item. */
+export interface PlanSummary {
+  plan_id: string;
+  title: string;
+  /** remediation_type wire value. */
+  type: string;
+  state: string;
+  finding_ids: string[];
+}
+
+/** ProposedChange (remediation/plans.py). */
+export interface ProposedChange {
+  target: string;
+  change: string;
+  params: Record<string, unknown>;
+  /** Only executable when on the LOCAL_ACTION_ALLOWLIST. */
+  local_action: string | null;
+}
+
+/** One entry of RemediationPlan.state_history. */
+export interface PlanStateChange {
+  from: string;
+  to: string;
+  note: string;
+  /** ISO-8601 timestamp. */
+  at: string;
+}
+
+/**
+ * GET /api/v1/remediation/plans/{id} — full RemediationPlan dump.
+ * Lifecycle: DRAFT → VALIDATED → AWAITING_APPROVAL → APPROVED
+ * (+ REJECTED / EXPIRED). Execution is local-only and allowlisted.
+ */
+export interface RemediationPlan {
+  plan_id: string;
+  title: string;
+  remediation_type: string;
+  finding_ids: string[];
+  evidence_ids: string[];
+  proposed_changes: ProposedChange[];
+  preconditions: string[];
+  risks: string[];
+  expected_effects: string[];
+  validation_procedure: string[];
+  rollback_proposal: string | null;
+  rollback_limitations: string[];
+  required_permissions: string[];
+  approval_required: boolean;
+  state: string;
+  state_history: PlanStateChange[];
+  /** ISO-8601 datetimes. */
+  created_at: string;
+  expires_at: string | null;
+  approved_by: string | null;
+}
+
+/** POST …/submit|approve|reject — response. */
+export interface PlanStateResponse {
+  plan_id: string;
+  state: string;
+  note?: string;
+}
+
+/** One change preview inside a dry-run result (§7.4). */
+export interface DryRunChange {
+  target: string;
+  change: string;
+  params: Record<string, unknown>;
+  executable_locally: boolean;
+  /** local_action name or "cloud/manual execution". */
+  requires: string;
+}
+
+/** POST /api/v1/remediation/plans/{id}/dry-run — response. */
+export interface PlanDryRunResult {
+  plan_id: string;
+  state: string;
+  would_change: DryRunChange[];
+  preconditions: string[];
+  risks: string[];
+  rollback: string | null;
+  note: string;
+}
+
+/** One per-change outcome inside an execute-local result. */
+export interface PlanExecutionResultItem {
+  target: string;
+  action?: string;
+  /** APPLIED | PENDING | BLOCKED | SKIPPED */
+  status: string;
+  reason?: string;
+  result?: unknown;
+}
+
+/** POST /api/v1/remediation/plans/{id}/execute-local — response. */
+export interface PlanExecutionResult {
+  plan_id: string;
+  results: PlanExecutionResultItem[];
+  note: string;
 }

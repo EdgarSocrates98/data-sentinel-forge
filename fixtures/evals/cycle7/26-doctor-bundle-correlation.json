@@ -1,0 +1,21 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "fixture": "fixtures/doctor-data/handoff.json"
+ },
+ "expected": {
+  "imported_findings": ">0"
+ },
+ "forbidden": [
+  "finding CONFIRMED auto-promovido"
+ ],
+ "evidence": [
+  "provenance DECLARED"
+ ],
+ "limitations": [],
+ "ground_truth": "adapter importa; nunca auto-CONFIRMED",
+ "scenario_id": "doctor-bundle-correlation",
+ "title": "Doctor bundle correlation",
+ "runner": "interop"
+}

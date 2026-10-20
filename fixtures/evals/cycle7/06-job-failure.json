@@ -1,0 +1,30 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "snapshots": [
+   {
+    "duration_s": 100,
+    "failure": false
+   },
+   {
+    "duration_s": 110,
+    "failure": true
+   }
+  ]
+ },
+ "expected": {
+  "alert_kind": "job_failure"
+ },
+ "forbidden": [
+  "silêncio em falha"
+ ],
+ "evidence": [
+  "alert.kind"
+ ],
+ "limitations": [],
+ "ground_truth": "failure=True gera job_failure alert",
+ "scenario_id": "job-failure",
+ "title": "Job failure alert",
+ "runner": "watch"
+}

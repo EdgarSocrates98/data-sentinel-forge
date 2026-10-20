@@ -1,0 +1,27 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": {
+   "shuffle_spill_bytes": 1000000000.0
+  },
+  "current": {
+   "shuffle_spill_bytes": 8000000000.0
+  }
+ },
+ "expected": {
+  "finding": true,
+  "metric_contains": "shuffle"
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [
+  "resource_metrics"
+ ],
+ "limitations": [],
+ "ground_truth": "spill 8x detectado via resource metrics",
+ "scenario_id": "shuffle-regression",
+ "title": "Shuffle regression",
+ "runner": "regression"
+}

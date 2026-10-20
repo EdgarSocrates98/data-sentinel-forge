@@ -1,0 +1,32 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "snapshots": [
+   {
+    "resource_metrics": {
+     "freshness_s": 3600
+    }
+   },
+   {
+    "resource_metrics": {
+     "freshness_s": 86400
+    }
+   }
+  ]
+ },
+ "expected": {
+  "evaluated": true
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [
+  "alert.kind freshness|duration"
+ ],
+ "limitations": [],
+ "ground_truth": "freshness regressiva alertável",
+ "scenario_id": "freshness-violation",
+ "title": "Freshness violation",
+ "runner": "watch"
+}

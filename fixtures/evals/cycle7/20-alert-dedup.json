@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "repeat_eval": 2,
+  "same_condition": true
+ },
+ "expected": {
+  "second_run_deduped": true
+ },
+ "forbidden": [
+  "alerta duplicado para mesma condição"
+ ],
+ "evidence": [
+  "dedup_key"
+ ],
+ "limitations": [],
+ "ground_truth": "cooldown suprime repetição",
+ "scenario_id": "alert-dedup",
+ "title": "Alert deduplication",
+ "runner": "watch"
+}

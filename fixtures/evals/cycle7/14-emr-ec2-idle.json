@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "analyzer": "sentinel.emr.analyze_ec2",
+  "file": "fixtures/emr-ec2-spot-idle.json"
+ },
+ "expected": {
+  "findings_or_unknown": true
+ },
+ "forbidden": [
+  "spot CONFIRMED"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "idle detectado; spot nunca CONFIRMED",
+ "scenario_id": "emr-ec2-idle",
+ "title": "EMR EC2 idle cluster",
+ "runner": "analyzer"
+}

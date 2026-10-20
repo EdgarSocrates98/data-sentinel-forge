@@ -35,46 +35,159 @@
     } @else {
       <section class="ds-card panel" aria-labelledby="inv-list-title">
         <h2 id="inv-list-title">{{ "investigations.list.title" | t }}</h2>
-        <div class="table-scroll">
-          <table class="inv-table">
-          <thead>
-            <tr>
-              <th scope="col">{{ "investigations.col.id" | t }}</th>
-              <th scope="col">{{ "investigations.col.status" | t }}</th>
-              <th scope="col">{{ "investigations.col.created" | t }}</th>
-              <th scope="col">
-                <span class="sr-only">{{ "investigations.col.open" | t }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (inv of items(); track inv.investigation_id) {
-              <tr>
-                <td>
-                  <code>{{ inv.investigation_id }}</code>
-                </td>
-                <td>
-                  <span
-                    class="ds-badge"
-                    [class]="'ds-badge ds-badge--' + statusClass(inv.status)"
-                  >
-                    {{ "investigations.status." + inv.status | t }}
-                  </span>
-                </td>
-                <td>{{ formatCreated(inv.created) }}</td>
-                <td>
-                  <a
-                    [routerLink]="['/investigations', inv.investigation_id]"
-                    class="row-link"
-                  >
-                    {{ "investigations.open" | t }}
-                  </a>
-                </td>
-              </tr>
-            }
-          </tbody>
-          </table>
+
+        <div class="toolbar" role="search">
+          <div class="field field--grow">
+            <label for="inv-search">
+              {{ "investigations.search.label" | t }}
+            </label>
+            <input
+              id="inv-search"
+              type="search"
+              [placeholder]="'investigations.search.placeholder' | t"
+              [value]="search()"
+              (input)="onSearchInput($event)"
+            />
+          </div>
+          <div class="field">
+            <label for="inv-status">
+              {{ "investigations.filter.status" | t }}
+            </label>
+            <select id="inv-status" (change)="onStatusChange($event)">
+              <option value="all" [selected]="statusFilter() === 'all'">
+                {{ "investigations.filter.all" | t }}
+              </option>
+              @for (st of statuses(); track st) {
+                <option [value]="st" [selected]="statusFilter() === st">
+                  {{ "investigations.status." + st | t }}
+                </option>
+              }
+            </select>
+          </div>
         </div>
+
+        @if (sorted().length === 0) {
+          <p class="muted">{{ "investigations.noMatch" | t }}</p>
+        } @else {
+          <div class="table-scroll">
+            <table class="inv-table">
+            <thead>
+              <tr>
+                <th scope="col" [attr.aria-sort]="ariaSort('id')">
+                  <button
+                    type="button"
+                    class="th-sort"
+                    (click)="toggleSort('id')"
+                  >
+                    {{ "investigations.col.id" | t }}{{ sortMark("id") }}
+                  </button>
+                </th>
+                <th scope="col">{{ "investigations.col.problem" | t }}</th>
+                <th scope="col" [attr.aria-sort]="ariaSort('status')">
+                  <button
+                    type="button"
+                    class="th-sort"
+                    (click)="toggleSort('status')"
+                  >
+                    {{ "investigations.col.status" | t }}{{ sortMark("status") }}
+                  </button>
+                </th>
+                <th scope="col" [attr.aria-sort]="ariaSort('created')">
+                  <button
+                    type="button"
+                    class="th-sort"
+                    (click)="toggleSort('created')"
+                  >
+                    {{ "investigations.col.created" | t }}{{ sortMark("created") }}
+                  </button>
+                </th>
+                <th scope="col" [attr.aria-sort]="ariaSort('updated')">
+                  <button
+                    type="button"
+                    class="th-sort"
+                    (click)="toggleSort('updated')"
+                  >
+                    {{ "investigations.col.updated" | t }}{{ sortMark("updated") }}
+                  </button>
+                </th>
+                <th scope="col">
+                  <span class="sr-only">{{ "investigations.col.open" | t }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of paged(); track inv.investigation_id) {
+                <tr>
+                  <td>
+                    <code>{{ inv.investigation_id }}</code>
+                  </td>
+                  <td class="problem-cell" [attr.title]="inv.problem || null">
+                    {{ inv.problem || "—" }}
+                  </td>
+                  <td>
+                    <span
+                      class="ds-badge"
+                      [class]="'ds-badge ds-badge--' + statusClass(inv.status)"
+                    >
+                      {{ "investigations.status." + inv.status | t }}
+                    </span>
+                  </td>
+                  <td>{{ formatEpoch(inv.created) }}</td>
+                  <td>{{ formatEpoch(inv.updated) }}</td>
+                  <td>
+                    <a
+                      [routerLink]="['/investigations', inv.investigation_id]"
+                      class="row-link"
+                    >
+                      {{ "investigations.open" | t }}
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+            </table>
+          </div>
+
+          <nav
+            class="pager"
+            [attr.aria-label]="'investigations.pager.label' | t"
+          >
+            <p class="muted pager-status">
+              {{ filtered().length }}
+              {{ "investigations.count" | t }} —
+              {{ "investigations.pager.page" | t }}
+              {{ currentPage() + 1 }}/{{ totalPages() }}
+            </p>
+            <div class="pager-controls">
+              <label for="inv-page-size" class="muted">
+                {{ "investigations.pager.pageSize" | t }}
+              </label>
+              <select id="inv-page-size" (change)="onPageSizeChange($event)">
+                @for (size of pageSizes; track size) {
+                  <option [value]="size" [selected]="pageSize() === size">
+                    {{ size }}
+                  </option>
+                }
+              </select>
+              <button
+                type="button"
+                class="ds-btn"
+                (click)="prevPage()"
+                [disabled]="currentPage() === 0"
+              >
+                {{ "investigations.pager.prev" | t }}
+              </button>
+              <button
+                type="button"
+                class="ds-btn"
+                (click)="nextPage()"
+                [disabled]="currentPage() >= totalPages() - 1"
+              >
+                {{ "investigations.pager.next" | t }}
+              </button>
+            </div>
+          </nav>
+        }
       </section>
     }
   }

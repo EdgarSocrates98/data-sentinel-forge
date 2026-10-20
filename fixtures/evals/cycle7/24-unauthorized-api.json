@@ -1,0 +1,25 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "request": "GET /api/v1/investigations",
+  "token": null
+ },
+ "expected": {
+  "status": [
+   401,
+   403
+  ]
+ },
+ "forbidden": [
+  "200 sem token"
+ ],
+ "evidence": [
+  "middleware bearer"
+ ],
+ "limitations": [],
+ "ground_truth": "sem bearer → 401/403",
+ "scenario_id": "unauthorized-api",
+ "title": "Unauthorized API access",
+ "runner": "auth"
+}

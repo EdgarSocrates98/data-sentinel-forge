@@ -1,0 +1,22 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "investigations": 2
+ },
+ "expected": {
+  "both_completed": true,
+  "cross_talk": false
+ },
+ "forbidden": [
+  "evento de A em B"
+ ],
+ "evidence": [
+  "investigation_id isolation"
+ ],
+ "limitations": [],
+ "ground_truth": "queues e eventos isolados por inv_id",
+ "scenario_id": "concurrent-investigations",
+ "title": "Duas investigações simultâneas",
+ "runner": "concurrency"
+}

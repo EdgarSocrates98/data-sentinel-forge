@@ -1,0 +1,21 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "created_enabled": false
+ },
+ "expected": {
+  "auto_started": false
+ },
+ "forbidden": [
+  "avaliação sem ação explícita"
+ ],
+ "evidence": [
+  "watch.enabled"
+ ],
+ "limitations": [],
+ "ground_truth": "watch nasce desabilitado — sem monitoramento silencioso",
+ "scenario_id": "watch-disabled",
+ "title": "Watch disabled",
+ "runner": "watch"
+}

@@ -1,0 +1,27 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": [
+   100,
+   400,
+   90,
+   380
+  ],
+  "current": 200
+ },
+ "expected": {
+  "declared_uncertainty": true
+ },
+ "forbidden": [
+  "regressão CONFIRMED"
+ ],
+ "evidence": [
+  "limitations"
+ ],
+ "limitations": [],
+ "ground_truth": "histórico volátil → confidence reduzida declarada",
+ "scenario_id": "conflicting-observations",
+ "title": "Conflicting observations",
+ "runner": "regression"
+}

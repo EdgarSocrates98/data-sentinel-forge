@@ -1,0 +1,23 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "events": 5,
+  "last_event_id": 0
+ },
+ "expected": {
+  "replayed": 5,
+  "order": "seq"
+ },
+ "forbidden": [
+  "fora de ordem"
+ ],
+ "evidence": [
+  "store.events after_seq"
+ ],
+ "limitations": [],
+ "ground_truth": "replay completo preserva ordem",
+ "scenario_id": "event-replay",
+ "title": "Event replay",
+ "runner": "sse"
+}
