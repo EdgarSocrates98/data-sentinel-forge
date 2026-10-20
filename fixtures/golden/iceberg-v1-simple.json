@@ -1,0 +1,19 @@
+{
+  "id": "iceberg-v1-simple",
+  "input": {
+    "files": [
+      "fixtures/iceberg/v1_simple.json"
+    ],
+    "source_type": "iceberg_metadata",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [],
+    "findings_prohibited": [
+      "small files",
+      "Evolução"
+    ],
+    "evidence_required": false,
+    "limitations_include": []
+  }
+}

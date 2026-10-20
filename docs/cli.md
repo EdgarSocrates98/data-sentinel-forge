@@ -148,3 +148,15 @@ JSON declarado pelo usuário — nunca fabricado:
 
 Sem ele, cardinalidade fica `UNKNOWN` e o relatório diz o que coletar —
 formato completo em [docs/guides/join-intelligence.md](guides/join-intelligence.md).
+
+## `lakehouse` (Cycle 03)
+
+| Comando | Entrada | Função |
+|---|---|---|
+| `lakehouse metadata -f` | metadata.json Iceberg | snapshots, evolução, small files |
+| `lakehouse access -f` | AccessContext JSON | cross-account + grafo |
+| `lakehouse policy -f` | policy/envelope JSON | IAM/S3/KMS offline |
+| `lakehouse operation -f` | SQL ou envelope | MERGE/APPEND/DDL (nunca executa) |
+| `lakehouse compat` | flags runtime/op/mode | veredito via knowledge base |
+
+Todos com `--json`, `--quiet`, `--no-persist`, `--format`, `--output`.

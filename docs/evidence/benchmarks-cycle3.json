@@ -1,0 +1,24 @@
+{
+  "cycle": 3,
+  "results": {
+    "metadata_parse": {
+      "snapshots_100": 0.0009,
+      "snapshots_1000": 0.0064,
+      "snapshots_5000": 0.0353,
+      "peak_bytes_5000_snaps": 6620575,
+      "input_bytes": 1302760
+    },
+    "knowledge": {
+      "rules": 10,
+      "load_s": 0.0103,
+      "select_10k_s": 0.0823
+    },
+    "iam_eval": {
+      "statements": 500,
+      "eval_1000_s": 0.7245
+    },
+    "analyzer": {
+      "iceberg_analyze_100_s": 0.0301
+    }
+  }
+}

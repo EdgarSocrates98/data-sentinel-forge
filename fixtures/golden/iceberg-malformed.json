@@ -1,0 +1,22 @@
+{
+  "id": "iceberg-malformed",
+  "input": {
+    "files": [
+      "fixtures/iceberg/malformed.json"
+    ],
+    "source_type": "iceberg_metadata",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "Nenhum metadata Iceberg válido"
+    ],
+    "findings_prohibited": [
+      "small files"
+    ],
+    "evidence_required": false,
+    "limitations_include": [
+      "JSON inválido"
+    ]
+  }
+}

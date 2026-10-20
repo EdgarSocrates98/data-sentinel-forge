@@ -131,3 +131,16 @@ e [docs/cycle-01-report.md](docs/cycle-01-report.md).
 ## Licença
 
 Apache-2.0 — ver [LICENSE](LICENSE).
+
+## Cycle 03 — Lakehouse (Iceberg, Lake Formation, cross-account)
+
+```bash
+data-sentinel lakehouse metadata -f metadata.json   # Iceberg metadata
+data-sentinel lakehouse access   -f contexto.json   # cross-account
+data-sentinel lakehouse policy   -f policy.json     # IAM/S3/KMS offline
+data-sentinel lakehouse operation -f merge.sql      # MERGE/APPEND
+data-sentinel lakehouse compat --runtime glue-5.1 --operation merge \
+    --access-mode fgac                              # compatibilidade
+```
+
+Ver `docs/cycles/cycle-03-final-report.md` e guias em `docs/guides/`.

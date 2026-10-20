@@ -361,11 +361,13 @@ report_app = typer.Typer(
     help="Renderização de relatórios.",
     invoke_without_command=True,
 )
+lakehouse_app = typer.Typer(help="Diagnósticos lakehouse (Iceberg, acesso, operações).")
 
 app.add_typer(glue_app, name="glue")
 app.add_typer(spark_app, name="spark")
 app.add_typer(sql_app, name="sql")
 app.add_typer(report_app, name="report")
+app.add_typer(lakehouse_app, name="lakehouse")
 
 _COMMON_JSON = Annotated[bool, typer.Option("--json", help="Saída em JSON.")]
 _QUIET = Annotated[bool, typer.Option("--quiet", "-q", help="Somente resumo.")]
@@ -704,3 +706,148 @@ def report_show(
         raise typer.Exit(code=EXIT_USAGE)
     source = str(file) if file is not None else (report_id or "")
     _render_report_source(source, report_format, json_mode)
+
+
+_LAKEHOUSE_FILE = Annotated[Path, typer.Option("--file", "-f", help="Arquivo de entrada.")]
+_LAKEHOUSE_PLATFORM = Annotated[
+    Platform, typer.Option("--platform", "-p")
+]
+
+
+def _lakehouse_analyze(
+    *,
+    source_type: SourceType,
+    file: Path,
+    platform: Platform,
+    no_persist: bool,
+    json_mode: bool,
+    quiet: bool,
+    report_format: str,
+    output: Path | None,
+    label: str,
+) -> None:
+    _analyze(
+        source_type=source_type,
+        paths=[str(file)],
+        platform=platform,
+        profile=None,
+        json_mode=json_mode,
+        no_persist=no_persist,
+        output=output,
+        dialect=None,
+        report_format=report_format,
+        mode_label=label,
+        quiet=quiet,
+    )
+
+
+@lakehouse_app.command("metadata")
+def lakehouse_metadata(
+    file: _LAKEHOUSE_FILE,
+    platform: _LAKEHOUSE_PLATFORM = Platform.AWS_GLUE,
+    no_persist: _NO_PERSIST = False,
+    json_mode: _COMMON_JSON = False,
+    quiet: _QUIET = False,
+    report_format: _FORMAT = "terminal",
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Analisa metadata.json Iceberg exportado (não segue URLs)."""
+    _lakehouse_analyze(
+        source_type=SourceType.ICEBERG_METADATA,
+        file=file, platform=platform, no_persist=no_persist,
+        json_mode=json_mode, quiet=quiet, report_format=report_format,
+        output=output, label="iceberg-metadata",
+    )
+
+
+@lakehouse_app.command("access")
+def lakehouse_access(
+    file: _LAKEHOUSE_FILE,
+    platform: _LAKEHOUSE_PLATFORM = Platform.AWS_GLUE,
+    no_persist: _NO_PERSIST = False,
+    json_mode: _COMMON_JSON = False,
+    quiet: _QUIET = False,
+    report_format: _FORMAT = "terminal",
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Diagnóstico de contexto de acesso/cross-account (JSON AccessContext)."""
+    _lakehouse_analyze(
+        source_type=SourceType.ACCESS_CONTEXT,
+        file=file, platform=platform, no_persist=no_persist,
+        json_mode=json_mode, quiet=quiet, report_format=report_format,
+        output=output, label="access-context",
+    )
+
+
+@lakehouse_app.command("policy")
+def lakehouse_policy(
+    file: _LAKEHOUSE_FILE,
+    platform: _LAKEHOUSE_PLATFORM = Platform.AWS_GLUE,
+    no_persist: _NO_PERSIST = False,
+    json_mode: _COMMON_JSON = False,
+    quiet: _QUIET = False,
+    report_format: _FORMAT = "terminal",
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Analisa documentos de policy IAM/S3/KMS offline."""
+    _lakehouse_analyze(
+        source_type=SourceType.POLICY_DOC,
+        file=file, platform=platform, no_persist=no_persist,
+        json_mode=json_mode, quiet=quiet, report_format=report_format,
+        output=output, label="policy-doc",
+    )
+
+
+@lakehouse_app.command("operation")
+def lakehouse_operation(
+    file: _LAKEHOUSE_FILE,
+    platform: _LAKEHOUSE_PLATFORM = Platform.AWS_GLUE,
+    no_persist: _NO_PERSIST = False,
+    json_mode: _COMMON_JSON = False,
+    quiet: _QUIET = False,
+    report_format: _FORMAT = "terminal",
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Analisa MERGE/APPEND/DDL lakehouse (SQL nunca é executado)."""
+    _lakehouse_analyze(
+        source_type=SourceType.SQL_QUERY,
+        file=file, platform=platform, no_persist=no_persist,
+        json_mode=json_mode, quiet=quiet, report_format=report_format,
+        output=output, label="lakehouse-operation",
+    )
+
+
+@lakehouse_app.command("compat")
+def lakehouse_compat(
+    runtime: Annotated[str, typer.Option("--runtime", help="ex.: glue-5.1")],
+    operation: Annotated[str, typer.Option("--operation", help="ex.: merge")],
+    table_format: Annotated[str, typer.Option("--table-format")] = "iceberg",
+    access_mode: Annotated[str, typer.Option("--access-mode",
+                                             help="iam|fgac|fta|legacy|unknown")] = "unknown",
+    catalog: Annotated[str, typer.Option("--catalog")] = "",
+    spark_version: Annotated[str, typer.Option("--spark-version")] = "",
+    iceberg_version: Annotated[str, typer.Option("--iceberg-version")] = "",
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Avalia compatibilidade via knowledge base determinística."""
+    from data_sentinel.knowledge.compat import assess_compatibility
+
+    a = assess_compatibility(
+        None,
+        runtime=runtime,
+        spark_version=spark_version,
+        iceberg_version=iceberg_version,
+        table_format=table_format,
+        catalog=catalog,
+        access_mode=access_mode,
+        operation=operation,
+    )
+    if json_mode:
+        _emit_json(a.model_dump(mode="json"))
+        return
+    typer.echo(f"status: {a.support_status.value}")
+    typer.echo(f"runtime={a.runtime} formato={table_format} modo={a.access_mode} op={a.operation}")
+    for c in a.constraints:
+        typer.echo(f"  - {c}")
+    for r in a.documentation_references:
+        typer.echo(f"  ref: {r}")

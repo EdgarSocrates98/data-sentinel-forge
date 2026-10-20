@@ -1,0 +1,22 @@
+{
+  "id": "iceberg-v2-evolved",
+  "input": {
+    "files": [
+      "fixtures/iceberg/v2_evolved.json"
+    ],
+    "source_type": "iceberg_metadata",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "Evolução de schema",
+      "small files",
+      "void"
+    ],
+    "findings_prohibited": [
+      "UNSUPPORTED"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

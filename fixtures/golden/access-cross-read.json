@@ -1,0 +1,24 @@
+{
+  "id": "access-cross-read",
+  "input": {
+    "files": [
+      "fixtures/access/cross_read.json"
+    ],
+    "source_type": "access_context",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "cross-account",
+      "parcialmente invisíveis"
+    ],
+    "findings_prohibited": [
+      "negado",
+      "DENIED"
+    ],
+    "evidence_required": true,
+    "limitations_include": [
+      "visibilidade incompleta"
+    ]
+  }
+}

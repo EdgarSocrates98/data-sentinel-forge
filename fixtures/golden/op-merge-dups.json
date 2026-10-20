@@ -1,0 +1,20 @@
+{
+  "id": "op-merge-dups",
+  "input": {
+    "files": [
+      "fixtures/operations/merge_dups.json"
+    ],
+    "source_type": "sql_query",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "1400 chaves duplicadas"
+    ],
+    "findings_prohibited": [
+      "deduplicar o alvo automaticamente"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

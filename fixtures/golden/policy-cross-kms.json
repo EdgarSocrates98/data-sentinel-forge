@@ -1,0 +1,24 @@
+{
+  "id": "policy-cross-kms",
+  "input": {
+    "files": [
+      "fixtures/policies/cross_kms.json"
+    ],
+    "source_type": "policy_doc",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "Chaves KMS diferentes",
+      "Bucket cross-account",
+      "PutObject"
+    ],
+    "findings_prohibited": [
+      "DENIED"
+    ],
+    "evidence_required": true,
+    "limitations_include": [
+      "Key policy"
+    ]
+  }
+}
