@@ -36,6 +36,17 @@ from data_sentinel.core.contracts import (
     DatasetReference,
     LineageEvent,
     ImpactAssessment,
+    AgentDescriptor,
+    AgentExecution,
+    AgentTask,
+    Hypothesis,
+    InvestigationBudget,
+    InvestigationPlan,
+    InvestigationReport,
+    InvestigationState,
+    ToolDescriptor,
+    ToolInvocation,
+    ToolResult,
 )
 
 ENTITIES: dict[str, Any] = {
@@ -68,6 +79,17 @@ ENTITIES: dict[str, Any] = {
         DatasetReference,
         LineageEvent,
         ImpactAssessment,
+        AgentDescriptor,
+        AgentExecution,
+        AgentTask,
+        Hypothesis,
+        InvestigationBudget,
+        InvestigationPlan,
+        InvestigationReport,
+        InvestigationState,
+        ToolDescriptor,
+        ToolInvocation,
+        ToolResult,
     )
 }
 

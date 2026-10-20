@@ -1,0 +1,602 @@
+{
+  "$defs": {
+    "AgentDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "decision_id": {
+          "minLength": 1,
+          "title": "Decision Id",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "execution_id": {
+          "default": "",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "kind": {
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision_id",
+        "kind"
+      ],
+      "title": "AgentDecision",
+      "type": "object"
+    },
+    "AgentExecution": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "error": {
+          "default": "",
+          "title": "Error",
+          "type": "string"
+        },
+        "execution_id": {
+          "minLength": 1,
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "finished_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finished At"
+        },
+        "iterations": {
+          "default": 0,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        },
+        "state": {
+          "$ref": "#/$defs/AgentState",
+          "default": "created"
+        },
+        "task_id": {
+          "title": "Task Id",
+          "type": "string"
+        },
+        "tokens_in": {
+          "default": 0,
+          "title": "Tokens In",
+          "type": "integer"
+        },
+        "tokens_out": {
+          "default": 0,
+          "title": "Tokens Out",
+          "type": "integer"
+        },
+        "tool_calls": {
+          "default": 0,
+          "title": "Tool Calls",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "execution_id",
+        "task_id",
+        "agent_id"
+      ],
+      "title": "AgentExecution",
+      "type": "object"
+    },
+    "AgentObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "default": "UNKNOWN",
+          "title": "Confidence",
+          "type": "string"
+        },
+        "content": {
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "execution_id": {
+          "default": "",
+          "title": "Execution Id",
+          "type": "string"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id",
+        "content"
+      ],
+      "title": "AgentObservation",
+      "type": "object"
+    },
+    "AgentState": {
+      "enum": [
+        "created",
+        "planned",
+        "running",
+        "waiting_for_evidence",
+        "validating",
+        "completed",
+        "partial",
+        "failed",
+        "cancelled",
+        "budget_exceeded"
+      ],
+      "title": "AgentState",
+      "type": "string"
+    },
+    "AgentTask": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "depends_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Depends On",
+          "type": "array"
+        },
+        "input": {
+          "additionalProperties": true,
+          "title": "Input",
+          "type": "object"
+        },
+        "kind": {
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "priority": {
+          "default": 0,
+          "title": "Priority",
+          "type": "integer"
+        },
+        "task_id": {
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "agent_id",
+        "kind"
+      ],
+      "title": "AgentTask",
+      "type": "object"
+    },
+    "Hypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "causal_claim": {
+          "default": false,
+          "title": "Causal Claim",
+          "type": "boolean"
+        },
+        "causal_label": {
+          "default": "correlation",
+          "title": "Causal Label",
+          "type": "string"
+        },
+        "confidence": {
+          "default": "UNKNOWN",
+          "title": "Confidence",
+          "type": "string"
+        },
+        "contradicting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicting Evidence",
+          "type": "array"
+        },
+        "hypothesis_id": {
+          "minLength": 1,
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "status": {
+          "default": "open",
+          "title": "Status",
+          "type": "string"
+        },
+        "supporting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "statement"
+      ],
+      "title": "Hypothesis",
+      "type": "object"
+    },
+    "InvestigationBudget": {
+      "additionalProperties": false,
+      "properties": {
+        "max_agents": {
+          "default": 6,
+          "title": "Max Agents",
+          "type": "integer"
+        },
+        "max_cost_usd": {
+          "default": 0.0,
+          "title": "Max Cost Usd",
+          "type": "number"
+        },
+        "max_depth": {
+          "default": 3,
+          "title": "Max Depth",
+          "type": "integer"
+        },
+        "max_iterations": {
+          "default": 12,
+          "title": "Max Iterations",
+          "type": "integer"
+        },
+        "max_tokens": {
+          "default": 200000,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "default": 40,
+          "title": "Max Tool Calls",
+          "type": "integer"
+        },
+        "spent_cost_usd": {
+          "default": 0.0,
+          "title": "Spent Cost Usd",
+          "type": "number"
+        },
+        "spent_iterations": {
+          "default": 0,
+          "title": "Spent Iterations",
+          "type": "integer"
+        },
+        "spent_tokens": {
+          "default": 0,
+          "title": "Spent Tokens",
+          "type": "integer"
+        },
+        "spent_tool_calls": {
+          "default": 0,
+          "title": "Spent Tool Calls",
+          "type": "integer"
+        },
+        "timeout_seconds": {
+          "default": 600.0,
+          "title": "Timeout Seconds",
+          "type": "number"
+        }
+      },
+      "title": "InvestigationBudget",
+      "type": "object"
+    },
+    "InvestigationPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "budget": {
+          "$ref": "#/$defs/InvestigationBudget"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "objective": {
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "plan_id": {
+          "minLength": 1,
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/AgentTask"
+          },
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "plan_id",
+        "objective"
+      ],
+      "title": "InvestigationPlan",
+      "type": "object"
+    },
+    "ToolInvocation": {
+      "additionalProperties": false,
+      "properties": {
+        "agent_id": {
+          "default": "",
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "input": {
+          "additionalProperties": true,
+          "title": "Input",
+          "type": "object"
+        },
+        "invocation_id": {
+          "minLength": 1,
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Started At"
+        },
+        "tool_id": {
+          "minLength": 1,
+          "title": "Tool Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "invocation_id",
+        "tool_id"
+      ],
+      "title": "ToolInvocation",
+      "type": "object"
+    },
+    "ToolResult": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_ms": {
+          "default": 0.0,
+          "title": "Duration Ms",
+          "type": "number"
+        },
+        "error": {
+          "default": "",
+          "title": "Error",
+          "type": "string"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "invocation_id": {
+          "minLength": 1,
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "output": {
+          "default": null,
+          "title": "Output"
+        },
+        "tool_id": {
+          "default": "",
+          "title": "Tool Id",
+          "type": "string"
+        },
+        "truncated": {
+          "default": false,
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "invocation_id",
+        "ok"
+      ],
+      "title": "ToolResult",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "created_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Created At"
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/AgentDecision"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "executions": {
+      "items": {
+        "$ref": "#/$defs/AgentExecution"
+      },
+      "title": "Executions",
+      "type": "array"
+    },
+    "hypotheses": {
+      "items": {
+        "$ref": "#/$defs/Hypothesis"
+      },
+      "title": "Hypotheses",
+      "type": "array"
+    },
+    "investigation_id": {
+      "minLength": 1,
+      "title": "Investigation Id",
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/AgentObservation"
+      },
+      "title": "Observations",
+      "type": "array"
+    },
+    "plan": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InvestigationPlan"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "state": {
+      "$ref": "#/$defs/AgentState",
+      "default": "created"
+    },
+    "tool_invocations": {
+      "items": {
+        "$ref": "#/$defs/ToolInvocation"
+      },
+      "title": "Tool Invocations",
+      "type": "array"
+    },
+    "tool_results": {
+      "items": {
+        "$ref": "#/$defs/ToolResult"
+      },
+      "title": "Tool Results",
+      "type": "array"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Updated At"
+    }
+  },
+  "required": [
+    "investigation_id"
+  ],
+  "title": "InvestigationState",
+  "type": "object"
+}

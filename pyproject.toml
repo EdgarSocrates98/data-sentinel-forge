@@ -39,6 +39,9 @@ dev = [
     "mypy>=1.10",
     "jsonschema>=4.21",
 ]
+mcp = [
+    "mcp>=1.9",
+]
 
 [dependency-groups]
 # Auto-installed by `uv sync` (uv-native dev workflow).

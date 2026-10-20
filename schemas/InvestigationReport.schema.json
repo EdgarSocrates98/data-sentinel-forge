@@ -1,0 +1,472 @@
+{
+  "$defs": {
+    "AccessMetadata": {
+      "additionalProperties": false,
+      "description": "How an evidence artifact was accessed.",
+      "properties": {
+        "access_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Method"
+        },
+        "accessed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accessed By"
+        }
+      },
+      "title": "AccessMetadata",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A traceable excerpt supporting findings (\u00a74).",
+      "properties": {
+        "access_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccessMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "content_hash": {
+          "minLength": 1,
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/EvidenceProvenance"
+        },
+        "sanitized_excerpt": {
+          "title": "Sanitized Excerpt",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "source_location": {
+          "minLength": 1,
+          "title": "Source Location",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "source_location",
+        "captured_at",
+        "content_hash",
+        "sanitized_excerpt",
+        "provenance",
+        "confidence"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "description": "How a piece of evidence was obtained (\u00a72.4).",
+      "enum": [
+        "declared",
+        "static_inferred",
+        "observed"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "string"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "description": "An evidence-backed diagnostic conclusion (\u00a74).",
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "category": {
+          "$ref": "#/$defs/FindingCategory"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "recommendations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommendations",
+          "type": "array"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "status": {
+          "$ref": "#/$defs/FindingStatus"
+        },
+        "validation_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "severity",
+        "status",
+        "explanation"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingCategory": {
+      "description": "Classification of a finding's technical domain.",
+      "enum": [
+        "out_of_memory",
+        "disk_space",
+        "data_skew",
+        "configuration",
+        "permissions",
+        "network_io",
+        "dependency",
+        "timeout",
+        "executor_loss",
+        "sql_antipattern",
+        "data_quality",
+        "cost",
+        "security",
+        "compatibility",
+        "unknown"
+      ],
+      "title": "FindingCategory",
+      "type": "string"
+    },
+    "FindingStatus": {
+      "description": "Certainty taxonomy for findings (\u00a72.1).",
+      "enum": [
+        "CONFIRMED",
+        "PROBABLE",
+        "POSSIBLE",
+        "UNKNOWN"
+      ],
+      "title": "FindingStatus",
+      "type": "string"
+    },
+    "Hypothesis": {
+      "additionalProperties": false,
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "causal_claim": {
+          "default": false,
+          "title": "Causal Claim",
+          "type": "boolean"
+        },
+        "causal_label": {
+          "default": "correlation",
+          "title": "Causal Label",
+          "type": "string"
+        },
+        "confidence": {
+          "default": "UNKNOWN",
+          "title": "Confidence",
+          "type": "string"
+        },
+        "contradicting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicting Evidence",
+          "type": "array"
+        },
+        "hypothesis_id": {
+          "minLength": 1,
+          "title": "Hypothesis Id",
+          "type": "string"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        },
+        "status": {
+          "default": "open",
+          "title": "Status",
+          "type": "string"
+        },
+        "supporting_evidence": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "statement"
+      ],
+      "title": "Hypothesis",
+      "type": "object"
+    },
+    "OptimizationRecommendation": {
+      "additionalProperties": false,
+      "description": "A proposed change with rationale, risk and rollback (\u00a74).",
+      "properties": {
+        "estimated_risk": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Risk"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "expected_effect": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Effect"
+        },
+        "proposed_change": {
+          "minLength": 1,
+          "title": "Proposed Change",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "rollback_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rollback Plan"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "validation_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Validation Plan"
+        }
+      },
+      "required": [
+        "target",
+        "proposed_change",
+        "rationale"
+      ],
+      "title": "OptimizationRecommendation",
+      "type": "object"
+    },
+    "Severity": {
+      "description": "Impact severity of a finding or recommendation.",
+      "enum": [
+        "INFO",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agents_used": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Agents Used",
+      "type": "array"
+    },
+    "conclusions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conclusions",
+      "type": "array"
+    },
+    "context": {
+      "additionalProperties": true,
+      "title": "Context",
+      "type": "object"
+    },
+    "cost_usd": {
+      "default": 0.0,
+      "title": "Cost Usd",
+      "type": "number"
+    },
+    "duration_seconds": {
+      "default": 0.0,
+      "title": "Duration Seconds",
+      "type": "number"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "hypotheses_refuted": {
+      "items": {
+        "$ref": "#/$defs/Hypothesis"
+      },
+      "title": "Hypotheses Refuted",
+      "type": "array"
+    },
+    "hypotheses_supported": {
+      "items": {
+        "$ref": "#/$defs/Hypothesis"
+      },
+      "title": "Hypotheses Supported",
+      "type": "array"
+    },
+    "investigation_id": {
+      "title": "Investigation Id",
+      "type": "string"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "problem": {
+      "default": "",
+      "title": "Problem",
+      "type": "string"
+    },
+    "recommendations": {
+      "items": {
+        "$ref": "#/$defs/OptimizationRecommendation"
+      },
+      "title": "Recommendations",
+      "type": "array"
+    },
+    "report_id": {
+      "minLength": 1,
+      "title": "Report Id",
+      "type": "string"
+    },
+    "tokens_used": {
+      "default": 0,
+      "title": "Tokens Used",
+      "type": "integer"
+    },
+    "tools_used": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tools Used",
+      "type": "array"
+    }
+  },
+  "required": [
+    "report_id",
+    "investigation_id"
+  ],
+  "title": "InvestigationReport",
+  "type": "object"
+}

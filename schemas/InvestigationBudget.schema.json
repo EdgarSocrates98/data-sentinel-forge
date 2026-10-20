@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "max_agents": {
+      "default": 6,
+      "title": "Max Agents",
+      "type": "integer"
+    },
+    "max_cost_usd": {
+      "default": 0.0,
+      "title": "Max Cost Usd",
+      "type": "number"
+    },
+    "max_depth": {
+      "default": 3,
+      "title": "Max Depth",
+      "type": "integer"
+    },
+    "max_iterations": {
+      "default": 12,
+      "title": "Max Iterations",
+      "type": "integer"
+    },
+    "max_tokens": {
+      "default": 200000,
+      "title": "Max Tokens",
+      "type": "integer"
+    },
+    "max_tool_calls": {
+      "default": 40,
+      "title": "Max Tool Calls",
+      "type": "integer"
+    },
+    "spent_cost_usd": {
+      "default": 0.0,
+      "title": "Spent Cost Usd",
+      "type": "number"
+    },
+    "spent_iterations": {
+      "default": 0,
+      "title": "Spent Iterations",
+      "type": "integer"
+    },
+    "spent_tokens": {
+      "default": 0,
+      "title": "Spent Tokens",
+      "type": "integer"
+    },
+    "spent_tool_calls": {
+      "default": 0,
+      "title": "Spent Tool Calls",
+      "type": "integer"
+    },
+    "timeout_seconds": {
+      "default": 600.0,
+      "title": "Timeout Seconds",
+      "type": "number"
+    }
+  },
+  "title": "InvestigationBudget",
+  "type": "object"
+}

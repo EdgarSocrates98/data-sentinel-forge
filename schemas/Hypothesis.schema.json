@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "alternatives": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Alternatives",
+      "type": "array"
+    },
+    "causal_claim": {
+      "default": false,
+      "title": "Causal Claim",
+      "type": "boolean"
+    },
+    "causal_label": {
+      "default": "correlation",
+      "title": "Causal Label",
+      "type": "string"
+    },
+    "confidence": {
+      "default": "UNKNOWN",
+      "title": "Confidence",
+      "type": "string"
+    },
+    "contradicting_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Contradicting Evidence",
+      "type": "array"
+    },
+    "hypothesis_id": {
+      "minLength": 1,
+      "title": "Hypothesis Id",
+      "type": "string"
+    },
+    "statement": {
+      "minLength": 1,
+      "title": "Statement",
+      "type": "string"
+    },
+    "status": {
+      "default": "open",
+      "title": "Status",
+      "type": "string"
+    },
+    "supporting_evidence": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supporting Evidence",
+      "type": "array"
+    }
+  },
+  "required": [
+    "hypothesis_id",
+    "statement"
+  ],
+  "title": "Hypothesis",
+  "type": "object"
+}

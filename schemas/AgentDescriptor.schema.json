@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "AgentCapability": {
+      "additionalProperties": false,
+      "properties": {
+        "capability_id": {
+          "minLength": 1,
+          "title": "Capability Id",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "input_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Kinds",
+          "type": "array"
+        },
+        "output_kinds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Output Kinds",
+          "type": "array"
+        }
+      },
+      "required": [
+        "capability_id"
+      ],
+      "title": "AgentCapability",
+      "type": "object"
+    },
+    "ModelProfile": {
+      "enum": [
+        "offline",
+        "economy",
+        "balanced",
+        "deep"
+      ],
+      "title": "ModelProfile",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agent_id": {
+      "minLength": 1,
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "allowed_tools": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Tools",
+      "type": "array"
+    },
+    "capabilities": {
+      "items": {
+        "$ref": "#/$defs/AgentCapability"
+      },
+      "title": "Capabilities",
+      "type": "array"
+    },
+    "input_schema": {
+      "additionalProperties": true,
+      "title": "Input Schema",
+      "type": "object"
+    },
+    "max_iterations": {
+      "default": 8,
+      "title": "Max Iterations",
+      "type": "integer"
+    },
+    "max_tool_calls": {
+      "default": 20,
+      "title": "Max Tool Calls",
+      "type": "integer"
+    },
+    "model_profile": {
+      "$ref": "#/$defs/ModelProfile",
+      "default": "offline"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "output_schema": {
+      "additionalProperties": true,
+      "title": "Output Schema",
+      "type": "object"
+    },
+    "policy": {
+      "default": "deterministic_first",
+      "title": "Policy",
+      "type": "string"
+    },
+    "responsibility": {
+      "title": "Responsibility",
+      "type": "string"
+    },
+    "version": {
+      "default": "1.0.0",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent_id",
+    "name",
+    "responsibility"
+  ],
+  "title": "AgentDescriptor",
+  "type": "object"
+}

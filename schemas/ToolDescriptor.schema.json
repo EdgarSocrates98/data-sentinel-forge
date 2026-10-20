@@ -1,0 +1,91 @@
+{
+  "$defs": {
+    "ToolPermission": {
+      "enum": [
+        "local_read",
+        "cloud_read",
+        "network_retrieval",
+        "file_write",
+        "cloud_write",
+        "destructive"
+      ],
+      "title": "ToolPermission",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "estimated_cost": {
+      "default": "low",
+      "title": "Estimated Cost",
+      "type": "string"
+    },
+    "input_schema": {
+      "additionalProperties": true,
+      "title": "Input Schema",
+      "type": "object"
+    },
+    "name": {
+      "default": "",
+      "title": "Name",
+      "type": "string"
+    },
+    "network_required": {
+      "default": false,
+      "title": "Network Required",
+      "type": "boolean"
+    },
+    "output_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Output Limitations",
+      "type": "array"
+    },
+    "output_schema": {
+      "additionalProperties": true,
+      "title": "Output Schema",
+      "type": "object"
+    },
+    "permissions": {
+      "items": {
+        "$ref": "#/$defs/ToolPermission"
+      },
+      "title": "Permissions",
+      "type": "array"
+    },
+    "side_effects": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Side Effects",
+      "type": "array"
+    },
+    "timeout_seconds": {
+      "default": 30.0,
+      "title": "Timeout Seconds",
+      "type": "number"
+    },
+    "tool_id": {
+      "minLength": 1,
+      "title": "Tool Id",
+      "type": "string"
+    },
+    "version": {
+      "default": "1.0.0",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tool_id"
+  ],
+  "title": "ToolDescriptor",
+  "type": "object"
+}

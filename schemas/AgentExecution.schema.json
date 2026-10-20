@@ -1,0 +1,99 @@
+{
+  "$defs": {
+    "AgentState": {
+      "enum": [
+        "created",
+        "planned",
+        "running",
+        "waiting_for_evidence",
+        "validating",
+        "completed",
+        "partial",
+        "failed",
+        "cancelled",
+        "budget_exceeded"
+      ],
+      "title": "AgentState",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "error": {
+      "default": "",
+      "title": "Error",
+      "type": "string"
+    },
+    "execution_id": {
+      "minLength": 1,
+      "title": "Execution Id",
+      "type": "string"
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Finished At"
+    },
+    "iterations": {
+      "default": 0,
+      "title": "Iterations",
+      "type": "integer"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "state": {
+      "$ref": "#/$defs/AgentState",
+      "default": "created"
+    },
+    "task_id": {
+      "title": "Task Id",
+      "type": "string"
+    },
+    "tokens_in": {
+      "default": 0,
+      "title": "Tokens In",
+      "type": "integer"
+    },
+    "tokens_out": {
+      "default": 0,
+      "title": "Tokens Out",
+      "type": "integer"
+    },
+    "tool_calls": {
+      "default": 0,
+      "title": "Tool Calls",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "execution_id",
+    "task_id",
+    "agent_id"
+  ],
+  "title": "AgentExecution",
+  "type": "object"
+}
