@@ -1,0 +1,170 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.opsRegressions.title" | t }}</h1>
+      <p class="lead">{{ "pages.opsRegressions.lead" | t }}</p>
+    </div>
+  </header>
+
+  <ds-ops-nav />
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="reg-error-title">
+      <h2 id="reg-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "ops.loadError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refresh()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (state() === "ok") {
+    <section class="ds-card panel" aria-labelledby="reg-form-title">
+      <h2 id="reg-form-title">{{ "ops.reg.formTitle" | t }}</h2>
+      @if (snapshots().length === 0) {
+        <p class="muted">{{ "ops.reg.noSnapshots" | t }}</p>
+      } @else {
+        <form
+          class="form-inline"
+          [formGroup]="compareForm"
+          (ngSubmit)="runCompare()"
+        >
+          <div class="field">
+            <label for="reg-platform">
+              {{ "ops.timeline.platformLabel" | t }}
+            </label>
+            <select id="reg-platform" (change)="onPlatformChange($event)">
+              <option value="all" [selected]="platformFilter() === 'all'">
+                {{ "ops.timeline.platformAll" | t }}
+              </option>
+              @for (p of platforms(); track p) {
+                <option [value]="p" [selected]="platformFilter() === p">
+                  {{ p }}
+                </option>
+              }
+            </select>
+          </div>
+          <div class="field field--grow">
+            <label for="reg-snapshot">{{ "ops.reg.snapshotLabel" | t }}</label>
+            <select id="reg-snapshot" formControlName="snapshot">
+              <option value="" disabled>
+                {{ "ops.reg.snapshotPlaceholder" | t }}
+              </option>
+              @for (s of options(); track s.snapshot_id) {
+                <option [value]="s.snapshot_id">{{ optionLabel(s) }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="reg-baseline">{{ "ops.cmp.baseline" | t }}</label>
+            <select id="reg-baseline" formControlName="baseline">
+              <option value="previous">
+                {{ "ops.cmp.baseline.previous" | t }}
+              </option>
+              <option value="median">
+                {{ "ops.cmp.baseline.median" | t }}
+              </option>
+              <option value="reference">
+                {{ "ops.cmp.baseline.reference" | t }}
+              </option>
+            </select>
+          </div>
+          @if (needsReference()) {
+            <div class="field field--grow">
+              <label for="reg-ref">{{ "ops.cmp.referenceId" | t }}</label>
+              <input
+                id="reg-ref"
+                type="text"
+                formControlName="referenceId"
+                placeholder="run_id"
+              />
+              @if (
+                compareForm.controls.referenceId.invalid &&
+                compareForm.controls.referenceId.touched
+              ) {
+                <p class="field-error" role="alert">
+                  {{ "ops.cmp.referenceRequired" | t }}
+                </p>
+              }
+            </div>
+          }
+          <div class="actions">
+            <button
+              type="submit"
+              class="ds-btn ds-btn--primary"
+              [disabled]="compareForm.invalid || compareState() === 'loading'"
+            >
+              {{
+                (compareState() === "loading"
+                  ? "ops.cmp.running"
+                  : "ops.cmp.run"
+                ) | t
+              }}
+            </button>
+          </div>
+        </form>
+      }
+    </section>
+
+    @if (selected(); as snap) {
+      <section class="ds-card panel" aria-labelledby="reg-hist-title">
+        <h2 id="reg-hist-title">{{ "ops.reg.vsHistory" | t }}</h2>
+        <p class="muted">{{ "ops.reg.vsHistoryHint" | t }}</p>
+        @if (!snap.job_id) {
+          <p class="muted" role="note">{{ "ops.reg.noJobId" | t }}</p>
+        } @else {
+          @if (historyState() === "loading") {
+            <p class="muted" role="status">{{ "status.loading" | t }}</p>
+          }
+          @if (historyState() === "error") {
+            <p class="field-error" role="alert">
+              {{ "ops.reg.error" | t }}
+              @if (historyError(); as detail) {
+                <code>{{ detail }}</code>
+              }
+            </p>
+            <button
+              type="button"
+              class="ds-btn"
+              (click)="retryHistory()"
+            >
+              {{ "status.retry" | t }}
+            </button>
+          }
+          @if (historyState() === "ok") {
+            <ds-regression-findings [findings]="historyFindings()" />
+          }
+        }
+      </section>
+
+      <section
+        class="ds-card panel"
+        aria-labelledby="reg-result-title"
+        aria-live="polite"
+      >
+        <h2 id="reg-result-title">{{ "ops.cmp.title" | t }}</h2>
+        @if (compareState() === "idle") {
+          <p class="muted">{{ "ops.reg.runFirst" | t }}</p>
+        }
+        @if (compareState() === "loading") {
+          <p class="muted" role="status">{{ "ops.cmp.running" | t }}</p>
+        }
+        @if (compareState() === "error") {
+          <p class="field-error" role="alert">
+            {{ "ops.cmp.error" | t }}
+            @if (compareError(); as detail) {
+              <code>{{ detail }}</code>
+            }
+          </p>
+        }
+        @if (compareState() === "ok" && compareResult(); as res) {
+          <ds-compare-result [result]="res" [currentId]="snap.snapshot_id" />
+        }
+      </section>
+    }
+  }
+</article>

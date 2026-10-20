@@ -95,5 +95,50 @@ export const routes: Routes = [
         (m) => m.ReportsComponent,
       ),
   },
+  {
+    path: "operations",
+    title: "pages.operations.title",
+    data: { labelKey: "nav.operations" },
+    loadComponent: () =>
+      import(
+        "./features/operations/operations-dashboard.component"
+      ).then((m) => m.OperationsDashboardComponent),
+  },
+  {
+    path: "operations/timeline",
+    title: "pages.opsTimeline.title",
+    data: { labelKey: "nav.operations" },
+    loadComponent: () =>
+      import(
+        "./features/operations/workload-timeline.component"
+      ).then((m) => m.WorkloadTimelineComponent),
+  },
+  {
+    path: "operations/regressions",
+    title: "pages.opsRegressions.title",
+    data: { labelKey: "nav.operations" },
+    loadComponent: () =>
+      import(
+        "./features/operations/regression-explorer.component"
+      ).then((m) => m.RegressionExplorerComponent),
+  },
+  {
+    path: "operations/watches",
+    title: "pages.opsWatches.title",
+    data: { labelKey: "nav.operations" },
+    loadComponent: () =>
+      import("./features/operations/watch-center.component").then(
+        (m) => m.WatchCenterComponent,
+      ),
+  },
+  {
+    path: "operations/remediation",
+    title: "pages.opsRemediation.title",
+    data: { labelKey: "nav.operations" },
+    loadComponent: () =>
+      import(
+        "./features/operations/remediation-workspace.component"
+      ).then((m) => m.RemediationWorkspaceComponent),
+  },
   { path: "**", redirectTo: "" },
 ];

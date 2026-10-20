@@ -36,10 +36,10 @@ describe("AppComponent (shell)", () => {
     expect(skip?.getAttribute("href")).toBe("#main-content");
   });
 
-  it("renders all eight nav entries", () => {
+  it("renders all nine nav entries", () => {
     const el: HTMLElement = fixture.nativeElement;
     const links = el.querySelectorAll("nav.sidenav a");
-    expect(links.length).toBe(8);
+    expect(links.length).toBe(9);
   });
 
   it("renders the Data Sentinel brand", () => {

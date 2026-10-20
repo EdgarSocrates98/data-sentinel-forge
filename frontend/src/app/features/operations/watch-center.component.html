@@ -1,0 +1,409 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.opsWatches.title" | t }}</h1>
+      <p class="lead">{{ "pages.opsWatches.lead" | t }}</p>
+    </div>
+  </header>
+
+  <ds-ops-nav />
+
+  <p class="muted note-line" role="note">{{ "ops.watch.manualNote" | t }}</p>
+
+  <!-- ===== Watch list ===== -->
+  <section class="ds-card panel" aria-labelledby="watch-list-title">
+    <h2 id="watch-list-title">{{ "ops.watch.list.title" | t }}</h2>
+
+    @if (watchesState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (watchesState() === "error") {
+      <p class="field-error" role="alert">{{ "ops.loadError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refreshWatches()">
+        {{ "status.retry" | t }}
+      </button>
+    }
+    @if (watchesState() === "ok") {
+      @if (watches().length === 0) {
+        <p class="muted">{{ "ops.watch.list.empty" | t }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption>
+              {{ "ops.watch.list.caption" | t }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ "ops.watch.col.id" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.workload" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.platform" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.rule" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.interval" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.severity" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.state" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.actions" | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (w of watches(); track w.watch_id) {
+                <tr>
+                  <td><code>{{ w.watch_id }}</code></td>
+                  <td><code>{{ w.workload }}</code></td>
+                  <td>{{ w.platform }}</td>
+                  <td><code>{{ w.rule }}</code></td>
+                  <td>{{ w.interval_s }}</td>
+                  <td>
+                    <span
+                      class="ds-badge"
+                      [class]="
+                        'ds-badge ds-badge--' + severityClass(w.severity)
+                      "
+                    >
+                      {{ w.severity }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (w.enabled) {
+                      <span class="ds-badge ds-badge--status-running">
+                        {{ "ops.watch.enabled" | t }}
+                      </span>
+                    } @else {
+                      <span class="ds-badge">
+                        {{ "ops.watch.disabled" | t }}
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    @if (pendingDelete() === w.watch_id) {
+                      <div class="row-actions" role="group">
+                        <button
+                          type="button"
+                          class="ds-btn ds-btn--danger"
+                          (click)="confirmDelete(w.watch_id)"
+                          [disabled]="busyId() === w.watch_id"
+                        >
+                          {{ "ops.watch.deleteConfirm" | t }}
+                        </button>
+                        <button
+                          type="button"
+                          class="ds-btn"
+                          (click)="cancelDelete()"
+                        >
+                          {{ "ops.watch.cancel" | t }}
+                        </button>
+                      </div>
+                    } @else {
+                      <div class="row-actions" role="group">
+                        <button
+                          type="button"
+                          class="ds-btn"
+                          (click)="runWatch(w.watch_id)"
+                          [disabled]="busyId() !== null"
+                        >
+                          {{
+                            (runOutcome(w.watch_id)?.state === "loading"
+                              ? "ops.watch.running"
+                              : "ops.watch.run"
+                            ) | t
+                          }}
+                        </button>
+                        @if (w.enabled) {
+                          <button
+                            type="button"
+                            class="ds-btn"
+                            (click)="pauseWatch(w.watch_id)"
+                            [disabled]="busyId() !== null"
+                          >
+                            {{ "ops.watch.pause" | t }}
+                          </button>
+                        } @else {
+                          <button
+                            type="button"
+                            class="ds-btn"
+                            (click)="resumeWatch(w.watch_id)"
+                            [disabled]="busyId() !== null"
+                          >
+                            {{ "ops.watch.resume" | t }}
+                          </button>
+                        }
+                        <button
+                          type="button"
+                          class="ds-btn"
+                          (click)="requestDelete(w.watch_id)"
+                          [disabled]="busyId() !== null"
+                        >
+                          {{ "ops.watch.delete" | t }}
+                        </button>
+                      </div>
+                    }
+                  </td>
+                </tr>
+                @if (runOutcome(w.watch_id); as outcome) {
+                  <tr class="run-row">
+                    <td></td>
+                    <td colspan="7" aria-live="polite">
+                      @if (outcome.state === "loading") {
+                        <span class="muted">{{ "ops.watch.running" | t }}</span>
+                      }
+                      @if (outcome.state === "error") {
+                        <span class="field-error">
+                          {{ "ops.watch.actionError" | t }}
+                          @if (outcome.detail) {
+                            <code>{{ outcome.detail }}</code>
+                          }
+                        </span>
+                      }
+                      @if (outcome.state === "ok") {
+                        @if (outcome.alerts.length === 0) {
+                          <span class="muted">
+                            {{ "ops.watch.runNone" | t }}
+                          </span>
+                        } @else {
+                          <span class="muted">
+                            {{ outcome.alerts.length }}
+                            {{ "ops.watch.runResult" | t }}
+                          </span>
+                          <ul class="run-alerts">
+                            @for (a of outcome.alerts; track a.alert_id) {
+                              <li>
+                                <span
+                                  class="ds-badge"
+                                  [class]="
+                                    'ds-badge ds-badge--' +
+                                    severityClass(a.severity)
+                                  "
+                                >
+                                  {{ a.severity }}
+                                </span>
+                                <code>{{ a.kind }}</code>
+                                {{ a.message }}
+                                @if (a.recovered) {
+                                  <span class="muted">
+                                    ({{ "ops.watch.recovered.yes" | t }})
+                                  </span>
+                                }
+                              </li>
+                            }
+                          </ul>
+                        }
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+    @if (actionError(); as detail) {
+      <p class="field-error" role="alert">
+        {{ "ops.watch.actionError" | t }} <code>{{ detail }}</code>
+      </p>
+    }
+  </section>
+
+  <!-- ===== Create watch ===== -->
+  <section class="ds-card panel" aria-labelledby="watch-create-title">
+    <h2 id="watch-create-title">{{ "ops.watch.create.title" | t }}</h2>
+    <p class="muted">{{ "ops.watch.create.sourceNote" | t }}</p>
+
+    <form class="form" [formGroup]="form" (ngSubmit)="createWatch()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="watch-id">{{ "ops.watch.create.id" | t }}</label>
+          <input id="watch-id" type="text" formControlName="watch_id" />
+        </div>
+        <div class="field">
+          <label for="watch-workload">
+            {{ "ops.watch.create.workload" | t }}
+          </label>
+          <input
+            id="watch-workload"
+            type="text"
+            formControlName="workload"
+            placeholder="job_id"
+          />
+        </div>
+        <div class="field">
+          <label for="watch-platform">
+            {{ "ops.watch.create.platform" | t }}
+          </label>
+          <input
+            id="watch-platform"
+            type="text"
+            formControlName="platform"
+            list="watch-platform-hints"
+          />
+          <datalist id="watch-platform-hints">
+            @for (p of platformHints; track p) {
+              <option [value]="p"></option>
+            }
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="watch-rule">{{ "ops.watch.create.rule" | t }}</label>
+          <select id="watch-rule" formControlName="rule">
+            @for (r of rules; track r) {
+              <option [value]="r">{{ r }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="watch-interval">
+            {{ "ops.watch.create.interval" | t }}
+          </label>
+          <input
+            id="watch-interval"
+            type="number"
+            formControlName="interval_s"
+            [min]="minInterval"
+            step="1"
+          />
+          @if (
+            form.controls.interval_s.invalid &&
+            form.controls.interval_s.touched
+          ) {
+            <p class="field-error" role="alert">
+              {{ "ops.watch.create.intervalMin" | t }}
+            </p>
+          }
+        </div>
+        <div class="field">
+          <label for="watch-severity">
+            {{ "ops.watch.create.severity" | t }}
+          </label>
+          <select id="watch-severity" formControlName="severity">
+            @for (s of severities; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="watch-metrics">
+          {{ "ops.watch.create.metrics" | t }}
+        </label>
+        <input
+          id="watch-metrics"
+          type="text"
+          formControlName="metrics"
+          list="watch-metric-hints"
+          aria-describedby="watch-metrics-hint"
+        />
+        <datalist id="watch-metric-hints">
+          @for (m of metricHints; track m) {
+            <option [value]="m"></option>
+          }
+        </datalist>
+        <p id="watch-metrics-hint" class="hint">
+          {{ "ops.watch.create.metricsHint" | t }}
+        </p>
+      </div>
+      <div class="actions">
+        <button
+          type="submit"
+          class="ds-btn ds-btn--primary"
+          [disabled]="form.invalid || creating()"
+        >
+          {{
+            (creating()
+              ? "ops.watch.create.creating"
+              : "ops.watch.create.submit"
+            ) | t
+          }}
+        </button>
+      </div>
+    </form>
+
+    <div aria-live="polite">
+      @if (createError(); as detail) {
+        <p class="field-error" role="alert">
+          {{ "ops.watch.create.error" | t }}
+          @if (detail) {
+            <code>{{ detail }}</code>
+          }
+        </p>
+      }
+      @if (createdId(); as id) {
+        <p class="ok-note" role="status">
+          {{ "ops.watch.create.created" | t }} <code>{{ id }}</code>
+        </p>
+      }
+    </div>
+  </section>
+
+  <!-- ===== Alerts history ===== -->
+  <section class="ds-card panel" aria-labelledby="alerts-title">
+    <div class="panel-head">
+      <h2 id="alerts-title">{{ "ops.watch.alerts.title" | t }}</h2>
+      <button
+        type="button"
+        class="ds-btn"
+        (click)="refreshAlerts()"
+        [disabled]="alertsState() === 'loading'"
+      >
+        {{ "status.retry" | t }}
+      </button>
+    </div>
+    <p class="muted">{{ "ops.watch.alerts.hint" | t }}</p>
+
+    @if (alertsState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (alertsState() === "error") {
+      <p class="field-error" role="alert">{{ "ops.loadError" | t }}</p>
+    }
+    @if (alertsState() === "ok") {
+      @if (alerts().length === 0) {
+        <p class="muted">{{ "ops.watch.alerts.empty" | t }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption>
+              {{ "ops.watch.alerts.caption" | t }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ "ops.watch.col.severity" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.kind" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.watch" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.message" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.ts" | t }}</th>
+                <th scope="col">{{ "ops.watch.col.recovered" | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of alerts(); track a.alert_id) {
+                <tr>
+                  <td>
+                    <span
+                      class="ds-badge"
+                      [class]="
+                        'ds-badge ds-badge--' + severityClass(a.severity)
+                      "
+                    >
+                      {{ a.severity }}
+                    </span>
+                  </td>
+                  <td><code>{{ a.kind }}</code></td>
+                  <td><code>{{ a.watch_id }}</code></td>
+                  <td>{{ a.message }}</td>
+                  <td>{{ formatTs(a.ts) }}</td>
+                  <td>
+                    {{
+                      (a.recovered
+                        ? "ops.watch.recovered.yes"
+                        : "ops.watch.recovered.no"
+                      ) | t
+                    }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </section>
+</article>

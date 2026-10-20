@@ -74,6 +74,12 @@ export class AppComponent {
     },
     { path: "/agents", labelKey: "nav.agents", icon: "agent", exact: false },
     { path: "/reports", labelKey: "nav.reports", icon: "report", exact: false },
+    {
+      path: "/operations",
+      labelKey: "nav.operations",
+      icon: "operations",
+      exact: false,
+    },
   ];
 
   constructor() {

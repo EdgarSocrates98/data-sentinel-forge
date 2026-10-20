@@ -1,0 +1,740 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.opsRemediation.title" | t }}</h1>
+      <p class="lead">{{ "pages.opsRemediation.lead" | t }}</p>
+    </div>
+  </header>
+
+  <ds-ops-nav />
+
+  <p class="muted note-line" role="note">{{ "ops.rem.noCloud" | t }}</p>
+
+  <!-- ===== Plan list ===== -->
+  <section class="ds-card panel" aria-labelledby="rem-list-title">
+    <div class="panel-head">
+      <h2 id="rem-list-title">{{ "ops.rem.list.title" | t }}</h2>
+      <button
+        type="button"
+        class="ds-btn"
+        (click)="refreshPlans()"
+        [disabled]="listState() === 'loading'"
+      >
+        {{ "status.retry" | t }}
+      </button>
+    </div>
+
+    @if (listState() === "loading") {
+      <p class="muted" role="status">{{ "status.loading" | t }}</p>
+    }
+    @if (listState() === "error") {
+      <p class="field-error" role="alert">{{ "ops.loadError" | t }}</p>
+    }
+    @if (listState() === "ok") {
+      @if (plans().length === 0) {
+        <p class="muted">{{ "ops.rem.list.empty" | t }}</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="data-table">
+            <caption>
+              {{ "ops.rem.list.caption" | t }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ "ops.rem.col.id" | t }}</th>
+                <th scope="col">{{ "ops.rem.col.title" | t }}</th>
+                <th scope="col">{{ "ops.rem.col.type" | t }}</th>
+                <th scope="col">{{ "ops.rem.col.state" | t }}</th>
+                <th scope="col">{{ "ops.rem.col.findings" | t }}</th>
+                <th scope="col">
+                  <span class="sr-only">{{ "ops.rem.open" | t }}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of plans(); track p.plan_id) {
+                <tr [class.selected]="p.plan_id === selectedPlanId()">
+                  <td><code>{{ p.plan_id }}</code></td>
+                  <td>{{ p.title }}</td>
+                  <td><code>{{ p.type }}</code></td>
+                  <td>
+                    <span
+                      class="ds-badge"
+                      [class]="'ds-badge ds-badge--' + planStateClass(p.state)"
+                    >
+                      {{ "ops.rem.state." + p.state | t }}
+                    </span>
+                  </td>
+                  <td>{{ p.finding_ids.length }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="ds-btn"
+                      (click)="openPlan(p.plan_id)"
+                    >
+                      {{ "ops.rem.open" | t }}
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </section>
+
+  <!-- ===== Create plan ===== -->
+  <section class="ds-card panel" aria-labelledby="rem-create-title">
+    <h2 id="rem-create-title">{{ "ops.rem.create.title" | t }}</h2>
+
+    <fieldset class="mode-picker">
+      <legend>{{ "ops.rem.create.mode" | t }}</legend>
+      <label class="mode">
+        <input
+          type="radio"
+          name="create-mode"
+          [checked]="createMode() === 'investigation'"
+          (change)="setCreateMode('investigation')"
+        />
+        <span>{{ "ops.rem.create.fromInvestigation" | t }}</span>
+      </label>
+      <label class="mode">
+        <input
+          type="radio"
+          name="create-mode"
+          [checked]="createMode() === 'manual'"
+          (change)="setCreateMode('manual')"
+        />
+        <span>{{ "ops.rem.create.manual" | t }}</span>
+      </label>
+    </fieldset>
+
+    @if (createMode() === "investigation") {
+      <form class="form" [formGroup]="invForm" (ngSubmit)="createPlan()">
+        @if (invState() === "loading") {
+          <p class="muted" role="status">{{ "status.loading" | t }}</p>
+        }
+        @if (invState() === "error") {
+          <p class="field-error" role="alert">
+            {{ "ops.rem.create.invListError" | t }}
+          </p>
+        }
+        @if (invState() === "ok") {
+          <div class="form-grid">
+            <div class="field field--grow">
+              <label for="rem-inv">
+                {{ "ops.rem.create.investigation" | t }}
+              </label>
+              <select id="rem-inv" formControlName="investigation">
+                <option value="" disabled>
+                  {{ "ops.rem.create.investigationPlaceholder" | t }}
+                </option>
+                @for (inv of completedInvestigations(); track inv.investigation_id) {
+                  <option [value]="inv.investigation_id">
+                    {{ inv.investigation_id }} — {{ inv.problem || "—" }}
+                  </option>
+                }
+              </select>
+              @if (completedInvestigations().length === 0) {
+                <p class="hint">{{ "ops.rem.create.noCompleted" | t }}</p>
+              }
+            </div>
+            <div class="field field--grow">
+              <label for="rem-finding">
+                {{ "ops.rem.create.finding" | t }}
+              </label>
+              <select id="rem-finding" formControlName="finding">
+                <option value="" disabled>
+                  {{ "ops.rem.create.findingPlaceholder" | t }}
+                </option>
+                @for (f of findings(); track f.finding_id) {
+                  <option [value]="f.finding_id">
+                    {{ f.finding_id }} — {{ f.severity }} ·
+                    {{ f.category }} · {{ f.explanation | slice: 0 : 80 }}
+                  </option>
+                }
+              </select>
+              @if (findingsState() === "loading") {
+                <p class="hint" role="status">{{ "status.loading" | t }}</p>
+              }
+              @if (findingsState() === "error") {
+                <p class="field-error" role="alert">
+                  {{ "ops.rem.create.invLoadError" | t }}
+                </p>
+              }
+              @if (
+                findingsState() === "ok" &&
+                invForm.controls.investigation.value &&
+                findings().length === 0
+              ) {
+                <p class="hint">{{ "ops.rem.create.findingEmpty" | t }}</p>
+              }
+            </div>
+            <div class="field field--grow">
+              <label for="rem-title">
+                {{ "ops.rem.create.titleField" | t }}
+              </label>
+              <input id="rem-title" type="text" formControlName="title" />
+            </div>
+          </div>
+        }
+        <div class="actions">
+          <button
+            type="submit"
+            class="ds-btn ds-btn--primary"
+            [disabled]="invForm.invalid || creating() || invState() !== 'ok'"
+          >
+            {{
+              (creating()
+                ? "ops.rem.create.creating"
+                : "ops.rem.create.submit"
+              ) | t
+            }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <form class="form" [formGroup]="manualForm" (ngSubmit)="createPlan()">
+        <div class="field">
+          <label for="rem-explanation">
+            {{ "ops.rem.create.explanation" | t }}
+          </label>
+          <textarea
+            id="rem-explanation"
+            formControlName="explanation"
+            rows="3"
+            required
+          ></textarea>
+          @if (
+            manualForm.controls.explanation.invalid &&
+            manualForm.controls.explanation.touched
+          ) {
+            <p class="field-error" role="alert">
+              {{ "ops.rem.create.explanationRequired" | t }}
+            </p>
+          }
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="rem-category">
+              {{ "ops.rem.create.category" | t }}
+            </label>
+            <select id="rem-category" formControlName="category">
+              @for (c of categories; track c) {
+                <option [value]="c">{{ c }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="rem-severity">
+              {{ "ops.rem.create.severity" | t }}
+            </label>
+            <select id="rem-severity" formControlName="severity">
+              @for (s of severities; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="rem-status">
+              {{ "ops.rem.create.status" | t }}
+            </label>
+            <select id="rem-status" formControlName="status">
+              @for (s of findingStatuses; track s) {
+                <option [value]="s">{{ s }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="rem-recs">
+            {{ "ops.rem.create.recommendations" | t }}
+          </label>
+          <textarea
+            id="rem-recs"
+            formControlName="recommendations"
+            rows="3"
+            aria-describedby="rem-recs-hint"
+          ></textarea>
+          <p id="rem-recs-hint" class="hint">
+            {{ "ops.rem.create.recommendationsHint" | t }}
+          </p>
+        </div>
+        <div class="field">
+          <label for="rem-title-manual">
+            {{ "ops.rem.create.titleField" | t }}
+          </label>
+          <input id="rem-title-manual" type="text" formControlName="title" />
+        </div>
+        <div class="actions">
+          <button
+            type="submit"
+            class="ds-btn ds-btn--primary"
+            [disabled]="manualForm.invalid || creating()"
+          >
+            {{
+              (creating()
+                ? "ops.rem.create.creating"
+                : "ops.rem.create.submit"
+              ) | t
+            }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <div aria-live="polite">
+      @if (createError(); as detail) {
+        <p class="field-error" role="alert">
+          {{ "ops.rem.create.error" | t }}
+          @if (detail) {
+            <code>{{ detail }}</code>
+          }
+        </p>
+      }
+      @if (createdPlanId(); as id) {
+        <p class="ok-note" role="status">
+          {{ "ops.rem.create.created" | t }}
+          <button type="button" class="ds-btn" (click)="openPlan(id)">
+            {{ "ops.rem.open" | t }}
+          </button>
+          <code>{{ id }}</code>
+        </p>
+      }
+    </div>
+  </section>
+
+  <!-- ===== Plan detail ===== -->
+  @if (detailState() !== "idle") {
+    <section
+      class="ds-card panel"
+      aria-labelledby="rem-detail-title"
+      aria-live="polite"
+    >
+      <h2 id="rem-detail-title">{{ "ops.rem.detail.title" | t }}</h2>
+
+      @if (detailState() === "loading") {
+        <p class="muted" role="status">{{ "status.loading" | t }}</p>
+      }
+      @if (detailState() === "error") {
+        <p class="field-error" role="alert">
+          {{ "ops.rem.detail.loadError" | t }}
+          @if (detailError(); as detail) {
+            <code>{{ detail }}</code>
+          }
+        </p>
+      }
+      @if (detailState() === "ok" && plan(); as p) {
+        <dl class="kv">
+          <div>
+            <dt>{{ "ops.rem.col.id" | t }}</dt>
+            <dd><code>{{ p.plan_id }}</code></dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.state" | t }}</dt>
+            <dd>
+              <span
+                class="ds-badge"
+                [class]="'ds-badge ds-badge--' + planStateClass(p.state)"
+              >
+                {{ "ops.rem.state." + p.state | t }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.type" | t }}</dt>
+            <dd><code>{{ p.remediation_type }}</code></dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.approvalRequired" | t }}</dt>
+            <dd>{{ (p.approval_required ? "ops.yes" : "ops.no") | t }}</dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.approvedBy" | t }}</dt>
+            <dd>{{ p.approved_by ?? "—" }}</dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.createdAt" | t }}</dt>
+            <dd>{{ formatIso(p.created_at) }}</dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.expiresAt" | t }}</dt>
+            <dd>{{ formatIso(p.expires_at) }}</dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.findings" | t }}</dt>
+            <dd>
+              @for (f of p.finding_ids; track f) {
+                <code>{{ f }}</code>
+              } @empty {
+                <span class="muted">—</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.evidence" | t }}</dt>
+            <dd>
+              @for (e of p.evidence_ids; track e) {
+                <code>{{ e }}</code>
+              } @empty {
+                <span class="muted">—</span>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ "ops.rem.field.permissions" | t }}</dt>
+            <dd>
+              @for (perm of p.required_permissions; track perm) {
+                <code>{{ perm }}</code>
+              } @empty {
+                <span class="muted">—</span>
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <h3>{{ "ops.rem.changes" | t }}</h3>
+        @if (p.proposed_changes.length === 0) {
+          <p class="muted">{{ "ops.cmp.none" | t }}</p>
+        } @else {
+          <div class="table-scroll">
+            <table class="data-table">
+              <caption>
+                {{ "ops.rem.changesCaption" | t }}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ "ops.rem.col.target" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.change" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.params" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.localAction" | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of p.proposed_changes; track c.target + c.change) {
+                  <tr>
+                    <td><code>{{ c.target }}</code></td>
+                    <td>{{ c.change }}</td>
+                    <td><code>{{ paramsJson(c.params) }}</code></td>
+                    <td>
+                      @if (c.local_action; as action) {
+                        <code>{{ action }}</code>
+                      } @else {
+                        <span class="muted">
+                          {{ "ops.rem.localAction.none" | t }}
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <div class="detail-grid">
+          @if (p.preconditions.length) {
+            <div>
+              <h3>{{ "ops.rem.preconditions" | t }}</h3>
+              <ul class="str-list">
+                @for (x of p.preconditions; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            </div>
+          }
+          @if (p.risks.length) {
+            <div>
+              <h3>{{ "ops.rem.risks" | t }}</h3>
+              <ul class="str-list">
+                @for (x of p.risks; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            </div>
+          }
+          @if (p.expected_effects.length) {
+            <div>
+              <h3>{{ "ops.rem.expected" | t }}</h3>
+              <ul class="str-list">
+                @for (x of p.expected_effects; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            </div>
+          }
+          @if (p.validation_procedure.length) {
+            <div>
+              <h3>{{ "ops.rem.validation" | t }}</h3>
+              <ul class="str-list">
+                @for (x of p.validation_procedure; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+
+        @if (p.rollback_proposal) {
+          <h3>{{ "ops.rem.rollback" | t }}</h3>
+          <p>{{ p.rollback_proposal }}</p>
+        }
+        @if (p.rollback_limitations.length) {
+          <h3>{{ "ops.rem.rollbackLimitations" | t }}</h3>
+          <ul class="str-list">
+            @for (x of p.rollback_limitations; track x) {
+              <li>{{ x }}</li>
+            }
+          </ul>
+        }
+
+        @if (p.state_history.length) {
+          <h3>{{ "ops.rem.history" | t }}</h3>
+          <div class="table-scroll">
+            <table class="data-table">
+              <caption>
+                {{ "ops.rem.historyCaption" | t }}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ "ops.rem.col.from" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.to" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.note" | t }}</th>
+                  <th scope="col">{{ "ops.rem.col.at" | t }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (h of p.state_history; track $index) {
+                  <tr>
+                    <td>{{ h.from || "—" }}</td>
+                    <td>
+                      <code>{{ h.to }}</code>
+                    </td>
+                    <td>{{ h.note }}</td>
+                    <td>{{ formatIso(h.at) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- ===== lifecycle actions ===== -->
+        <h3>{{ "ops.rem.actions" | t }}</h3>
+        <form [formGroup]="actionForm" (ngSubmit)="$event.preventDefault()">
+          <div class="form-grid">
+            @if (canApprove()) {
+              <div class="field">
+                <label for="rem-approver">
+                  {{ "ops.rem.approver" | t }}
+                </label>
+                <input
+                  id="rem-approver"
+                  type="text"
+                  formControlName="approver"
+                  aria-describedby="rem-approver-hint"
+                />
+                <p id="rem-approver-hint" class="hint">
+                  {{ "ops.rem.approverRequired" | t }}
+                </p>
+              </div>
+            }
+            @if (canReject()) {
+              <div class="field">
+                <label for="rem-reason">
+                  {{ "ops.rem.rejectReason" | t }}
+                </label>
+                <input
+                  id="rem-reason"
+                  type="text"
+                  formControlName="reason"
+                />
+              </div>
+            }
+          </div>
+          <div class="actions">
+            @if (canSubmit()) {
+              <button
+                type="button"
+                class="ds-btn"
+                (click)="submitPlan()"
+                [disabled]="acting() !== null"
+              >
+                {{ "ops.rem.submit" | t }}
+              </button>
+            }
+            @if (canApprove()) {
+              <button
+                type="button"
+                class="ds-btn ds-btn--primary"
+                (click)="approvePlan()"
+                [disabled]="
+                  acting() !== null ||
+                  !actionForm.controls.approver.value.trim()
+                "
+              >
+                {{ "ops.rem.approve" | t }}
+              </button>
+            }
+            @if (canReject()) {
+              <button
+                type="button"
+                class="ds-btn ds-btn--danger"
+                (click)="rejectPlan()"
+                [disabled]="acting() !== null"
+              >
+                {{ "ops.rem.reject" | t }}
+              </button>
+            }
+            <button
+              type="button"
+              class="ds-btn"
+              (click)="dryRunPlan()"
+              [disabled]="acting() !== null"
+            >
+              {{ "ops.rem.dryRun" | t }}
+            </button>
+            @if (canExecuteLocal()) {
+              <button
+                type="button"
+                class="ds-btn ds-btn--primary"
+                (click)="executeLocalPlan()"
+                [disabled]="acting() !== null"
+              >
+                {{ "ops.rem.executeLocal" | t }}
+              </button>
+            }
+          </div>
+        </form>
+        <p class="muted small">{{ "ops.rem.approveNote" | t }}</p>
+
+        <div aria-live="polite">
+          @if (acting(); as name) {
+            <p class="muted" role="status">
+              {{ "ops.rem.working" | t }} <code>{{ name }}</code>
+            </p>
+          }
+          @if (actionError(); as detail) {
+            <p class="field-error" role="alert">
+              {{ "ops.rem.actionError" | t }}
+              @if (detail) {
+                <code>{{ detail }}</code>
+              }
+            </p>
+          }
+          @if (actionNote(); as note) {
+            <p class="muted small">{{ note }}</p>
+          }
+        </div>
+
+        @if (dryRun(); as dr) {
+          <div class="note" aria-labelledby="rem-dryrun-title">
+            <h3 id="rem-dryrun-title">{{ "ops.rem.dryRunResult" | t }}</h3>
+            <p class="muted small">{{ dr.note }}</p>
+            @if (dr.would_change.length) {
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{{ "ops.rem.col.target" | t }}</th>
+                      <th scope="col">{{ "ops.rem.col.change" | t }}</th>
+                      <th scope="col">{{ "ops.rem.col.executable" | t }}</th>
+                      <th scope="col">{{ "ops.rem.col.requires" | t }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (c of dr.would_change; track c.target + c.change) {
+                      <tr>
+                        <td><code>{{ c.target }}</code></td>
+                        <td>{{ c.change }}</td>
+                        <td>
+                          @if (c.executable_locally) {
+                            <span class="ds-badge ds-badge--status-ok">
+                              {{ "ops.yes" | t }}
+                            </span>
+                          } @else {
+                            <span class="ds-badge">
+                              {{ "ops.no" | t }}
+                            </span>
+                          }
+                        </td>
+                        <td><code>{{ c.requires }}</code></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+            @if (dr.preconditions.length) {
+              <h4>{{ "ops.rem.preconditions" | t }}</h4>
+              <ul class="str-list">
+                @for (x of dr.preconditions; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            }
+            @if (dr.risks.length) {
+              <h4>{{ "ops.rem.risks" | t }}</h4>
+              <ul class="str-list">
+                @for (x of dr.risks; track x) {
+                  <li>{{ x }}</li>
+                }
+              </ul>
+            }
+            @if (dr.rollback) {
+              <h4>{{ "ops.rem.rollback" | t }}</h4>
+              <p>{{ dr.rollback }}</p>
+            }
+          </div>
+        }
+
+        @if (execResult(); as ex) {
+          <div class="note" aria-labelledby="rem-exec-title">
+            <h3 id="rem-exec-title">{{ "ops.rem.execResult" | t }}</h3>
+            <p class="muted small">{{ ex.note }}</p>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th scope="col">{{ "ops.rem.col.target" | t }}</th>
+                    <th scope="col">{{ "ops.rem.col.status" | t }}</th>
+                    <th scope="col">{{ "ops.rem.col.reason" | t }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of ex.results; track r.target + r.status) {
+                    <tr>
+                      <td><code>{{ r.target }}</code></td>
+                      <td>
+                        <span
+                          class="ds-badge"
+                          [class]="
+                            'ds-badge ds-badge--' + execStatusClass(r.status)
+                          "
+                        >
+                          {{ r.status }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (r.reason) {
+                          {{ r.reason }}
+                        }
+                        @if (r.result !== undefined) {
+                          <code>{{ jsonVal(r.result) }}</code>
+                        }
+                        @if (r.action && !r.reason && r.result === undefined) {
+                          <code>{{ r.action }}</code>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      }
+    </section>
+  }
+</article>

@@ -1,0 +1,141 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.operations.title" | t }}</h1>
+      <p class="lead">{{ "pages.operations.lead" | t }}</p>
+    </div>
+  </header>
+
+  <ds-ops-nav />
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="ops-error-title">
+      <h2 id="ops-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "ops.loadError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refresh()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (state() === "ok") {
+    <p class="muted note-line" role="note">{{ "ops.stateNote" | t }}</p>
+
+    <div class="grid">
+      <section class="ds-card panel" aria-labelledby="ops-snap-title">
+        <h2 id="ops-snap-title">{{ "ops.dash.snapshots.title" | t }}</h2>
+        @if (snapshots() === null) {
+          <p class="muted">{{ "ops.unavailable" | t }}</p>
+        } @else if (snapshots()!.length === 0) {
+          <p class="muted">{{ "ops.dash.snapshots.empty" | t }}</p>
+        } @else {
+          <p class="stat">
+            <span class="count">{{ snapshots()!.length }}</span>
+            <span class="count-label">
+              {{ "ops.dash.snapshots.total" | t }}
+            </span>
+          </p>
+          <h3>{{ "ops.dash.snapshots.byPlatform" | t }}</h3>
+          <ul class="count-list">
+            @for (row of snapshotsByPlatform(); track row[0]) {
+              <li>
+                <code>{{ row[0] }}</code>
+                <span class="badge-count">{{ row[1] }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="ds-card panel" aria-labelledby="ops-alert-title">
+        <h2 id="ops-alert-title">{{ "ops.dash.alerts.title" | t }}</h2>
+        @if (alerts() === null) {
+          <p class="muted">{{ "ops.unavailable" | t }}</p>
+        } @else if (alerts()!.length === 0) {
+          <p class="muted">{{ "ops.dash.alerts.empty" | t }}</p>
+        } @else {
+          <p class="stat">
+            <span class="count">{{ alerts()!.length }}</span>
+            <span class="count-label">
+              {{ "ops.dash.alerts.total" | t }}
+            </span>
+          </p>
+          <ul class="count-list">
+            @for (row of alertsBySeverity(); track row[0]) {
+              <li>
+                <span
+                  class="ds-badge"
+                  [class]="'ds-badge ds-badge--' + severityClass(row[0])"
+                >
+                  {{ row[0] }}
+                </span>
+                <span class="badge-count">{{ row[1] }}</span>
+              </li>
+            }
+            @if (alertsRecovered() > 0) {
+              <li>
+                <span class="muted">
+                  {{ "ops.dash.alerts.recovered" | t }}
+                </span>
+                <span class="badge-count">{{ alertsRecovered() }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="ds-card panel" aria-labelledby="ops-watch-title">
+        <h2 id="ops-watch-title">{{ "ops.dash.watches.title" | t }}</h2>
+        @if (watches() === null) {
+          <p class="muted">{{ "ops.unavailable" | t }}</p>
+        } @else if (watches()!.length === 0) {
+          <p class="muted">{{ "ops.dash.watches.empty" | t }}</p>
+        } @else {
+          <p class="stat">
+            <span class="count">{{ watches()!.length }}</span>
+            <span class="count-label">
+              {{ "ops.dash.watches.total" | t }}
+            </span>
+          </p>
+          <ul class="count-list">
+            <li>
+              <span class="muted">{{ "ops.dash.watches.enabled" | t }}</span>
+              <span class="badge-count">{{ watchesEnabled() }}</span>
+            </li>
+            <li>
+              <span class="muted">{{ "ops.dash.watches.disabled" | t }}</span>
+              <span class="badge-count">{{ watchesDisabled() }}</span>
+            </li>
+          </ul>
+        }
+      </section>
+
+      <section class="ds-card panel" aria-labelledby="ops-plan-title">
+        <h2 id="ops-plan-title">{{ "ops.dash.plans.title" | t }}</h2>
+        @if (plans() === null) {
+          <p class="muted">{{ "ops.unavailable" | t }}</p>
+        } @else if (plans()!.length === 0) {
+          <p class="muted">{{ "ops.dash.plans.empty" | t }}</p>
+        } @else {
+          <p class="stat">
+            <span class="count">{{ plans()!.length }}</span>
+            <span class="count-label">{{ "ops.dash.plans.total" | t }}</span>
+          </p>
+          <h3>{{ "ops.dash.plans.byState" | t }}</h3>
+          <ul class="count-list">
+            @for (row of plansByState(); track row[0]) {
+              <li>
+                <code>{{ row[0] }}</code>
+                <span class="badge-count">{{ row[1] }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</article>

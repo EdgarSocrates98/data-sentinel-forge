@@ -1,0 +1,237 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <div class="page-header-text">
+      <h1 id="page-title">{{ "pages.opsTimeline.title" | t }}</h1>
+      <p class="lead">{{ "pages.opsTimeline.lead" | t }}</p>
+    </div>
+  </header>
+
+  <ds-ops-nav />
+
+  @if (state() === "loading") {
+    <p class="muted" role="status">{{ "status.loading" | t }}</p>
+  }
+
+  @if (state() === "error") {
+    <section class="ds-card panel" aria-labelledby="tl-error-title">
+      <h2 id="tl-error-title">{{ "status.apiUnreachable" | t }}</h2>
+      <p class="muted">{{ "ops.loadError" | t }}</p>
+      <button type="button" class="ds-btn" (click)="refresh()">
+        {{ "status.retry" | t }}
+      </button>
+    </section>
+  }
+
+  @if (state() === "ok") {
+    <section class="ds-card panel" aria-labelledby="tl-picker-title">
+      <h2 id="tl-picker-title">{{ "ops.timeline.picker" | t }}</h2>
+      <div class="toolbar">
+        <div class="field">
+          <label for="tl-platform">
+            {{ "ops.timeline.platformLabel" | t }}
+          </label>
+          <select id="tl-platform" (change)="onPlatformChange($event)">
+            <option value="all" [selected]="platformFilter() === 'all'">
+              {{ "ops.timeline.platformAll" | t }}
+            </option>
+            @for (p of platforms(); track p) {
+              <option [value]="p" [selected]="platformFilter() === p">
+                {{ p }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="field field--grow">
+          <label for="tl-job">{{ "ops.timeline.jobLabel" | t }}</label>
+          <select id="tl-job" (change)="onJobChange($event)">
+            @if (!jobs().length) {
+              <option value="" [selected]="true">
+                {{ "ops.timeline.jobPlaceholder" | t }}
+              </option>
+            }
+            @for (j of jobs(); track j) {
+              <option [value]="j" [selected]="selectedJob() === j">
+                {{ j }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (jobs().length === 0) {
+        <p class="muted">
+          {{ "ops.timeline.noJobs" | t }}
+          @if (snapshots().length) {
+            ({{ snapshots().length }})
+          }
+        </p>
+      } @else {
+        @if (orphans() > 0) {
+          <p class="muted small">
+            {{ orphans() }} {{ "ops.timeline.noJobId" | t }}
+          </p>
+        }
+        @if (timeline().length === 0) {
+          <p class="muted">{{ "ops.timeline.empty" | t }}</p>
+        } @else {
+          <div class="table-scroll">
+            <table class="data-table timeline-table">
+              <caption>
+                {{ "ops.timeline.caption" | t }}
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">
+                    <span class="sr-only">{{ "ops.snap.col.marker" | t }}</span>
+                  </th>
+                  <th scope="col">{{ "ops.snap.col.started" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.id" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.run" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.runtime" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.duration" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.input" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.output" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.failure" | t }}</th>
+                  <th scope="col">{{ "ops.snap.col.provenance" | t }}</th>
+                  <th scope="col">
+                    <span class="sr-only">
+                      {{ "ops.timeline.select" | t }}
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (s of timeline(); track s.snapshot_id) {
+                  <tr
+                    [class.selected]="s.snapshot_id === selectedSnapshotId()"
+                  >
+                    <td class="marker-cell" aria-hidden="true">
+                      <span class="dot-marker"></span>
+                    </td>
+                    <td>{{ formatIso(s.started_at) }}</td>
+                    <td><code>{{ s.snapshot_id }}</code></td>
+                    <td>{{ s.run_id ?? "—" }}</td>
+                    <td>{{ s.runtime ?? "—" }}</td>
+                    <td>{{ fmtNum(s.duration_s) }}</td>
+                    <td>{{ fmtNum(s.input_bytes) }}</td>
+                    <td>{{ fmtNum(s.output_bytes) }}</td>
+                    <td>
+                      @if (s.failure === true) {
+                        <span class="ds-badge ds-badge--status-error">
+                          {{ "ops.snap.failure.yes" | t }}
+                        </span>
+                      } @else if (s.failure === false) {
+                        <span class="ds-badge ds-badge--status-ok">
+                          {{ "ops.snap.failure.no" | t }}
+                        </span>
+                      } @else {
+                        <span class="ds-badge">
+                          {{ "ops.snap.failure.unknown" | t }}
+                        </span>
+                      }
+                    </td>
+                    <td><code>{{ s.provenance }}</code></td>
+                    <td>
+                      <button
+                        type="button"
+                        class="ds-btn"
+                        (click)="selectSnapshot(s.snapshot_id)"
+                        [attr.aria-pressed]="
+                          s.snapshot_id === selectedSnapshotId()
+                        "
+                      >
+                        {{
+                          (s.snapshot_id === selectedSnapshotId()
+                            ? "ops.timeline.selected"
+                            : "ops.timeline.select"
+                          ) | t
+                        }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
+    </section>
+
+    @if (selectedSnapshot(); as snap) {
+      <section class="ds-card panel" aria-labelledby="tl-cmp-title">
+        <h2 id="tl-cmp-title">
+          {{ "ops.cmp.title" | t }} — <code>{{ snap.snapshot_id }}</code>
+        </h2>
+        <form class="form-inline" [formGroup]="compareForm" (ngSubmit)="runCompare()">
+          <div class="field">
+            <label for="tl-baseline">{{ "ops.cmp.baseline" | t }}</label>
+            <select id="tl-baseline" formControlName="baseline">
+              <option value="previous">
+                {{ "ops.cmp.baseline.previous" | t }}
+              </option>
+              <option value="median">
+                {{ "ops.cmp.baseline.median" | t }}
+              </option>
+              <option value="reference">
+                {{ "ops.cmp.baseline.reference" | t }}
+              </option>
+            </select>
+          </div>
+          @if (needsReference()) {
+            <div class="field field--grow">
+              <label for="tl-ref">{{ "ops.cmp.referenceId" | t }}</label>
+              <input
+                id="tl-ref"
+                type="text"
+                formControlName="referenceId"
+                placeholder="run_id"
+              />
+              @if (
+                compareForm.controls.referenceId.invalid &&
+                compareForm.controls.referenceId.touched
+              ) {
+                <p class="field-error" role="alert">
+                  {{ "ops.cmp.referenceRequired" | t }}
+                </p>
+              }
+            </div>
+          }
+          <div class="actions">
+            <button
+              type="submit"
+              class="ds-btn ds-btn--primary"
+              [disabled]="compareForm.invalid || compareState() === 'loading'"
+            >
+              {{
+                (compareState() === "loading"
+                  ? "ops.cmp.running"
+                  : "ops.cmp.run"
+                ) | t
+              }}
+            </button>
+          </div>
+        </form>
+
+        <div aria-live="polite">
+          @if (compareState() === "loading") {
+            <p class="muted" role="status">{{ "ops.cmp.running" | t }}</p>
+          }
+          @if (compareState() === "error") {
+            <p class="field-error" role="alert">
+              {{ "ops.cmp.error" | t }}
+              @if (compareError(); as detail) {
+                <code>{{ detail }}</code>
+              }
+            </p>
+          }
+          @if (compareState() === "ok" && compareResult(); as res) {
+            <ds-compare-result
+              [result]="res"
+              [currentId]="snap.snapshot_id"
+            />
+          }
+        </div>
+      </section>
+    }
+  }
+</article>
