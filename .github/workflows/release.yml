@@ -1,0 +1,46 @@
+name: Release
+
+# Prepared for PyPI Trusted Publishing (OIDC) — no static token.
+# Publication is gated on a `pypi` environment that REQUIRES reviewer
+# approval in repository settings. Until that environment is configured
+# with protection rules, this workflow cannot publish.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Type RELEASE to allow publish job"
+        required: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --extra dev
+      - run: uv run ruff check src tests
+      - run: uv run mypy src
+      - run: uv run pytest -q
+      - run: uv run python -m build
+      - run: uv run twine check dist/* || uvx twine check dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    environment: pypi
+    if: github.event.inputs.confirm == 'RELEASE'
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
