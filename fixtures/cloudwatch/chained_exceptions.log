@@ -1,0 +1,5 @@
+2026-01-03T10:00:00 ERROR Task failed
+Caused by: java.lang.OutOfMemoryError: GC overhead limit exceeded
+	at org.apache.spark.Executor.run(Executor.scala:1)
+2026-01-03T10:00:01 ERROR Stage 1 failed
+2026-01-03T10:00:02 ERROR TaskKilled: task killed due to stage failure

@@ -1,0 +1,7 @@
+2026-01-02T14:00:02 INFO Job jr_1 started on Glue 4.0
+2026-01-02T14:00:35 INFO Executors initialized: 10 workers G.1X
+2026-01-02T14:03:15 INFO Shuffle stage 2 started
+2026-01-02T14:08:52 WARN Memory pressure on executor 4
+2026-01-02T14:09:10 ERROR Executor 4 lost: java.lang.OutOfMemoryError: Java heap space
+2026-01-02T14:09:44 ERROR Stage 2 failed: FetchFailedException: Failed to fetch block from executor 4
+2026-01-02T14:10:01 ERROR Job jr_1 failed: org.apache.spark.SparkException: Job aborted due to stage failure
