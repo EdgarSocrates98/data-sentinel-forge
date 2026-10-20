@@ -183,15 +183,34 @@ def build_default_registry() -> ToolRegistry:
     return r
 
 
+def _roots_for(file: str,
+               allowed_roots: list[Path] | None) -> list[Path]:
+    """Explicit roots when a caller restricts scope (MCP); otherwise the
+    CLI convenience of the file's own dir + cwd (ds-0106)."""
+    if allowed_roots is not None:
+        return allowed_roots
+    return [Path(file).resolve().parent, Path.cwd()]
+
+
+def _checked(file: str, allowed_roots: list[Path] | None) -> Path:
+    """Resolve *file* enforcing explicit roots when provided."""
+    from data_sentinel.core.security.paths import safe_resolve
+    if allowed_roots is None:
+        return Path(file).resolve()
+    return safe_resolve(file, allowed_roots=allowed_roots)
+
+
 def _run_diagnostics(tool: ToolDescriptor, source: SourceType,
-                     file: str) -> dict[str, Any]:
+                     file: str,
+                     allowed_roots: list[Path] | None = None
+                     ) -> dict[str, Any]:
     from data_sentinel.core.security.paths import read_input_file
     from data_sentinel.diagnostics.orchestrator import AnalysisLimits, run_diagnostics
 
     limits = AnalysisLimits()
     inputs = [read_input_file(
         file, max_file_bytes=50 * 1024 * 1024,
-        allowed_roots=[Path(file).resolve().parent, Path.cwd()])]
+        allowed_roots=_roots_for(file, allowed_roots))]
     req = DiagnosticRequest(
         source_type=source,
         artifact_references=[ArtifactReference(uri=file)],
@@ -241,7 +260,7 @@ def execute_tool(inv: ToolInvocation, registry: ToolRegistry | None = None,
                              "permissions": [p.value
                                              for p in desc.permissions]})
     try:
-        out = _dispatch(inv, desc)
+        out = _dispatch(inv, desc, allowed_roots)
         text = json.dumps(out, ensure_ascii=False, default=str)
         truncated = len(text) > MAX_OUTPUT_CHARS
         return ToolResult(
@@ -264,14 +283,16 @@ _EMR_ANALYZER: dict[str, str] = {
 }
 
 
-def _run_one_analyzer(analyzer_id: str, file: str) -> dict[str, Any]:
+def _run_one_analyzer(analyzer_id: str, file: str,
+                      allowed_roots: list[Path] | None = None
+                      ) -> dict[str, Any]:
     from data_sentinel.analyzers import registry as analyzers
     from data_sentinel.core.security.paths import read_input_file
 
     analyzer = analyzers.get(analyzer_id)
     inputs = [read_input_file(
         file, max_file_bytes=50 * 1024 * 1024,
-        allowed_roots=[Path(file).resolve().parent, Path.cwd()])]
+        allowed_roots=_roots_for(file, allowed_roots))]
     req = DiagnosticRequest(
         source_type=SourceType.OTHER,
         artifact_references=[ArtifactReference(uri=file)],
@@ -284,7 +305,8 @@ def _run_one_analyzer(analyzer_id: str, file: str) -> dict[str, Any]:
     }
 
 
-def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
+def _dispatch(inv: ToolInvocation, desc: ToolDescriptor,
+              allowed_roots: list[Path] | None = None) -> dict[str, Any]:
     tid = inv.tool_id
     inp = inv.input
     if tid == "sentinel.emr.estimate_cost":
@@ -304,14 +326,15 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
         return fn().to_dict()
     if tid in _EMR_ANALYZER:
         return _run_one_analyzer(_EMR_ANALYZER[tid],
-                                 str(inp["file"]))
+                                 str(inp["file"]), allowed_roots)
     if tid in _SOURCE_FOR:
         return _run_diagnostics(desc, _SOURCE_FOR[tid],
-                                str(inp["file"]))
+                                str(inp["file"]), allowed_roots)
     if tid == "sentinel.quality.assess":
         from data_sentinel.quality import normalize
         file = str(inp["file"])
-        obs = normalize(Path(file).read_text(encoding="utf-8"),
+        obs = normalize(_checked(file, allowed_roots)
+                        .read_text(encoding="utf-8"),
                         adapter=str(inp.get("adapter") or "auto"),
                         provenance=file)
         return {"observations": [o.model_dump(mode="json")
@@ -320,9 +343,11 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
         import json as _j
 
         from data_sentinel.quality.drift import detect_drift
-        base = _j.loads(Path(str(inp["baseline_file"]))
+        base = _j.loads(_checked(str(inp["baseline_file"]),
+                                 allowed_roots)
                         .read_text(encoding="utf-8"))
-        cur = _j.loads(Path(str(inp["current_file"]))
+        cur = _j.loads(_checked(str(inp["current_file"]),
+                                allowed_roots)
                        .read_text(encoding="utf-8"))
         dres = detect_drift("metric", [float(v) for v in base],
                             [float(v) for v in cur])
@@ -332,7 +357,8 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
         from data_sentinel.lineage.graph import build_graph
         file = str(inp["file"])
         ing = parse_openlineage_events(
-            Path(file).read_text(encoding="utf-8"), provenance=file)
+            _checked(file, allowed_roots).read_text(encoding="utf-8"),
+            provenance=file)
         g = build_graph(ing.events)
         return {"events": len(ing.events), "kind": ing.kind.value,
                 "downstream": {k: sorted(v)
@@ -344,7 +370,7 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
         from data_sentinel.lineage.graph import build_graph, impact
         file = str(inp["file"])
         g = build_graph(parse_openlineage_events(
-            Path(file).read_text(encoding="utf-8"),
+            _checked(file, allowed_roots).read_text(encoding="utf-8"),
             provenance=file).events)
         ns, _, name = str(inp["target"]).rpartition("/")
         imp = impact(g, DatasetReference(namespace=ns,
@@ -352,7 +378,8 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
         return imp.model_dump(mode="json")
     if tid == "sentinel.doctor.import_bundle":
         from data_sentinel.adapters.doctor import import_doctor_bundle
-        res = import_doctor_bundle(Path(str(inp["file"])))
+        res = import_doctor_bundle(
+            _checked(str(inp["file"]), allowed_roots))
         return {"format": res.format,
                 "findings": [f.model_dump(mode="json")
                              for f in res.findings],

@@ -11,10 +11,25 @@ Validate real launch: ``data-sentinel mcp serve`` or
 from __future__ import annotations
 
 import json
+import os
+from pathlib import Path
 from typing import Any
 
 from data_sentinel.core.contracts.agent import ToolInvocation
 from data_sentinel.tools import build_default_registry, execute_tool
+
+
+def _mcp_roots() -> list[Path]:
+    """Filesystem scope for MCP file tools (ds-0106).
+
+    `DATA_SENTINEL_MCP_ROOTS` (os.pathsep-separated) extends the scope;
+    default is the server's launch directory only — a remote client
+    must never read arbitrary host paths via file arguments.
+    """
+    roots = [Path.cwd()]
+    extra = os.environ.get("DATA_SENTINEL_MCP_ROOTS", "")
+    roots.extend(Path(p) for p in extra.split(os.pathsep) if p.strip())
+    return roots
 
 
 def create_server(registry: Any = None) -> Any:
@@ -22,6 +37,7 @@ def create_server(registry: Any = None) -> Any:
     from mcp.server.mcpserver import MCPServer
 
     reg = registry or build_default_registry()
+    roots = _mcp_roots()
     server = MCPServer("data-sentinel")
 
     def _make(tool_id: str) -> Any:
@@ -34,7 +50,8 @@ def create_server(registry: Any = None) -> Any:
                 "current_file": current_file}.items() if v}
             res = execute_tool(
                 ToolInvocation(invocation_id=f"mcp-{tool_id}",
-                               tool_id=tool_id, input=inp))
+                               tool_id=tool_id, input=inp),
+                allowed_roots=roots)
             payload = res.output if res.ok else {"error": res.error}
             return json.dumps(payload, ensure_ascii=False, default=str)
         return _handler

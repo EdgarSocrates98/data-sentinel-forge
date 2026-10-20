@@ -2,8 +2,10 @@ name: Release
 
 # Prepared for PyPI Trusted Publishing (OIDC) — no static token.
 # Publication is gated on a `pypi` environment that REQUIRES reviewer
-# approval in repository settings. Until that environment is configured
-# with protection rules, this workflow cannot publish.
+# approval in repository settings (Settings → Environments → pypi →
+# required reviewers). Until that environment is configured, this
+# workflow cannot publish — and even then, a human must approve.
+# There is no automatic publish: workflow_dispatch only.
 on:
   workflow_dispatch:
     inputs:
@@ -11,8 +13,11 @@ on:
         description: "Type RELEASE to allow publish job"
         required: true
 
+permissions: {}
+
 jobs:
   verify:
+    name: backend verify + dist artifacts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,24 +28,157 @@ jobs:
       - run: uv sync --all-extras
       - run: uv run ruff check src tests
       - run: uv run mypy src
-      - run: uv run pytest -q
-      - run: uv run python -m build
-      - run: uv run twine check dist/* || uvx twine check dist/*
+      - run: uv run pytest -q tests/unit tests/security tests/integration tests/contract
+      - run: uv build
+      - run: uvx twine check dist/*
+      - name: clean-venv wheel install + CLI smoke
+        run: |
+          python -m venv /tmp/relvenv
+          /tmp/relvenv/bin/pip install dist/data_sentinel-*.whl
+          /tmp/relvenv/bin/data-sentinel --help > /dev/null
+          /tmp/relvenv/bin/data-sentinel capabilities > /dev/null
+      - name: MCP stdio smoke (real initialize + tools/list)
+        run: |
+          uv run python - <<'PY'
+          import asyncio
+          from mcp import ClientSession, StdioServerParameters
+          from mcp.client.stdio import stdio_client
+          async def go():
+              p = StdioServerParameters(
+                  command="uv",
+                  args=["run", "python", "-m", "data_sentinel.mcp_server"])
+              async with stdio_client(p) as (r, w), ClientSession(r, w) as s:
+                  await s.initialize()
+                  tools = await s.list_tools()
+                  assert any(t.name == "sentinel.sql.analyze"
+                             for t in tools.tools)
+                  print("MCP OK:", len(tools.tools), "tools")
+          asyncio.run(go())
+          PY
+      - name: artifact manifest + checksums + SBOM
+        run: |
+          cd dist && sha256sum * | tee SHA256SUMS.txt
+          uvx --from cyclonedx-bom cyclonedx-py environment \
+            --of JSON -o sbom-python.cyclonedx.json ../.venv/bin/python
+          cp ../frontend/sbom.cyclonedx.json sbom-frontend.cyclonedx.json
+          ls -la
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
 
+  verify-frontend:
+    name: frontend verify + prod build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npx tsc -p tsconfig.app.json --noEmit
+        working-directory: frontend
+      - run: npx tsc -p tsconfig.spec.json --noEmit
+        working-directory: frontend
+      - run: npx ng test
+        working-directory: frontend
+      - run: npx ng build
+        working-directory: frontend
+      - run: npm audit --omit=dev || true
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+
+  smoke:
+    name: cross-platform smoke (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.11", "3.12"]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv build
+      - name: install wheel in clean venv
+        run: |
+          uv venv .smoke
+          PY=.smoke/bin/python
+          [ -f "$PY" ] || PY=.smoke/Scripts/python.exe
+          uv pip install --python "$PY" dist/data_sentinel-*.whl
+          echo "SMOKE_PY=$PY" >> "$GITHUB_ENV"
+      - name: CLI analyze on a real fixture
+        run: |
+          BIN=.smoke/bin/data-sentinel
+          [ -f "$BIN" ] || BIN=.smoke/Scripts/data-sentinel.exe
+          "$BIN" capabilities > /dev/null
+          "$BIN" analyze --sql fixtures/sql/implicit_join.sql \
+            --json --no-persist | grep -q findings
+      - name: FastAPI boot + auth + health
+        env:
+          DATA_SENTINEL_TOKEN: smoke-token
+        run: |
+          uv pip install --python "$SMOKE_PY" \
+            "fastapi>=0.110" "uvicorn>=0.30" "httpx>=0.27"
+          "$SMOKE_PY" - <<'PY' &
+          import uvicorn
+          from data_sentinel.api import create_app
+          uvicorn.run(create_app(), host="127.0.0.1", port=8899,
+                      log_level="error")
+          PY
+          sleep 4
+          curl -sf http://127.0.0.1:8899/api/v1/health | grep -q '"ok"'
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            http://127.0.0.1:8899/api/v1/capabilities)
+          test "$code" = "401"  # bearer required
+          curl -sf -H "Authorization: Bearer smoke-token" \
+            http://127.0.0.1:8899/api/v1/capabilities \
+            | grep -q capability_id
+          kill %1 2>/dev/null || true
+      - name: SQLite persistence across restart
+        run: |
+          "$SMOKE_PY" - <<'PY'
+          import tempfile
+          from pathlib import Path
+          from data_sentinel.persistence.investigations import InvestigationStore
+          db = Path(tempfile.mkdtemp()) / "s.db"
+          st = InvestigationStore(db)
+          st.create("inv-1", "p")
+          del st
+          st2 = InvestigationStore(db)
+          assert st2.get("inv-1") is not None
+          print("restart persistence OK")
+          PY
+
   publish:
-    needs: verify
+    name: publish to PyPI (OIDC, gated)
+    needs: [verify, verify-frontend, smoke]
     runs-on: ubuntu-latest
     environment: pypi
     if: github.event.inputs.confirm == 'RELEASE'
     permissions:
       id-token: write
     steps:
+      - name: fails-closed guard (defense in depth)
+        run: |
+          test "${{ github.event.inputs.confirm }}" = "RELEASE" \
+            || { echo "refusing to publish: confirm != RELEASE"; exit 1; }
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
+      - name: verify checksums before publish
+        run: cd dist && sha256sum -c SHA256SUMS.txt
       - uses: pypa/gh-action-pypi-publish@release/v1
