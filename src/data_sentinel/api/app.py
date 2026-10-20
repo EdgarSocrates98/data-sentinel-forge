@@ -38,6 +38,16 @@ ALLOWED_FILE_EXTS = {".json", ".log", ".txt", ".sql", ".yaml", ".yml", ".plan",
 
 API_VERSION = "v1"
 
+_RATE_BUCKETS: dict[str, list[float]] = {}
+_AUDIT_LOG: list[dict[str, Any]] = []
+
+
+def _audit(client: str, path: str, status: int) -> None:
+    """Append-only audit trail (bounded, in-memory)."""
+    if len(_AUDIT_LOG) < 10_000:
+        _AUDIT_LOG.append({"client": client, "path": path,
+                           "status": status, "ts": time.time()})
+
 
 def _safe_path(raw: str, roots: list[Path]) -> Path:
     """Resolve *raw* and require it to live under an allowed root."""
@@ -111,6 +121,21 @@ def create_app(allowed_roots: list[str] | None = None) -> FastAPI:
         if length and int(length) > MAX_PAYLOAD:
             return JSONResponse({"detail": "payload too large"}, 413)
         return await call_next(request)
+
+    @app.middleware("http")
+    async def rate_limit(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Token-bucket per client — 120 req/min, local API scope."""
+        client = request.client.host if request.client else "unknown"
+        now = time.time()
+        bucket = _RATE_BUCKETS.setdefault(client, [])
+        bucket[:] = [t for t in bucket if now - t < 60.0]
+        if len(bucket) >= 120:
+            _audit(client, request.url.path, 429)
+            return JSONResponse({"detail": "rate limit exceeded"}, 429)
+        bucket.append(now)
+        response = await call_next(request)
+        _audit(client, request.url.path, response.status_code)
+        return response
 
     # ---- health / capabilities ----
 
