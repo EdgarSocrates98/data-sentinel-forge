@@ -12,7 +12,8 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("DATA_SENTINEL_DB",
                        str(tmp_path / "ops.db"))
     monkeypatch.setenv("DATA_SENTINEL_TOKEN", "test-token")
-    app = create_app(allowed_roots=[str(tmp_path)])
+    app = create_app(allowed_roots=[str(tmp_path)],
+                     db_path=tmp_path / "ops.db")
     c = TestClient(app)
     c.headers["Authorization"] = "Bearer test-token"
     c.headers["X-TestClient"] = "1"

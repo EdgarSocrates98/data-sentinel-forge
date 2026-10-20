@@ -18,7 +18,8 @@ def db(tmp_path, monkeypatch):
 
 
 def _client(tmp_path):
-    c = TestClient(create_app(allowed_roots=[str(tmp_path)]))
+    c = TestClient(create_app(allowed_roots=[str(tmp_path)],
+                              db_path=tmp_path / "e2e.db"))
     c.headers["Authorization"] = f"Bearer {TOKEN}"
     return c
 
@@ -177,7 +178,8 @@ class TestI_RemediationPlan:
 
 class TestJ_Auth:
     def test_unauthorized_rejected(self, db, tmp_path):
-        c = TestClient(create_app(allowed_roots=[str(tmp_path)]))
+        c = TestClient(create_app(allowed_roots=[str(tmp_path)],
+                              db_path=tmp_path / "e2e.db"))
         assert c.get("/api/v1/investigations").status_code in (
             401, 403)
         assert c.post("/api/v1/snapshots",

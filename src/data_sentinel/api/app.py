@@ -54,8 +54,8 @@ from data_sentinel.persistence.investigations import (
 from data_sentinel.persistence.investigations import (
     State as InvState,
 )
+from data_sentinel.persistence.operations import OpsStore
 from data_sentinel.remediation import (
-    RemediationPlan,
     approve,
     dry_run,
     execute_local,
@@ -77,6 +77,8 @@ API_VERSION = "v1"
 
 _RATE_BUCKETS: dict[str, list[float]] = {}
 _AUDIT_LOG: list[dict[str, Any]] = []
+_AUTH_LOCKOUT_S = 60.0
+_AUTH_MAX_FAILURES = 10
 
 _TOKEN_TTL_S = 4 * 3600  # session tokens expire after 4h
 _TOKEN_FILE = Path.home() / ".data-sentinel" / "session-token"
@@ -125,6 +127,21 @@ class SessionAuth:
         if not presented:
             return False
         return secrets.compare_digest(presented, self.token)
+
+    def rotate(self) -> str:
+        """§2.4 — rotação explícita: emite novo token e revoga o atual."""
+        self._token = secrets.token_urlsafe(32)
+        self._issued = time.time()
+        self._persist()
+        return self._token
+
+    def revoke(self) -> None:
+        """§2.4 — revoga sessão: remove arquivo e gera token novo
+        in-memory (o antigo passa a ser rejeitado)."""
+        self._token = secrets.token_urlsafe(32)
+        self._issued = time.time()
+        with contextlib.suppress(OSError):
+            _TOKEN_FILE.unlink()
 
 
 def _audit(client: str, path: str, status: int) -> None:
@@ -226,6 +243,11 @@ class ApprovalBody(BaseModel):
     reason: str | None = None
 
 
+class TokenOut(BaseModel):
+    token: str
+    note: str
+
+
 
 class InvestigationState:
     """Persistent investigation state (§2) — SQLite-backed, with live
@@ -261,11 +283,15 @@ def create_app(allowed_roots: list[str] | None = None,
                store: InvestigationStore | None = None) -> FastAPI:
     roots = [Path(r) for r in (allowed_roots or
                                [str(Path.cwd()), str(Path.home() / ".cache")])]
+    import os
+    db = (db_path or os.environ.get("DATA_SENTINEL_DB")
+          or DEFAULT_DB)
     state = InvestigationState(
-        store=store or InvestigationStore(db_path or DEFAULT_DB))
+        store=store or InvestigationStore(db))
     auth = SessionAuth()
     _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient",
                     "testserver"}
+    auth_failures: dict[str, list[float]] = {}
     app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
                   docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -299,14 +325,26 @@ def create_app(allowed_roots: list[str] | None = None,
                       "/api/openapi.json", "/api/docs/oauth2-redirect"}
         if (require_auth and path.startswith("/api/v1")
                 and path not in open_paths):
+            client = (request.client.host
+                      if request.client else "unknown")
+            # §2.4 — lockout temporário após falhas repetidas (anti
+            # brute-force local); janela deslizante por cliente
+            fails = [t for t in auth_failures.get(client, [])
+                     if time.time() - t < _AUTH_LOCKOUT_S]
+            auth_failures[client] = fails
+            if len(fails) >= _AUTH_MAX_FAILURES:
+                _audit(client, path, 429)
+                return JSONResponse(
+                    {"detail": "muitas falhas de autenticação — "
+                               "tente em instantes"}, 429)
             header = request.headers.get("authorization", "")
             presented = header.removeprefix("Bearer ").strip() \
                 if header.lower().startswith("bearer") else None
             if not auth.check(presented):
-                client = (request.client.host
-                          if request.client else "unknown")
+                fails.append(time.time())
                 _audit(client, path, 401)
                 return JSONResponse({"detail": "unauthorized"}, 401)
+            auth_failures.pop(client, None)
         return await call_next(request)
 
     @app.middleware("http")
@@ -528,18 +566,35 @@ def create_app(allowed_roots: list[str] | None = None,
     def severities() -> list[str]:
         return [s.value for s in Severity]
 
-    # ---- operational endpoints (Cycle 07 §3-§7) ----
-    # Snapshots são ingeridos (CLI/exports reais) — nunca fabricados.
-    snapshots: dict[str, ExecutionSnapshot] = {}
-    watches: dict[str, WatchDefinition] = {}
+    @app.post("/api/v1/auth/rotate")
+    def rotate_token() -> TokenOut:
+        """§2.4 — rotação explícita: invalida o bearer atual."""
+        new = auth.rotate()
+        _audit("api", "auth.rotate", 200)
+        return TokenOut(token=new,
+                       note="token anterior revogado — atualize o "
+                            "cliente imediatamente")
+
+    @app.post("/api/v1/auth/revoke")
+    def revoke_token() -> dict[str, str]:
+        """§2.4 — revoga a sessão atual."""
+        auth.revoke()
+        _audit("api", "auth.revoke", 200)
+        return {"status": "revoked",
+                "note": "sessão encerrada — novo token gerado no "
+                        "servidor (arquivo removido)"}
+
+    # ---- operational endpoints (Cycle 07 §3-§7 + 08 §2.1) ----
+    # Persistidos em SQLite — sobrevivem a restart. Snapshots são
+    # ingeridos (CLI/exports reais) — nunca fabricados.
+    ops = OpsStore(state.store.db_path)
     alert_engine = AlertEngine()
-    plans: dict[str, RemediationPlan] = {}
 
     @app.post("/api/v1/snapshots", status_code=201)
     def ingest_snapshot(body: ExecutionSnapshot) -> dict[str, Any]:
         if not body.provenance:
             raise HTTPException(400, "provenance required")
-        snapshots[body.snapshot_id] = body
+        ops.save_snapshot(body)
         return {"snapshot_id": body.snapshot_id,
                 "provenance": body.provenance}
 
@@ -547,20 +602,16 @@ def create_app(allowed_roots: list[str] | None = None,
     def list_snapshots(platform: str | None = None,
                        job_id: str | None = None
                        ) -> list[dict[str, Any]]:
-        out = [s for s in snapshots.values()
-               if (platform is None or s.platform == platform)
-               and (job_id is None or s.job_id == job_id)]
-        return [s.model_dump() for s in
-                sorted(out, key=lambda s: s.started_at or "")]
+        return [s.model_dump() for s in ops.list_snapshots(
+            platform=platform, job_id=job_id)]
 
     @app.post("/api/v1/history/compare")
     def history_compare(body: CompareBody) -> dict[str, Any]:
-        cur = snapshots.get(body.snapshot_id)
+        cur = ops.get_snapshot(body.snapshot_id)
         if cur is None:
             raise HTTPException(404, "snapshot not found")
-        peers = [s for s in snapshots.values()
-                 if s.job_id == cur.job_id
-                 and s.snapshot_id != cur.snapshot_id]
+        peers = [s for s in ops.list_snapshots(job_id=cur.job_id)
+                 if s.snapshot_id != cur.snapshot_id]
         base = select_baseline(
             peers, BaselineKind(kind=body.baseline,
                                 reference_run_id=body.reference_id))
@@ -580,17 +631,16 @@ def create_app(allowed_roots: list[str] | None = None,
     @app.get("/api/v1/history/regressions")
     def history_regressions(job_id: str,
                             current_id: str) -> list[dict[str, Any]]:
-        cur = snapshots.get(current_id)
+        cur = ops.get_snapshot(current_id)
         if cur is None:
             raise HTTPException(404, "snapshot not found")
-        hist = [s for s in snapshots.values()
-                if s.job_id == job_id
-                and s.snapshot_id != current_id]
+        hist = [s for s in ops.list_snapshots(job_id=job_id)
+                if s.snapshot_id != current_id]
         return detect_regressions(hist, cur)
 
     @app.post("/api/v1/watches", status_code=201)
     def create_watch(body: WatchBody) -> dict[str, Any]:
-        if body.watch_id in watches:
+        if ops.get_watch(body.watch_id) is not None:
             raise HTTPException(409, "watch_id já existe")
         if body.source == "aws":
             raise HTTPException(
@@ -605,7 +655,7 @@ def create_app(allowed_roots: list[str] | None = None,
             metrics=body.metrics, rule=body.rule,
             interval_s=body.interval_s, severity=body.severity,
             enabled=False)  # §8.5: nunca inicia sem ação explícita
-        watches[w.watch_id] = w
+        ops.save_watch(w)
         return {"watch_id": w.watch_id, "enabled": w.enabled}
 
     @app.get("/api/v1/watches")
@@ -614,19 +664,20 @@ def create_app(allowed_roots: list[str] | None = None,
                  "platform": w.platform, "rule": w.rule,
                  "interval_s": w.interval_s, "enabled": w.enabled,
                  "severity": w.severity}
-                for w in watches.values()]
+                for w in ops.list_watches()]
 
     @app.post("/api/v1/watches/{wid}/run")
     def run_watch(wid: str) -> list[dict[str, Any]]:
-        w = watches.get(wid)
+        w = ops.get_watch(wid)
         if w is None:
             raise HTTPException(404, "watch not found")
-        snaps = [s for s in snapshots.values()
-                 if s.job_id == w.workload]
+        # POST /run manual JÁ é a ação explícita exigida por §8.5;
+        # o que é proibido é loop automático — que não existe na API.
+        snaps = ops.list_snapshots(job_id=w.workload)
         if not snaps:
             return []
-        snaps.sort(key=lambda s: s.started_at or "")
         alerts = alert_engine.evaluate(w, snaps[:-1], snaps[-1])
+        ops.save_watch_execution(wid, alerts)
         return [{"alert_id": a.alert_id, "kind": a.kind,
                  "severity": a.severity, "message": a.message,
                  "recovered": a.recovered,
@@ -634,35 +685,37 @@ def create_app(allowed_roots: list[str] | None = None,
 
     @app.post("/api/v1/watches/{wid}/pause")
     def pause_watch(wid: str) -> dict[str, Any]:
-        w = watches.get(wid)
+        w = ops.get_watch(wid)
         if w is None:
             raise HTTPException(404, "watch not found")
         w.enabled = False
+        ops.save_watch(w)
         return {"watch_id": wid, "enabled": False}
 
     @app.post("/api/v1/watches/{wid}/resume")
     def resume_watch(wid: str) -> dict[str, Any]:
-        w = watches.get(wid)
+        w = ops.get_watch(wid)
         if w is None:
             raise HTTPException(404, "watch not found")
         w.enabled = True  # still manual: só roda via /run
+        ops.save_watch(w)
         return {"watch_id": wid, "enabled": True,
                 "note": "avaliação manual via POST /run — sem loop "
                         "automático na API"}
 
     @app.post("/api/v1/watches/{wid}/delete")
     def delete_watch(wid: str) -> dict[str, Any]:
-        if watches.pop(wid, None) is None:
+        if not ops.delete_watch(wid):
             raise HTTPException(404, "watch not found")
         return {"deleted": wid}
 
     @app.get("/api/v1/alerts")
     def list_alerts() -> list[dict[str, Any]]:
-        return [{"alert_id": a.alert_id, "watch_id": a.watch_id,
-                 "kind": a.kind, "severity": a.severity,
-                 "message": a.message, "ts": a.ts,
-                 "recovered": a.recovered}
-                for a in alert_engine.history]
+        return [{"alert_id": a["alert_id"],
+                 "watch_id": a["watch_id"], "kind": a["kind"],
+                 "severity": a["severity"], "message": a["message"],
+                 "ts": a["ts"], "recovered": a["recovered"]}
+                for a in ops.list_alerts()]
 
     @app.post("/api/v1/remediation/plans", status_code=201)
     def create_plan(body: PlanBody) -> dict[str, Any]:
@@ -685,7 +738,7 @@ def create_app(allowed_roots: list[str] | None = None,
                 400, "forneça finding embutido ou "
                      "investigation_id+finding_id")
         plan = plan_for_finding(finding, title=body.title)
-        plans[plan.plan_id] = plan
+        ops.save_plan(plan)
         return {"plan_id": plan.plan_id, "state": str(plan.state)}
 
     @app.get("/api/v1/remediation/plans")
@@ -694,29 +747,31 @@ def create_app(allowed_roots: list[str] | None = None,
                  "type": str(p.remediation_type),
                  "state": str(p.state),
                  "finding_ids": p.finding_ids}
-                for p in plans.values()]
+                for p in ops.list_plans()]
 
     @app.get("/api/v1/remediation/plans/{pid}")
     def get_plan(pid: str) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         return p.model_dump()
 
     @app.post("/api/v1/remediation/plans/{pid}/submit")
     def submit_plan(pid: str) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         try:
             submit_for_approval(p)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        ops.save_plan(p)
+        ops.audit("api", "remediation.submit", {"plan_id": pid})
         return {"plan_id": pid, "state": str(p.state)}
 
     @app.post("/api/v1/remediation/plans/{pid}/approve")
     def approve_plan(pid: str, body: ApprovalBody) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         if not body.approver:
@@ -725,6 +780,11 @@ def create_app(allowed_roots: list[str] | None = None,
             approve(p, body.approver)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        ops.save_plan(p)
+        ops.save_approval(pid, body.approver, "APPROVED",
+                          body.reason)
+        ops.audit("api", "remediation.approve",
+                  {"plan_id": pid, "approver": body.approver})
         _audit("api", f"remediation.approve:{pid}:{body.approver}", 200)
         return {"plan_id": pid, "state": str(p.state),
                 "note": "aprovação NÃO executa nada — ver "
@@ -732,38 +792,44 @@ def create_app(allowed_roots: list[str] | None = None,
 
     @app.post("/api/v1/remediation/plans/{pid}/reject")
     def reject_plan(pid: str, body: ApprovalBody) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         try:
             reject(p, body.reason or "")
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        ops.save_plan(p)
+        ops.save_approval(pid, body.approver or "api",
+                          "REJECTED", body.reason)
+        ops.audit("api", "remediation.reject", {"plan_id": pid})
         return {"plan_id": pid, "state": str(p.state)}
 
     @app.post("/api/v1/remediation/plans/{pid}/dry-run")
     def plan_dry_run(pid: str) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         return dry_run(p)
 
     @app.post("/api/v1/remediation/plans/{pid}/execute-local")
     def plan_execute(pid: str) -> dict[str, Any]:
-        p = plans.get(pid)
+        p = ops.get_plan(pid)
         if p is None:
             raise HTTPException(404, "plan not found")
         try:
             res = execute_local(p)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
+        ops.audit("api", "remediation.execute-local",
+                  {"plan_id": pid,
+                   "statuses": [r["status"]
+                                for r in res["results"]]})
         _audit("api", f"remediation.execute-local:{pid}", 200)
         return res
 
     app.state.investigations = state
     app.state.auth = auth
-    app.state.snapshots = snapshots
-    app.state.watches = watches
+    app.state.ops = ops
     app.state.alert_engine = alert_engine
-    app.state.plans = plans
     return app
