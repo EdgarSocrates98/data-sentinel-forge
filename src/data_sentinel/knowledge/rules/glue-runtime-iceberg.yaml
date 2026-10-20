@@ -1,0 +1,99 @@
+# Matriz runtime AWS Glue × Iceberg (§4.1). Toda regra tem fonte/data/owner.
+# Fontes são referências públicas de documentação AWS — nunca URLs seguidas.
+- rule_id: glue40-iceberg-supported
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-4.0
+  table_format: iceberg
+  operation: "*"
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    Iceberg suportado via spark.sql.extensions +
+    iceberg-spark-runtime-3.3 (Spark 3.3). Format v2 ok; v3 NÃO suportado
+    (exige Iceberg >=1.8 em runtime mais novo). Lock catalog via Glue exige
+    lock.table impl ou dynamodb — avaliar por operação.
+  references:
+    - "https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format-iceberg.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue50-iceberg-supported
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.0
+  table_format: iceberg
+  operation: "*"
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    Glue 5.0 (Spark 3.5) traz suporte nativo ampliado a Iceberg v1/v2.
+    v3 depende de versão Iceberg empacotada — verificar runtime real.
+  references:
+    - "https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-format-iceberg.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue51-iceberg-supported
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.1
+  table_format: iceberg
+  operation: "*"
+  status: SUPPORTED
+  constraints: >
+    Glue 5.1 atualiza stack Iceberg; v1/v2 suportados. v3 permanece
+    condicional à versão do iceberg-runtime empacotada — declarar
+    NOT_VERIFIED quando a versão exata não for visível.
+  references:
+    - "https://docs.aws.amazon.com/glue/latest/dg/release-notes.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue51-iceberg-v3-not-verified
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.1
+  table_format: iceberg-v3
+  operation: "*"
+  status: NOT_VERIFIED
+  constraints: >
+    Iceberg format v3 requer biblioteca/runtime com suporte explícito.
+    Sem evidência da versão Iceberg no job, suporte não pode ser afirmado.
+  references:
+    - "https://iceberg.apache.org/spec/"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue-iceberg-v3-unsupported-old-runtime
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-4.0
+  table_format: iceberg-v3
+  operation: "*"
+  status: UNSUPPORTED
+  constraints: >
+    Glue 4.0 empacota Iceberg 1.x legado sem suporte a format v3.
+    Não generalizar para outros runtimes — verificar por versão.
+  references:
+    - "https://iceberg.apache.org/spec/"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}

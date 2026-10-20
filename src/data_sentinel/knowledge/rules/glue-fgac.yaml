@@ -1,0 +1,104 @@
+# Glue × Lake Formation access modes (§4.2). FGAC ≠ FTA — nunca generalizar.
+- rule_id: glue50-lakeformation-fgac
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.0
+  access_mode: fgac
+  table_format: iceberg
+  operation: "*"
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    Glue 5.0 suporta Lake Formation FGAC com Iceberg via full table access
+    obrigatório para writes; leitura column-level depende de grant.
+    Verificar permissões por operação — FGAC read ≠ FGAC write.
+  references:
+    - "https://docs.aws.amazon.com/lake-formation/latest/dg/workloads-glue.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue51-lakeformation-fgac
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.1
+  access_mode: fgac
+  table_format: iceberg
+  operation: "*"
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    Glue 5.1 mantém suporte LF FGAC para Iceberg com mesmas restrições
+    de 5.0 até evidência em contrário. Cross-account exige grants LF
+    na conta de destino — verificar por contexto.
+  references:
+    - "https://docs.aws.amazon.com/lake-formation/latest/dg/workloads-glue.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue40-lakeformation-fgac-iceberg
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-4.0
+  access_mode: fgac
+  table_format: iceberg
+  operation: "*"
+  status: UNKNOWN
+  constraints: >
+    Suporte LF FGAC + Iceberg em Glue 4.0 não verificado nesta base —
+    documentação indica restrições de format por runtime; marcar
+    NOT_VERIFIED apenas quando houver tentativa observada.
+  references:
+    - "https://docs.aws.amazon.com/lake-formation/latest/dg/workloads-glue.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "regra inicial ds-0022", author: devin}
+
+- rule_id: glue51-fgac-dml-merge-update-delete
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.1
+  access_mode: fgac
+  table_format: iceberg
+  operation: merge
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    MERGE/UPDATE/DELETE via FGAC exige full table access no grant LF ou
+    ALL + permissões de data location conforme operação. Leitura FGAC
+    column-level não implica write. Verificar grants por operação.
+  references:
+    - "https://docs.aws.amazon.com/lake-formation/latest/dg/workloads-glue.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "cobertura DML FGAC ds-0023", author: devin}
+
+- rule_id: glue51-fgac-select-column
+  version: "1.0.0"
+  service: aws_glue
+  engine: spark
+  runtime: glue-5.1
+  access_mode: fgac
+  table_format: iceberg
+  operation: select
+  status: SUPPORTED_WITH_CONSTRAINTS
+  constraints: >
+    SELECT FGAC honra column-level grants LF; colunas não concedidas
+    falham ou são filtradas conforme engine. Difere de FTA (tabela inteira).
+  references:
+    - "https://docs.aws.amazon.com/lake-formation/latest/dg/workloads-glue.html"
+  last_verified: "2026-04-01"
+  owner: data-sentinel
+  reviewer: cycle-03-grill
+  history:
+    - {date: "2026-04-01", change: "cobertura SELECT FGAC ds-0023", author: devin}
