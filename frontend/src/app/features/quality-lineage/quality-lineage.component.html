@@ -18,7 +18,7 @@
       [class.tab--active]="tab() === 'quality'"
       [attr.aria-selected]="tab() === 'quality'"
       [attr.tabindex]="tab() === 'quality' ? 0 : -1"
-      aria-controls="panel-quality"
+      [attr.aria-controls]="toolsState() === 'ok' ? 'panel-quality' : null"
       (click)="selectTab('quality')"
     >
       {{ "ql.tabs.quality" | t }}
@@ -31,7 +31,7 @@
       [class.tab--active]="tab() === 'lineage'"
       [attr.aria-selected]="tab() === 'lineage'"
       [attr.tabindex]="tab() === 'lineage' ? 0 : -1"
-      aria-controls="panel-lineage"
+      [attr.aria-controls]="toolsState() === 'ok' ? 'panel-lineage' : null"
       (click)="selectTab('lineage')"
     >
       {{ "ql.tabs.lineage" | t }}
@@ -177,7 +177,11 @@
                               [attr.aria-expanded]="
                                 expandedObs().has(o.observation_id)
                               "
-                              [attr.aria-controls]="'obs-' + o.observation_id"
+                              [attr.aria-controls]="
+                                expandedObs().has(o.observation_id)
+                                  ? 'obs-' + o.observation_id
+                                  : null
+                              "
                             >
                               {{
                                 (expandedObs().has(o.observation_id)

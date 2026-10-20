@@ -13,7 +13,13 @@ import { NAV_ROUTES, gotoRoute, seedPrefs } from "./helpers";
 
 const API_HEALTH = "http://127.0.0.1:8790/api/v1/health";
 
-test("real backend is up and healthy", async ({ request }) => {
+test("real backend is up and healthy", async ({ request }, testInfo) => {
+  // One browser project only: the API rate-limits 127.0.0.1 at 120 req/min
+  // and this assertion is identical per project.
+  test.skip(
+    testInfo.project.name !== "chromium",
+    "single-project smoke check",
+  );
   const res = await request.get(API_HEALTH);
   expect(res.status()).toBe(200);
   const body = await res.json();

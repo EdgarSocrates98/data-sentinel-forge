@@ -23,10 +23,9 @@
         class="ds-btn"
         (click)="toggleLocale()"
         [attr.aria-label]="
-          ('lang.switch' | t) +
-          ' (' +
           (i18n.locale() === 'pt-BR' ? 'EN' : 'PT') +
-          ')'
+          ' — ' +
+          ('lang.switch' | t)
         "
       >
         {{ i18n.locale() === "pt-BR" ? "EN" : "PT" }}

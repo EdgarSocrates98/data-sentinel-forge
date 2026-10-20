@@ -240,7 +240,11 @@
                     class="ds-btn expand-btn"
                     (click)="toggleFinding(f.finding_id)"
                     [attr.aria-expanded]="expandedFindings().has(f.finding_id)"
-                    [attr.aria-controls]="'fd-' + f.finding_id"
+                    [attr.aria-controls]="
+                      expandedFindings().has(f.finding_id)
+                        ? 'fd-' + f.finding_id
+                        : null
+                    "
                   >
                     {{
                       (expandedFindings().has(f.finding_id)
