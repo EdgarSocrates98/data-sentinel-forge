@@ -36,7 +36,7 @@ def test_a_runtime_budget_enforced() -> None:
 
 
 def test_b_specialists_registered_and_routed() -> None:
-    assert len(specialist_descriptors()) == 12
+    assert len(specialist_descriptors()) == 18  # 12 + 6 EMR (C05.1)
     assert route("glue oom") == ["glue-expert"]
     tasks = plan_tasks("spark skew", {"a": "f"})
     assert any(t.depends_on for t in tasks)

@@ -1,0 +1,13 @@
+{
+  "dataset": "data-sentinel-emr-v1",
+  "cases": [
+    {"id": "emr01", "problem": "emr serverless job failed OOM",
+     "expect_route_first": "emr-serverless-expert"},
+    {"id": "emr02", "problem": "emr on eks driver pod pending",
+     "expect_contains": "emr-eks-expert"},
+    {"id": "emr03", "problem": "emr cluster bootstrap failure",
+     "expect_contains": "emr-ec2-expert"},
+    {"id": "emr04", "problem": "emr cost high",
+     "expect_contains": "emr-coordinator"}
+  ]
+}

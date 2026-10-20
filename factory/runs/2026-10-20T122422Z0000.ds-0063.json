@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0063.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:24:22+00:00",
+  "id": "ds-0063",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0063.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0063.md",
+  "spec_sha256": "3d3729250d06705aed44df9fca8377b922cf49c5e15671b714f6e1fe123c271b",
+  "status": "planned",
+  "title": "EMR on EKS diagnostics (05.1.4)"
+}

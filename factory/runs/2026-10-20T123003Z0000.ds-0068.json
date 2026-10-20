@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0068.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:30:03+00:00",
+  "id": "ds-0068",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0068.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0068.md",
+  "spec_sha256": "429772a2cd2baf8c56d06a8007100ac18d3f64352d11d20a83e4d1ae005db34d",
+  "status": "planned",
+  "title": "Golden fixtures + evals + benchmarks (05.1.10)"
+}

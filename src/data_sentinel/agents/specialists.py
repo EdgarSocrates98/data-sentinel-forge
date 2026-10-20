@@ -43,6 +43,25 @@ _SPECIALISTS: list[tuple[str, str, str, list[str]]] = [
      ["sentinel.iam.analyze_policy"]),
     ("report-specialist", "Report Specialist",
      "structured investigation report", []),
+    # §9 — EMR specialization (ds-0066)
+    ("emr-coordinator", "EMR Coordinator",
+     "identify EMR modality, select experts, manage budget", []),
+    ("emr-ec2-expert", "EMR EC2 Expert",
+     "cluster lifecycle, fleets, bootstrap, YARN, steps",
+     ["sentinel.emr.analyze_ec2"]),
+    ("emr-serverless-expert", "EMR Serverless Expert",
+     "applications, job runs, workers, startup, capacity",
+     ["sentinel.emr.analyze_serverless"]),
+    ("emr-eks-expert", "EMR EKS Expert",
+     "virtual clusters, namespaces, pod lifecycle, scheduling, IAM",
+     ["sentinel.emr.analyze_eks"]),
+    ("emr-cost-expert", "EMR Cost Expert",
+     "utilization, cost drivers, capacity recommendations",
+     ["sentinel.emr.estimate_cost"]),
+    # §9.5 — EMR perf reuses spark-expert (no duplicated intelligence)
+    ("emr-performance-expert", "EMR Performance Expert",
+     "delegates to spark-expert for plans/metrics", [
+         "sentinel.spark.analyze_plan", "sentinel.spark.optimize"]),
 ]
 
 
@@ -64,6 +83,12 @@ def get_specialist(agent_id: str) -> AgentDescriptor:
 
 # keyword → agent_id; deterministic routing, no LLM
 _ROUTE: list[tuple[str, str]] = [
+    ("emr serverless", "emr-serverless-expert"),
+    ("serverless", "emr-serverless-expert"),
+    ("emr on eks", "emr-eks-expert"), ("emr eks", "emr-eks-expert"),
+    ("virtual cluster", "emr-eks-expert"),
+    ("emr on ec2", "emr-ec2-expert"), ("emr cluster", "emr-ec2-expert"),
+    ("emr", "emr-coordinator"),
     ("spark", "spark-expert"), ("glue", "glue-expert"),
     ("iceberg", "iceberg-expert"), ("snapshot", "iceberg-expert"),
     ("lakeformation", "lakeformation-expert"),

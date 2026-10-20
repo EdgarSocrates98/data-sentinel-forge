@@ -15,7 +15,7 @@ def test_descriptors_cover_analyzers_and_integrations() -> None:
     assert "sentinel.incident.graph" in ids
     assert sum(1 for i in ids if i.startswith("sentinel.")
                and i not in ("sentinel.import.doctor-bundle",
-                             "sentinel.incident.graph")) == 10
+                             "sentinel.incident.graph")) == 13
     assert ids == sorted(ids)  # determinístico
 
 

@@ -10,7 +10,7 @@ from data_sentinel.agents.specialists import (
 
 def test_twelve_specialists_with_descriptors() -> None:
     ds = specialist_descriptors()
-    assert len(ds) == 12
+    assert len(ds) == 18
     ids = {d.agent_id for d in ds}
     assert "coordinator" in ids and "root-cause-analyst" in ids
     for d in ds:
@@ -36,3 +36,20 @@ def test_plan_tasks_depends_on_chain() -> None:
     assert "validate" in kinds and "synthesize" in kinds
     synth = next(t for t in tasks if t.kind == "synthesize")
     assert synth.depends_on
+
+
+def test_emr_specialists() -> None:
+    ids = {d.agent_id for d in specialist_descriptors()}
+    for aid in ["emr-coordinator", "emr-ec2-expert",
+                "emr-serverless-expert", "emr-eks-expert",
+                "emr-cost-expert", "emr-performance-expert"]:
+        assert aid in ids
+    assert len(specialist_descriptors()) == 18
+
+
+def test_emr_routing() -> None:
+    # multi-agent: especialista específico vem antes do coordinator
+    r = route("emr serverless job failed")
+    assert r[0] == "emr-serverless-expert"
+    assert "emr-eks-expert" in route("emr on eks driver pending")
+    assert "emr-coordinator" in route("emr cost issue")

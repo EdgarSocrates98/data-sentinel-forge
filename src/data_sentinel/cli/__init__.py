@@ -1127,3 +1127,107 @@ def tools_list() -> None:
     from data_sentinel.tools.registry import build_default_registry
     for t in build_default_registry().list_tools():
         typer.echo(f"{t.tool_id:36} {t.name}")
+
+emr_app = typer.Typer(help="Diagnósticos Amazon EMR (EC2/Serverless/EKS).")
+app.add_typer(emr_app, name="emr")
+
+
+@emr_app.command("analyze")
+def emr_analyze(
+    file: Annotated[Path, typer.Option(
+        "--file", "-f", help="Artefatos EMR exportados (JSON/YAML).")],
+    platform: Annotated[str, typer.Option(
+        "--platform", help="ec2|serverless|eks — escolhe o analyzer.")] = "ec2",
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Analisa artefatos EMR exportados (offline, read-only)."""
+    from data_sentinel.tools.registry import execute_tool
+    tool = {"ec2": "sentinel.emr.analyze_ec2",
+            "serverless": "sentinel.emr.analyze_serverless",
+            "eks": "sentinel.emr.analyze_eks"}.get(platform)
+    if not tool:
+        typer.echo(f"erro: plataforma '{platform}' inválida", err=True)
+        raise typer.Exit(code=EXIT_USAGE)
+    from data_sentinel.core.contracts.agent import ToolInvocation
+    res = execute_tool(ToolInvocation(
+        invocation_id="cli-emr", tool_id=tool,
+        input={"file": str(file)}))
+    if not res.ok:
+        typer.echo(f"erro: {res.error}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR)
+    if json_mode:
+        _emit_json(res.output)
+        return
+    out = res.output if isinstance(res.output, dict) else {}
+    findings = out.get("findings", [])
+    typer.echo(f"{tool}: {len(findings)} finding(s)")
+    for f in findings:
+        typer.echo(f"  [{f.get('status','?')}] {f.get('explanation','')[:120]}")
+    for lim in out.get("limitations", []):
+        typer.echo(f"  [limitação] {lim}")
+
+
+@emr_app.command("compare")
+def emr_compare(
+    baseline: Annotated[Path, typer.Option("--baseline")],
+    current: Annotated[Path, typer.Option("--current")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Compara duas execuções EMR (nunca declara superioridade)."""
+    import json as _j
+
+    from data_sentinel.analyzers.emr.compare import compare
+    from data_sentinel.core.contracts.emr import EMRExecutionContext, EMRResourceObservation
+    try:
+        b = _j.loads(baseline.read_text(encoding="utf-8"))
+        c = _j.loads(current.read_text(encoding="utf-8"))
+    except Exception as exc:
+        typer.echo(f"erro: {exc}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+    def _ctx(d: dict[str, Any]) -> EMRExecutionContext:
+        return EMRExecutionContext.model_validate(d.get("context", d))
+    def _obs(d: dict[str, Any]) -> EMRResourceObservation:
+        return EMRResourceObservation.model_validate(
+            d.get("observation", {"metrics": []}))
+    res = compare([_ctx(b), _ctx(c)], [_obs(b), _obs(c)])
+    if json_mode:
+        _emit_json(res.to_dict())
+        return
+    typer.echo(res.verdict)
+    for n in res.notes:
+        typer.echo(f"  {n.metric}: {n.per_platform}")
+    for lim in res.limitations:
+        typer.echo(f"  [limitação] {lim}")
+
+
+@emr_app.command("cost")
+def emr_cost(
+    platform: Annotated[str, typer.Option("--platform")],
+    vcpu_hours: Annotated[float | None, typer.Option()] = None,
+    mem_gb_hours: Annotated[float | None, typer.Option()] = None,
+    instance_type: Annotated[str | None, typer.Option()] = None,
+    count: Annotated[int | None, typer.Option()] = None,
+    hours: Annotated[float | None, typer.Option()] = None,
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Estima custo EMR declarado (tabela estática; nunca billing)."""
+    from data_sentinel.analyzers.emr.cost import estimate_ec2, estimate_eks, estimate_serverless
+    fn = {"serverless": lambda: estimate_serverless(
+              vcpu_hours, mem_gb_hours),
+          "ec2": lambda: estimate_ec2(instance_type, count, hours),
+          "eks": lambda: estimate_eks(vcpu_hours, mem_gb_hours,
+                                    hours)}.get(platform)
+    if not fn:
+        typer.echo(f"erro: plataforma '{platform}' inválida", err=True)
+        raise typer.Exit(code=EXIT_USAGE)
+    est = fn()
+    if json_mode:
+        _emit_json(est.to_dict())
+        return
+    if est.amount is None:
+        typer.echo(f"UNKNOWN — {est.exclusions}")
+        return
+    typer.echo(f"~US${est.amount:.2f} ({est.platform}, estimado — "
+               "não é billing real)")
+    for k, v in est.components.items():
+        typer.echo(f"  {k}: US${v:.4f}")

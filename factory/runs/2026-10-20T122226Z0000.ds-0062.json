@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0062.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:22:26+00:00",
+  "id": "ds-0062",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0062.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0062.md",
+  "spec_sha256": "65df8fd12b94ff26e6c7e96fdbbe2be06693b4dd35acd1726e6c0d4444a5e766",
+  "status": "planned",
+  "title": "EMR Serverless diagnostics (05.1.3)"
+}

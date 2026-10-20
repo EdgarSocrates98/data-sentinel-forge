@@ -1,0 +1,5 @@
+{
+  "emr_ec2_avg_ms": 9.15,
+  "emr_serverless_avg_ms": 0.47,
+  "emr_eks_avg_ms": 2.31
+}

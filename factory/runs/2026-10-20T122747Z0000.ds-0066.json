@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0066.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:27:47+00:00",
+  "id": "ds-0066",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0066.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0066.md",
+  "spec_sha256": "216d2bca20e9e06212a526c089713b329e0983b0c015f22f2aaeb116846072e2",
+  "status": "planned",
+  "title": "EMR agentic specialization (05.1.8)"
+}
