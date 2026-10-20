@@ -2,23 +2,23 @@
   "cycle": 3,
   "results": {
     "metadata_parse": {
-      "snapshots_100": 0.0018,
-      "snapshots_1000": 0.0132,
-      "snapshots_5000": 0.0671,
+      "snapshots_100": 0.0011,
+      "snapshots_1000": 0.0086,
+      "snapshots_5000": 0.0416,
       "peak_bytes_5000_snaps": 6620575,
       "input_bytes": 1302760
     },
     "knowledge": {
       "rules": 10,
-      "load_s": 0.0209,
-      "select_10k_s": 0.1606
+      "load_s": 0.0127,
+      "select_10k_s": 0.1098
     },
     "iam_eval": {
       "statements": 500,
-      "eval_1000_s": 1.1596
+      "eval_1000_s": 0.8887
     },
     "analyzer": {
-      "iceberg_analyze_100_s": 0.0365
+      "iceberg_analyze_100_s": 0.0372
     }
   }
 }

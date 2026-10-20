@@ -1,8 +1,8 @@
 # Cycle 08 — Final E2E & Open-Source Homologation (ds-0098)
 
 Environment: Linux, Python 3.12, Node 22, offline (no AWS creds, no LLM).
-Suite state at time of writing: **892 pytest passed, 4 env-gated skips,
-64 ng tests (pre-Vitest), ruff + mypy strict clean.**
+Suite state: **893 pytest passed, 4 env-gated skips, 64 ng tests
+(Vitest, jsdom), ruff + mypy strict clean.**
 
 | # | Scenario | Evidence | Status | Limitations |
 |---|---|---|---|---|
@@ -30,7 +30,7 @@ Suite state at time of writing: **892 pytest passed, 4 env-gated skips,
 | V | Cross-platform install | wheel is `py3-none-any` | PASS-partial | Windows/macOS not executed here — CI matrix defined but billing-blocked |
 | W | Secret/redaction | redaction unit + security tests | PASS | — |
 | X | Supply-chain/packaging | build clean; npm audit re-measured (see SECURITY-UPGRADE.md) | PASS-partial | residual dev advisories tracked |
-| Y | Reproducible benchmarks | `tests/evaluation/run_cycle8_eval.py` + results JSON | see report | measured, not fabricated |
+| Y | Reproducible benchmarks | `tests/evaluation/run_cycle8_eval.py` + `docs/evaluations/cycle8-results.json` | PASS | precision/recall 0.929; surfaced 5 REAL findings (see `cycle8-evaluation-report.md`) |
 | Z | RC install & rollback | install verified; uninstall preserves `~/.data-sentinel` | PASS | rollback = uninstall; data retention documented |
 
 ## P0 gate re-check (§10)
