@@ -152,6 +152,28 @@ def build_default_registry() -> ToolRegistry:
             "target": {"type": "string"}},
                       "required": ["file", "target"]},
         permissions=[ToolPermission.LOCAL_READ]))
+    r.register(_file_tool(
+        "sentinel.emr.analyze_ec2", SourceType.OTHER,
+        "Diagnostica EMR on EC2 (cluster/steps/capacidade exportados)."))
+    r.register(_file_tool(
+        "sentinel.emr.analyze_serverless", SourceType.OTHER,
+        "Diagnostica EMR Serverless (apps/job runs exportados)."))
+    r.register(_file_tool(
+        "sentinel.emr.analyze_eks", SourceType.OTHER,
+        "Diagnostica EMR on EKS (manifests/eventos K8s exportados)."))
+    r.register(ToolDescriptor(
+        tool_id="sentinel.emr.estimate_cost", name="estimate_cost",
+        description="Estima custo EMR declarado (tabela estática, "
+                    "nunca billing).",
+        input_schema={"type": "object", "properties": {
+            "platform": {"type": "string"},
+            "vcpu_hours": {"type": "number"},
+            "mem_gb_hours": {"type": "number"},
+            "instance_type": {"type": "string"},
+            "count": {"type": "number"},
+            "hours": {"type": "number"}},
+                      "required": ["platform"]},
+        permissions=[ToolPermission.LOCAL_READ]))
     r.register(ToolDescriptor(
         tool_id="sentinel.doctor.import_bundle", name="import_bundle",
         description="Importa bundle Forge Doctor (offline).",
@@ -234,9 +256,54 @@ def execute_tool(inv: ToolInvocation, registry: ToolRegistry | None = None,
                           duration_ms=(time.perf_counter() - t0) * 1000)
 
 
+_EMR_ANALYZER: dict[str, str] = {
+    "sentinel.emr.analyze_ec2": "emr.ec2",
+    "sentinel.emr.analyze_serverless": "emr.serverless",
+    "sentinel.emr.analyze_eks": "emr.eks",
+}
+
+
+def _run_one_analyzer(analyzer_id: str, file: str) -> dict[str, Any]:
+    from data_sentinel.analyzers import registry as analyzers
+    from data_sentinel.core.security.paths import read_input_file
+
+    analyzer = analyzers.get(analyzer_id)
+    inputs = [read_input_file(
+        file, max_file_bytes=50 * 1024 * 1024,
+        allowed_roots=[Path(file).resolve().parent, Path.cwd()])]
+    req = DiagnosticRequest(
+        source_type=SourceType.OTHER,
+        artifact_references=[ArtifactReference(uri=file)],
+        platform=Platform.SPARK)
+    res = analyzer.analyze(req, inputs)
+    return {
+        "analyzer": analyzer_id,
+        "findings": [f.model_dump(mode="json") for f in res.findings],
+        "limitations": res.limitations,
+    }
+
+
 def _dispatch(inv: ToolInvocation, desc: ToolDescriptor) -> dict[str, Any]:
     tid = inv.tool_id
     inp = inv.input
+    if tid == "sentinel.emr.estimate_cost":
+        from data_sentinel.analyzers.emr.cost import estimate_ec2, estimate_eks, estimate_serverless
+        platform = str(inp.get("platform", ""))
+        fn = {"emr_serverless": lambda: estimate_serverless(
+                inp.get("vcpu_hours"), inp.get("mem_gb_hours"),
+                inp.get("storage_gb_hours")),
+              "emr_ec2": lambda: estimate_ec2(
+                inp.get("instance_type"), inp.get("count"),
+                inp.get("hours")),
+              "emr_eks": lambda: estimate_eks(
+                inp.get("vcpu_hours"), inp.get("mem_gb_hours"),
+                inp.get("cluster_hours"))}.get(platform)
+        if fn is None:
+            return {"error": f"plataforma desconhecida: {platform!r}"}
+        return fn().to_dict()
+    if tid in _EMR_ANALYZER:
+        return _run_one_analyzer(_EMR_ANALYZER[tid],
+                                 str(inp["file"]))
     if tid in _SOURCE_FOR:
         return _run_diagnostics(desc, _SOURCE_FOR[tid],
                                 str(inp["file"]))

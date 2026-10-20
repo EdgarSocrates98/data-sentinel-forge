@@ -1,0 +1,14 @@
+{
+  "id": "emr-eks-oom",
+  "input": {
+    "files": ["fixtures/emr-eks-pods.yaml"],
+    "source_type": "other",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": ["OOMKilled", "unschedulable"],
+    "findings_prohibited": ["confirma causa", "é a causa raiz"],
+    "evidence_required": true,
+    "limitations_include": ["não há acesso direto ao cluster"]
+  }
+}

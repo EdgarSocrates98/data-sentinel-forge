@@ -1,0 +1,14 @@
+{
+  "id": "emr-ec2-idle",
+  "input": {
+    "files": ["fixtures/emr-ec2-spot-idle.json"],
+    "source_type": "other",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": ["idle-time waste"],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

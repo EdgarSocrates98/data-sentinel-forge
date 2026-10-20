@@ -1,0 +1,14 @@
+{
+  "id": "emr-serverless-retry-cost",
+  "input": {
+    "files": ["fixtures/emr-serverless-failed.json"],
+    "source_type": "other",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": ["tentativa 2", "ESTIMADO", "falhou"],
+    "findings_prohibited": ["billing real é"],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

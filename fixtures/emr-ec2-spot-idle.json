@@ -1,0 +1,5 @@
+{"calls":{
+ "Cluster":{"Id":"j-IDLE1","Name":"idle-cluster","Status":{"State":"TERMINATED","StateChangeReason":{"Code":"USER_REQUEST","Message":"terminated by user"},"Timeline":{"ReadyDateTime":1729300000,"EndDateTime":1729350000}},"ReleaseLabel":"emr-7.2.0"},
+ "Steps":[],
+ "InstanceGroups":[{"Id":"ig-9","InstanceGroupType":"TASK","Market":"SPOT","InstanceType":"c5.xlarge"}]
+}}

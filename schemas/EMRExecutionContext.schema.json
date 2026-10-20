@@ -1,0 +1,235 @@
+{
+  "$defs": {
+    "EMRPlatform": {
+      "description": "\u00a72.1 \u2014 the three EMR deployment modalities.",
+      "enum": [
+        "emr_ec2",
+        "emr_serverless",
+        "emr_eks"
+      ],
+      "title": "EMRPlatform",
+      "type": "string"
+    },
+    "EvidenceProvenance": {
+      "description": "How a piece of evidence was obtained (\u00a72.4).",
+      "enum": [
+        "declared",
+        "static_inferred",
+        "observed"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "\u00a72.2 \u2014 identifies an EMR execution across modalities.\n\nOptional fields stay None when not applicable \u2014 never invented.",
+  "properties": {
+    "account_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Account Id"
+    },
+    "application_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Application Id"
+    },
+    "cluster_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cluster Id"
+    },
+    "completed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Completed At"
+    },
+    "engine": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Engine"
+    },
+    "execution_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Execution Id"
+    },
+    "execution_role": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Execution Role"
+    },
+    "namespace": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Namespace"
+    },
+    "platform": {
+      "$ref": "#/$defs/EMRPlatform"
+    },
+    "provenance": {
+      "$ref": "#/$defs/EvidenceProvenance",
+      "default": "declared"
+    },
+    "region": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Region"
+    },
+    "release_label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Release Label"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source"
+    },
+    "spark_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Spark Version"
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Started At"
+    },
+    "status": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Status"
+    },
+    "step_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Step Id"
+    },
+    "virtual_cluster_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Virtual Cluster Id"
+    }
+  },
+  "required": [
+    "platform"
+  ],
+  "title": "EMRExecutionContext",
+  "type": "object"
+}

@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "MetricValue": {
+      "additionalProperties": false,
+      "description": "One observed metric \u2014 \u00a72.3 requires origin/unit/timestamp.",
+      "properties": {
+        "captured_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Captured At"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "MetricValue",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "\u00a72.3 \u2014 observed resources of an EMR execution.",
+  "properties": {
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/MetricValue"
+      },
+      "title": "Metrics",
+      "type": "array"
+    }
+  },
+  "title": "EMRResourceObservation",
+  "type": "object"
+}

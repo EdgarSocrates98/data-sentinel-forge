@@ -122,6 +122,10 @@ __all__ = [
     "DiagnosticReport",
     "DiagnosticRequest",
     "DriftLevel",
+    "EMRAdapter",
+    "EMRExecutionContext",
+    "EMRPlatform",
+    "EMRResourceObservation",
     "Environment",
     "Evidence",
     "EvidenceProvenance",
@@ -153,6 +157,7 @@ __all__ = [
     "LakehouseOperation",
     "LineageEvent",
     "LineageKind",
+    "MetricValue",
     "ModelProfile",
     "ModelRequest",
     "ModelResponse",
@@ -177,3 +182,11 @@ __all__ = [
     "ToolResult",
     "UTCDateTime",
 ]
+
+from data_sentinel.core.contracts.emr import (
+    EMRAdapter,
+    EMRExecutionContext,
+    EMRPlatform,
+    EMRResourceObservation,
+    MetricValue,
+)

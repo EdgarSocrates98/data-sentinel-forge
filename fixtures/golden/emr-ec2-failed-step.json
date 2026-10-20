@@ -1,0 +1,14 @@
+{
+  "id": "emr-ec2-failed-step",
+  "input": {
+    "files": ["fixtures/emr-ec2-failed-step.json"],
+    "source_type": "other",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": ["falhou", "terminou com erro"],
+    "findings_prohibited": ["CONFIRMADO spot", "causa raiz é Spot"],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

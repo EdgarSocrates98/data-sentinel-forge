@@ -2,6 +2,7 @@
 
 from data_sentinel.analyzers.cloudwatch import CloudWatchLogAnalyzer
 from data_sentinel.analyzers.crossaccount import CrossAccountAnalyzer
+from data_sentinel.analyzers.emr import EmrEc2Analyzer, EmrEksAnalyzer, EmrServerlessAnalyzer
 from data_sentinel.analyzers.iam import IamPolicyAnalyzer
 from data_sentinel.analyzers.iceberg import IcebergMetadataAnalyzer
 from data_sentinel.analyzers.operations import LakehouseOperationAnalyzer
@@ -21,6 +22,9 @@ registry.register(JoinIntelligenceAnalyzer())
 registry.register(SparkConfigAdvisor())
 registry.register(IcebergMetadataAnalyzer())
 registry.register(CrossAccountAnalyzer())
+registry.register(EmrEc2Analyzer())
+registry.register(EmrServerlessAnalyzer())
+registry.register(EmrEksAnalyzer())
 registry.register(IamPolicyAnalyzer())
 registry.register(LakehouseOperationAnalyzer())
 
@@ -30,6 +34,9 @@ __all__ = [
     "AnalyzerRegistry",
     "CloudWatchLogAnalyzer",
     "CrossAccountAnalyzer",
+    "EmrEc2Analyzer",
+    "EmrEksAnalyzer",
+    "EmrServerlessAnalyzer",
     "IamPolicyAnalyzer",
     "IcebergMetadataAnalyzer",
     "JoinIntelligenceAnalyzer",

@@ -1,0 +1,6 @@
+{"calls":{
+ "Cluster":{"Id":"j-2AXXXXXX","Name":"etl-prod","Status":{"State":"TERMINATED_WITH_ERRORS","StateChangeReason":{"Code":"BOOTSTRAP_FAILURE","Message":"bootstrap action 2 failed with exit code 1"},"Timeline":{"ReadyDateTime":1729400000,"EndDateTime":1729430000}},
+  "Ec2InstanceAttributes":{},"ReleaseLabel":"emr-6.15.0","Applications":[{"Name":"Spark"}]},
+ "Steps":[{"Id":"s-STEP1","Name":"etl-step","Status":{"State":"FAILED","FailureDetails":{"Reason":"Container killed by YARN for exceeding memory limits. Exit code 137","LogFile":"s3://logs/steps/s-STEP1"}}}],
+ "InstanceGroups":[{"Id":"ig-1","InstanceGroupType":"CORE","Market":"SPOT","InstanceType":"m5.xlarge"}]
+}}
