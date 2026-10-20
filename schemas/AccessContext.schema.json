@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Who is trying to do what, on which table, from which account (\u00a72.1).",
+  "properties": {
+    "catalog": {
+      "default": "",
+      "title": "Catalog",
+      "type": "string"
+    },
+    "database": {
+      "default": "",
+      "title": "Database",
+      "type": "string"
+    },
+    "destination_account": {
+      "default": "",
+      "title": "Destination Account",
+      "type": "string"
+    },
+    "lf_mode": {
+      "default": "unknown",
+      "title": "Lf Mode",
+      "type": "string"
+    },
+    "observed_permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observed Permissions",
+      "type": "array"
+    },
+    "principal": {
+      "default": "",
+      "title": "Principal",
+      "type": "string"
+    },
+    "region": {
+      "default": "",
+      "title": "Region",
+      "type": "string"
+    },
+    "required_operation": {
+      "default": "",
+      "title": "Required Operation",
+      "type": "string"
+    },
+    "resource_link": {
+      "default": "",
+      "title": "Resource Link",
+      "type": "string"
+    },
+    "source_account": {
+      "default": "",
+      "title": "Source Account",
+      "type": "string"
+    },
+    "table": {
+      "default": "",
+      "title": "Table",
+      "type": "string"
+    },
+    "unknown_permissions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Unknown Permissions",
+      "type": "array"
+    }
+  },
+  "title": "AccessContext",
+  "type": "object"
+}

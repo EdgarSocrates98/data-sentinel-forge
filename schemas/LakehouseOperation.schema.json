@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A DML/DDL operation under analysis (\u00a72.1).",
+  "properties": {
+    "authorization_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Authorization Requirements",
+      "type": "array"
+    },
+    "compatibility_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Compatibility Requirements",
+      "type": "array"
+    },
+    "input_tables": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Input Tables",
+      "type": "array"
+    },
+    "operation_type": {
+      "default": "",
+      "title": "Operation Type",
+      "type": "string"
+    },
+    "output_table": {
+      "default": "",
+      "title": "Output Table",
+      "type": "string"
+    },
+    "predicate": {
+      "default": "",
+      "title": "Predicate",
+      "type": "string"
+    },
+    "schema_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Schema Requirements",
+      "type": "array"
+    },
+    "target_namespace": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Target Namespace",
+      "type": "array"
+    }
+  },
+  "title": "LakehouseOperation",
+  "type": "object"
+}

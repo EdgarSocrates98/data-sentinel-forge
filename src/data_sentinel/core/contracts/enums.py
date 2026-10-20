@@ -46,6 +46,7 @@ class FindingCategory(StrEnum):
     DATA_QUALITY = "data_quality"
     COST = "cost"
     SECURITY = "security"
+    COMPATIBILITY = "compatibility"
     UNKNOWN = "unknown"
 
 
@@ -80,6 +81,19 @@ class Severity(StrEnum):
     CRITICAL = "CRITICAL"
 
 
+class SupportStatus(StrEnum):
+    """Cycle 03 §2.2 — explicit support verdicts.
+
+    NOT_VERIFIED means "couldn't check" — never conflate with UNSUPPORTED.
+    """
+
+    SUPPORTED = "SUPPORTED"
+    SUPPORTED_WITH_CONSTRAINTS = "SUPPORTED_WITH_CONSTRAINTS"
+    UNSUPPORTED = "UNSUPPORTED"
+    UNKNOWN = "UNKNOWN"
+    NOT_VERIFIED = "NOT_VERIFIED"
+
+
 class SourceType(StrEnum):
     """Kind of input artifact described by a DiagnosticRequest."""
 
@@ -92,4 +106,7 @@ class SourceType(StrEnum):
     SPARK_PLAN = "spark_plan"
     GLUE_JOB = "glue_job"
     CLOUDWATCH_LOG = "cloudwatch_log"
+    ICEBERG_METADATA = "iceberg_metadata"
+    POLICY_DOC = "policy_doc"
+    ACCESS_CONTEXT = "access_context"
     OTHER = "other"

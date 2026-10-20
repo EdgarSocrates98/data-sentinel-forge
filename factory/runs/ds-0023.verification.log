@@ -1,0 +1,14 @@
+ds-0023 verification — Glue/FGAC/FTA compatibility engine
+=========================================================
+pytest tests/unit/test_compat.py → 12 passed
+ruff → clean ; mypy → 83 arquivos, 0 issues
+assess_compatibility(): (runtime,spark,iceberg,format,catalog,mode,op)
+  → CompatibilityAssessment com evidência DECLARED + references
+Access modes: iam/fgac/fta/legacy/unknown — unknown nunca presume FGAC;
+  modo desconhecido rebaixa SUPPORTED → SUPPORTED_WITH_CONSTRAINTS
+Operações: taxonomia de 12 ops; fora da taxonomia → constraint reportado
+Regras DML FGAC adicionadas (merge/select glue-5.1); sem "FGAC=read-only"
+Contradições: engine empate → UNKNOWN + constraint de revisão humana
+Bug real corrigido: wildcard "*" contava como especificidade → empate
+  espúrio select-column vs lakeformation-fgac; agora excluído do score
+Suporte nunca generalizado entre versões (v3: 4.0→UNSUPPORTED, 5.1→NOT_VERIFIED)

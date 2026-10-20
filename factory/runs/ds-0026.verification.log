@@ -1,0 +1,15 @@
+ds-0026 verification — MERGE/APPEND/incremental intelligence
+==========================================================
+pytest tests/unit/test_operations.py → 10 passed
+pytest -q → 450 passed, 1 skipped
+ruff → clean ; mypy → 91 arquivos, 0 issues
+Entregue: analyzers/operations/analyzer.py + registro (10 analyzers)
+Ops reconhecidas via sqlglot (nunca executadas): INSERT INTO/OVERWRITE,
+MERGE, UPDATE, DELETE, CREATE, ALTER — envelope {sql, stats, log} ou SQL puro
+MERGE: ON parseável/ausente/OR ambíguo; duplicidade de chave-fonte só
+CONFIRMED com stats declaradas; sem unicidade declarada → UNKNOWN
+(nunca afirma nem descarta); WHEN clauses contadas; nunca deduplica alvo
+APPEND: idempotência POSSIBLE com recomendação upstream — não automática
+Row-ops: UPDATE/DELETE sem WHERE → CONFIRMED full-table
+Commit conflicts: regex em log fornecido (CommitFailedException/
+ConcurrentModification) → CONFIRMED; retry só se idempotente

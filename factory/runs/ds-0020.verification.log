@@ -1,0 +1,13 @@
+ds-0020 verification — audit + baseline + domain contracts
+==========================================================
+SHA auditado: 90c10a8b703a67b7ced408e86992b71a16765ce4 (HEAD da main)
+uv sync --extra dev → 46 pacotes
+ruff check src tests → All checks passed
+mypy src → 78 arquivos, 0 issues
+pytest -q → 360 passed, 1 skipped (5.5s) — bate com baseline C02
+uv build → wheel+sdist 0.1.0 ; doctor → PASS (6 analyzers)
+CI remota: run 39351536029 — jobs nunca iniciaram (billing, repo privado)
+Credenciais AWS: ausentes (~/.aws inexistente, boto3 → None); account
+de referência fornecida: 702561771161 → homologação real em risco → BLOCKED previsto
+Novos: SupportStatus, FindingCategory.COMPATIBILITY, SourceType +3,
+lakehouse.py (5 modelos) + schemas exportados, scaffolding iceberg/knowledge

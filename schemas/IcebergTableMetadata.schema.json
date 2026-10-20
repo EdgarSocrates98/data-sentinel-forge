@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Identity slice of an Iceberg table's metadata.json (\u00a72.1).",
+  "properties": {
+    "catalog_identifier": {
+      "default": "",
+      "title": "Catalog Identifier",
+      "type": "string"
+    },
+    "current_snapshot_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Current Snapshot Id"
+    },
+    "format_version": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Format Version"
+    },
+    "metadata_location": {
+      "default": "",
+      "title": "Metadata Location",
+      "type": "string"
+    },
+    "namespace": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Namespace",
+      "type": "array"
+    },
+    "partition_spec_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Partition Spec Id"
+    },
+    "properties": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Properties",
+      "type": "object"
+    },
+    "provenance": {
+      "default": "declared",
+      "title": "Provenance",
+      "type": "string"
+    },
+    "schema_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Schema Id"
+    },
+    "sort_order_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sort Order Id"
+    },
+    "table_identifier": {
+      "default": "",
+      "title": "Table Identifier",
+      "type": "string"
+    }
+  },
+  "title": "IcebergTableMetadata",
+  "type": "object"
+}

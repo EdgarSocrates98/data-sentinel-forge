@@ -1,0 +1,37 @@
+ds-0028 verification — golden/security/bench/E2E + AWS attempt
+==============================================================
+Golden: 26/26 manifests (20 C02 + 6 C03 novos: iceberg v1/v2/malformed,
+  cross-read, cross-kms, merge-dups) — expected+prohibited+limitations
+pytest -q → 488 passed, 3 skipped (2 AWS-gated + 1 C02 gated)
+ruff → clean ; mypy → 91+ arquivos, 0 issues
+
+Security suite C03 (10 testes):
+- traversal/URL: manifest-list https → limitation, nunca fetch
+- prompt injection em metadata (rm -rf/curl|sh): permanece dado,
+  nada executado, nenhum finding fabricado
+- cyclic/depth bomb 200 níveis → MetadataParseError
+- oversized 17MB → rejeitado; 10k snapshots parse <10s (bounded)
+- policy shape inesperada: Resource=123 → stringificado, sem crash
+  (bug real: _listify descartava escalares — corrigido)
+- deny condicional ainda nega; evaluate puro (memória only)
+- SHARES_WITH provenance=unverified verificado no grafo
+- segredo AKIA... em summary → redigido na evidência
+
+Benchmarks → docs/evidence/benchmarks-cycle3.json:
+  metadata_parse: 100→0.0012s / 1000→0.0085s / 5000→0.0367s
+  memória 5000 snaps: pico 6.6MB p/ input 1.3MB
+  knowledge: 10 regras load 0.011s; select 10k = 0.09s
+  iam_eval: 500 stmts ×1000 evals = 0.815s
+  iceberg analyze ×100 = 0.032s
+
+E2E A–F (6 testes): A Glue5.1+FGAC+MERGE (WITH_CONSTRAINTS + dups),
+  B cross-read (UNKNOWN não negação), C cross-write (cadeia completa
+  access+policy+ops via resolver), D merge dups CONFIRMED c/ evidência,
+  E metadata rica (schema+void+small files, prov DECLARED),
+  F malformado → UNKNOWN, zero CONFIRMED, sem causa fabricada
+
+AWS REAL = BLOCKED (sem credenciais no ambiente):
+  DATA_SENTINEL_AWS_TESTS=1 → allowlist test PASSA (read-only confirmado:
+  nenhuma ação mutadora na allowlist) + real call falha
+  NoCredentialsError — comportamento correto do gate.
+  Guia §12 para execução manual fica para ds-0029.

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One snapshot as declared by table metadata (\u00a72.1).",
+  "properties": {
+    "completeness": {
+      "default": "declared",
+      "title": "Completeness",
+      "type": "string"
+    },
+    "operation": {
+      "default": "",
+      "title": "Operation",
+      "type": "string"
+    },
+    "parent_snapshot_id": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Snapshot Id"
+    },
+    "referenced_manifests": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Referenced Manifests",
+      "type": "array"
+    },
+    "sequence_number": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sequence Number"
+    },
+    "snapshot_id": {
+      "title": "Snapshot Id",
+      "type": "integer"
+    },
+    "source": {
+      "default": "declared",
+      "title": "Source",
+      "type": "string"
+    },
+    "summary": {
+      "additionalProperties": true,
+      "title": "Summary",
+      "type": "object"
+    },
+    "timestamp_ms": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timestamp Ms"
+    }
+  },
+  "required": [
+    "snapshot_id"
+  ],
+  "title": "IcebergSnapshotSummary",
+  "type": "object"
+}

@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0026.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:15:54+00:00",
+  "id": "ds-0026",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0026.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0026.md",
+  "spec_sha256": "682cc2f574efb16ab96894ce0871d640e1739550fb250856d6caffdeb8555261",
+  "status": "planned",
+  "title": "MERGE/APPEND/incremental processing intelligence (phase 03.5)"
+}

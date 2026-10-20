@@ -1,0 +1,16 @@
+ds-0022 verification — knowledge base + rule engine + wheel packaging
+=====================================================================
+uv add pyyaml (runtime) + types-PyYAML (dev group)
+pytest tests/unit/test_knowledge.py → 22 passed (incl. slow: venv limpa)
+pytest -q → 404 passed, 1 skipped
+ruff → clean ; mypy → 82 arquivos, 0 issues
+Wheel: unzip confirma knowledge/rules/*.yaml empacotados (package data)
+Venv limpa fora do checkout: pip install wheel → load_packaged_rules() →
+  8 regras, 0 erros (sem acesso ao repo)
+Schema: campos obrigatórios + status válido + referências + history
+Engine: especificidade vence genérica; empate → UNKNOWN + conflito
+  reportado (nunca resolução silenciosa); zero match → UNKNOWN;
+  wildcard "*" e conditions suportados
+Regras iniciais: 5 runtime (Glue 4.0/5.0/5.1 × iceberg v1v2/v3) +
+  3 FGAC — todas com references/last_verified/owner/reviewer/history
+v3 nunca generalizado: glue-4.0→UNSUPPORTED, glue-5.1→NOT_VERIFIED

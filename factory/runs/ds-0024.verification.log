@@ -1,0 +1,16 @@
+ds-0024 verification — cross-account diagnostics + permissions graph
+====================================================================
+pytest tests/unit/test_crossaccount.py → 9 passed
+pytest -q → 425 passed, 1 skipped
+ruff → clean ; mypy → 86 arquivos, 0 issues
+Entregue: analyzers/crossaccount/{graph.py,analyzer.py} + registro (8 analyzers)
+Grafo: 7 tipos de nó, 7 tipos de aresta (ASSUMES_ROLE, REFERENCES,
+  SHARES_WITH, GRANTED_ON, READS_FROM, WRITES_TO, ENCRYPTED_BY) — cada
+  aresta com proveniência observed/declared/inferred/unverified
+Regra de ouro validada: ausência de grant visível → UNKNOWN, nunca negação;
+  SHARES_WITH cross-account nasce UNVERIFIED; arestas unverified viram
+  limitation explícita ("visibilidade incompleta, não negação")
+Cenários: cross-read sem grants → UNKNOWN; cross-write → POSSIBLE com
+  cadeia explícita (origem/destino/catálogos/S3/KMS); same-account →
+  nota de reversão; contexto inválido → limitation, nunca crash
+Fixtures em fixtures/access/ (conta 702561771161 como destino de exemplo)

@@ -1,0 +1,17 @@
+ds-0029 verification — docs + guia + relatório final
+==================================================
+Criados: docs/cycles/cycle-03-{architecture,validation,final-report}.md,
+  7 guias (iceberg-metadata, iceberg-snapshots, lakeformation-fgac-fta,
+  cross-account-diagnostics, iam-s3-kms, iceberg-merge-append,
+  lakehouse-compatibility), 3 exemplos (glue51-fgac, iceberg-cross-account,
+  iceberg-merge) — todos com comandos executados verbatim e saídas reais
+Atualizados: README (seção lakehouse), docs/cli.md (tabela do grupo),
+  SECURITY.md (garantias C03)
+Comandos documentados verificados ao vivo:
+  lakehouse metadata/access/policy/operation (fixtures reais) OK
+  lakehouse compat --runtime glue-5.1 --operation merge --access-mode fgac
+    → SUPPORTED_WITH_CONSTRAINTS + refs
+Suíte final: 488 passed, 3 skipped ; ruff clean ; mypy 93 arquivos
+Relatório final: APPROVED WITH RESTRICTIONS — AWS real BLOCKED (sem
+  credenciais, guia §12 publicado), CI billing, API/MCP ausentes,
+  Win/macOS via CI, simulate opt-in. Zero P0/P1 abertos.

@@ -1,0 +1,13 @@
+ds-0021 verification — Iceberg metadata intelligence
+====================================================
+pytest tests/unit/test_iceberg.py → 22 passed
+pytest -q → 382 passed, 1 skipped (~5.6s)
+ruff check src tests → All checks passed
+mypy src → 80 arquivos, 0 issues
+Entregue: analyzers/iceberg/{metadata.py,analyzer.py} + registro (7 analyzers)
+Parser v1/v2/v3 tolerante (campos desconhecidos → extras+limitation, nunca descartados)
+Guards: 16MB cap, profundidade 64, 10k snapshots, location http(s) → warning, nunca segue URL
+Findings: current-id inconsistente (CONFIRMED/DATA_QUALITY), evolução schema/spec (COMPATIBILITY),
+small files condicional por summary declarado (POSSIBLE — nunca CONFIRMED sem observação),
+retenção hipótese POSSIBLE, snapshot-log growth CONFIRMED
+Toda evidência Iceberg = provenance DECLARED (metadados ≠ métricas de execução)

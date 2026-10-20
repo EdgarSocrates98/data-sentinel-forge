@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "AccessMetadata": {
+      "additionalProperties": false,
+      "description": "How an evidence artifact was accessed.",
+      "properties": {
+        "access_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Method"
+        },
+        "accessed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accessed By"
+        }
+      },
+      "title": "AccessMetadata",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A traceable excerpt supporting findings (\u00a74).",
+      "properties": {
+        "access_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccessMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "content_hash": {
+          "minLength": 1,
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/EvidenceProvenance"
+        },
+        "sanitized_excerpt": {
+          "title": "Sanitized Excerpt",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "source_location": {
+          "minLength": 1,
+          "title": "Source Location",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "source_location",
+        "captured_at",
+        "content_hash",
+        "sanitized_excerpt",
+        "provenance",
+        "confidence"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "description": "How a piece of evidence was obtained (\u00a72.4).",
+      "enum": [
+        "declared",
+        "static_inferred",
+        "observed"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "string"
+    },
+    "SupportStatus": {
+      "description": "Cycle 03 \u00a72.2 \u2014 explicit support verdicts.\n\nNOT_VERIFIED means \"couldn't check\" \u2014 never conflate with UNSUPPORTED.",
+      "enum": [
+        "SUPPORTED",
+        "SUPPORTED_WITH_CONSTRAINTS",
+        "UNSUPPORTED",
+        "UNKNOWN",
+        "NOT_VERIFIED"
+      ],
+      "title": "SupportStatus",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Verdict for a (runtime, engine, format, catalog, mode, op) tuple (\u00a72.1).",
+  "properties": {
+    "access_mode": {
+      "default": "",
+      "title": "Access Mode",
+      "type": "string"
+    },
+    "catalog_type": {
+      "default": "",
+      "title": "Catalog Type",
+      "type": "string"
+    },
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "documentation_references": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Documentation References",
+      "type": "array"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "iceberg_version": {
+      "default": "",
+      "title": "Iceberg Version",
+      "type": "string"
+    },
+    "operation": {
+      "default": "",
+      "title": "Operation",
+      "type": "string"
+    },
+    "runtime": {
+      "default": "",
+      "title": "Runtime",
+      "type": "string"
+    },
+    "spark_version": {
+      "default": "",
+      "title": "Spark Version",
+      "type": "string"
+    },
+    "support_status": {
+      "$ref": "#/$defs/SupportStatus",
+      "default": "NOT_VERIFIED"
+    }
+  },
+  "title": "CompatibilityAssessment",
+  "type": "object"
+}

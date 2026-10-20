@@ -1,0 +1,14 @@
+ds-0027 verification — context resolver + CLI + reporting
+=========================================================
+pytest tests/unit/test_lakehouse_resolver.py → 3 passed
+pytest tests/integration/test_lakehouse_cli.py → 7 passed
+pytest -q → 460 passed, 1 skipped
+ruff → clean ; mypy → 93 arquivos ; doctor → 10 analyzers
+Entregue: lakehouse/resolver.py (LakehouseContext + resolve) — agrega
+  metadata/graphs/evaluations/operations dos analyzers + assessments;
+  worst_status conservador; vazio → NOT_VERIFIED
+CLI `data-sentinel lakehouse`: metadata/access/policy/operation (arquivo)
+  + compat (runtime×format×mode×op → status+constraints+refs, --json)
+Comandos verificados ao vivo: v2_evolved→4 achados; cross_write→POSSIBLE+UNKNOWN;
+  cross_kms→POSSIBLE+2UNKNOWN; merge_dups→CONFIRMED; compat fgac merge→WITH_CONSTRAINTS
+Dedup de constraints no compat (bug real: camada mode repetida)

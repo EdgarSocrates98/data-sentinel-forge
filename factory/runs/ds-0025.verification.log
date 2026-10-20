@@ -1,0 +1,16 @@
+ds-0025 verification — IAM/S3/KMS diagnostics
+============================================
+pytest tests/unit/test_iam.py → 15 passed
+pytest -q → 440 passed, 1 skipped
+ruff → clean ; mypy → 89 arquivos, 0 issues
+Entregue: analyzers/iam/{policy.py,analyzer.py} + registro (9 analyzers)
+Parser offline: identity/resource/trust/boundary/SCP docs + envelope
+  {policies, context, evaluate}; Principal dict flatten; wildcards
+  fnmatch; NotAction/NotResource honrados
+Avaliador: deny explícito vence (CONFIRMED); allow isolado → POSSIBLE
+  ("não prova acesso" — boundaries/SCPs/session podem negar); sem match
+  → UNKNOWN hipótese (nunca negação por ausência de visibilidade)
+S3/KMS contexto declarado: bucket cross-account sem policy → UNKNOWN;
+  duas chaves KMS origem≠destino → POSSIBLE com cadeia dupla;
+  key policy invisível → limitation. Decrypt nunca executado.
+SimulatePrincipalPolicy: limitações documentadas (não é validação real)

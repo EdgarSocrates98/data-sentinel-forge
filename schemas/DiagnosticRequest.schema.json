@@ -191,6 +191,9 @@
         "spark_plan",
         "glue_job",
         "cloudwatch_log",
+        "iceberg_metadata",
+        "policy_doc",
+        "access_context",
         "other"
       ],
       "title": "SourceType",

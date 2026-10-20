@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0021.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:00:46+00:00",
+  "id": "ds-0021",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0021.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0021.md",
+  "spec_sha256": "0ab2093b069dc547c38b71d9569db70a844034910df701255b678684340675b6",
+  "status": "planned",
+  "title": "Iceberg metadata intelligence (phase 03.1)"
+}

@@ -16,6 +16,7 @@
         "data_quality",
         "cost",
         "security",
+        "compatibility",
         "unknown"
       ],
       "title": "FindingCategory",

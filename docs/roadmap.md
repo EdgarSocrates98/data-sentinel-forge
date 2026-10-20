@@ -1,18 +1,25 @@
 # Roadmap
 
-Visão por ciclo conforme o plano mestre (`prompt_inicial.md`). Cycle 01 está
-entregue; os demais são planejamento — **nada abaixo existe ainda**.
+Visão por ciclo conforme o plano mestre (`prompt_inicial.md`).
 
-## Cycle 02 — Spark & Glue Intelligence
+Estados: **entregue** / **entregue com restrições** / **em desenvolvimento** /
+**planejamento**. Histórico de decisões preservado abaixo.
 
-Primeiro conjunto avançado de capacidades diagnósticas: connector AWS Glue
-read-only (boto3, como extra opcional), análise de métricas/logs CloudWatch,
-comparação entre execuções e diagnóstico de configuração de jobs.
+## Cycle 02 — Spark & Glue Intelligence — ENTREGUE COM RESTRIÇÕES
 
-## Cycle 03 — Iceberg, Lake Formation & Security
+Entregue (ds-0010..0019): conectores AWS read-only (Glue, CloudWatch),
+analyzer de plano físico, join intelligence, SQL v0.2 (AST/dialetos),
+config advisor, orquestrador, CLI grupos, Markdown, contratos API/MCP.
+Restrições: AWS validado com mocks/Stubber (não real), Windows/macOS só
+via CI (bloqueada por billing), API/MCP sem servidor.
+Ver `docs/cycles/cycle-02-final-report.md`.
 
-Diagnóstico profundo de lakehouse AWS: snapshots Iceberg, permissões Lake
-Formation, catálogo e drift de tabelas.
+## Cycle 03 — Iceberg, Lake Formation & Security — EM DESENVOLVIMENTO
+
+Escopo (`prompt_evo_cycle3.md`): Iceberg metadata intelligence, knowledge
+base de compatibilidade versionada, engine Glue/FGAC/FTA, diagnóstico
+cross-account, IAM/S3/KMS read-only, MERGE/APPEND intelligence, CLI e
+reporting lakehouse. Specs ds-0020..ds-0029.
 
 ## Cycle 04 — Data Quality & Lineage
 
@@ -41,25 +48,3 @@ Hardening, testes de carga/concorrência, benchmarks medidos (nunca inventados)
 e preparação para adoção externa.
 
 ---
-
-## Backlog priorizado do Cycle 02 — candidatos a spec
-
-Ordem sugerida para `factory/specs/inbox/`:
-
-1. **ds-0010 — AWS Glue connector (read-only)**: extra opcional `[glue]` com
-   boto3; listar jobs/runs/configs; respeitar `allow_network=false` no perfil
-   offline; erros de credencial como `ConfigurationError` amigável.
-2. **ds-0011 — CloudWatch log fetch (opt-in)**: recuperar log de um run
-   autorizado e alimentar o `SparkGlueLogAnalyzer` existente — sem polling
-   contínuo.
-3. **ds-0012 — Run comparison**: comparar duas execuções (duração, findings,
-   config diff) reaproveitando `list_reports` do store.
-4. **ds-0013 — Spark event log / Spark UI metrics**: estender evidência além
-   de texto de log (stage metrics, spill quantificado).
-5. **ds-0014 — Glue config diagnostics**: regras sobre job config (workers,
-   timeout, retries) combinadas com findings de log.
-6. **ds-0015 — Report diff/trend básico**: séries temporais mínimas sobre
-   relatórios persistidos (preparação do Cycle 07).
-
-Critério de entrada no Cycle 02: cada spec mantém os princípios — evidência
-obrigatória, offline funcional sem credenciais, read-only sem autorização.

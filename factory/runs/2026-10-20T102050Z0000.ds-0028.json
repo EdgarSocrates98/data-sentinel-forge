@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0028.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:20:50+00:00",
+  "id": "ds-0028",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0028.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0028.md",
+  "spec_sha256": "6255a960e2d39c0005e701589d9c9b1db1603968d744f3e236da7146ed3a497e",
+  "status": "planned",
+  "title": "Golden fixtures (26) + security + benchmarks + E2E A-F (phase 03.8 + \u00a711)"
+}

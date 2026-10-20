@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0029.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:24:07+00:00",
+  "id": "ds-0029",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0029.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0029.md",
+  "spec_sha256": "a5db7053e5c21be414154ae0b6f61f9382b3cc3aa6b03e230b26eb765cc4fa4d",
+  "status": "planned",
+  "title": "Cycle 03 docs + real-use guide + final report (\u00a712-\u00a716)"
+}

@@ -9,9 +9,11 @@ from pathlib import Path
 from typing import Any
 
 from data_sentinel.core.contracts import (
+    AccessContext,
     AccessMetadata,
     ArtifactReference,
     CapabilityManifest,
+    CompatibilityAssessment,
     DiagnosticReport,
     DiagnosticRequest,
     Environment,
@@ -19,6 +21,9 @@ from data_sentinel.core.contracts import (
     ExecutionContext,
     ExecutionMetadata,
     Finding,
+    IcebergSnapshotSummary,
+    IcebergTableMetadata,
+    LakehouseOperation,
     OptimizationRecommendation,
     RequestConstraints,
     ResourceContext,
@@ -38,6 +43,11 @@ ENTITIES: dict[str, Any] = {
         AccessMetadata,
         Environment,
         ExecutionContext,
+        AccessContext,
+        CompatibilityAssessment,
+        IcebergSnapshotSummary,
+        IcebergTableMetadata,
+        LakehouseOperation,
         RequestConstraints,
         ResourceContext,
     )

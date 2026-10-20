@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0025.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:13:20+00:00",
+  "id": "ds-0025",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0025.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0025.md",
+  "spec_sha256": "188ed945db66e2ef3916010c178d15e6b02bf6243654e00b32b1c410a455b2fe",
+  "status": "planned",
+  "title": "IAM/S3/KMS diagnostics (phase 03.4)"
+}

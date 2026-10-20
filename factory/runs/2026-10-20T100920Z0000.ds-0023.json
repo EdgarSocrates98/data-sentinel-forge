@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0023.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:09:20+00:00",
+  "id": "ds-0023",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0023.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0023.md",
+  "spec_sha256": "426baedaa467e1d71a8777d542cfa260037bd674d2023a880da63fac7c694324",
+  "status": "planned",
+  "title": "Glue/FGAC/FTA compatibility engine (phase 03.2)"
+}

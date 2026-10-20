@@ -31,14 +31,24 @@ from data_sentinel.core.contracts.enums import (
     Platform,
     Severity,
     SourceType,
+    SupportStatus,
+)
+from data_sentinel.core.contracts.lakehouse import (
+    AccessContext,
+    CompatibilityAssessment,
+    IcebergSnapshotSummary,
+    IcebergTableMetadata,
+    LakehouseOperation,
 )
 
 __all__ = [
     "SCHEMA_VERSION",
+    "AccessContext",
     "AccessMetadata",
     "AnalysisMode",
     "ArtifactReference",
     "CapabilityManifest",
+    "CompatibilityAssessment",
     "ContractModel",
     "DiagnosticReport",
     "DiagnosticRequest",
@@ -51,11 +61,15 @@ __all__ = [
     "Finding",
     "FindingCategory",
     "FindingStatus",
+    "IcebergSnapshotSummary",
+    "IcebergTableMetadata",
+    "LakehouseOperation",
     "OptimizationRecommendation",
     "Platform",
     "RequestConstraints",
     "ResourceContext",
     "Severity",
     "SourceType",
+    "SupportStatus",
     "UTCDateTime",
 ]
