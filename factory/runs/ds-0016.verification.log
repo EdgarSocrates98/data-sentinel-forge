@@ -1,0 +1,21 @@
+== ds-0016 verification (2026-10-19T21:26:07-03:00) ==
+
+$ uv run pytest tests/unit/test_spark_config.py -q
+................                                                         [100%]
+16 passed in 0.17s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 74%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+289 passed in 2.98s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 72 source files
+[exit 0]

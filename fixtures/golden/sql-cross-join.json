@@ -1,0 +1,18 @@
+{
+  "id": "sql-cross-join",
+  "input": {
+    "files": [
+      "fixtures/plans/cartesian.txt"
+    ],
+    "source_type": "spark_plan",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "CartesianProduct"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

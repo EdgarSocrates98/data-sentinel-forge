@@ -1,0 +1,20 @@
+{
+  "id": "malformed-plan",
+  "input": {
+    "files": [
+      "fixtures/plans/malformed.txt"
+    ],
+    "source_type": "spark_plan",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [],
+    "findings_prohibited": [
+      "SortMergeJoin"
+    ],
+    "evidence_required": false,
+    "limitations_include": [
+      "operador desconhecido"
+    ]
+  }
+}

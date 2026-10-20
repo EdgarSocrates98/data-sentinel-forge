@@ -1,0 +1,4 @@
+24/10/20 09:00:01 INFO GlueContext: Job demo-etl started
+24/10/20 09:01:12 INFO GlueContext: Read 1240000 records from s3://bucket/input
+24/10/20 09:03:45 INFO GlueContext: Wrote 1239990 records to s3://bucket/output
+24/10/20 09:03:46 INFO GlueContext: Job demo-etl completed successfully

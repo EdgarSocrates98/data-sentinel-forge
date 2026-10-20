@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0015.implement.claude.md)"
+  ],
+  "created_at": "2026-10-20T00:21:15+00:00",
+  "id": "ds-0015",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0015.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0015.md",
+  "spec_sha256": "f255786c8e8493b781e8733a17af42502d401f75713e890238552454608c4a53",
+  "status": "planned",
+  "title": "SQL analyzer evolution \u2014 AST intelligence & dialect awareness"
+}

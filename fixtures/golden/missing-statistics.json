@@ -1,0 +1,22 @@
+{
+  "id": "missing-statistics",
+  "input": {
+    "files": [
+      "fixtures/joins/high_volume_4tables.sql",
+      "fixtures/joins/stats_missing.json"
+    ],
+    "source_type": "sql_query",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "cardinalidade",
+      "Nenhuma cardinalidade \u00e9 afirmada"
+    ],
+    "findings_prohibited": [
+      "estimado em"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

@@ -1,0 +1,5 @@
+24/10/20 10:15:32 WARN TaskSetManager: Lost task 12.0 in stage 3.0 (TID 445, executor 3): FetchFailedException: Failed to fetch shuffle data from executor 4
+24/10/20 10:15:32 ERROR TaskSetManager: Task 12.0 in stage 3.0 (TID 445) failed: org.apache.spark.shuffle.FetchFailedException
+	at org.apache.spark.shuffle.FetchFailedException$.apply(BlockStoreShuffleReader.scala:110)
+Caused by: java.io.IOException: Connection reset by peer
+24/10/20 10:15:33 INFO DAGScheduler: Resubmitting ShuffleMapStage 3 due to fetch failure

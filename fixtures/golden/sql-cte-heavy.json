@@ -1,0 +1,18 @@
+{
+  "id": "sql-cte-heavy",
+  "input": {
+    "files": [
+      "fixtures/sql/cycle2/cte_heavy.sql"
+    ],
+    "source_type": "sql_query",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "proje\u00e7\u00e3o ampla"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

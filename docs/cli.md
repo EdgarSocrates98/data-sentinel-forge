@@ -83,3 +83,68 @@ Configuração resolvida com segredos redigidos e a lista de fontes
 ```bash
 data-sentinel version   # data-sentinel 0.1.0
 ```
+
+## `glue` — inspeção read-only de jobs AWS Glue
+
+Requer o extra `[aws]` (`pip install 'data-sentinel[aws]'`) e credenciais
+da cadeia padrão do SDK.
+
+```bash
+data-sentinel glue inspect --job <nome> [--profile P] [--region R]
+data-sentinel glue runs --job <nome> --limit N [--profile P] [--region R]
+data-sentinel glue diagnose --job <nome> --run-id <id> [--profile P] [--region R]
+```
+
+`inspect` mostra metadados do job com `DefaultArguments` sanitizados;
+`runs` lista histórico com paginação limitada; `diagnose` roda o pipeline
+completo (metadados → CloudWatch logs → correlação → timeline →
+analyzers → relatório). Erros AWS viram códigos PT-BR
+(`aws.sem_credenciais`, `aws.acesso_negado`, `aws.throttling`, …) — ver
+[docs/guides/aws-glue-connector.md](guides/aws-glue-connector.md).
+
+## `spark` — planos e otimização
+
+```bash
+data-sentinel spark explain --file plano.txt
+data-sentinel spark optimize --sql q.sql [--stats stats.json] \
+    [--config spark-defaults.conf] [--dialect spark|trino]
+```
+
+`explain` faz parse tolerante de `EXPLAIN`/`df.explain()` (árvore de
+operadores, joins, exchanges, AQE, spans de evidência). `optimize` roda o
+pipeline composto: SQL estático + inteligência de joins + config advisor.
+
+## `sql` — análise estática
+
+```bash
+data-sentinel sql analyze --file query.sql --dialect spark|trino [--json]
+```
+
+AST SQLGlot — 9 checks com contexto (SELECT* sem falso positivo em
+EXISTS/COUNT, joins sem predicado, non-sargável, ORDER BY global, UNION
+sem ALL, COUNT DISTINCT, IN grande, scan sem filtro). Ver
+[docs/guides/sql-analysis.md](guides/sql-analysis.md).
+
+## `report show` — renderização
+
+```bash
+data-sentinel report show --id <report_id> --format terminal|markdown|json
+data-sentinel report show --file relatorio.json
+```
+
+Renderers em `reporting/` — Markdown inclui sumário executivo, contexto,
+findings com evidência, recomendações, validações, limitações e versões
+dos analyzers. `report --input` (forma legada) continua funcionando.
+
+## Descritor de estatísticas (`--stats`)
+
+JSON declarado pelo usuário — nunca fabricado:
+
+```json
+{"tables": {"orders": {"row_count": 230000000,
+  "keys": {"customer_id": {"distinct": 45000000}}}},
+ "runtime": {"stage_12": {"task_time_p50_ms": 800, "task_time_p99_ms": 21000}}}
+```
+
+Sem ele, cardinalidade fica `UNKNOWN` e o relatório diz o que coletar —
+formato completo em [docs/guides/join-intelligence.md](guides/join-intelligence.md).

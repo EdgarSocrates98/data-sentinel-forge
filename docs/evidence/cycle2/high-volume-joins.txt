@@ -1,0 +1,74 @@
+modo: offline
+relatório 914c17d6b9df4f3d9f4ffa1e7df9baf6 (schema 1.0.0)
+resumo: 7 achado(s): POSSIBLE=4, UNKNOWN=3
+analyzers: join-intelligence-analyzer@0.1.0, sql-static-analyzer@0.2.0
+
+[HIGH/POSSIBLE] data_skew
+  Risco de expansão many-to-many (sql-join-1: orders ⋈ customers). Quando ambos os lados podem ter múltiplas linhas por chave, a saída é o produto das multiplicidades por chave — crescimento intermediário pode exceder as entradas em ordens de magnitude. Evidência: chaves declaradas não-únicas.
+  evidência: sql
+    many-to-many risk orders ⋈ customers unicidade=known_non_unique/known_non_unique
+  recomendação: Coletar estatísticas de chave para confirmar multiplicidade antes de agir
+  recomendação: Se many-to-many for intencional, preparar particionamento/memória para o volume intermediário
+  validação: SELECT k, COUNT(*) GROUP BY k HAVING COUNT(*)>1 em cada lado para medir multiplicidade real
+
+[HIGH/POSSIBLE] data_skew
+  Risco de expansão many-to-many (sql-join-2: junção-anterior ⋈ order_items). Quando ambos os lados podem ter múltiplas linhas por chave, a saída é o produto das multiplicidades por chave — crescimento intermediário pode exceder as entradas em ordens de magnitude. Evidência: chaves declaradas não-únicas.
+  evidência: sql
+    many-to-many risk junção-anterior ⋈ order_items unicidade=unknown/known_non_unique
+  recomendação: Coletar estatísticas de chave para confirmar multiplicidade antes de agir
+  recomendação: Se many-to-many for intencional, preparar particionamento/memória para o volume intermediário
+  validação: SELECT k, COUNT(*) GROUP BY k HAVING COUNT(*)>1 em cada lado para medir multiplicidade real
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas o.order_id
+
+[HIGH/POSSIBLE] data_skew
+  Risco de expansão many-to-many (sql-join-3: junção-anterior ⋈ products). Quando ambos os lados podem ter múltiplas linhas por chave, a saída é o produto das multiplicidades por chave — crescimento intermediário pode exceder as entradas em ordens de magnitude. Evidência: chaves declaradas não-únicas.
+  evidência: sql
+    many-to-many risk junção-anterior ⋈ products unicidade=unknown/known_non_unique
+  recomendação: Coletar estatísticas de chave para confirmar multiplicidade antes de agir
+  recomendação: Se many-to-many for intencional, preparar particionamento/memória para o volume intermediário
+  validação: SELECT k, COUNT(*) GROUP BY k HAVING COUNT(*)>1 em cada lado para medir multiplicidade real
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas i.product_id
+
+[HIGH/POSSIBLE] data_skew
+  Risco de expansão many-to-many (sql-join-4: junção-anterior ⋈ stores). Quando ambos os lados podem ter múltiplas linhas por chave, a saída é o produto das multiplicidades por chave — crescimento intermediário pode exceder as entradas em ordens de magnitude. Evidência: unicidade desconhecida nos dois lados.
+  evidência: sql
+    many-to-many risk junção-anterior ⋈ stores unicidade=unknown/unknown
+  recomendação: Coletar estatísticas de chave para confirmar multiplicidade antes de agir
+  recomendação: Se many-to-many for intencional, preparar particionamento/memória para o volume intermediário
+  validação: SELECT k, COUNT(*) GROUP BY k HAVING COUNT(*)>1 em cada lado para medir multiplicidade real
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas o.store_id
+  validação: ANALYZE TABLE stores COMPUTE STATISTICS
+  validação: ANALYZE TABLE stores COMPUTE STATISTICS FOR COLUMNS s.store_id
+
+[LOW/UNKNOWN] data_quality
+  Evidência insuficiente para estimar cardinalidade do join sql-join-2 (junção-anterior ⋈ order_items). Faltam: row_count do lado esquerdo (junção-anterior); cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior). Nenhuma cardinalidade é afirmada.
+  evidência: sql
+    missing stats sql-join-2: row_count do lado esquerdo (junção-anterior), cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas o.order_id
+
+[LOW/UNKNOWN] data_quality
+  Evidência insuficiente para estimar cardinalidade do join sql-join-3 (junção-anterior ⋈ products). Faltam: row_count do lado esquerdo (junção-anterior); cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior). Nenhuma cardinalidade é afirmada.
+  evidência: sql
+    missing stats sql-join-3: row_count do lado esquerdo (junção-anterior), cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas i.product_id
+
+[LOW/UNKNOWN] data_quality
+  Evidência insuficiente para estimar cardinalidade do join sql-join-4 (junção-anterior ⋈ stores). Faltam: row_count do lado esquerdo (junção-anterior); cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior); row_count do lado direito (stores); cardinalidade/unicidade das chaves do lado direito (stores). Nenhuma cardinalidade é afirmada.
+  evidência: sql
+    missing stats sql-join-4: row_count do lado esquerdo (junção-anterior), cardinalidade/unicidade das chaves do lado esquerdo (junção-anterior), row_count do lado direito (stores), cardinalidade/unicida
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery)
+  validação: Coletar estatísticas de junção-anterior (expressão/subquery) nas colunas o.store_id
+  validação: ANALYZE TABLE stores COMPUTE STATISTICS
+  validação: ANALYZE TABLE stores COMPUTE STATISTICS FOR COLUMNS s.store_id
+
+limitações:
+  - Análise estática: não observa execução física (plano, métricas, estatísticas).
+  - Engine assumido: Spark — estratégias (AQE, broadcast, shuffle) não se aplicam a execução Athena/Trino.
+  - Nunca deriva cardinalidade real a partir de contagens de linhas — estimativas exigem estatísticas de chave declaradas
+  - Skew de stage não identifica a chave desbalanceada — apenas sinaliza o estágio afetado
+  - Deduplicação nunca é sugerida automaticamente — altera semântica funcional e exige validação humana

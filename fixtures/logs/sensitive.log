@@ -1,0 +1,3 @@
+24/10/20 10:00:01 INFO JobSubmitter: Connecting with password=hunter2secret and aws_key=AKIAIOSFODNN7EXAMPLE
+24/10/20 10:00:02 INFO JobSubmitter: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.sig
+24/10/20 10:00:03 ERROR JobSubmitter: java.lang.OutOfMemoryError: Java heap space

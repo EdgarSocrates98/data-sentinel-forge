@@ -1,0 +1,18 @@
+{
+  "id": "spark-fetch-failure",
+  "input": {
+    "files": [
+      "fixtures/logs/fetch_failed.log"
+    ],
+    "source_type": "cloudwatch_log",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "perda de executors"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

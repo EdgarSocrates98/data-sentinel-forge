@@ -1,0 +1,21 @@
+== ds-0015 verification (2026-10-19T21:24:06-03:00) ==
+
+$ uv run pytest tests/unit -q -k 'sql'
+.............................................                            [100%]
+45 passed, 154 deselected in 0.44s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 52%]
+........................................................................ [ 79%]
+.........................................................                [100%]
+273 passed in 2.96s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 68 source files
+[exit 0]

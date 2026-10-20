@@ -1,0 +1,28 @@
+modo: offline
+relatório 138f3f16e0e64ea291ec35218a10cadd (schema 1.0.0)
+resumo: 3 achado(s): POSSIBLE=2, UNKNOWN=1
+analyzers: join-intelligence-analyzer@0.1.0, spark-plan-analyzer@0.1.0
+
+[LOW/POSSIBLE] cost
+  Scan (nó 3) sem DataFilters declarados — leitura ampla. Pode ser intencional; se a query filtra em estágio posterior, avaliar predicate pushdown/partition pruning.
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/plans/sort_merge_join.txt:5
+    [Scan]  *(1) FileScan parquet [id#1L,name#4] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<id:bigint,name:string>
+  validação: Verificar partições lidas vs disponíveis no Spark UI (input size/records)
+
+[MEDIUM/POSSIBLE] cost
+  SortMergeJoin (nó 0) sem estatísticas declaradas no plano — o otimizador pode ter escolhido shuffle+sort sem cardinalidade confiável. Possível candidato a broadcast se um lado for pequeno.
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/plans/sort_merge_join.txt:2
+    [SortMergeJoin] *(1) SortMergeJoin [id#1L], [id#2L], Inner
+  validação: Coletar estatísticas das tabelas (ANALYZE TABLE ... COMPUTE STATISTICS) e re-gerar EXPLAIN
+  validação: Medir bytes reais por lado via Spark UI
+
+[INFO/UNKNOWN] unknown
+  Nenhum join nem estatística disponível para análise. Forneça SQL, plano físico (EXPLAIN) e/ou descritor de estatísticas JSON para investigação de cardinalidade.
+
+limitações:
+  - Plano estático — sem métricas de execução reais (bytes lidos, spill, skew) salvo quando o texto as declara
+  - Presença de Exchange/SortMergeJoin é sinal de investigação, não problema por si só
+  - Estatísticas exibidas são estimativas do otimizador salvo indicação explícita contrária
+  - Nunca deriva cardinalidade real a partir de contagens de linhas — estimativas exigem estatísticas de chave declaradas
+  - Skew de stage não identifica a chave desbalanceada — apenas sinaliza o estágio afetado
+  - Deduplicação nunca é sugerida automaticamente — altera semântica funcional e exige validação humana

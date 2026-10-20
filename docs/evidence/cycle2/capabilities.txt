@@ -1,0 +1,24 @@
+spark-glue-log-analyzer v0.1.0
+  operações: analyze_log
+  plataformas: -
+  limitações: 3 declarada(s)
+sql-static-analyzer v0.2.0
+  operações: sql_query
+  plataformas: spark, aws_glue, trino, athena, generic
+  limitações: 3 declarada(s)
+cloudwatch-log-analyzer v0.1.0
+  operações: analyze_log, correlate_errors, build_timeline
+  plataformas: aws_glue, generic
+  limitações: 5 declarada(s)
+spark-plan-analyzer v0.1.0
+  operações: analyze_plan
+  plataformas: spark, aws_glue, databricks, generic
+  limitações: 3 declarada(s)
+join-intelligence-analyzer v0.1.0
+  operações: analyze_joins
+  plataformas: spark, aws_glue, athena, trino, databricks, generic
+  limitações: 3 declarada(s)
+spark-config-advisor v0.1.0
+  operações: advise_config
+  plataformas: spark, aws_glue, databricks, generic
+  limitações: 3 declarada(s)

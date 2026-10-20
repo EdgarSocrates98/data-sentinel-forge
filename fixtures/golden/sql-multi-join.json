@@ -1,0 +1,20 @@
+{
+  "id": "sql-multi-join",
+  "input": {
+    "files": [
+      "fixtures/sql/cycle2/multi_join.sql"
+    ],
+    "source_type": "sql_query",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "reutilizada"
+    ],
+    "findings_prohibited": [
+      "produto cartesiano"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

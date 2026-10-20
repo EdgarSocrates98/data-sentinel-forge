@@ -59,9 +59,29 @@ deixa fragmento de segredo no corte (verificado em teste).
 - Erros de domínio expõem `code` + `message` PT-BR; `--verbose` é opt-in para
   detalhes técnicos.
 
+## AWS connectors (Cycle 02)
+
+- **Read-only por construção**: `ALLOWED_ACTIONS` nos conectores Glue e
+  CloudWatch contém apenas operações `Get*`/`Describe*`/`FilterLogEvents`.
+  Qualquer tentativa fora da lista é rejeitada em código — nem credencial
+  com poder de escrita permite mutação por este caminho (testado em
+  `tests/security/test_security_cycle2.py`).
+- **boto3 opcional**: ausência do extra gera `aws.boto3_ausente`, não
+  crash. Perfil `offline` recusa instanciar conectores.
+- **Segredos sanitizados**: `DefaultArguments` do Glue e mensagens de log
+  passam pelo redator antes de saída/persistência; credenciais nunca são
+  armazenadas nem incluídas em erros.
+- **DoS de entrada**: regex de parsing auditados — um caso quadrático
+  (`_STAT_KV`) foi encontrado pela suíte de segurança e corrigido
+  (bound + prefixo limitado). Linhas gigantes e planos profundos são
+  processados em tempo linear.
+
 ## Limites conhecidos (honestos)
 
 - A redação é regex-driven: formatos de segredo fora da biblioteca podem
   escapar — reporte em SECURITY.md.
 - O path guard protege leitura de *entrada*; `--output` grava onde o usuário
   mandar (é uma escrita explícita do próprio usuário).
+- Código AWS validado com **mocks/Stubber** — respostas maliciosas/inusitadas
+  fora do envelope stubado podem expor arestas não cobertas; o teste real
+  env-gated (`DATA_SENTINEL_AWS_TESTS=1`) existe para homologação futura.

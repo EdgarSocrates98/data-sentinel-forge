@@ -1,0 +1,25 @@
+== ds-0011 verification (2026-10-19T21:05:49-03:00) ==
+
+$ uv run pytest tests/unit -q -k glue
+................                                                         [100%]
+16 passed, 93 deselected in 1.40s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 39%]
+........................................................................ [ 78%]
+.......................................                                  [100%]
+183 passed in 1.88s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 53 source files
+[exit 0]
+
+$ uv run python -c 'import data_sentinel; from data_sentinel.connectors.aws import GlueConnector; print("import without boto3-need: ok")'
+import without boto3-need: ok
+[exit 0]

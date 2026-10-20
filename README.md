@@ -42,18 +42,23 @@ Detalhes: [docs/installation.md](docs/installation.md).
 # Analisar um log de Glue/Spark (saída real abaixo)
 data-sentinel analyze --file fixtures/logs/glue_oom.log
 
-# Análise estática de SQL em JSON
-data-sentinel analyze --sql fixtures/sql/join_no_predicate.sql --json
+# Análise estática de SQL (AST SQLGlot, dialetos spark/trino)
+data-sentinel sql analyze --file fixtures/joins/high_volume_4tables.sql --dialect spark
 
-# Saúde da instalação
+# Plano físico Spark (EXPLAIN) → árvore + estratégias + limitações
+data-sentinel spark explain --file fixtures/plans/sort_merge_join.txt
+
+# Pipeline composto: SQL + joins/cardinalidade + config advisor
+data-sentinel spark optimize --sql query.sql --stats stats.json --config spark-defaults.conf
+
+# AWS Glue read-only (requer [aws] + credenciais)
+data-sentinel glue runs --job meu-job --limit 10 --region us-east-1
+data-sentinel glue diagnose --job meu-job --run-id jr_abc --region us-east-1
+
+# Saúde da instalação / capacidades / relatórios
 data-sentinel doctor
-
-# Capacidades registradas / configuração resolvida
 data-sentinel capabilities
-data-sentinel config show
-
-# Renderizar um relatório persistido
-data-sentinel report --input <report_id>
+data-sentinel report show --id <report_id> --format markdown
 ```
 
 Saída real de `analyze` sobre `fixtures/logs/glue_oom.log`:
@@ -93,6 +98,9 @@ Ver [ADR 0006](docs/adr/0006-exit-code-scheme.md).
 | [docs/roadmap.md](docs/roadmap.md) | Cycles 02–08 e backlog do Cycle 02 |
 | [docs/validation-matrix.md](docs/validation-matrix.md) | Matriz de validação com evidências |
 | [docs/cycle-01-report.md](docs/cycle-01-report.md) | Relatório final do Cycle 01 |
+| [docs/cycles/cycle-02-final-report.md](docs/cycles/cycle-02-final-report.md) | Relatório final do Cycle 02 |
+| [docs/guides/](docs/guides/) | Guias por funcionalidade (Glue, CloudWatch, plano, SQL, joins, config) |
+| [docs/examples/](docs/examples/) | Exemplos executáveis com saídas reais |
 | [docs/adr/](docs/adr/) | Decisões arquiteturais |
 
 ## Estrutura
@@ -100,19 +108,25 @@ Ver [ADR 0006](docs/adr/0006-exit-code-scheme.md).
 ```text
 src/data_sentinel/
 ├── core/          # contracts, configuration, security, exceptions
-├── analyzers/     # protocolo + registry + spark/sql analyzers
+├── analyzers/     # registry + spark/{log,plans,joins,config} + sql + cloudwatch
+├── connectors/    # aws/{glue,cloudwatch_logs} — extra [aws], read-only
+├── diagnostics/   # orchestrator + correlation + timeline
+├── reporting/     # renderers terminal/JSON/Markdown
 ├── persistence/   # SQLite store + migrations (stdlib)
+├── api/           # contracts (readiness — sem servidor neste ciclo)
 ├── cli/           # Typer app
-└── ...            # placeholders: api/, mcp/, intelligence/, connectors/
+└── ...            # placeholders: mcp/, intelligence/, ...
 ```
 
 ## Estado do projeto
 
-Cycle 01 (Foundation & Contracts) implementado: contracts versionados,
-configuração com precedência documentada, primitivas de segurança, analyzers
-determinísticos de log Spark/Glue e SQL estático, persistência SQLite, CLI
-offline completa, 168 testes, cobertura 93% (ver
-[docs/evidence/coverage.txt](docs/evidence/coverage.txt)).
+**Cycle 02 implementado** — conectores AWS read-only (Glue, CloudWatch)
+com validação por mocks/Stubber, analyzer de plano físico Spark,
+inteligência de joins/cardinalidade, SQL analyzer v0.2 (AST SQLGlot,
+dialetos spark/trino), config advisor, orquestrador determinístico, CLI
+com grupos novos e relatórios Markdown. **360 testes, cobertura 88%** —
+evidência em [docs/cycles/cycle-02-validation.md](docs/cycles/cycle-02-validation.md)
+e [docs/cycle-01-report.md](docs/cycle-01-report.md).
 
 ## Licença
 

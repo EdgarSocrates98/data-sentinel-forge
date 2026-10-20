@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0012.implement.claude.md)"
+  ],
+  "created_at": "2026-10-20T00:05:54+00:00",
+  "id": "ds-0012",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0012.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0012.md",
+  "spec_sha256": "1368be1c8ed5b1e4fb3eadda262485705c7c59c39eef27f00941e87ee1fce7c5",
+  "status": "planned",
+  "title": "CloudWatch diagnostics \u2014 logs, metrics, correlation, timeline"
+}

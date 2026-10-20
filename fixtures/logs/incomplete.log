@@ -1,0 +1,2 @@
+24/10/20 10:00:01 INFO JobSubmitter: starting job
+24/10/20 10:00:02 ERROR JobSubmitter: java.lang.OutOfMemoryError: Java heap sp

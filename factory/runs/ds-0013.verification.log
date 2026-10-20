@@ -1,0 +1,21 @@
+== ds-0013 verification (2026-10-19T21:17:59-03:00) ==
+
+$ uv run pytest tests/unit/test_spark_plan.py -q
+...........................                                              [100%]
+27 passed in 0.16s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 62%]
+........................................................................ [ 93%]
+................                                                         [100%]
+232 passed in 2.87s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 64 source files
+[exit 0]

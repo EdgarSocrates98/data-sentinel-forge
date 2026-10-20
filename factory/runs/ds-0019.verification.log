@@ -1,0 +1,51 @@
+=== ds-0019 verification — homologação final Cycle 02 ===
+## 1. clean install (fresh venv)
+ + pip==26.2.1
+Activate with: source /tmp/ds-clean-venv/bin/activate
+ + typer==0.27.3
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
+data-sentinel 0.1.0
+## 2. offline run (venv limpa, sem extras aws/dev)
+ModuleNotFoundError: No module named 'boto3'
+relatório 38f4b705852645668f7e187bc37e2ef2 (schema 1.0.0)
+resumo: 1 achado(s): CONFIRMED=1
+analyzers: spark-glue-log-analyzer@0.1.0
+
+[HIGH/CONFIRMED] out_of_memory
+  Assinatura inequívoca de java.lang.OutOfMemoryError indica que driver ou executor estourou o heap disponível. 2 ocorrência(s) no log analisado.
+## 3. sem região — recusa limpa
+erro: conectores AWS requerem a dependência opcional boto3 — instale com: pip install 'data-sentinel[aws]' [aws.boto3_ausente]
+## 4. mocked-AWS run (Stubber) + suite completa
+.                                                                        [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/e2e/test_scenarios.py:163: env-gated: requires real AWS non-prod credentials
+360 passed, 1 skipped in 5.26s
+## 5. lint/type
+All checks passed!
+Success: no issues found in 75 source files
+## 6. schema validation (jsonschema round-trip)
+.........                                                                [100%]
+9 passed in 0.16s
+## 7. coverage
+TOTAL                                                       2723    252    778     98    88%
+## 8. spot-check 3 comandos de docs (verbatim)
+modo: offline
+relatório 150481dd85a4471f86912b3d3d97c4e7 (schema 1.0.0)
+resumo: 3 achado(s): POSSIBLE=2, UNKNOWN=1
+modo: offline
+relatório 8c5ba07739ee400b89afaaabacf11785 (schema 1.0.0)
+resumo: 7 achado(s): POSSIBLE=4, UNKNOWN=3
+modo: offline
+relatório 5ae5f65c42a34829b15aedb5ffbb5a60 (schema 1.0.0)
+resumo: 8 achado(s): POSSIBLE=4, UNKNOWN=4
+## 9. deps
+19
+## 10. dependency audit
+pip-audit (runtime deps): No known vulnerabilities found (data-sentinel local não auditável)
+## 11. spot-check guide commands (verbatim)
+ Renderiza relatório persistido ou exportado (terminal/markdown/json).          
+modo: cloud (aws, read-only)
+modo: offline
+relatório 79e7a9ec27e24d55b12e181fd5f8c6e5 (schema 1.0.0)
+resumo: 3 achado(s): POSSIBLE=2, UNKNOWN=1

@@ -1,0 +1,20 @@
+relatório dbb776fefd0a4e4b8d3cc5ec4d98ac8b (schema 1.0.0)
+resumo: 1 achado(s): CONFIRMED=1
+analyzers: spark-glue-log-analyzer@0.1.0
+
+[HIGH/CONFIRMED] out_of_memory
+  Assinatura inequívoca de java.lang.OutOfMemoryError indica que driver ou executor estourou o heap disponível. 2 ocorrência(s) no log analisado.
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/logs/glue_oom.log:5
+    26/10/19 12:02:31 WARN TaskSetManager: Lost task 0.1 in stage 2.0 (TID 15, ip-10-0-1-21.ec2.internal, executor 4): java.lang.OutOfMemoryError: Java heap space
+  evidência: /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/fixtures/logs/glue_oom.log:8
+    java.lang.OutOfMemoryError: Java heap space
+  recomendação: Aumentar spark.driver.memory ou spark.executor.memory
+  recomendação: Reduzir partições muito grandes / coletas para o driver
+  recomendação: Revisar skew de dados nas chaves de join/agregação
+  validação: Reexecutar com mais memória e verificar se o OOM desaparece
+  validação: Inspecionar Spark UI (abas Executors/Stages) para o maior consumer
+
+limitações:
+  - Baseado em padrões regex curados — não cobre erros fora da biblioteca
+  - Sem métricas de executor (Spark UI/event log não analisados neste ciclo)
+  - Sinal POSSIBLE/PROBABLE exige corroboração humana antes de agir

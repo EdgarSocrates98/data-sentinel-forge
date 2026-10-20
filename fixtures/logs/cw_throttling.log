@@ -1,0 +1,2 @@
+2024-10-20T10:00:01.000Z com.amazonaws.services.logs.AWSLogsException: ThrottlingException: Rate exceeded
+2024-10-20T10:00:02.000Z Retrying request in 500ms

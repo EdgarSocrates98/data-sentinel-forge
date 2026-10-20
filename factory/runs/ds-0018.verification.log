@@ -1,0 +1,21 @@
+ds-0018 verification — golden + security + benchmarks + E2E A-E
+================================================================
+$ uv run pytest tests/golden tests/security tests/benchmarks tests/e2e -q
+89 passed, 1 skipped in 2.29s  (skip: env-gated real-AWS test)
+
+$ uv run pytest -q  (suite completa)
+360 passed, 1 skipped in 5.92s
+
+$ uv run ruff check src tests → All checks passed!
+$ uv run mypy src → no issues found in 75 source files
+
+Notas:
+- Bug real encontrado pela suíte de segurança: _STAT_KV quadrático em
+  linhas >8KB de caractere repetido (test_oversized_lines_capped travava
+  ~330s). Corrigido: valor limitado a {1,200} + scan limitado a 8KB.
+- Benchmarks: docs/evidence/benchmarks.json (plataforma, CPU, Python,
+  tempos reais medidos, scaling plan/log, memória, chamadas AWS, report).
+- Golden: 20/20 manifestos passam (findings esperados/proibidos,
+  evidência, limitações).
+- AWS: validado com mocks/Stubber; teste real gated por
+  DATA_SENTINEL_AWS_TESTS=1 (skipped por padrão).

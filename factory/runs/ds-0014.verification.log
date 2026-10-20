@@ -1,0 +1,21 @@
+== ds-0014 verification (2026-10-19T21:21:11-03:00) ==
+
+$ uv run pytest tests/unit -q -k 'join or cardinality or skew or shuffle'
+............................                                             [100%]
+28 passed, 152 deselected in 0.37s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 56%]
+........................................................................ [ 85%]
+......................................                                   [100%]
+254 passed in 2.95s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 68 source files
+[exit 0]

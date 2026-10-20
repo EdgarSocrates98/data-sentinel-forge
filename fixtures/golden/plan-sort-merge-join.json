@@ -1,0 +1,20 @@
+{
+  "id": "plan-sort-merge-join",
+  "input": {
+    "files": [
+      "fixtures/plans/sort_merge_join.txt"
+    ],
+    "source_type": "spark_plan",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "SortMergeJoin"
+    ],
+    "findings_prohibited": [
+      "CartesianProduct"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

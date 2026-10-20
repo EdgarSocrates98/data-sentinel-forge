@@ -1,0 +1,19 @@
+{
+  "id": "spark-executor-lost",
+  "input": {
+    "files": [
+      "fixtures/logs/executor_loss.log"
+    ],
+    "source_type": "log",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "ExecutorLostFailure",
+      "executor"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

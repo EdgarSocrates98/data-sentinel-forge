@@ -1,0 +1,15 @@
+{
+  "agent": "claude",
+  "command": [
+    "claude",
+    "-p",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0018.implement.claude.md)"
+  ],
+  "created_at": "2026-10-20T00:31:21+00:00",
+  "id": "ds-0018",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0018.implement.claude.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0018.md",
+  "spec_sha256": "42f776a50014fb877ec626a9f6cee63d380c8f8086b27353993ac2aab19c22ef",
+  "status": "planned",
+  "title": "Golden fixtures, benchmarks, security tests & E2E homologation A-E"
+}

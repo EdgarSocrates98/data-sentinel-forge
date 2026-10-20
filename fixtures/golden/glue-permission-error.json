@@ -1,0 +1,20 @@
+{
+  "id": "glue-permission-error",
+  "input": {
+    "files": [
+      "fixtures/logs/access_denied.log"
+    ],
+    "source_type": "log",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "AccessDenied"
+    ],
+    "findings_prohibited": [
+      "OutOfMemoryError"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "glue-failure",
+  "input": {
+    "files": [
+      "fixtures/logs/spark_exception.log"
+    ],
+    "source_type": "log",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "SparkException"
+    ],
+    "findings_prohibited": [
+      "produto cartesiano"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

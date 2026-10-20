@@ -1,0 +1,21 @@
+{
+  "id": "sensitive-info-in-logs",
+  "input": {
+    "files": [
+      "fixtures/logs/sensitive.log"
+    ],
+    "source_type": "log",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "OutOfMemoryError"
+    ],
+    "findings_prohibited": [
+      "hunter2secret",
+      "AKIAIOSFODNN7EXAMPLE"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

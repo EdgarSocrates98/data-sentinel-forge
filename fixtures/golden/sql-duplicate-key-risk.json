@@ -1,0 +1,19 @@
+{
+  "id": "sql-duplicate-key-risk",
+  "input": {
+    "files": [
+      "fixtures/joins/high_volume_4tables.sql",
+      "fixtures/joins/stats_4tables_m2m.json"
+    ],
+    "source_type": "sql_query",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "many-to-many"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

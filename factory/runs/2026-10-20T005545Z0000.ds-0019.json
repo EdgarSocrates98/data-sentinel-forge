@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0019.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T00:55:45+00:00",
+  "id": "ds-0019",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0019.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0019.md",
+  "spec_sha256": "a535307869f03e86166a05a8920b726b2dc685fe0f768621106ca696762e1a80",
+  "status": "planned",
+  "title": "Cycle 02 docs, CI, validation & final report (Checkpoint F)"
+}

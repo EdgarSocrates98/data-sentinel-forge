@@ -1,0 +1,20 @@
+{
+  "id": "glue-success",
+  "input": {
+    "files": [
+      "fixtures/logs/glue_success.log"
+    ],
+    "source_type": "log",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [
+      "Evid\u00eancia insuficiente"
+    ],
+    "findings_prohibited": [
+      "OutOfMemoryError"
+    ],
+    "evidence_required": false,
+    "limitations_include": []
+  }
+}

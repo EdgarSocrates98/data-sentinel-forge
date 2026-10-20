@@ -1,0 +1,18 @@
+{
+  "id": "incomplete-log",
+  "input": {
+    "files": [
+      "fixtures/logs/incomplete.log"
+    ],
+    "source_type": "log",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "OutOfMemoryError"
+    ],
+    "findings_prohibited": [],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

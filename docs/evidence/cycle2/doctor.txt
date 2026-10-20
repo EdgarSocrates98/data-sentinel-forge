@@ -1,0 +1,5 @@
+[PASS] python 3.12.3
+[PASS] config resolvida (perfil=balanced, fontes=0)
+[PASS] store gravável (~/.local/share/data-sentinel)
+[PASS] 6 analyzer(s) registrado(s)
+[PASS] redação de segredos ativa

@@ -1,0 +1,18 @@
+{
+  "id": "cw-throttling",
+  "input": {
+    "files": [
+      "fixtures/logs/cw_throttling.log"
+    ],
+    "source_type": "cloudwatch_log",
+    "platform": "aws_glue"
+  },
+  "expect": {
+    "findings_include": [],
+    "findings_prohibited": [
+      "CONFIRMED: "
+    ],
+    "evidence_required": false,
+    "limitations_include": []
+  }
+}

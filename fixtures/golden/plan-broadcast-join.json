@@ -1,0 +1,19 @@
+{
+  "id": "plan-broadcast-join",
+  "input": {
+    "files": [
+      "fixtures/plans/broadcast_join.txt"
+    ],
+    "source_type": "spark_plan",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [],
+    "findings_prohibited": [
+      "CartesianProduct",
+      "SortMergeJoin"
+    ],
+    "evidence_required": false,
+    "limitations_include": []
+  }
+}

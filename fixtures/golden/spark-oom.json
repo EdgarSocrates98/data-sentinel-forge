@@ -1,0 +1,20 @@
+{
+  "id": "spark-oom",
+  "input": {
+    "files": [
+      "fixtures/logs/glue_oom.log"
+    ],
+    "source_type": "log",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [
+      "OutOfMemoryError"
+    ],
+    "findings_prohibited": [
+      "FetchFailedException"
+    ],
+    "evidence_required": true,
+    "limitations_include": []
+  }
+}

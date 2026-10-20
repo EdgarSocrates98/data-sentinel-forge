@@ -1,0 +1,21 @@
+== ds-0012 verification (2026-10-19T21:10:29-03:00) ==
+
+$ uv run pytest tests/unit -q -k 'cloudwatch or correlat or timeline'
+......................                                                   [100%]
+22 passed, 109 deselected in 1.08s
+[exit 0]
+
+$ uv run pytest -q
+........................................................................ [ 35%]
+........................................................................ [ 70%]
+.............................................................            [100%]
+205 passed in 3.06s
+[exit 0]
+
+$ uv run ruff check src tests
+All checks passed!
+[exit 0]
+
+$ uv run mypy src
+Success: no issues found in 60 source files
+[exit 0]
