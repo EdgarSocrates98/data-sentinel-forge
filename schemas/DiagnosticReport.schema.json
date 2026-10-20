@@ -127,6 +127,93 @@
       "title": "FindingStatus",
       "type": "string"
     },
+    "OptimizationRecommendation": {
+      "additionalProperties": false,
+      "description": "A proposed change with rationale, risk and rollback (\u00a74).",
+      "properties": {
+        "estimated_risk": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Risk"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "expected_effect": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected Effect"
+        },
+        "proposed_change": {
+          "minLength": 1,
+          "title": "Proposed Change",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        },
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "rollback_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rollback Plan"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "validation_plan": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Validation Plan"
+        }
+      },
+      "required": [
+        "target",
+        "proposed_change",
+        "rationale"
+      ],
+      "title": "OptimizationRecommendation",
+      "type": "object"
+    },
     "Severity": {
       "description": "Impact severity of a finding or recommendation.",
       "enum": [
@@ -179,6 +266,13 @@
         "type": "string"
       },
       "title": "Limitations",
+      "type": "array"
+    },
+    "recommendations": {
+      "items": {
+        "$ref": "#/$defs/OptimizationRecommendation"
+      },
+      "title": "Recommendations",
       "type": "array"
     },
     "references": {

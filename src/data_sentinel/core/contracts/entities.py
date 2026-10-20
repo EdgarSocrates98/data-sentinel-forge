@@ -199,6 +199,7 @@ class DiagnosticReport(ContractModel):
     limitations: list[str] = Field(default_factory=list)
     summary: str = ""
     references: list[str] = Field(default_factory=list)
+    recommendations: list[OptimizationRecommendation] = Field(default_factory=list)
 
 
 class CapabilityManifest(ContractModel):

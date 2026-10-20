@@ -1,4 +1,9 @@
-"""Report rendering (terminal, Markdown, JSON).
+"""Report rendering: terminal, Markdown, JSON."""
 
-Populated in ds-0017 — presentation layer only, no analysis logic.
-"""
+from data_sentinel.reporting.render import (
+    render_json,
+    render_markdown,
+    render_terminal,
+)
+
+__all__ = ["render_json", "render_markdown", "render_terminal"]
