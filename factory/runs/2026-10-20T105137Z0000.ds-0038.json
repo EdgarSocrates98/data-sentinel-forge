@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0038.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:51:37+00:00",
+  "id": "ds-0038",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0038.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0038.md",
+  "spec_sha256": "96b4940239c9d1947c1bb87b94f569332d42572b16fbb390ee2a0aeb6b2aa705",
+  "status": "planned",
+  "title": "Contract/independence/security/regression/E2E + CI"
+}

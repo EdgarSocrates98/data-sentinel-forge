@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0039.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:52:42+00:00",
+  "id": "ds-0039",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0039.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0039.md",
+  "spec_sha256": "4fecbb3f36c853fb639eb1e957af5743d01dcb086b4561f8f42c4db0fb46584c",
+  "status": "planned",
+  "title": "Docs finais + complementarity + relat\u00f3rio 03.1 + Cycle 04"
+}

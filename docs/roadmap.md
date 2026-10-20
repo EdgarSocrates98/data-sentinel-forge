@@ -48,3 +48,10 @@ Hardening, testes de carga/concorrência, benchmarks medidos (nunca inventados)
 e preparação para adoção externa.
 
 ---
+
+
+## Cycle 03.1 — concluído
+
+Convergência Doctor×Sentinel: boundaries, interop (import), incident
+graph, capability discovery, avaliação de complementaridade. Relatório:
+`cycles/cycle-03.1-final-report.md`. Backlog C04 registrado lá.

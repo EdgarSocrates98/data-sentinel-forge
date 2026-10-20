@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0036.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:47:42+00:00",
+  "id": "ds-0036",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0036.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0036.md",
+  "spec_sha256": "0afb208e344924954f5cddc59994b66f8fcd98df5b073b21b87c8f16d28cf631",
+  "status": "planned",
+  "title": "Reuse strategy + deduplication + knowledge pack"
+}

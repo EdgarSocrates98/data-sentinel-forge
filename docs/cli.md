@@ -63,11 +63,22 @@ se houver FAIL.
 ## `capabilities`
 
 ```bash
-data-sentinel capabilities [--json]
+data-sentinel capabilities [--json] [--descriptors]
 ```
 
 Emite o `CapabilityManifest` de cada analyzer registrado (operações,
-plataformas, limitações declaradas).
+plataformas, limitações declaradas). `--descriptors` emite a lista de
+`CapabilityDescriptor` (interop 1.0.0) para descoberta por orquestradores.
+
+## `import` — bundles externos (opcional)
+
+```bash
+data-sentinel import doctor-bundle -f <arquivo> [--json]
+```
+
+Importa findings de um bundle Forge Doctor (handoff-bundle@1,
+forge-contracts/1 ou scan-json@3.0). Offline, sem Doctor instalado;
+findings importados preservam proveniência e nunca viram CONFIRMED.
 
 ## `config show`
 

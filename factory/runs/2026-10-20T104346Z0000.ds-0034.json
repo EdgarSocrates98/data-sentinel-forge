@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0034.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:43:46+00:00",
+  "id": "ds-0034",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0034.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0034.md",
+  "spec_sha256": "6bc189fd63c135f132098829d8d608fe4fe2fba942b9210979b366e89266857f",
+  "status": "planned",
+  "title": "Operational intelligence: contexto unificado + grafo + timeline"
+}

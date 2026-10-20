@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0037.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:48:34+00:00",
+  "id": "ds-0037",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0037.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0037.md",
+  "spec_sha256": "0f4bb2c38c230885a59bfcf0f2921d4cd8b21d309d107a9b4b17fbe45ef092b8",
+  "status": "planned",
+  "title": "Evaluation: 10 cen\u00e1rios \u00d7 3 modos + complementarity report"
+}

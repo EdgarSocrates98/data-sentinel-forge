@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0031.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:36:52+00:00",
+  "id": "ds-0031",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0031.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0031.md",
+  "spec_sha256": "2974458fd79bad1a4a7ce2faf764a538f1ccea8e10a0d25acd96a4f993f0951e",
+  "status": "planned",
+  "title": "Domain boundaries + ADR"
+}

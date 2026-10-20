@@ -57,7 +57,8 @@ data-sentinel glue diagnose --job meu-job --run-id jr_abc --region us-east-1
 
 # Saúde da instalação / capacidades / relatórios
 data-sentinel doctor
-data-sentinel capabilities
+data-sentinel capabilities [--descriptors]
+data-sentinel import doctor-bundle -f <arquivo>
 data-sentinel report show --id <report_id> --format markdown
 ```
 

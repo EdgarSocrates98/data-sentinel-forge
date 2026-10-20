@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0033.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:40:55+00:00",
+  "id": "ds-0033",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0033.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0033.md",
+  "spec_sha256": "6e6d35a09dd35c38ad8e24c65d00a27dcea679deed6c2fb7138019fffee2f68c",
+  "status": "planned",
+  "title": "Doctor bundle adapter (opcional, offline)"
+}

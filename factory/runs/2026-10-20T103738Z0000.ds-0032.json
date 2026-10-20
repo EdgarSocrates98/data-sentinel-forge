@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0032.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T10:37:38+00:00",
+  "id": "ds-0032",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0032.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0032.md",
+  "spec_sha256": "6d3a71780d9139a85f929c48fd7974d17b5f0dff161e4b7a39b06cc6167d3871",
+  "status": "planned",
+  "title": "Contratos de interoperabilidade versionados"
+}

@@ -1,0 +1,232 @@
+{
+  "gate": "DATA_SENTINEL_EVAL=1 + DOCTOR_BIN",
+  "enabled": true,
+  "scenarios": [
+    {
+      "id": "s01-pyspark-static",
+      "title": "Erro estático de código PySpark",
+      "note": "auditoria estática é território Doctor",
+      "doctor": {
+        "detected": true,
+        "hits": [
+          "PY",
+          "REP"
+        ],
+        "n_results": 69,
+        "elapsed_s": 0.628
+      },
+      "sentinel": "NOT_SUPPORTED",
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 0,
+        "union": 69,
+        "dup_estimate": 0
+      }
+    },
+    {
+      "id": "s02-glue-oom",
+      "title": "Falha realista de Glue Job (OOM)",
+      "note": "telemetria de execução é território Sentinel",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "out_of_memory"
+        ],
+        "n_findings": 3,
+        "elapsed_s": 0.088
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 3,
+        "union": 72,
+        "dup_estimate": 1
+      }
+    },
+    {
+      "id": "s03-iceberg-runtime",
+      "title": "Incompatibilidade runtime Iceberg",
+      "note": "ambos respondem com ângulos diferentes",
+      "doctor": {
+        "detected": true,
+        "hits": [
+          "GLUE",
+          "ICE"
+        ],
+        "n_results": 72,
+        "elapsed_s": 0.578
+      },
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "compat"
+        ],
+        "n_findings": 2,
+        "elapsed_s": 0.033
+      },
+      "interop": {
+        "imported": 72,
+        "sentinel_findings": 2,
+        "union": 74,
+        "dup_estimate": 0
+      }
+    },
+    {
+      "id": "s04-lakeformation-perm",
+      "title": "Permissão Lake Formation insuficiente",
+      "note": "avaliação operacional de policy é Sentinel",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": false,
+        "hits": [],
+        "n_findings": 1,
+        "elapsed_s": 0.0
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 1,
+        "union": 70,
+        "dup_estimate": 0
+      }
+    },
+    {
+      "id": "s05-cross-account",
+      "title": "Cross-account parcialmente configurado",
+      "note": "UNKNOWN honesto é resultado válido",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": false,
+        "hits": [],
+        "n_findings": 1,
+        "elapsed_s": 0.001
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 1,
+        "union": 70,
+        "dup_estimate": 0
+      }
+    },
+    {
+      "id": "s06-merge-dups",
+      "title": "MERGE com risco de duplicidade",
+      "note": "análise de execução MERGE é Sentinel",
+      "doctor": {
+        "detected": false,
+        "hits": [],
+        "n_results": 69,
+        "elapsed_s": 0.621
+      },
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "sql"
+        ],
+        "n_findings": 3,
+        "elapsed_s": 0.015
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 3,
+        "union": 72,
+        "dup_estimate": 1
+      }
+    },
+    {
+      "id": "s07-shuffle-skew",
+      "title": "Spark shuffle/skew",
+      "note": "plano de execução é Sentinel",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "cost"
+        ],
+        "n_findings": 3,
+        "elapsed_s": 0.001
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 3,
+        "union": 72,
+        "dup_estimate": 1
+      }
+    },
+    {
+      "id": "s08-regression",
+      "title": "Regressão entre execuções",
+      "note": "baseline/histórico é Doctor; detecção da falha é Sentinel",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "out_of_memory"
+        ],
+        "n_findings": 3,
+        "elapsed_s": 0.001
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 3,
+        "union": 72,
+        "dup_estimate": 1
+      }
+    },
+    {
+      "id": "s09-incomplete",
+      "title": "Dados incompletos",
+      "note": "UNKNOWN/nenhum achado correto — sem fabricação",
+      "doctor": "NOT_SUPPORTED",
+      "sentinel": {
+        "detected": false,
+        "hits": [],
+        "n_findings": 1,
+        "elapsed_s": 0.0
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 1,
+        "union": 70,
+        "dup_estimate": 0
+      }
+    },
+    {
+      "id": "s10-conflicting",
+      "title": "Findings conflitantes entre fontes",
+      "note": "interop: estático + telemetria coexistem com proveniência",
+      "doctor": {
+        "detected": false,
+        "hits": [],
+        "n_results": 69,
+        "elapsed_s": 0.582
+      },
+      "sentinel": {
+        "detected": true,
+        "hits": [
+          "out_of_memory"
+        ],
+        "n_findings": 3,
+        "elapsed_s": 0.001
+      },
+      "interop": {
+        "imported": 69,
+        "sentinel_findings": 3,
+        "union": 72,
+        "dup_estimate": 1
+      }
+    }
+  ],
+  "totals": {
+    "scenarios": 10,
+    "doctor_applicable": 4,
+    "doctor_detected": 2,
+    "sentinel_applicable": 9,
+    "sentinel_detected": 6,
+    "doctor_elapsed_s": 2.409,
+    "sentinel_elapsed_s": 0.14,
+    "external_calls": 0,
+    "interop_union": 713,
+    "interop_dup_estimate": 5
+  },
+  "status": "VERIFIED"
+}
