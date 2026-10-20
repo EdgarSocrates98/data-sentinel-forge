@@ -79,10 +79,12 @@ def test_drift_findings_only_nonzero() -> None:
     cur = [rng.gauss(5, 1) for _ in range(300)]
     res = [detect_drift("amount", base, cur),
            detect_drift("stable", base, base)]
-    fs = drift_findings(res)
+    fs, evs = drift_findings(res)
     assert len(fs) == 1
     assert "amount" in fs[0].explanation
     assert fs[0].status.value in ("CONFIRMED", "PROBABLE")
+    assert len(evs) == 1
+    assert fs[0].evidence_ids == [evs[0].evidence_id]  # resolves — §4
 
 
 def test_engine_declared() -> None:

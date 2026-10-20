@@ -1,0 +1,18 @@
+{
+  "id": "unknown-operator",
+  "input": {
+    "files": [
+      "fixtures/plans/unknown_operator.txt"
+    ],
+    "source_type": "spark_plan",
+    "platform": "spark"
+  },
+  "expect": {
+    "findings_include": [],
+    "findings_prohibited": [],
+    "evidence_required": false,
+    "limitations_include": [
+      "operador desconhecido"
+    ]
+  }
+}

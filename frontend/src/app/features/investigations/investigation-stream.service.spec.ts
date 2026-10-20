@@ -4,7 +4,7 @@ import {
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 
 import { SessionService } from "../../core/session/session.service";
 import type { InvestigationStreamEvent } from "../../core/api.models";
@@ -30,7 +30,7 @@ describe("InvestigationStreamService (fetch-based SSE)", () => {
   let service: InvestigationStreamService;
   let session: SessionService;
   let http: HttpTestingController;
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
+  let fetchSpy: MockInstance<typeof fetch>;
 
   beforeEach(() => {
     sessionStorage.clear();
@@ -129,7 +129,7 @@ describe("InvestigationStreamService (fetch-based SSE)", () => {
   it("unsubscribing aborts the underlying fetch", async () => {
     let aborted = false;
     fetchSpy.mockImplementation(
-      (_url: unknown, init?: RequestInit) =>
+      (url: string | URL | Request, init?: RequestInit) =>
         new Promise((_resolve, reject) => {
           init?.signal?.addEventListener("abort", () => {
             aborted = true;

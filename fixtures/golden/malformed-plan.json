@@ -8,13 +8,13 @@
     "platform": "spark"
   },
   "expect": {
-    "findings_include": [],
+    "findings_include": [
+      "formato não reconhecido"
+    ],
     "findings_prohibited": [
       "SortMergeJoin"
     ],
     "evidence_required": false,
-    "limitations_include": [
-      "operador desconhecido"
-    ]
+    "limitations_include": []
   }
 }

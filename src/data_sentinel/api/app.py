@@ -14,8 +14,10 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import json
+import os
 import secrets
 import time
+from collections import deque
 from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any, TypeVar, cast
@@ -75,10 +77,11 @@ ALLOWED_FILE_EXTS = {".json", ".log", ".txt", ".sql", ".yaml", ".yml", ".plan",
 
 API_VERSION = "v1"
 
-_RATE_BUCKETS: dict[str, list[float]] = {}
-_AUDIT_LOG: list[dict[str, Any]] = []
+# Rotating — never silently stops auditing (ds-0103).
+_AUDIT_LOG: deque[dict[str, Any]] = deque(maxlen=10_000)
 _AUTH_LOCKOUT_S = 60.0
 _AUTH_MAX_FAILURES = 10
+_MAX_RATE_CLIENTS = 10_000
 
 _TOKEN_TTL_S = 4 * 3600  # session tokens expire after 4h
 _TOKEN_FILE = Path.home() / ".data-sentinel" / "session-token"
@@ -98,11 +101,15 @@ class SessionAuth:
         self._persist()
 
     def _load(self) -> str | None:
-        import os
         env = os.environ.get("DATA_SENTINEL_TOKEN")
         if env:
             return env
         try:
+            # Stale file must not gain a fresh TTL window on restart —
+            # if mtime is older than the TTL, regenerate (ds-0103).
+            if (time.time() - _TOKEN_FILE.stat().st_mtime
+                    > _TOKEN_TTL_S):
+                return None
             return _TOKEN_FILE.read_text(encoding="utf-8").strip() or None
         except OSError:
             return None
@@ -110,8 +117,12 @@ class SessionAuth:
     def _persist(self) -> None:
         try:
             _TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-            _TOKEN_FILE.write_text(self._token, encoding="utf-8")
-            _TOKEN_FILE.chmod(0o600)
+            # Atomic 0600-from-creation: mode applies at O_CREAT —
+            # no window where the token is world-readable (ds-0103).
+            fd = os.open(_TOKEN_FILE,
+                         os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                fh.write(self._token)
         except OSError:
             pass  # session-only token still works in-memory
 
@@ -145,10 +156,9 @@ class SessionAuth:
 
 
 def _audit(client: str, path: str, status: int) -> None:
-    """Append-only audit trail (bounded, in-memory)."""
-    if len(_AUDIT_LOG) < 10_000:
-        _AUDIT_LOG.append({"client": client, "path": path,
-                           "status": status, "ts": time.time()})
+    """Append-only audit trail — deque rotates oldest out."""
+    _AUDIT_LOG.append({"client": client, "path": path,
+                       "status": status, "ts": time.time()})
 
 
 def _safe_path(raw: str, roots: list[Path]) -> Path:
@@ -161,6 +171,16 @@ def _safe_path(raw: str, roots: list[Path]) -> Path:
         except ValueError:
             continue
     raise HTTPException(403, f"path outside allowed roots: {raw}")
+
+
+def _safe_error(exc: Exception) -> str:
+    """Error string for the event stream — strips absolute paths and
+    home-dir prefixes so internal layout never leaks (ds-0103)."""
+    msg = f"{type(exc).__name__}: {exc}"
+    for p in {str(Path.home()), str(Path.cwd())}:
+        if p:
+            msg = msg.replace(p, "<path>")
+    return msg[:500]
 
 
 _T = TypeVar("_T")
@@ -250,21 +270,30 @@ class TokenOut(BaseModel):
 
 
 class InvestigationState:
-    """Persistent investigation state (§2) — SQLite-backed, with live
-    queues only for subscribers currently attached."""
+    """Persistent investigation state (§2) — SQLite-backed, with a
+    fan-out of per-subscriber queues (ds-0103: every SSE client must
+    receive every event — a shared queue would split the stream)."""
 
     def __init__(self, store: InvestigationStore | None = None) -> None:
         self.store = store or InvestigationStore()
-        self.queues: dict[str, asyncio.Queue[dict[str, Any]]] = {}
-        # hydrate in-memory reports dict from persisted rows
-        for rec in self.store.list_all():
-            if rec.report is not None:
-                pass  # reports read lazily via store.get()
+        self.queues: dict[str, set[asyncio.Queue[dict[str, Any]]]] = {}
+
+    def subscribe(self, inv_id: str) -> asyncio.Queue[dict[str, Any]]:
+        q: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
+        self.queues.setdefault(inv_id, set()).add(q)
+        return q
+
+    def unsubscribe(self, inv_id: str,
+                    q: asyncio.Queue[dict[str, Any]]) -> None:
+        subs = self.queues.get(inv_id)
+        if subs is not None:
+            subs.discard(q)
+            if not subs:
+                self.queues.pop(inv_id, None)
 
     def emit(self, inv_id: str, event: str, data: dict[str, Any]) -> None:
         seq = self.store.emit(inv_id, event, _redact(data))
-        q = self.queues.get(inv_id)
-        if q is not None:
+        for q in self.queues.get(inv_id, ()):
             q.put_nowait({"seq": seq, "event": event,
                           "data": _redact(data), "ts": time.time()})
 
@@ -273,7 +302,7 @@ class InvestigationState:
         return {}  # compat shim — real data via store
 
     @property
-    def events(self) -> dict[str, asyncio.Queue[dict[str, Any]]]:
+    def events(self) -> dict[str, set[asyncio.Queue[dict[str, Any]]]]:
         return self.queues
 
 
@@ -292,6 +321,7 @@ def create_app(allowed_roots: list[str] | None = None,
     _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient",
                     "testserver"}
     auth_failures: dict[str, list[float]] = {}
+    rate_buckets: dict[str, list[float]] = {}  # app-scoped (ds-0103)
     app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
                   docs_url="/api/docs", openapi_url="/api/openapi.json")
 
@@ -343,7 +373,9 @@ def create_app(allowed_roots: list[str] | None = None,
             if not auth.check(presented):
                 fails.append(time.time())
                 _audit(client, path, 401)
-                return JSONResponse({"detail": "unauthorized"}, 401)
+                return JSONResponse(
+                    {"detail": "unauthorized"}, 401,
+                    headers={"WWW-Authenticate": "Bearer"})
             auth_failures.pop(client, None)
         return await call_next(request)
 
@@ -356,10 +388,14 @@ def create_app(allowed_roots: list[str] | None = None,
 
     @app.middleware("http")
     async def rate_limit(request: Request, call_next):  # type: ignore[no-untyped-def]
-        """Token-bucket per client — 120 req/min, local API scope."""
+        """Token-bucket per client — 120 req/min, local API scope.
+        App-scoped and bounded: a flood of distinct client keys cannot
+        grow the map without limit (ds-0103)."""
         client = request.client.host if request.client else "unknown"
         now = time.time()
-        bucket = _RATE_BUCKETS.setdefault(client, [])
+        if len(rate_buckets) >= _MAX_RATE_CLIENTS:
+            rate_buckets.clear()  # fail-open reset, never unbounded
+        bucket = rate_buckets.setdefault(client, [])
         bucket[:] = [t for t in bucket if now - t < 60.0]
         if len(bucket) >= 120:
             _audit(client, request.url.path, 429)
@@ -408,8 +444,6 @@ def create_app(allowed_roots: list[str] | None = None,
                 raise HTTPException(404, f"file not found: {raw}")
             files[tool_id] = str(p)
 
-        q: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
-        state.queues[inv_id] = q
         state.store.create(inv_id, body.problem)
         state.store.transition(inv_id, InvState.QUEUED)
 
@@ -452,9 +486,11 @@ def create_app(allowed_roots: list[str] | None = None,
                 with contextlib.suppress(ValueError):
                     state.store.transition(inv_id, InvState.FAILED)
                 state.emit(inv_id, "INVESTIGATION_FAILED",
-                           {"error": str(exc)})
+                           {"error": _safe_error(exc)})
             finally:
-                q.put_nowait({"event": "__end__", "data": {}, "ts": 0.0})
+                for q in list(state.queues.get(inv_id, ())):
+                    q.put_nowait({"event": "__end__", "data": {},
+                                  "ts": 0.0})
 
         asyncio.get_running_loop().create_task(_run())
         return {"investigation_id": inv_id, "status": "running"}
@@ -487,24 +523,30 @@ def create_app(allowed_roots: list[str] | None = None,
         after = int(last_id) if last_id and last_id.isdigit() else 0
 
         async def gen() -> AsyncIterator[str]:
-            # replay persisted events first (§2.4)
-            for e in state.store.events(inv_id, after_seq=after):
-                yield (f"id: {e['seq']}\nevent: {e['event']}\n"
-                       f"data: {json.dumps(e['data'])}\n\n")
-            rec = state.store.get(inv_id)
-            if rec is not None and rec.state in {
-                    InvState.COMPLETED, InvState.FAILED,
-                    InvState.CANCELLED}:
-                return
-            q = state.queues.get(inv_id)
-            if q is None:
-                return
-            while True:
-                item = await q.get()
-                if item["event"] == "__end__":
-                    break
-                yield (f"id: {item['seq']}\nevent: {item['event']}\n"
-                       f"data: {json.dumps(item['data'])}\n\n")
+            # subscribe BEFORE replay: events emitted during the replay
+            # land in this queue — no gap, deduped by seq below (ds-0103)
+            q = state.subscribe(inv_id)
+            last = after
+            try:
+                for e in state.store.events(inv_id, after_seq=after):
+                    yield (f"id: {e['seq']}\nevent: {e['event']}\n"
+                           f"data: {json.dumps(e['data'])}\n\n")
+                    last = e["seq"]
+                rec = state.store.get(inv_id)
+                if rec is not None and rec.state in {
+                        InvState.COMPLETED, InvState.FAILED,
+                        InvState.CANCELLED}:
+                    return
+                while True:
+                    item = await q.get()
+                    if item["event"] == "__end__":
+                        break
+                    if item["seq"] <= last:
+                        continue  # already replayed from the store
+                    yield (f"id: {item['seq']}\nevent: {item['event']}\n"
+                           f"data: {json.dumps(item['data'])}\n\n")
+            finally:
+                state.unsubscribe(inv_id, q)
 
         return StreamingResponse(gen(), media_type="text/event-stream")
 
@@ -552,6 +594,9 @@ def create_app(allowed_roots: list[str] | None = None,
         if not raw:
             raise HTTPException(400, "file is required")
         p = _safe_path(raw, roots)
+        if p.suffix.lower() not in ALLOWED_FILE_EXTS:
+            raise HTTPException(
+                400, f"file type not allowed: {p.suffix}")
         if not p.is_file():
             raise HTTPException(404, "file not found")
         res = execute_tool(ToolInvocation(
@@ -832,4 +877,5 @@ def create_app(allowed_roots: list[str] | None = None,
     app.state.auth = auth
     app.state.ops = ops
     app.state.alert_engine = alert_engine
+    app.state.rate_buckets = rate_buckets
     return app

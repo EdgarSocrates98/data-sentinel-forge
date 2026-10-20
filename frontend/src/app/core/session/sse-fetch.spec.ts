@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from "vitest";
 
 import { HttpStreamError, readSseStream } from "./sse-fetch";
 
@@ -20,7 +20,7 @@ function chunkedResponse(chunks: string[], status = 200): Response {
 }
 
 describe("readSseStream", () => {
-  let fetchSpy: ReturnType<typeof vi.spyOn>;
+  let fetchSpy: MockInstance<typeof fetch>;
 
   beforeEach(() => {
     fetchSpy = vi.spyOn(globalThis, "fetch");

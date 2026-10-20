@@ -45,7 +45,8 @@ jobs:
           /tmp/minvenv/bin/python -c "
           import data_sentinel
           from data_sentinel.core.contracts import DiagnosticReport
-          from data_sentinel.spark.plan_analyzer import analyze_plan
+          from data_sentinel.diagnostics.capabilities import all_descriptors
+          from data_sentinel.analyzers.spark.plans.parser import parse_plan
           print('minimal install OK')
           "
           /tmp/minvenv/bin/data-sentinel --help > /dev/null

@@ -1,12 +1,14 @@
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from "@angular/common/http/testing";
 import { TestBed } from "@angular/core/testing";
+import { provideRouter } from "@angular/router";
 import { vi } from "vitest";
 
 import { environment } from "../../../environments/environment";
+import { authInterceptor } from "./auth.interceptor";
 import { SESSION_TTL_MS, SessionService } from "./session.service";
 
 describe("SessionService", () => {
@@ -16,7 +18,11 @@ describe("SessionService", () => {
   beforeEach(() => {
     sessionStorage.clear();
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(withInterceptors([authInterceptor])),
+        provideHttpClientTesting(),
+      ],
     });
     service = TestBed.inject(SessionService);
     http = TestBed.inject(HttpTestingController);

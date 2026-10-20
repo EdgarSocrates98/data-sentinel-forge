@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 
 from data_sentinel.core.contracts import (
     DriftLevel,
+    Evidence,
+    EvidenceProvenance,
     Finding,
     FindingCategory,
     FindingStatus,
@@ -198,8 +200,17 @@ def drift_from_profiles(baseline: ColumnProfile,
                                     current.top_values)
 
 
-def drift_findings(results: list[DriftResult]) -> list[Finding]:
-    out: list[Finding] = []
+def drift_findings(
+        results: list[DriftResult],
+        *,
+        source: str = "column_samples",
+    ) -> tuple[list[Finding], list[Evidence]]:
+    """Findings + real Evidence — every evidence_id resolves (§4)."""
+    import hashlib
+    from datetime import UTC, datetime
+
+    findings: list[Finding] = []
+    evidence: list[Evidence] = []
     for r in results:
         if r.level in (DriftLevel.NONE, DriftLevel.UNKNOWN):
             continue
@@ -210,12 +221,24 @@ def drift_findings(results: list[DriftResult]) -> list[Finding]:
         expl = (f"drift em '{r.column}' ({r.level.value}): {r.evidence}; "
                 f"estatística={r.statistic}, engine={r.engine}. "
                 + (" ".join(r.limitations) if r.limitations else ""))
-        out.append(Finding(
+        excerpt = (f"{r.column} {r.statistic}={r.value} "
+                   f"threshold={r.threshold} engine={r.engine}")
+        ev = Evidence(
+            source=source,
+            source_location=f"column:{r.column}",
+            captured_at=datetime.now(UTC),
+            content_hash=hashlib.sha256(excerpt.encode()).hexdigest(),
+            sanitized_excerpt=excerpt[:500],
+            provenance=EvidenceProvenance.OBSERVED,
+            confidence=1.0 if st == FindingStatus.CONFIRMED else 0.7,
+        )
+        findings.append(Finding(
             severity=sev, status=st,
             category=FindingCategory.DATA_QUALITY,
             explanation=expl,
-            evidence_ids=[f"drift:{r.column}:{r.statistic}"],
+            evidence_ids=[ev.evidence_id],
             recommendations=["comparar janela temporal atual vs baseline",
                              "validar schema e upstream antes de "
                              "alterar consumidores"]))
-    return out
+        evidence.append(ev)
+    return findings, evidence

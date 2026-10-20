@@ -53,7 +53,7 @@ def test_e2e_c_quality_regression() -> None:
     base = [rng.gauss(0, 1) for _ in range(300)]
     cur = [rng.gauss(4, 1) for _ in range(300)]
     res = detect_drift("amount", base, cur)
-    findings = drift_findings([res])
+    findings, _ev = drift_findings([res])
     assert findings and findings[0].severity.value in ("HIGH", "MEDIUM")
 
 

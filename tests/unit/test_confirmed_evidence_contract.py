@@ -32,10 +32,8 @@ FIXTURES = ROOT / "fixtures"
 def _is_finding_call(node: ast.Call) -> bool:
     func = node.func
     return (
-        isinstance(func, ast.Name)
-        and func.id == "Finding"
-        or isinstance(func, ast.Attribute)
-        and func.attr == "Finding"
+        (isinstance(func, ast.Name) and func.id == "Finding")
+        or (isinstance(func, ast.Attribute) and func.attr == "Finding")
     )
 
 

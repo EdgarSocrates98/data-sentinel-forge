@@ -17,9 +17,9 @@ FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
 
 @pytest.fixture
 def client(tmp_path: Path) -> TestClient:
-    api_mod._RATE_BUCKETS.clear()
     app = create_app(allowed_roots=[str(FIXTURES)],
                      db_path=tmp_path / "sec.db")
+    app.state.rate_buckets.clear()
     c = TestClient(app)
     c.headers["Authorization"] = f"Bearer {app.state.auth.token}"
     return c
@@ -33,12 +33,15 @@ def test_path_traversal_variants(client: TestClient) -> None:
 
 
 def test_extension_allowlist(client: TestClient, tmp_path: Path) -> None:
-    api_mod._RATE_BUCKETS.clear()
     exe = FIXTURES / "evil.exe"
     exe.write_bytes(b"MZ")
     try:
         r = client.post("/api/v1/investigations", json={
             "problem": "x", "files": {"sentinel.sql.analyze": str(exe)}})
+        assert r.status_code == 400
+        # analyze endpoint applies the same allowlist (ds-0103)
+        r = client.post("/api/v1/analyze/sql.analyze",
+                        json={"file": str(exe)})
         assert r.status_code == 400
     finally:
         exe.unlink()
@@ -54,7 +57,7 @@ def test_payload_limit(client: TestClient) -> None:
 
 def test_rate_limit_enforced(client: TestClient) -> None:
     host = "testclient"
-    api_mod._RATE_BUCKETS[host] = [api_mod.time.time()] * 120
+    client.app.state.rate_buckets[host] = [api_mod.time.time()] * 120
     r = client.get("/api/v1/health")
     assert r.status_code == 429
 
@@ -124,3 +127,88 @@ def test_cross_origin_mutation_rejected(client: TestClient) -> None:
                     headers={"Origin": "https://evil.example"},
                     json={"problem": "x", "files": {}})
     assert r.status_code == 403
+
+
+# ---- ds-0103 backend hardening audit findings ----
+
+def test_token_file_0600_from_creation(tmp_path: Path,
+                                       monkeypatch: pytest.MonkeyPatch
+                                       ) -> None:
+    """Token file is born 0600 — no chmod-after-write window."""
+    import os
+    import stat
+    tok = tmp_path / "session-token"
+    monkeypatch.setattr(api_mod, "_TOKEN_FILE", tok)
+    api_mod.SessionAuth()
+    mode = stat.S_IMODE(tok.stat().st_mode)
+    if os.name != "nt":  # Windows ACLs differ — POSIX check only
+        assert mode == 0o600, oct(mode)
+
+
+def test_stale_token_file_rejected(tmp_path: Path,
+                                   monkeypatch: pytest.MonkeyPatch
+                                   ) -> None:
+    """A token file older than TTL must not gain a fresh window."""
+    import os
+
+    tok = tmp_path / "session-token"
+    tok.write_text("stale-token", encoding="utf-8")
+    old = api_mod.time.time() - api_mod._TOKEN_TTL_S - 10
+    os.utime(tok, (old, old))
+    monkeypatch.setattr(api_mod, "_TOKEN_FILE", tok)
+    auth = api_mod.SessionAuth()
+    assert auth._token != "stale-token"  # noqa: S105
+
+
+def test_fresh_token_file_reused(tmp_path: Path,
+                                 monkeypatch: pytest.MonkeyPatch
+                                 ) -> None:
+    tok = tmp_path / "session-token"
+    tok.write_text("fresh-token", encoding="utf-8")
+    monkeypatch.setattr(api_mod, "_TOKEN_FILE", tok)
+    auth = api_mod.SessionAuth()
+    assert auth._token == "fresh-token"  # noqa: S105
+
+
+def test_audit_log_rotates_never_stops() -> None:
+    """Audit deque must keep recording past the bound."""
+    api_mod._AUDIT_LOG.clear()
+    for i in range(10_050):
+        api_mod._audit("c", f"/p{i}", 200)
+    assert len(api_mod._AUDIT_LOG) == 10_000
+    assert api_mod._AUDIT_LOG[-1]["path"] == "/p10049"
+
+
+def test_sse_subscriber_fanout(tmp_path: Path) -> None:
+    """Two subscribers to the same investigation each get every event."""
+    from data_sentinel.persistence.investigations import InvestigationStore
+    st = api_mod.InvestigationState(
+        store=InvestigationStore(tmp_path / "s.db"))
+    st.store.create("inv-1", "p")
+    q1 = st.subscribe("inv-1")
+    q2 = st.subscribe("inv-1")
+    st.emit("inv-1", "E1", {"a": 1})
+    st.emit("inv-1", "E2", {"b": 2})
+    assert [q1.get_nowait()["event"] for _ in range(2)] == ["E1", "E2"]
+    assert [q2.get_nowait()["event"] for _ in range(2)] == ["E1", "E2"]
+    st.unsubscribe("inv-1", q1)
+    st.emit("inv-1", "E3", {})
+    assert q1.empty()
+    assert q2.get_nowait()["event"] == "E3"
+
+
+def test_safe_error_strips_paths() -> None:
+    err = api_mod._safe_error(
+        ValueError(f"boom at {Path.home()}/.aws/credentials"))
+    assert str(Path.home()) not in err
+    assert "<path>" in err
+    assert "ValueError" in err
+
+
+def test_401_has_www_authenticate(tmp_path: Path) -> None:
+    app = create_app(allowed_roots=[str(FIXTURES)],
+                     db_path=tmp_path / "w.db")
+    c = TestClient(app)
+    r = c.get("/api/v1/capabilities")
+    assert r.status_code == 401
+    assert r.headers.get("WWW-Authenticate") == "Bearer"

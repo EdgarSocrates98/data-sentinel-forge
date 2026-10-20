@@ -1,3 +1,4 @@
+import { provideHttpClient } from "@angular/common/http";
 import { TestBed } from "@angular/core/testing";
 import {
   RouterStateSnapshot,
@@ -28,7 +29,7 @@ describe("authGuard / sessionGateGuard", () => {
   beforeEach(() => {
     sessionStorage.clear();
     TestBed.configureTestingModule({
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), provideHttpClient()],
     });
     session = TestBed.inject(SessionService);
   });

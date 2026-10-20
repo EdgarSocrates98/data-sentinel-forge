@@ -100,8 +100,10 @@ export class ApiService {
   }
 
   /**
-   * SSE stream URL for live investigation events. Consumed with
-   * `EventSource` (read-only GET stream, no request body).
+   * SSE stream URL for live investigation events. Consumed via
+   * `InvestigationStreamService` using `fetch` + `ReadableStream`
+   * (ADR-0014) rather than `EventSource`, since the stream requires the
+   * `Authorization: Bearer` header that `EventSource` cannot send.
    */
   investigationStreamUrl(id: string): string {
     return `${this.base}/investigations/${encodeURIComponent(id)}/stream`;
