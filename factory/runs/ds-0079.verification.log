@@ -1,0 +1,33 @@
+ds-0079 verification — homologação visual + build/dist + docs + relatório
+======================================================================
+Homologação (§14): Chromium 156 headless via Playwright 1.64.1 contra
+  prod build real (ng build --configuration production) em :4200 e API
+  real `data-sentinel serve` em 127.0.0.1:8790. 32 screenshots em
+  docs/assets/cycle06/ — 11 rotas × dark/light + detalhe com dados reais
+  + 4 mobile 390px + estado de erro + foco de teclado.
+Fluxo real: POST /api/v1/investigations → 201 inv-8d1caa02f200
+  ("Spark OOM investigation", cast_keys.sql via sentinel.sql.analyze) →
+  4 findings reais, agente spark-expert; SSE stream real; graph 4 nós.
+Achados P1 corrigidos neste spec:
+  - contraste light-theme abaixo de AA (primary buttons/skip link 4.1:1,
+    chips success/severity/confidence 3.02–4.31:1) → tokens ajustados,
+    re-audit programático (alfa composto) = 0 violações em 6 rotas×2 temas
+  - overflow documento a 390px (+50px lista, +396px detalhe) → causa real:
+    classe .table-scroll referenciada nos templates mas NUNCA definida no
+    CSS (divs inertes); classe criada + wrappers onde faltavam +
+    .sr-only left:0 → 0px pós-fix
+Keyboard: Tab order correta (skip link → toggles → 8 nav), anel 3px.
+Erro: 404 real renderiza estado honesto com retry.
+Build/dist (§15): python -m build → sdist+wheel limpos; wheel
+  data_sentinel-0.1.0 instalada em venv fresco + `data-sentinel serve
+  --port 8801` → /api/v1/health ok, 10 paths OpenAPI. ADR 0013 registra
+  distribuição do frontend separada (não servida pelo backend).
+Docs (§16): architecture.md (seção Control Center), guides/control-center.md,
+  README.md (seção + estado C06), cli.md (`serve`), ADR 0013.
+Suíte final: 745 passed, 4 skipped (env-gated AWS); ruff clean;
+  mypy strict 140 arquivos; ng test 49/49 SUCCESS; ng build prod limpo
+  (initial 349.39 kB raw / ~95.81 kB transfer).
+Relatório final: docs/cycles/cycle-06-final-report.md — APPROVED WITH
+  RESTRICTIONS — estado em memória, sem AWS prod, CI billing-bloqueada,
+  npm audit 40 advisories (4 high runtime Angular 19.2.25, resto dev),
+  tokens_used over-redacted, sem multi-hop, sem axe-core, Linux-only.

@@ -84,6 +84,24 @@ resumo: 1 achado(s): CONFIRMED=1
 Mais exemplos: [examples/README.md](examples/README.md) e
 [docs/evidence/](docs/evidence/) (saídas capturadas de comandos reais).
 
+## Control Center (Cycle 06)
+
+Portal web real sobre o mesmo núcleo — API FastAPI (`data-sentinel serve`,
+bind `127.0.0.1:8790`) + frontend Angular 19 (`frontend/`). Investigações
+agênticas via `/api/v1/investigations`, stream SSE, grafo de evidências,
+explorers de workloads/Spark/qualidade e registry de agentes — sem dado
+simulado.
+
+```bash
+uv run data-sentinel serve --port 8790        # API → /api/v1/*
+cd frontend && npx ng serve --port 4200       # portal → localhost:4200
+```
+
+![Control Center — visão geral](docs/assets/cycle06/homologation-dashboard-dark.png)
+
+Guia completo (endpoints, segurança, limitações):
+[docs/guides/control-center.md](docs/guides/control-center.md).
+
 ## Códigos de saída
 
 `0` sucesso · `1` erro de domínio/usuário · `2` erro de uso · `3` erro interno.
@@ -118,20 +136,24 @@ src/data_sentinel/
 ├── diagnostics/   # orchestrator + correlation + timeline
 ├── reporting/     # renderers terminal/JSON/Markdown
 ├── persistence/   # SQLite store + migrations (stdlib)
-├── api/           # contracts (readiness — sem servidor neste ciclo)
+├── api/           # FastAPI app (Cycle 06) — `data-sentinel serve`, /api/v1/*
+├── agents/ + tools/ + mcp/   # runtime agêntico + registry + MCP (Cycle 05)
 ├── cli/           # Typer app
-└── ...            # placeholders: mcp/, intelligence/, ...
+└── frontend/      # Angular 19 Control Center (Cycle 06)
 ```
 
 ## Estado do projeto
 
-**Cycle 02 implementado** — conectores AWS read-only (Glue, CloudWatch)
-com validação por mocks/Stubber, analyzer de plano físico Spark,
-inteligência de joins/cardinalidade, SQL analyzer v0.2 (AST SQLGlot,
-dialetos spark/trino), config advisor, orquestrador determinístico, CLI
-com grupos novos e relatórios Markdown. **360 testes, cobertura 88%** —
-evidência em [docs/cycles/cycle-02-validation.md](docs/cycles/cycle-02-validation.md)
-e [docs/cycle-01-report.md](docs/cycle-01-report.md).
+**Cycle 06 implementado** — Sentinel Control Center: API FastAPI real
+(`/api/v1/*`, SSE, segurança local-first) + portal Angular 19 com design
+system próprio (tokens 3-layer, dark/light, pt-BR/en, WCAG AA auditada) +
+studios de investigação/evidência/workloads/qualidade/agentes/relatórios.
+**745 testes Python + 49 specs Angular, ruff+mypy strict limpos** —
+evidência em [docs/cycles/cycle-06-final-report.md](docs/cycles/cycle-06-final-report.md)
+e [docs/cycles/cycle-06-visual-homologation.md](docs/cycles/cycle-06-visual-homologation.md).
+Ciclos anteriores: [cycle-05](docs/cycles/cycle-05-final-report.md),
+[05.1](docs/cycles/cycle-05-1-final-report.md),
+[04](docs/cycles/cycle-04-final-report.md).
 
 ## Licença
 

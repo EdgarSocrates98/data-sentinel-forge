@@ -257,6 +257,7 @@
         <p class="muted small">{{ "graph.a11y.hint" | t }}</p>
 
         <h3 class="tbl-title">{{ "graph.a11y.nodes" | t }}</h3>
+        <div class="table-scroll">
         <table class="data-table">
           <thead>
             <tr>
@@ -275,11 +276,13 @@
             }
           </tbody>
         </table>
+        </div>
 
         <h3 class="tbl-title">{{ "graph.a11y.edges" | t }}</h3>
         @if (g.edges.length === 0) {
           <p class="muted">{{ "graph.a11y.noEdges" | t }}</p>
         } @else {
+          <div class="table-scroll">
           <table class="data-table">
             <thead>
               <tr>
@@ -300,6 +303,7 @@
               }
             </tbody>
           </table>
+          </div>
         }
       </section>
     </div>

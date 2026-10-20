@@ -65,12 +65,51 @@ somente via contratos públicos.
   — apresentação fora dos analyzers (ADR 0010).
 - **`connectors/aws`**: Glue + CloudWatch read-only via allowlist de ações;
   `boto3` é extra `[aws]`; perfil `offline` recusa instanciar.
-- **`api/contracts`**: shapes de request/response + readiness tests —
-  sem servidor neste ciclo.
+- **`agents` + `tools` + `context`** (Cycle 05): runtime agêntico com budgets,
+  registry de tools, especialistas com responsabilidades delimitadas,
+  providers determinísticos (stub) ou HTTP local.
+- **`mcp`/`mcp_server`** (Cycle 05): servidor MCP stdio via SDK oficial.
+- **`api`** (Cycle 06): ver seção Control Center abaixo.
 - **`persistence`**: SQLite stdlib, migrations numeradas append-only, valores
   sempre parametrizados. Guarda o documento JSON do contrato — não raw files.
-- **Placeholders**: `mcp/`, `intelligence/` etc. permanecem para ciclos
-  futuros — nenhuma implementação falsa.
+- **Placeholders**: `intelligence/` permanece para ciclos futuros —
+  nenhuma implementação falsa.
+
+## Control Center (Cycle 06)
+
+API HTTP + portal Angular sobre o núcleo existente — nenhuma lógica de
+diagnóstico foi duplicada na camada web.
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ frontend/ (Angular 19, standalone + signals + OnPush)       │
+│   design system próprio — tokens CSS 3-layer, pt-BR/en,     │
+│   tema dark/light; lazy routes por studio                   │
+└──────────────┬──────────────────────────────────────────────┘
+               │ HTTP/SSE — http://127.0.0.1:8790/api/v1
+               ▼
+┌─────────────────────────────────────────────────────────────┐
+│ api/app.py — FastAPI factory (`data-sentinel serve`)        │
+│   CORS localhost-only · rate limit 120/min · payload ≤10MB  │
+│   path guard (allowed roots) · redação de segredos · audit  │
+└──┬───────────┬───────────────┬───────────────┬──────────────┘
+   ▼           ▼               ▼               ▼
+ tools/    agents/         diagnostics/    analyzers/
+ registry  investigator    incident graph  analyzers reais
+```
+
+Regras de fronteira mantidas:
+
+- Endpoints delegam ao núcleo (`build_default_registry`, `execute_tool`,
+  `investigate`, `build_incident_graph`, descriptors de capacidades) —
+  **zero reimplementação** de analyzer/diagnóstico no handler.
+- Versão de API em `/api/v1/*`; OpenAPI exposto em `/api/openapi.json`.
+- Estado de investigações **em memória** por processo (deliberado no MVP;
+  persistência é backlog do Cycle 07).
+- Bind padrão `127.0.0.1`; bind não-local imprime aviso explícito.
+- O frontend é estaticamente buildado (`frontend/dist/`) e servido por
+  qualquer servidor estático ou `ng serve`; a API é consumida via
+  `environment.apiBaseUrl`. Ver [docs/guides/control-center.md](guides/control-center.md).
 
 ## Princípios
 

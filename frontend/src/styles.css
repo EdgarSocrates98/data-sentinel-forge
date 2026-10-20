@@ -213,6 +213,13 @@ kbd {
   background: var(--ds-btn-bg-hover);
 }
 
+/* --- Table scroll container: keeps wide data tables inside the viewport
+   on narrow screens instead of causing document-level horizontal overflow --- */
+.table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 /* --- Reduced motion: honor user preference globally --- */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -228,6 +235,8 @@ kbd {
 /* --- Visually hidden (screen-reader-only content) --- */
 .sr-only {
   position: absolute;
+  left: 0; /* prevents abspos sr-only inside wide tables from extending
+              the document's horizontal scroll region */
   width: 1px;
   height: 1px;
   padding: 0;

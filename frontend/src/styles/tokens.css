@@ -56,6 +56,9 @@
   --ds-p-emerald-300: #6ee7b7;
   --ds-p-emerald-400: #34d399;
   --ds-p-emerald-600: #059669;
+  --ds-p-emerald-800: #065f46;
+  --ds-p-amber-800: #92400e;
+  --ds-p-orange-800: #9a3412;
   --ds-p-violet-400: #a78bfa;
   --ds-p-violet-600: #7c3aed;
 
@@ -242,7 +245,7 @@
 
   --ds-accent: var(--ds-p-cyan-700);
   --ds-accent-strong: var(--ds-p-cyan-800);
-  --ds-accent-emphasis: var(--ds-p-cyan-600, #0284c7);
+  --ds-accent-emphasis: var(--ds-p-cyan-700);
   --ds-accent-subtle: rgb(3 105 161 / 10%);
   --ds-accent-hover: rgb(3 105 161 / 18%);
   --ds-focus-ring: var(--ds-p-cyan-700);
@@ -255,28 +258,28 @@
 
   --ds-severity-critical: var(--ds-p-red-700);
   --ds-severity-critical-bg: rgb(185 28 28 / 10%);
-  --ds-severity-high: #c2410c;
-  --ds-severity-high-bg: rgb(194 65 12 / 10%);
-  --ds-severity-medium: var(--ds-p-amber-700);
-  --ds-severity-medium-bg: rgb(180 83 9 / 10%);
+  --ds-severity-high: var(--ds-p-orange-800);
+  --ds-severity-high-bg: rgb(154 52 18 / 10%);
+  --ds-severity-medium: var(--ds-p-amber-800);
+  --ds-severity-medium-bg: rgb(146 64 14 / 10%);
   --ds-severity-low: var(--ds-p-cyan-700);
   --ds-severity-low-bg: rgb(3 105 161 / 10%);
   --ds-severity-info: var(--ds-p-slate-600);
   --ds-severity-info-bg: rgb(74 86 112 / 10%);
 
-  --ds-confidence-high: var(--ds-p-emerald-600);
-  --ds-confidence-high-bg: rgb(5 150 105 / 10%);
-  --ds-confidence-medium: var(--ds-p-amber-700);
-  --ds-confidence-medium-bg: rgb(180 83 9 / 10%);
-  --ds-confidence-low: #c2410c;
-  --ds-confidence-low-bg: rgb(194 65 12 / 10%);
-  --ds-confidence-unknown: var(--ds-p-slate-500);
-  --ds-confidence-unknown-bg: rgb(102 116 143 / 10%);
+  --ds-confidence-high: var(--ds-p-emerald-800);
+  --ds-confidence-high-bg: rgb(6 95 70 / 10%);
+  --ds-confidence-medium: var(--ds-p-amber-800);
+  --ds-confidence-medium-bg: rgb(146 64 14 / 10%);
+  --ds-confidence-low: var(--ds-p-orange-800);
+  --ds-confidence-low-bg: rgb(154 52 18 / 10%);
+  --ds-confidence-unknown: var(--ds-p-slate-600);
+  --ds-confidence-unknown-bg: rgb(74 86 112 / 10%);
 
-  --ds-success: var(--ds-p-emerald-600);
-  --ds-success-bg: rgb(5 150 105 / 10%);
-  --ds-warning: var(--ds-p-amber-700);
-  --ds-warning-bg: rgb(180 83 9 / 10%);
+  --ds-success: var(--ds-p-emerald-800);
+  --ds-success-bg: rgb(6 95 70 / 10%);
+  --ds-warning: var(--ds-p-amber-800);
+  --ds-warning-bg: rgb(146 64 14 / 10%);
   --ds-error: var(--ds-p-red-700);
   --ds-error-bg: rgb(185 28 28 / 10%);
   --ds-info: var(--ds-p-cyan-700);
@@ -285,6 +288,10 @@
   --ds-p-shadow-1: 0 1px 2px rgb(14 27 46 / 10%);
   --ds-p-shadow-2: 0 4px 12px rgb(14 27 46 / 14%);
   --ds-p-shadow-3: 0 12px 32px rgb(14 27 46 / 18%);
+
+  /* --- light-theme component overrides (specificity beats layer-3 :root) ---
+     primary-action hover darkens instead of lightening */
+  --ds-btn-primary-bg-hover: var(--ds-p-cyan-800);
 }
 
 /* --------------------------------------------------------------------------

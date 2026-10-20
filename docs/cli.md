@@ -171,3 +171,25 @@ formato completo em [docs/guides/join-intelligence.md](guides/join-intelligence.
 | `lakehouse compat` | flags runtime/op/mode | veredito via knowledge base |
 
 Todos com `--json`, `--quiet`, `--no-persist`, `--format`, `--output`.
+
+## `serve` — Control Center API (Cycle 06)
+
+```bash
+data-sentinel serve [--host 127.0.0.1] [--port 8790] [--root <dir>]
+```
+
+Sobe a API FastAPI do Control Center via uvicorn (requer extra `api`:
+`pip install 'data-sentinel[api]'`).
+
+- `--host` default `127.0.0.1` — bind não-local emite **aviso** (a API
+  expõe arquivos locais; use só em rede confiável).
+- `--port` default `8790`.
+- `--root` (repetível) — raízes permitidas para `files`/`file` dos
+  endpoints; default = cwd do processo + `~/.cache`. Path fora das raízes
+  → `403`.
+
+Endpoints versionados em `/api/v1/*` (health, capabilities, tools, agents,
+severities, investigations + SSE stream + graph, `analyze/{id}`); OpenAPI
+em `/api/openapi.json`, Swagger em `/api/docs`. Estado de investigações é
+**em memória** (por processo). Guia completo:
+[docs/guides/control-center.md](guides/control-center.md).

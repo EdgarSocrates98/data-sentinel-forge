@@ -196,7 +196,8 @@
       @if (rep.findings.length === 0) {
         <p class="muted">{{ "investigations.detail.noFindings" | t }}</p>
       } @else {
-        <table class="data-table">
+        <div class="table-scroll">
+          <table class="data-table">
           <thead>
             <tr>
               <th scope="col">{{ "investigations.col.severity" | t }}</th>
@@ -318,7 +319,8 @@
               }
             }
           </tbody>
-        </table>
+          </table>
+        </div>
       }
     </section>
 

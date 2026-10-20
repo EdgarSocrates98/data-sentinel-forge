@@ -35,7 +35,8 @@
     } @else {
       <section class="ds-card panel" aria-labelledby="inv-list-title">
         <h2 id="inv-list-title">{{ "investigations.list.title" | t }}</h2>
-        <table class="inv-table">
+        <div class="table-scroll">
+          <table class="inv-table">
           <thead>
             <tr>
               <th scope="col">{{ "investigations.col.id" | t }}</th>
@@ -72,7 +73,8 @@
               </tr>
             }
           </tbody>
-        </table>
+          </table>
+        </div>
       </section>
     }
   }
