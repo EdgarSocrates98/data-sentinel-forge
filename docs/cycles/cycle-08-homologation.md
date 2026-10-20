@@ -42,5 +42,5 @@ by tests or structural proof; none open.**
 ## External restrictions (P1)
 
 - AWS real homologation: BLOCKED_EXTERNAL (`cycle-08-aws-homologation.md`)
-- CI remote: billing-blocked (runbook local em `release-readiness.md`)
+- CI remote: **RESOLVED** — repo public; 6/6 matrix green on `57ce72c`
 - WebKit Playwright: host lib `libavif16` missing

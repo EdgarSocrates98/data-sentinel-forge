@@ -46,7 +46,10 @@ over the Cycle 07 baseline (`8a6a07b`). 10 specs, ds-0090→ds-0099.
 ## Restrictions (P1, documented)
 
 - AWS real homologation: BLOCKED_EXTERNAL (`cycle-08-aws-homologation.md`).
-- Remote CI: billing-blocked; local runbook in `release-readiness.md`.
+- Remote CI: **RESOLVED during cycle** — repo public; 6/6 matrix green
+  (ubuntu/macos/windows × py3.11/3.12). CI caught and we fixed real
+  cross-platform bugs: strict-resolve ordering, cp1252 encoding, POSIX
+  paths, Windows venv layout.
 - WebKit Playwright: `libavif16` missing on host.
 - npm residual: 8 high braces-chain (Angular 20 webpack toolchain),
   3 moderate vitest-mocker — dev-only, documented in SECURITY-UPGRADE.md.

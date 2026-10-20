@@ -11,7 +11,7 @@ Entregue (ds-0010..0019): conectores AWS read-only (Glue, CloudWatch),
 analyzer de plano físico, join intelligence, SQL v0.2 (AST/dialetos),
 config advisor, orquestrador, CLI grupos, Markdown, contratos API/MCP.
 Restrições: AWS validado com mocks/Stubber (não real), Windows/macOS só
-via CI (bloqueada por billing), API/MCP sem servidor.
+via CI (repo público — 6/6 matrix green desde Cycle 08), API/MCP sem servidor.
 Ver `docs/cycles/cycle-02-final-report.md`.
 
 ## Cycle 03 — Iceberg, Lake Formation & Security — EM DESENVOLVIMENTO

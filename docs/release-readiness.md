@@ -11,15 +11,16 @@ version bump this cycle.
 | Changelog | PARTIAL | `CHANGELOG.md` exists; needs per-release entry at RC |
 | Migration notes | DONE | versioning.md + `persistence/` user_version migrations |
 | Trusted Publishing (OIDC) | PREPARED | `.github/workflows/release.yml` — `pypi` env + `id-token: write`, manual dispatch + RELEASE confirm |
-| CI (lint/type/test x-platform) | DEFINED | `ci.yml` matrix ubuntu/windows/macos × py3.11/3.12 — **remote runs BLOCKED by repo billing** |
+| CI (lint/type/test x-platform) | **GREEN** | `ci.yml` matrix 6/6 jobs green — real Windows/macOS bugs fixed in `349fa99`/`57ce72c` |
 | Local reproducible runbook | DONE | below |
 | Angular distribution | DECIDED | ADR-0012 |
 | RC artifacts | DONE | `dist/` wheel+sdist build clean; `twine check` deferred to CI |
 
 ## CI billing — honest status
 
-Remote Actions billing is blocked on this private repo. Until resolved,
-the authoritative verification is the local reproducible run:
+Remote CI is **live** — repo went public during Cycle 08. Last verified
+run: 6/6 matrix jobs green (ubuntu/macos/windows × py3.11/3.12) on
+`57ce72c`. The local reproducible run remains the offline fallback:
 
 ```bash
 uv sync --extra dev
