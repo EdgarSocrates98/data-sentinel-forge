@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0042.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:30:40+00:00",
+  "id": "ds-0042",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0042.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0042.md",
+  "spec_sha256": "393acb22384c0dc3f33fcdb409f71e10a47c9478d350a5e1c9249623fdf86139",
+  "status": "planned",
+  "title": "Quality execution adapters: PyDeequ/Deequ/GX/SQL/DF + normaliza\u00e7\u00e3o"
+}

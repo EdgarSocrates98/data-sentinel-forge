@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0040.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:26:56+00:00",
+  "id": "ds-0040",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0040.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0040.md",
+  "spec_sha256": "3b0ea326e54c9563f81dc226a167aee361fd8cb41a0ed86e1755fc0ed6787471",
+  "status": "planned",
+  "title": "Baseline audit C01\u2013C03.1 + contratos de dom\u00ednio Cycle 04"
+}

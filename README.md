@@ -1,5 +1,9 @@
 # Data Sentinel
 
+<p align="center">
+  <img src="docs/assets/logo.png" alt="Data Sentinel logo" width="420" />
+</p>
+
 **Intelligent Data Engineering & Agentic Diagnostics Platform.**
 
 Ferramenta open source (Apache-2.0) para investigar, analisar e explicar

@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0047.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:41:05+00:00",
+  "id": "ds-0047",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0047.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0047.md",
+  "spec_sha256": "1bfc62d578f9be37b9c47cb368965ae4c093f4bd6d62633be03da9dee6645ccf",
+  "status": "planned",
+  "title": "CLI + reporting + evidence integrity + persistence"
+}

@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0041.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:28:54+00:00",
+  "id": "ds-0041",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0041.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0041.md",
+  "spec_sha256": "21cf2215d2378d931f40e4b2fa8cd8efbc4122985708fcfbf75f9de9e418e3ec",
+  "status": "planned",
+  "title": "Data Quality Contracts: regras, valida\u00e7\u00e3o declarativa, versionamento"
+}

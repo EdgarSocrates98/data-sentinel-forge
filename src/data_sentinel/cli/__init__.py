@@ -906,3 +906,157 @@ def import_doctor_bundle_cmd(
         typer.echo(f"  [{f.severity.value}/{f.status.value}] {f.explanation[:120]}")
     if len(result.findings) > 20:
         typer.echo(f"  ... +{len(result.findings) - 20}")
+
+
+quality_app = typer.Typer(help="Contratos e observações de qualidade de dados.")
+lineage_app = typer.Typer(help="Linhagem operacional (OpenLineage) e impacto.")
+
+app.add_typer(quality_app, name="quality")
+app.add_typer(lineage_app, name="lineage")
+
+
+@quality_app.command("validate")
+def quality_validate(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
+                                       help="Contrato YAML/JSON §3.2.")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Valida um contrato declarativo de qualidade (offline, estático)."""
+    from data_sentinel.quality import ContractFormatError, load_contract, validate_contract
+
+    try:
+        contract = load_contract(file)
+    except ContractFormatError as exc:
+        typer.echo(f"erro: {exc}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+    v = validate_contract(contract)
+    issues = [{"field": i.field, "message": i.message,
+               "severity": i.severity} for i in v.issues]
+    if json_mode:
+        _emit_json({"ok": v.ok, "contract_id": contract.contract_id,
+                    "version": contract.version,
+                    "rules": len(contract.quality_rules),
+                    "issues": issues})
+    else:
+        typer.echo(f"contrato {contract.contract_id} v{contract.version}: "
+                   f"{len(contract.quality_rules)} regras — "
+                   f"{'OK' if v.ok else 'INVÁLIDO'}")
+        for i in v.issues:
+            typer.echo(f"  [{i.severity}] {i.field}: {i.message}")
+    if not v.ok:
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR)
+
+
+@quality_app.command("import")
+def quality_import(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
+                                       help="Resultado exportado (JSON).")],
+    adapter: Annotated[str, typer.Option(
+        "--adapter", help="auto|pydeequ|deequ_checks|great_expectations|"
+                          "sql_results|dataframe_export")] = "auto",
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Normaliza resultados exportados em observações (nunca executa engines)."""
+    from data_sentinel.quality import normalize
+
+    try:
+        obs = normalize(file.read_text(encoding="utf-8"),
+                        adapter=adapter, provenance=str(file))
+    except SentinelError as exc:
+        _fail(exc)
+        raise AssertionError from exc
+    payload = [o.model_dump(mode="json") for o in obs]
+    if json_mode:
+        _emit_json({"adapter": adapter, "count": len(obs),
+                    "observations": payload})
+    else:
+        typer.echo(f"{len(obs)} observações (adapter={adapter})")
+        for o in obs[:50]:
+            typer.echo(f"  [{o.status.value}] {o.metric_name or o.rule_id}: "
+                       f"{o.observed_value}")
+        if len(obs) > 50:
+            typer.echo(f"  ... +{len(obs) - 50} observações")
+
+
+@lineage_app.command("ingest")
+def lineage_ingest(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
+                                       help="OpenLineage JSONL/batch.")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Ingere eventos OpenLineage e mostra o grafo resultante (offline)."""
+    from data_sentinel.lineage import parse_openlineage_events
+    from data_sentinel.lineage.graph import build_graph
+
+    ing = parse_openlineage_events(file.read_text(encoding="utf-8"),
+                                   provenance=str(file))
+    g = build_graph(ing.events)
+    if json_mode:
+        _emit_json({"events": len(ing.events), "kind": ing.kind.value,
+                    "rejected": ing.rejected,
+                    "downstream": {k: sorted(v) for k, v in
+                                   g.downstream.items()},
+                    "limitations": ing.limitations + g.limitations})
+    else:
+        typer.echo(f"{len(ing.events)} eventos ({ing.kind.value}); "
+                   f"{ing.rejected} rejeitados")
+        for src, dsts in sorted(g.downstream.items()):
+            for d in sorted(dsts):
+                typer.echo(f"  {src} -> {d}")
+        for lim in ing.limitations + g.limitations:
+            typer.echo(f"  ! {lim}")
+
+
+@lineage_app.command("impact")
+def lineage_impact(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True)],
+    target: Annotated[str, typer.Option(
+        "--target", "-t", help="namespace/name ou name do dataset.")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Análise de impacto POTENCIAL (alcançabilidade no grafo)."""
+    from data_sentinel.core.contracts import DatasetReference
+    from data_sentinel.lineage import parse_openlineage_events
+    from data_sentinel.lineage.graph import build_graph, impact
+
+    ing = parse_openlineage_events(file.read_text(encoding="utf-8"),
+                                   provenance=str(file))
+    g = build_graph(ing.events)
+    ns, _, name = target.rpartition("/")
+    imp = impact(g, DatasetReference(namespace=ns, name=name or target))
+    if json_mode:
+        _emit_json(imp.model_dump(mode="json"))
+    else:
+        typer.echo(f"alvo: {target} (impacto POTENCIAL, não comprovado)")
+        typer.echo(f"  upstream ({len(imp.upstream)}):")
+        for d in imp.upstream:
+            typer.echo(f"    <- {d.namespace}/{d.name}")
+        typer.echo(f"  downstream ({len(imp.downstream)}):")
+        for d in imp.downstream:
+            typer.echo(f"    -> {d.namespace}/{d.name}")
+        if imp.affected_entities:
+            typer.echo(f"  jobs afetados: {', '.join(imp.affected_entities)}")
+
+
+@report_app.command("export")
+def report_export(
+    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
+                                       help="Report JSON do Sentinel.")],
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
+) -> None:
+    """Exporta um DiagnosticReport como bundle Doctor (forge-contracts/1)."""
+    from data_sentinel.adapters.doctor.exporter import export_report_json
+    from data_sentinel.core.contracts import DiagnosticReport
+
+    try:
+        report = DiagnosticReport.model_validate_json(
+            file.read_text(encoding="utf-8"))
+    except Exception as exc:
+        typer.echo(f"erro: report inválido: {exc}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+    text = export_report_json(report, source_ref=str(file))
+    if output:
+        output.write_text(text + "\n", encoding="utf-8")
+        typer.echo(f"bundle exportado -> {output}")
+    else:
+        typer.echo(text)

@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0043.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:32:38+00:00",
+  "id": "ds-0043",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0043.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0043.md",
+  "spec_sha256": "cc1d5e0304e3599f5a071d85ea5ae2858825f1235e15042522344da95e595a56",
+  "status": "planned",
+  "title": "Profiling & drift engine (stdlib, m\u00e9tricas fundamentadas)"
+}
