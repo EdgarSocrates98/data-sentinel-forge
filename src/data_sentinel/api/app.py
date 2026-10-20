@@ -124,8 +124,13 @@ class SessionAuth:
             fd = os.open(_TOKEN_FILE, flags, 0o600)
             # fchmod covers a pre-existing file left with a permissive
             # mode — O_CREAT mode only applies at creation (review).
-            with contextlib.suppress(OSError):
-                os.fchmod(fd, 0o600)
+            # Windows has no fchmod: chmod on the path is the fallback.
+            if hasattr(os, "fchmod"):
+                with contextlib.suppress(OSError):
+                    os.fchmod(fd, 0o600)
+            else:
+                with contextlib.suppress(OSError):
+                    os.chmod(_TOKEN_FILE, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 fh.write(self._token)
         except OSError:
