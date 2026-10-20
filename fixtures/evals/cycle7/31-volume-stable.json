@@ -1,0 +1,21 @@
+{
+ "kind": "eval-scenario",
+ "contract": "sentinel-eval/1",
+ "inputs": {
+  "baseline": {"duration_s": 60, "input_bytes": 1000000},
+  "current": {"duration_s": 180, "input_bytes": 1200000}
+ },
+ "expected": {
+  "finding": true,
+  "volume_change_flagged": false
+ },
+ "forbidden": [
+  "causa afirmada"
+ ],
+ "evidence": [],
+ "limitations": [],
+ "ground_truth": "1.2x volume não é mudança correlata relevante",
+ "scenario_id": "volume-stable",
+ "title": "Stable data volume",
+ "runner": "regression"
+}

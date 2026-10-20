@@ -85,8 +85,12 @@ class AlertEngine:
                 f"{f['rationale']}", dedup=str(f["metric"]),
                 findings=[f]))
 
-        # missing-data behavior (§5.5): declare it, don't alert silently
-        if current.duration_s is None and not current.resource_metrics:
+        # missing-data behavior (§5.5): declare it, don't alert silently.
+        # Fires only when the evaluation produced NO other signal —
+        # a recovery or regression already carries the state; missing_data
+        # must never compete with them in the same eval (Cycle 08.1 §7.3).
+        if (current.duration_s is None and not current.resource_metrics
+                and not out):
             out.append(self._mk(watch, "missing_data",
                                 f"{watch.workload}: sem métricas "
                                 "suficientes — UNKNOWN", dedup="missing",

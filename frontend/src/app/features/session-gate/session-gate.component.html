@@ -1,0 +1,42 @@
+<article class="page gate" aria-labelledby="gate-title">
+  <section class="ds-card panel">
+    <header class="page-header">
+      <h1 id="gate-title">{{ "session.gate.title" | t }}</h1>
+      <p class="lead">{{ "session.gate.lead" | t }}</p>
+    </header>
+
+    @if (wasExpired()) {
+      <p class="status status--err" role="alert">
+        <span class="dot dot--err" aria-hidden="true"></span>
+        {{ "session.gate.expired" | t }}
+      </p>
+    }
+
+    <form (ngSubmit)="connect()">
+      <label for="session-token">{{ "session.gate.tokenLabel" | t }}</label>
+      <input
+        id="session-token"
+        type="password"
+        autocomplete="off"
+        [ngModel]="tokenInput()"
+        (ngModelChange)="tokenInput.set($event)"
+        name="token"
+        [placeholder]="'session.gate.tokenPlaceholder' | t"
+        [attr.aria-invalid]="state() === 'invalid' || state() === 'required'"
+      />
+
+      @if (state() === "invalid") {
+        <p class="field-error" role="alert">{{ "session.gate.invalid" | t }}</p>
+      }
+      @if (state() === "required") {
+        <p class="field-error" role="alert">{{ "session.gate.required" | t }}</p>
+      }
+
+      <button type="submit" class="ds-btn ds-btn--primary" [disabled]="state() === 'connecting'">
+        {{ (state() === "connecting" ? "session.gate.connecting" : "session.gate.connect") | t }}
+      </button>
+    </form>
+
+    <p class="muted hint">{{ "session.gate.hint" | t }}</p>
+  </section>
+</article>

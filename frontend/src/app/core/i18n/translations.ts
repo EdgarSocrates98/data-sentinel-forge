@@ -761,6 +761,20 @@ export const PT_BR: TranslationDict = {
   "api.error.notFound": "Recurso não encontrado na API.",
   "api.error.request": "A API rejeitou a requisição.",
   "api.error.unknown": "Erro desconhecido ao falar com a API.",
+
+  "session.gate.title": "Conectar ao Sentinel",
+  "session.gate.lead":
+    "Informe o token de sessão emitido pela API local para acessar o Control Center.",
+  "session.gate.tokenLabel": "Token de sessão",
+  "session.gate.tokenPlaceholder": "Cole o token aqui",
+  "session.gate.hint":
+    "Gere um token com `data-sentinel serve` — o comando imprime o token no terminal ao iniciar a API.",
+  "session.gate.connect": "Conectar",
+  "session.gate.connecting": "Validando…",
+  "session.gate.invalid":
+    "Token inválido ou expirado. Verifique o valor e tente novamente.",
+  "session.gate.expired": "Sessão expirada — gere um novo token.",
+  "session.gate.required": "Informe um token para continuar.",
 };
 
 export const EN: TranslationDict = {
@@ -1509,4 +1523,18 @@ export const EN: TranslationDict = {
   "api.error.notFound": "Resource not found on the API.",
   "api.error.request": "The API rejected the request.",
   "api.error.unknown": "Unknown error while contacting the API.",
+
+  "session.gate.title": "Connect to Sentinel",
+  "session.gate.lead":
+    "Enter the session token issued by the local API to access the Control Center.",
+  "session.gate.tokenLabel": "Session token",
+  "session.gate.tokenPlaceholder": "Paste the token here",
+  "session.gate.hint":
+    "Generate a token with `data-sentinel serve` — the command prints the token to the terminal on startup.",
+  "session.gate.connect": "Connect",
+  "session.gate.connecting": "Validating…",
+  "session.gate.invalid":
+    "Invalid or expired token. Check the value and try again.",
+  "session.gate.expired": "Session expired — generate a new token.",
+  "session.gate.required": "Enter a token to continue.",
 };

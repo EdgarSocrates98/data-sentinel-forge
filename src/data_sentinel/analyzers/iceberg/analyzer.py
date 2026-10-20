@@ -185,6 +185,10 @@ class IcebergMetadataAnalyzer(Analyzer):
         snaps = meta.snapshots
         cur = next((s for s in snaps if s.snapshot_id == meta.current_snapshot_id), None)
         if snaps and cur is None:
+            ev = _ev(
+                f"current-snapshot-id={meta.current_snapshot_id} ausente da "
+                f"lista de {len(snaps)} snapshots declarados"
+            )
             findings.append(
                 Finding(
                     category=FindingCategory.DATA_QUALITY,
@@ -195,6 +199,7 @@ class IcebergMetadataAnalyzer(Analyzer):
                         f"lista de {len(snaps)} snapshots — metadados inconsistentes "
                         "ou coleta truncada."
                     ),
+                    evidence_ids=[ev.evidence_id],
                     recommendations=[
                         "Verifique se o metadata.json é o mais recente "
                         "(compare metadata-log) e se a coleta não truncou snapshots."
@@ -356,6 +361,10 @@ class IcebergMetadataAnalyzer(Analyzer):
                 )
             )
         if len(meta.snapshot_log) > _SNAPSHOT_LOG_FLAG:
+            ev = _ev(
+                f"{len(meta.snapshot_log)} entradas de snapshot-log "
+                "declaradas"
+            )
             findings.append(
                 Finding(
                     category=FindingCategory.COST,
@@ -365,6 +374,7 @@ class IcebergMetadataAnalyzer(Analyzer):
                         f"{len(meta.snapshot_log)} entradas de snapshot-log — "
                         "listagens de catálogo ficam mais caras."
                     ),
+                    evidence_ids=[ev.evidence_id],
                     recommendations=[
                         "Revisar retenção (history.expire.*) conforme SLA."
                     ],

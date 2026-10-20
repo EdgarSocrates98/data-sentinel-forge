@@ -21,6 +21,24 @@ REQUIRED = {"scenario_id", "title", "runner", "inputs", "expected",
             "forbidden", "evidence", "limitations", "ground_truth"}
 
 
+_TOP_FIELDS = ("duration_s", "input_bytes", "output_bytes",
+               "failure", "config_fingerprint", "job_id", "runtime")
+
+
+def _top_fields(d: dict) -> dict:
+    return {k: v for k, v in d.items() if k in _TOP_FIELDS}
+
+
+def _metrics_of(d: dict) -> dict:
+    """Campos top-level do contrato vão para _snap; o restante vira
+    resource_metrics (além do resource_metrics já declarado)."""
+    m = dict(d.get("resource_metrics", {}))
+    for k, v in d.items():
+        if k not in _TOP_FIELDS and k != "resource_metrics":
+            m[k] = v
+    return m
+
+
 def _snap(d: dict) -> ExecutionSnapshot:
     return ExecutionSnapshot(
         snapshot_id=d.get("snapshot_id", "s"),
@@ -49,13 +67,17 @@ def run_scenario(s: dict) -> dict:
         cur = inp.get("current")
         if isinstance(inp.get("baseline"), dict):
             snaps = [_snap({"snapshot_id": "h0",
-                            "resource_metrics": inp["baseline"]})]
+                            **_top_fields(inp["baseline"]),
+                            "resource_metrics":
+                                _metrics_of(inp["baseline"])})]
         else:
             snaps = _hist(inp.get("baseline", []))
         if isinstance(cur, dict):
             cur_s = _snap({"snapshot_id": "cur",
                            "started_at": "2026-02-01T00:00:00Z",
-                           "resource_metrics": cur})
+                           **_top_fields(cur),
+                           "resource_metrics":
+                               _metrics_of(cur)})
         else:
             cur_s = _snap({"snapshot_id": "cur",
                            "started_at": "2026-02-01T00:00:00Z",
@@ -152,6 +174,12 @@ def test_golden_scenario(path: Path) -> None:
                 for f in res["findings"])
         elif exp.get("unknown"):
             assert not res["findings"]
+        elif exp.get("volume_change_flagged") is not None:
+            flagged = any(
+                "volume" in str(c).lower()
+                for f in res["findings"]
+                for c in f.get("related_changes", []))
+            assert flagged == bool(exp["volume_change_flagged"])
         elif exp.get("finding"):
             assert res["findings"]
             for f in res["findings"]:

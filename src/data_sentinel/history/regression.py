@@ -14,9 +14,14 @@ from data_sentinel.core.contracts.snapshot import ExecutionSnapshot
 SIGNALS = (
     "duration_s", "failure_rate", "retry_count", "cpu_utilization",
     "memory_utilization", "shuffle_spill_bytes", "throughput",
-    "input_bytes", "output_bytes", "data_freshness_s",
-    "quality_score", "iceberg_file_count", "estimated_cost",
+    "input_bytes", "output_bytes", "data_freshness_s", "freshness_s",
+    "quality_score", "dq_pass_rate", "iceberg_file_count",
+    "estimated_cost",
 )
+
+# Signals whose regression direction is a DECREASE (quality drops),
+# not an increase. Cycle 08.1 §7.4.
+DECREASE_IS_BAD = frozenset({"quality_score", "dq_pass_rate"})
 
 
 def _metric(snapshot: ExecutionSnapshot, name: str) -> float | None:
@@ -71,7 +76,12 @@ def detect_regressions(
         # relative threshold (duration & volumes mainly)
         if med > 0:
             pct = ((cur - med) / med) * 100.0
-            if pct > rel_threshold_pct:
+            if signal in DECREASE_IS_BAD:
+                if pct < -rel_threshold_pct:
+                    findings.append(_finding(
+                        signal, med, cur, "relative_threshold",
+                        f"{pct:.1f}% vs mediana histórica (queda)"))
+            elif pct > rel_threshold_pct:
                 findings.append(_finding(
                     signal, med, cur, "relative_threshold",
                     f"+{pct:.1f}% vs mediana histórica"))
@@ -104,7 +114,7 @@ def detect_regressions(
         f["limitations"] = lims
         f["confidence"] = "POSSIBLE"
         f["causal_label"] = "suspected_cause"
-    return findings
+    return link_changes(findings, current, hist)
 
 
 def _finding(metric: str, baseline: float, current: float,

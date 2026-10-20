@@ -1,0 +1,92 @@
+.page.gate {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: var(--ds-space-8);
+}
+
+.panel {
+  padding: var(--ds-space-6);
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-4);
+}
+
+.page-header h1 {
+  font-size: var(--ds-text-2xl);
+}
+
+.lead {
+  color: var(--ds-fg-muted);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2);
+}
+
+label {
+  font-size: var(--ds-text-sm);
+  color: var(--ds-fg-muted);
+}
+
+input {
+  background: var(--ds-bg-subtle);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+  color: var(--ds-fg);
+  padding: var(--ds-space-3);
+  font: inherit;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--ds-error);
+}
+
+.field-error {
+  color: var(--ds-error);
+  font-size: var(--ds-text-sm);
+  margin: 0;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  font-weight: var(--ds-p-weight-medium);
+}
+
+.status--err {
+  color: var(--ds-error);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--ds-radius-full);
+}
+
+.dot--err {
+  background: var(--ds-error);
+}
+
+.ds-btn--primary {
+  color: var(--ds-btn-primary-fg);
+  background: var(--ds-btn-primary-bg);
+  border-color: transparent;
+}
+
+.ds-btn--primary:hover {
+  background: var(--ds-btn-primary-bg-hover);
+}
+
+.hint {
+  font-size: var(--ds-text-sm);
+}
+
+.muted {
+  color: var(--ds-fg-muted);
+}

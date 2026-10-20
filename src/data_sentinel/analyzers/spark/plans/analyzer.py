@@ -31,6 +31,30 @@ _SHUFFLE_MANY_EXCHANGES = 3
 _REPARTITION_WARN = 2
 
 
+def _classify_empty_parse(text: str) -> tuple[str, str]:
+    """Classify why a plan parse produced zero nodes (§7.5).
+
+    Returns (reason, next-evidence-needed).
+    """
+    stripped = text.strip()
+    if not stripped:
+        return ("input vazio — nada a parsear",
+                "forneça a saída de EXPLAIN/physical plan ou um event log")
+    markers = ("== Physical Plan", "== Parsed Logical Plan",
+               "== Optimized Logical Plan", "AdaptiveSparkPlan",
+               "spark.sql", "EXPLAIN", "Project", "Filter", "Join",
+               "Exchange", "Scan")
+    if not any(m in stripped for m in markers):
+        return ("formato não reconhecido — o texto não contém marcadores "
+                "de plano Spark",
+                "exporte o physical plan real (EXPLAIN FORMATTED, "
+                "spark.sql.ui ou event log) — logs genéricos não são planos")
+    return ("plano com marcadores reconhecíveis mas sem nós parseáveis — "
+            "provável conteúdo malformado ou truncado",
+            "reexporte o plano completo (o texto parece truncado) ou "
+            "anexe o event log da execução")
+
+
 class SparkPlanAnalyzer(Analyzer):
     """Parses EXPLAIN / physical plan text into a tree and flags candidates."""
 
@@ -92,6 +116,27 @@ class SparkPlanAnalyzer(Analyzer):
             digest = hashlib.sha256(input_file.text.encode()).hexdigest()
             plan = parse_plan(input_file.text, source=str(input_file.path))
             self._check_depth(plan)
+
+            # §7.5 (Cycle 08.1): distinguish *why* nothing was parsed —
+            # never emit perf diagnostics on zero usable nodes.
+            all_unknown = bool(plan.nodes) and all(
+                n.operator.startswith("unknown:") for n in plan.nodes.values())
+            if not plan.nodes or all_unknown:
+                reason, needed = _classify_empty_parse(input_file.text)
+                findings.append(
+                    Finding(
+                        category=FindingCategory.UNKNOWN,
+                        severity=Severity.INFO,
+                        status=FindingStatus.UNKNOWN,
+                        explanation=(
+                            f"{input_file.path}: {reason}. Nenhum diagnóstico "
+                            f"de performance é produzido sem dados de plano."
+                        ),
+                        evidence_ids=[],
+                        recommendations=[needed],
+                    )
+                )
+                continue
 
             if len(plan.nodes) > _MAX_NODES_FOR_ANALYSIS:
                 limitations.append(

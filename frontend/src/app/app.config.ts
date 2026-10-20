@@ -8,6 +8,7 @@ import { provideRouter, TitleStrategy, withInMemoryScrolling } from "@angular/ro
 import { routes } from "./app.routes";
 import { httpErrorInterceptor } from "./core/http-error.interceptor";
 import { LocalizedTitleStrategy } from "./core/i18n/localized-title.strategy";
+import { authInterceptor } from "./core/session/auth.interceptor";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +17,12 @@ export const appConfig: ApplicationConfig = {
       routes,
       withInMemoryScrolling({ scrollPositionRestoration: "top" }),
     ),
-    provideHttpClient(withInterceptors([httpErrorInterceptor])),
+    // authInterceptor must run before httpErrorInterceptor so a 401 is
+    // already handled (session cleared + routed to the gate) by the time
+    // the generic error toast would otherwise fire.
+    provideHttpClient(
+      withInterceptors([authInterceptor, httpErrorInterceptor]),
+    ),
     // useExisting: a single instance shared by the Router (TitleStrategy
     // token) and AppComponent's locale-refresh effect. With useClass the
     // component would inject a *different* root instance whose

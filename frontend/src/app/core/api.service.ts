@@ -1,8 +1,9 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpContext, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { environment } from "../../environments/environment";
+import { SESSION_CANDIDATE_TOKEN } from "./session/session-tokens";
 import {
   AgentDescriptor,
   AlertRecord,
@@ -50,6 +51,19 @@ export class ApiService {
 
   capabilities(): Observable<CapabilityDescriptor[]> {
     return this.http.get<CapabilityDescriptor[]>(`${this.base}/capabilities`);
+  }
+
+  /**
+   * Validate a candidate bearer token without touching the persisted
+   * session (ADR-0014). `SESSION_CANDIDATE_TOKEN` tells `authInterceptor`
+   * to attach this token instead of (or absent) the stored session token,
+   * so `SessionService.establish()` can probe `GET /capabilities` before
+   * deciding whether to persist anything.
+   */
+  validateToken(token: string): Observable<CapabilityDescriptor[]> {
+    return this.http.get<CapabilityDescriptor[]>(`${this.base}/capabilities`, {
+      context: new HttpContext().set(SESSION_CANDIDATE_TOKEN, token),
+    });
   }
 
   tools(): Observable<ToolManifestEntry[]> {
