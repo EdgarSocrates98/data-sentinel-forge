@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "RuleType": {
+      "enum": [
+        "completeness",
+        "not_null",
+        "uniqueness",
+        "uniqueness_ratio",
+        "compliance",
+        "range",
+        "numeric_range",
+        "freshness",
+        "schema",
+        "size",
+        "row_count",
+        "accepted_values",
+        "referential_integrity",
+        "string_pattern",
+        "data_type",
+        "distribution",
+        "business_rule",
+        "custom"
+      ],
+      "title": "RuleType",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "execution_requirements": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Execution Requirements",
+      "type": "array"
+    },
+    "expected": {
+      "default": null,
+      "title": "Expected"
+    },
+    "parameters": {
+      "additionalProperties": true,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "rule_id": {
+      "minLength": 1,
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "rule_type": {
+      "$ref": "#/$defs/RuleType"
+    },
+    "severity": {
+      "default": "medium",
+      "title": "Severity",
+      "type": "string"
+    },
+    "target": {
+      "minLength": 1,
+      "title": "Target",
+      "type": "string"
+    },
+    "tolerance": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tolerance"
+    }
+  },
+  "required": [
+    "rule_id",
+    "rule_type",
+    "target"
+  ],
+  "title": "QualityRule",
+  "type": "object"
+}

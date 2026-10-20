@@ -1,0 +1,420 @@
+{
+  "$defs": {
+    "AccessMetadata": {
+      "additionalProperties": false,
+      "description": "How an evidence artifact was accessed.",
+      "properties": {
+        "access_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Access Method"
+        },
+        "accessed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Accessed By"
+        }
+      },
+      "title": "AccessMetadata",
+      "type": "object"
+    },
+    "DatasetReference": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "default": "",
+          "title": "Account",
+          "type": "string"
+        },
+        "catalog": {
+          "default": "",
+          "title": "Catalog",
+          "type": "string"
+        },
+        "identifier": {
+          "default": "",
+          "title": "Identifier",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "platform": {
+          "default": "",
+          "title": "Platform",
+          "type": "string"
+        },
+        "region": {
+          "default": "",
+          "title": "Region",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "title": "DatasetReference",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "description": "A traceable excerpt supporting findings (\u00a74).",
+      "properties": {
+        "access_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AccessMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "captured_at": {
+          "format": "date-time",
+          "title": "Captured At",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "content_hash": {
+          "minLength": 1,
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "evidence_id": {
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/EvidenceProvenance"
+        },
+        "sanitized_excerpt": {
+          "title": "Sanitized Excerpt",
+          "type": "string"
+        },
+        "source": {
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "source_location": {
+          "minLength": 1,
+          "title": "Source Location",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "source_location",
+        "captured_at",
+        "content_hash",
+        "sanitized_excerpt",
+        "provenance",
+        "confidence"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "EvidenceProvenance": {
+      "description": "How a piece of evidence was obtained (\u00a72.4).",
+      "enum": [
+        "declared",
+        "static_inferred",
+        "observed"
+      ],
+      "title": "EvidenceProvenance",
+      "type": "string"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "description": "An evidence-backed diagnostic conclusion (\u00a74).",
+      "properties": {
+        "alternatives": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "category": {
+          "$ref": "#/$defs/FindingCategory"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "explanation": {
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "finding_id": {
+          "title": "Finding Id",
+          "type": "string"
+        },
+        "recommendations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommendations",
+          "type": "array"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "status": {
+          "$ref": "#/$defs/FindingStatus"
+        },
+        "validation_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validation Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "category",
+        "severity",
+        "status",
+        "explanation"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingCategory": {
+      "description": "Classification of a finding's technical domain.",
+      "enum": [
+        "out_of_memory",
+        "disk_space",
+        "data_skew",
+        "configuration",
+        "permissions",
+        "network_io",
+        "dependency",
+        "timeout",
+        "executor_loss",
+        "sql_antipattern",
+        "data_quality",
+        "cost",
+        "security",
+        "compatibility",
+        "unknown"
+      ],
+      "title": "FindingCategory",
+      "type": "string"
+    },
+    "FindingStatus": {
+      "description": "Certainty taxonomy for findings (\u00a72.1).",
+      "enum": [
+        "CONFIRMED",
+        "PROBABLE",
+        "POSSIBLE",
+        "UNKNOWN"
+      ],
+      "title": "FindingStatus",
+      "type": "string"
+    },
+    "ObservationStatus": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "WARN",
+        "UNKNOWN"
+      ],
+      "title": "ObservationStatus",
+      "type": "string"
+    },
+    "QualityObservation": {
+      "additionalProperties": false,
+      "description": "A normalized, observed quality measurement (\u00a74.5).",
+      "properties": {
+        "dataset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DatasetReference"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "expected_value": {
+          "default": null,
+          "title": "Expected Value"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        },
+        "metric_name": {
+          "default": "",
+          "title": "Metric Name",
+          "type": "string"
+        },
+        "observation_id": {
+          "minLength": 1,
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "observed_value": {
+          "default": null,
+          "title": "Observed Value"
+        },
+        "provenance": {
+          "default": "",
+          "title": "Provenance",
+          "type": "string"
+        },
+        "rule_id": {
+          "default": "",
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "run_id": {
+          "default": "",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "source": {
+          "default": "",
+          "title": "Source",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/ObservationStatus",
+          "default": "UNKNOWN"
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp"
+        },
+        "unit": {
+          "default": "",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "observation_id"
+      ],
+      "title": "QualityObservation",
+      "type": "object"
+    },
+    "Severity": {
+      "description": "Impact severity of a finding or recommendation.",
+      "enum": [
+        "INFO",
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assessment_id": {
+      "minLength": 1,
+      "title": "Assessment Id",
+      "type": "string"
+    },
+    "contract_version": {
+      "default": "",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "execution_context": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Execution Context",
+      "type": "object"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "observations": {
+      "items": {
+        "$ref": "#/$defs/QualityObservation"
+      },
+      "title": "Observations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "assessment_id"
+  ],
+  "title": "QualityAssessment",
+  "type": "object"
+}

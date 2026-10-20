@@ -1,0 +1,229 @@
+{
+  "$defs": {
+    "DatasetReference": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "default": "",
+          "title": "Account",
+          "type": "string"
+        },
+        "catalog": {
+          "default": "",
+          "title": "Catalog",
+          "type": "string"
+        },
+        "identifier": {
+          "default": "",
+          "title": "Identifier",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "platform": {
+          "default": "",
+          "title": "Platform",
+          "type": "string"
+        },
+        "region": {
+          "default": "",
+          "title": "Region",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "title": "DatasetReference",
+      "type": "object"
+    },
+    "FreshnessPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "max_age_seconds": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Age Seconds"
+        },
+        "reference_field": {
+          "default": "",
+          "title": "Reference Field",
+          "type": "string"
+        }
+      },
+      "title": "FreshnessPolicy",
+      "type": "object"
+    },
+    "QualityRule": {
+      "additionalProperties": false,
+      "properties": {
+        "execution_requirements": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Execution Requirements",
+          "type": "array"
+        },
+        "expected": {
+          "default": null,
+          "title": "Expected"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "rule_id": {
+          "minLength": 1,
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "rule_type": {
+          "$ref": "#/$defs/RuleType"
+        },
+        "severity": {
+          "default": "medium",
+          "title": "Severity",
+          "type": "string"
+        },
+        "target": {
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "tolerance": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tolerance"
+        }
+      },
+      "required": [
+        "rule_id",
+        "rule_type",
+        "target"
+      ],
+      "title": "QualityRule",
+      "type": "object"
+    },
+    "RuleType": {
+      "enum": [
+        "completeness",
+        "not_null",
+        "uniqueness",
+        "uniqueness_ratio",
+        "compliance",
+        "range",
+        "numeric_range",
+        "freshness",
+        "schema",
+        "size",
+        "row_count",
+        "accepted_values",
+        "referential_integrity",
+        "string_pattern",
+        "data_type",
+        "distribution",
+        "business_rule",
+        "custom"
+      ],
+      "title": "RuleType",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Constraints",
+      "type": "array"
+    },
+    "contract_id": {
+      "minLength": 1,
+      "title": "Contract Id",
+      "type": "string"
+    },
+    "dataset": {
+      "$ref": "#/$defs/DatasetReference"
+    },
+    "freshness_policy": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FreshnessPolicy"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "owner": {
+      "default": "",
+      "title": "Owner",
+      "type": "string"
+    },
+    "provenance": {
+      "default": "",
+      "title": "Provenance",
+      "type": "string"
+    },
+    "quality_rules": {
+      "items": {
+        "$ref": "#/$defs/QualityRule"
+      },
+      "title": "Quality Rules",
+      "type": "array"
+    },
+    "schema": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Schema",
+      "type": "object"
+    },
+    "version": {
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contract_id",
+    "version",
+    "dataset"
+  ],
+  "title": "DataQualityContract",
+  "type": "object"
+}

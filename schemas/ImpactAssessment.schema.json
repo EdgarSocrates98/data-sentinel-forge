@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "DatasetReference": {
+      "additionalProperties": false,
+      "properties": {
+        "account": {
+          "default": "",
+          "title": "Account",
+          "type": "string"
+        },
+        "catalog": {
+          "default": "",
+          "title": "Catalog",
+          "type": "string"
+        },
+        "identifier": {
+          "default": "",
+          "title": "Identifier",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "namespace": {
+          "minLength": 1,
+          "title": "Namespace",
+          "type": "string"
+        },
+        "platform": {
+          "default": "",
+          "title": "Platform",
+          "type": "string"
+        },
+        "region": {
+          "default": "",
+          "title": "Region",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "namespace",
+        "name"
+      ],
+      "title": "DatasetReference",
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "affected_entities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Affected Entities",
+      "type": "array"
+    },
+    "confidence": {
+      "default": 0.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "downstream": {
+      "items": {
+        "$ref": "#/$defs/DatasetReference"
+      },
+      "title": "Downstream",
+      "type": "array"
+    },
+    "graph_paths": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "Graph Paths",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "potential_only": {
+      "const": true,
+      "default": true,
+      "title": "Potential Only",
+      "type": "boolean"
+    },
+    "target": {
+      "$ref": "#/$defs/DatasetReference"
+    },
+    "upstream": {
+      "items": {
+        "$ref": "#/$defs/DatasetReference"
+      },
+      "title": "Upstream",
+      "type": "array"
+    }
+  },
+  "required": [
+    "target"
+  ],
+  "title": "ImpactAssessment",
+  "type": "object"
+}

@@ -29,6 +29,13 @@ from data_sentinel.core.contracts import (
     ResourceContext,
     ExternalDiagnosticBundle,
     CapabilityDescriptor,
+    DataQualityContract,
+    QualityRule,
+    QualityObservation,
+    QualityAssessment,
+    DatasetReference,
+    LineageEvent,
+    ImpactAssessment,
 )
 
 ENTITIES: dict[str, Any] = {
@@ -54,6 +61,13 @@ ENTITIES: dict[str, Any] = {
         ResourceContext,
         ExternalDiagnosticBundle,
         CapabilityDescriptor,
+        DataQualityContract,
+        QualityRule,
+        QualityObservation,
+        QualityAssessment,
+        DatasetReference,
+        LineageEvent,
+        ImpactAssessment,
     )
 }
 

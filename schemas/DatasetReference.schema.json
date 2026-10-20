@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "account": {
+      "default": "",
+      "title": "Account",
+      "type": "string"
+    },
+    "catalog": {
+      "default": "",
+      "title": "Catalog",
+      "type": "string"
+    },
+    "identifier": {
+      "default": "",
+      "title": "Identifier",
+      "type": "string"
+    },
+    "name": {
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "namespace": {
+      "minLength": 1,
+      "title": "Namespace",
+      "type": "string"
+    },
+    "platform": {
+      "default": "",
+      "title": "Platform",
+      "type": "string"
+    },
+    "region": {
+      "default": "",
+      "title": "Region",
+      "type": "string"
+    },
+    "version": {
+      "default": "",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "namespace",
+    "name"
+  ],
+  "title": "DatasetReference",
+  "type": "object"
+}
