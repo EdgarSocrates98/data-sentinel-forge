@@ -124,12 +124,13 @@ def test_j_clean_wheel_offline(tmp_path: Path) -> None:
     subprocess.run(  # noqa: S603 — venv do próprio teste
         [sys.executable, "-m", "venv", str(venv)],
         check=True, capture_output=True)
-    pip = venv / "bin" / "pip"
+    scripts = "Scripts" if sys.platform == "win32" else "bin"
+    pip = venv / scripts / "pip"
     r = subprocess.run(  # noqa: S603 — venv do próprio teste
         [str(pip), "install", "-q", str(whl)],
         capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
-    ds = venv / "bin" / "data-sentinel"
+    ds = venv / scripts / "data-sentinel"
     out = subprocess.run(  # noqa: S603 — venv do próprio teste
         [str(ds), "emr", "analyze", "-f",
          str(FX / "emr-ec2-failed-step.json").replace(

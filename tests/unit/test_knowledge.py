@@ -1,6 +1,7 @@
 """ds-0022 — knowledge base: schema, engine, packaging."""
 
 import subprocess
+import sys
 import tempfile
 import venv
 from pathlib import Path
@@ -157,7 +158,8 @@ def test_wheel_contains_rules_and_loads_outside_checkout():
     wheel = next(Path("dist").glob("data_sentinel-*.whl"))
     with tempfile.TemporaryDirectory() as td:
         venv.create(td, with_pip=True)
-        pip = Path(td) / "bin" / "pip"
+        scripts = "Scripts" if sys.platform == "win32" else "bin"
+        pip = Path(td) / scripts / "pip"
         subprocess.run(  # noqa: S603 - wheel local construído pelo próprio teste
             [str(pip), "install", "-q", str(wheel.resolve())],
             check=True, capture_output=True,
@@ -170,7 +172,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout():
             "print(len(rules))"
         )
         out = subprocess.run(  # noqa: S603 - python da venv criada pelo teste
-            [str(Path(td) / "bin" / "python"), "-c", code],
+            [str(Path(td) / scripts / "python"), "-c", code],
             check=True, capture_output=True, text=True, cwd=td,
         )
         assert int(out.stdout.strip()) >= 7
