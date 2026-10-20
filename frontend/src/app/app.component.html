@@ -1,0 +1,94 @@
+<a class="skip-link" href="#main-content">{{ "a11y.skipToContent" | t }}</a>
+
+<div class="shell">
+  <header class="topbar" [attr.aria-label]="'a11y.topbar' | t">
+    <div class="brand">
+      <img
+        class="brand-logo"
+        src="assets/logo-128.png"
+        width="36"
+        height="36"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="brand-text">
+        <span class="brand-name">{{ "app.name" | t }}</span>
+        <span class="brand-sub">{{ "app.subtitle" | t }}</span>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button
+        type="button"
+        class="ds-btn"
+        (click)="toggleLocale()"
+        [attr.aria-label]="'lang.switch' | t"
+      >
+        {{ i18n.locale() === "pt-BR" ? "EN" : "PT" }}
+      </button>
+      <button
+        type="button"
+        class="ds-btn"
+        (click)="toggleTheme()"
+        [attr.aria-label]="
+          (themeService.theme() === 'dark'
+            ? 'theme.toLight'
+            : 'theme.toDark') | t
+        "
+      >
+        <span aria-hidden="true">
+          {{ themeService.theme() === "dark" ? "☀" : "☾" }}
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <div class="shell-body">
+    <nav class="sidenav" [attr.aria-label]="'a11y.primaryNav' | t">
+      <ul>
+        @for (item of navItems; track item.path) {
+          <li>
+            <a
+              [routerLink]="item.path"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: item.exact }"
+            >
+              <ds-nav-icon [name]="item.icon" />
+              <span>{{ item.labelKey | t }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </nav>
+
+    <main id="main-content" class="content" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+
+  <div
+    class="toast-region"
+    role="status"
+    aria-live="polite"
+    [attr.aria-label]="'a11y.notifications' | t"
+  >
+    @if (errorStore.last(); as err) {
+      <div class="toast" role="alert">
+        <div class="toast-body">
+          <strong>{{ err.message | t }}</strong>
+          @if (err.detail) {
+            <span class="toast-detail">{{ err.detail }}</span>
+          }
+        </div>
+        <button
+          type="button"
+          class="ds-btn toast-dismiss"
+          (click)="dismissError()"
+          [attr.aria-label]="'a11y.dismiss' | t"
+        >
+          ✕
+        </button>
+      </div>
+    }
+  </div>
+</div>

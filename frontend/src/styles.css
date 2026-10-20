@@ -1,0 +1,158 @@
+/* Data Sentinel — global base styles.
+   Design tokens live in ./styles/tokens.css (3-layer system). */
+
+@import "./styles/tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-md);
+  line-height: var(--ds-p-leading-normal);
+  color: var(--ds-fg);
+  background: var(--ds-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--ds-p-leading-tight);
+  font-weight: var(--ds-p-weight-semibold);
+  margin: 0 0 var(--ds-space-3);
+}
+
+p {
+  margin: 0 0 var(--ds-space-3);
+}
+
+a {
+  color: var(--ds-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--ds-link-hover);
+  text-decoration: underline;
+}
+
+code,
+pre,
+kbd {
+  font-family: var(--ds-font-mono);
+  font-size: 0.9em;
+}
+
+/* --- Accessible focus: always visible, 3px accent ring --- */
+:focus-visible {
+  outline: 3px solid var(--ds-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}
+
+/* --- Skip link (visible only when focused) --- */
+.skip-link {
+  position: fixed;
+  top: var(--ds-space-2);
+  left: var(--ds-space-2);
+  z-index: 1000;
+  padding: var(--ds-space-2) var(--ds-space-4);
+  background: var(--ds-accent-emphasis);
+  color: var(--ds-fg-on-accent);
+  font-weight: var(--ds-p-weight-semibold);
+  border-radius: var(--ds-radius-md);
+  transform: translateY(-200%);
+  transition: transform var(--ds-duration-base) var(--ds-ease-standard);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* --- Shared primitives --- */
+.ds-card {
+  background: var(--ds-card-bg);
+  border: 1px solid var(--ds-card-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-card-shadow);
+}
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-1) var(--ds-space-3);
+  font-size: var(--ds-text-xs);
+  font-weight: var(--ds-p-weight-medium);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ds-badge-fg);
+  background: var(--ds-badge-bg);
+  border: 1px solid var(--ds-badge-border);
+  border-radius: var(--ds-radius-full);
+}
+
+.ds-badge--wip {
+  color: var(--ds-warning);
+  background: var(--ds-warning-bg);
+  border-color: var(--ds-warning);
+}
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ds-space-2);
+  padding: var(--ds-space-2) var(--ds-space-4);
+  font: inherit;
+  font-size: var(--ds-text-sm);
+  font-weight: var(--ds-p-weight-medium);
+  color: var(--ds-btn-fg);
+  background: var(--ds-btn-bg);
+  border: 1px solid var(--ds-btn-border);
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  transition:
+    background var(--ds-duration-fast) var(--ds-ease-standard),
+    border-color var(--ds-duration-fast) var(--ds-ease-standard);
+}
+
+.ds-btn:hover {
+  background: var(--ds-btn-bg-hover);
+}
+
+/* --- Reduced motion: honor user preference globally --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* --- Visually hidden (screen-reader-only content) --- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,81 @@
+import { Routes } from "@angular/router";
+
+/**
+ * Lazy-loaded feature routes. `title` carries an i18n key resolved by
+ * `LocalizedTitleStrategy`; nav labels use `data.labelKey`.
+ */
+export const routes: Routes = [
+  {
+    path: "",
+    title: "pages.dashboard.title",
+    data: { labelKey: "nav.dashboard" },
+    loadComponent: () =>
+      import("./features/dashboard/dashboard.component").then(
+        (m) => m.DashboardComponent,
+      ),
+  },
+  {
+    path: "investigations",
+    title: "pages.investigations.title",
+    data: { labelKey: "nav.investigations" },
+    loadComponent: () =>
+      import("./features/investigations/investigations.component").then(
+        (m) => m.InvestigationsComponent,
+      ),
+  },
+  {
+    path: "evidence-graph",
+    title: "pages.evidenceGraph.title",
+    data: { labelKey: "nav.evidenceGraph" },
+    loadComponent: () =>
+      import("./features/evidence-graph/evidence-graph.component").then(
+        (m) => m.EvidenceGraphComponent,
+      ),
+  },
+  {
+    path: "workloads",
+    title: "pages.workloads.title",
+    data: { labelKey: "nav.workloads" },
+    loadComponent: () =>
+      import("./features/workloads/workloads.component").then(
+        (m) => m.WorkloadsComponent,
+      ),
+  },
+  {
+    path: "spark-plans",
+    title: "pages.sparkPlans.title",
+    data: { labelKey: "nav.sparkPlans" },
+    loadComponent: () =>
+      import("./features/spark-plans/spark-plans.component").then(
+        (m) => m.SparkPlansComponent,
+      ),
+  },
+  {
+    path: "quality-lineage",
+    title: "pages.qualityLineage.title",
+    data: { labelKey: "nav.qualityLineage" },
+    loadComponent: () =>
+      import("./features/quality-lineage/quality-lineage.component").then(
+        (m) => m.QualityLineageComponent,
+      ),
+  },
+  {
+    path: "agents",
+    title: "pages.agents.title",
+    data: { labelKey: "nav.agents" },
+    loadComponent: () =>
+      import("./features/agents/agents.component").then(
+        (m) => m.AgentsComponent,
+      ),
+  },
+  {
+    path: "reports",
+    title: "pages.reports.title",
+    data: { labelKey: "nav.reports" },
+    loadComponent: () =>
+      import("./features/reports/reports.component").then(
+        (m) => m.ReportsComponent,
+      ),
+  },
+  { path: "**", redirectTo: "" },
+];

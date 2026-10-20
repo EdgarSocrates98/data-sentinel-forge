@@ -1,0 +1,90 @@
+<article class="page" aria-labelledby="page-title">
+  <header class="page-header">
+    <h1 id="page-title">{{ "pages.dashboard.title" | t }}</h1>
+    <p class="lead">{{ "pages.dashboard.lead" | t }}</p>
+  </header>
+
+  <div class="grid">
+    <section
+      class="ds-card panel"
+      aria-labelledby="api-card-title"
+      [attr.data-state]="state()"
+    >
+      <h2 id="api-card-title">{{ "pages.dashboard.apiCard.title" | t }}</h2>
+
+      @if (state() === "loading") {
+        <p class="muted" role="status">{{ "status.loading" | t }}</p>
+      }
+
+      @if (state() === "ok") {
+        <p class="status status--ok" role="status">
+          <span class="dot dot--ok" aria-hidden="true"></span>
+          {{ "status.apiConnected" | t }}
+        </p>
+        @if (health(); as h) {
+          <dl class="kv">
+            <div>
+              <dt>{{ "pages.dashboard.apiCard.version" | t }}</dt>
+              <dd>{{ h.version }}</dd>
+            </div>
+            <div>
+              <dt>{{ "pages.dashboard.apiCard.api" | t }}</dt>
+              <dd>{{ h.api }}</dd>
+            </div>
+            <div>
+              <dt>{{ "pages.dashboard.apiCard.endpoint" | t }}</dt>
+              <dd><code>{{ endpoint }}</code></dd>
+            </div>
+          </dl>
+        }
+      }
+
+      @if (state() === "error") {
+        <p class="status status--err" role="alert">
+          <span class="dot dot--err" aria-hidden="true"></span>
+          {{ "status.apiUnreachable" | t }}
+        </p>
+        <p class="muted">{{ "pages.dashboard.apiCard.hint" | t }}</p>
+        <p class="muted"><code>{{ endpoint }}</code></p>
+        <button type="button" class="ds-btn" (click)="refresh()">
+          {{ "status.retry" | t }}
+        </button>
+      }
+    </section>
+
+    <section class="ds-card panel" aria-labelledby="caps-card-title">
+      <h2 id="caps-card-title">
+        {{ "pages.dashboard.capsCard.title" | t }}
+      </h2>
+      @if (counts(); as c) {
+        <ul class="counts">
+          <li>
+            <span class="count">{{ c.capabilities }}</span>
+            <span class="count-label">
+              {{ "pages.dashboard.capsCard.caps" | t }}
+            </span>
+          </li>
+          <li>
+            <span class="count">{{ c.tools }}</span>
+            <span class="count-label">
+              {{ "pages.dashboard.capsCard.tools" | t }}
+            </span>
+          </li>
+          <li>
+            <span class="count">{{ c.agents }}</span>
+            <span class="count-label">
+              {{ "pages.dashboard.capsCard.agents" | t }}
+            </span>
+          </li>
+        </ul>
+      } @else {
+        <p class="muted">{{ "pages.dashboard.capsCard.empty" | t }}</p>
+      }
+    </section>
+  </div>
+
+  <section class="ds-card panel" aria-labelledby="scope-title">
+    <h2 id="scope-title">{{ "pages.dashboard.scope.title" | t }}</h2>
+    <p class="muted">{{ "pages.dashboard.scope.body" | t }}</p>
+  </section>
+</article>

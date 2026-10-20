@@ -30,3 +30,9 @@ data/sentinel.db
 graphify-out/
 prompt_evo*md
 prompt_inicial.md
+
+# Frontend (Angular)
+node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/

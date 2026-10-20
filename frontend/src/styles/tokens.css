@@ -1,0 +1,340 @@
+/* ==========================================================================
+   Data Sentinel — Design Tokens (3-layer architecture)
+   --------------------------------------------------------------------------
+   Layer 1 — PRIMITIVE  : raw palette, spacing, typography, radius, motion.
+                          Never referenced directly by components.
+   Layer 2 — SEMANTIC   : intent tokens (surface, foreground, accent,
+                          severity, confidence). Theme-dependent.
+                          Dark is the default; `[data-theme="light"]`
+                          re-declares this layer only.
+   Layer 3 — COMPONENT  : per-surface tokens consumed by components
+                          (topbar, sidenav, card, chip, button...).
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   LAYER 1 — PRIMITIVES (theme-agnostic)
+   -------------------------------------------------------------------------- */
+:root {
+  /* --- palette: Sentinel blue/cyan scale (primitive, unnamed intent) --- */
+  --ds-p-blue-950: #04101f;
+  --ds-p-blue-900: #0b1220;
+  --ds-p-blue-850: #101a2e;
+  --ds-p-blue-800: #16233c;
+  --ds-p-blue-700: #1e3050;
+  --ds-p-blue-600: #274264;
+  --ds-p-blue-500: #33608f;
+  --ds-p-blue-400: #4a86c4;
+  --ds-p-cyan-500: #0ea5e9;
+  --ds-p-cyan-400: #38bdf8;
+  --ds-p-cyan-300: #7dd3fc;
+  --ds-p-cyan-200: #bae6fd;
+  --ds-p-cyan-100: #e0f2fe;
+  --ds-p-cyan-700: #0369a1;
+  --ds-p-cyan-800: #075985;
+
+  /* --- neutral scale --- */
+  --ds-p-slate-050: #f6f9fd;
+  --ds-p-slate-100: #e8eef7;
+  --ds-p-slate-200: #d2dcea;
+  --ds-p-slate-300: #a8b8d4;
+  --ds-p-slate-400: #8496b4;
+  --ds-p-slate-500: #66748f;
+  --ds-p-slate-600: #4a5670;
+  --ds-p-slate-700: #33405c;
+  --ds-p-slate-800: #1e2740;
+  --ds-p-slate-900: #0e1b2e;
+
+  /* --- status primitives --- */
+  --ds-p-red-400: #f87171;
+  --ds-p-red-500: #ef4444;
+  --ds-p-red-700: #b91c1c;
+  --ds-p-orange-400: #fb923c;
+  --ds-p-orange-600: #d97706;
+  --ds-p-amber-300: #fcd34d;
+  --ds-p-amber-400: #fbbf24;
+  --ds-p-amber-700: #b45309;
+  --ds-p-emerald-300: #6ee7b7;
+  --ds-p-emerald-400: #34d399;
+  --ds-p-emerald-600: #059669;
+  --ds-p-violet-400: #a78bfa;
+  --ds-p-violet-600: #7c3aed;
+
+  /* --- spacing scale (4px base) --- */
+  --ds-p-space-0: 0;
+  --ds-p-space-1: 0.25rem;
+  --ds-p-space-2: 0.5rem;
+  --ds-p-space-3: 0.75rem;
+  --ds-p-space-4: 1rem;
+  --ds-p-space-5: 1.25rem;
+  --ds-p-space-6: 1.5rem;
+  --ds-p-space-8: 2rem;
+  --ds-p-space-10: 2.5rem;
+  --ds-p-space-12: 3rem;
+  --ds-p-space-16: 4rem;
+
+  /* --- typography primitives --- */
+  --ds-p-font-sans:
+    "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue",
+    Arial, sans-serif;
+  --ds-p-font-mono:
+    "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono",
+    Menlo, monospace;
+  --ds-p-text-xs: 0.75rem;
+  --ds-p-text-sm: 0.875rem;
+  --ds-p-text-md: 1rem;
+  --ds-p-text-lg: 1.125rem;
+  --ds-p-text-xl: 1.375rem;
+  --ds-p-text-2xl: 1.75rem;
+  --ds-p-text-3xl: 2.25rem;
+  --ds-p-leading-tight: 1.25;
+  --ds-p-leading-normal: 1.5;
+  --ds-p-leading-relaxed: 1.7;
+  --ds-p-weight-regular: 400;
+  --ds-p-weight-medium: 500;
+  --ds-p-weight-semibold: 600;
+  --ds-p-weight-bold: 700;
+
+  /* --- radius primitives --- */
+  --ds-p-radius-sm: 4px;
+  --ds-p-radius-md: 8px;
+  --ds-p-radius-lg: 12px;
+  --ds-p-radius-full: 9999px;
+
+  /* --- elevation primitives (layered shadows) --- */
+  --ds-p-shadow-1: 0 1px 2px rgb(0 0 0 / 24%);
+  --ds-p-shadow-2: 0 4px 12px rgb(0 0 0 / 32%);
+  --ds-p-shadow-3: 0 12px 32px rgb(0 0 0 / 40%);
+
+  /* --- motion primitives --- */
+  --ds-p-duration-fast: 120ms;
+  --ds-p-duration-base: 200ms;
+  --ds-p-duration-slow: 320ms;
+  --ds-p-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ds-p-ease-emphasized: cubic-bezier(0.3, 0, 0, 1);
+}
+
+/* --------------------------------------------------------------------------
+   LAYER 2 — SEMANTIC TOKENS · dark theme (default)
+   Contrast targets: WCAG 2.2 AA (>= 4.5:1 text on its surface).
+   -------------------------------------------------------------------------- */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* --- surfaces & background --- */
+  --ds-bg: var(--ds-p-blue-900);
+  --ds-bg-subtle: var(--ds-p-blue-850);
+  --ds-surface-1: var(--ds-p-blue-850);
+  --ds-surface-2: var(--ds-p-blue-800);
+  --ds-surface-3: var(--ds-p-blue-700);
+  --ds-surface-inverse: var(--ds-p-slate-050);
+
+  /* --- foreground --- */
+  --ds-fg: #eaf1fb;
+  --ds-fg-muted: var(--ds-p-slate-300);
+  --ds-fg-subtle: var(--ds-p-slate-400);
+  --ds-fg-on-accent: var(--ds-p-blue-950);
+  --ds-fg-inverse: var(--ds-p-slate-900);
+
+  /* --- accent / interactive --- */
+  --ds-accent: var(--ds-p-cyan-400);
+  --ds-accent-strong: var(--ds-p-cyan-300);
+  --ds-accent-emphasis: var(--ds-p-cyan-500);
+  --ds-accent-subtle: rgb(56 189 248 / 12%);
+  --ds-accent-hover: rgb(56 189 248 / 20%);
+  --ds-focus-ring: var(--ds-p-cyan-300);
+  --ds-link: var(--ds-p-cyan-300);
+  --ds-link-hover: var(--ds-p-cyan-200);
+
+  /* --- borders --- */
+  --ds-border: rgb(168 184 212 / 16%);
+  --ds-border-strong: rgb(168 184 212 / 32%);
+  --ds-border-accent: rgb(56 189 248 / 45%);
+
+  /* --- severity (impact of findings) --- */
+  --ds-severity-critical: var(--ds-p-red-400);
+  --ds-severity-critical-bg: rgb(248 113 113 / 14%);
+  --ds-severity-high: var(--ds-p-orange-400);
+  --ds-severity-high-bg: rgb(251 146 60 / 14%);
+  --ds-severity-medium: var(--ds-p-amber-400);
+  --ds-severity-medium-bg: rgb(251 191 36 / 14%);
+  --ds-severity-low: var(--ds-p-cyan-400);
+  --ds-severity-low-bg: rgb(56 189 248 / 14%);
+  --ds-severity-info: var(--ds-p-slate-300);
+  --ds-severity-info-bg: rgb(168 184 212 / 14%);
+
+  /* --- confidence / support verdicts (distinct from severity) --- */
+  --ds-confidence-high: var(--ds-p-emerald-400);
+  --ds-confidence-high-bg: rgb(52 211 153 / 14%);
+  --ds-confidence-medium: var(--ds-p-amber-300);
+  --ds-confidence-medium-bg: rgb(252 211 77 / 12%);
+  --ds-confidence-low: var(--ds-p-orange-400);
+  --ds-confidence-low-bg: rgb(251 146 60 / 14%);
+  --ds-confidence-unknown: var(--ds-p-slate-400);
+  --ds-confidence-unknown-bg: rgb(132 150 180 / 14%);
+
+  /* --- generic status --- */
+  --ds-success: var(--ds-p-emerald-400);
+  --ds-success-bg: rgb(52 211 153 / 14%);
+  --ds-warning: var(--ds-p-amber-400);
+  --ds-warning-bg: rgb(251 191 36 / 14%);
+  --ds-error: var(--ds-p-red-400);
+  --ds-error-bg: rgb(248 113 113 / 16%);
+  --ds-info: var(--ds-p-cyan-400);
+  --ds-info-bg: rgb(56 189 248 / 14%);
+
+  /* --- spacing aliases --- */
+  --ds-space-1: var(--ds-p-space-1);
+  --ds-space-2: var(--ds-p-space-2);
+  --ds-space-3: var(--ds-p-space-3);
+  --ds-space-4: var(--ds-p-space-4);
+  --ds-space-5: var(--ds-p-space-5);
+  --ds-space-6: var(--ds-p-space-6);
+  --ds-space-8: var(--ds-p-space-8);
+  --ds-space-10: var(--ds-p-space-10);
+  --ds-space-12: var(--ds-p-space-12);
+  --ds-space-16: var(--ds-p-space-16);
+
+  /* --- typography aliases --- */
+  --ds-font-sans: var(--ds-p-font-sans);
+  --ds-font-mono: var(--ds-p-font-mono);
+  --ds-text-xs: var(--ds-p-text-xs);
+  --ds-text-sm: var(--ds-p-text-sm);
+  --ds-text-md: var(--ds-p-text-md);
+  --ds-text-lg: var(--ds-p-text-lg);
+  --ds-text-xl: var(--ds-p-text-xl);
+  --ds-text-2xl: var(--ds-p-text-2xl);
+  --ds-text-3xl: var(--ds-p-text-3xl);
+
+  /* --- radius / elevation / motion aliases --- */
+  --ds-radius-sm: var(--ds-p-radius-sm);
+  --ds-radius-md: var(--ds-p-radius-md);
+  --ds-radius-lg: var(--ds-p-radius-lg);
+  --ds-radius-full: var(--ds-p-radius-full);
+  --ds-shadow-1: var(--ds-p-shadow-1);
+  --ds-shadow-2: var(--ds-p-shadow-2);
+  --ds-shadow-3: var(--ds-p-shadow-3);
+  --ds-duration-fast: var(--ds-p-duration-fast);
+  --ds-duration-base: var(--ds-p-duration-base);
+  --ds-duration-slow: var(--ds-p-duration-slow);
+  --ds-ease-standard: var(--ds-p-ease-standard);
+  --ds-ease-emphasized: var(--ds-p-ease-emphasized);
+}
+
+/* --------------------------------------------------------------------------
+   LAYER 2 — SEMANTIC TOKENS · light theme override
+   -------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --ds-bg: var(--ds-p-slate-050);
+  --ds-bg-subtle: var(--ds-p-slate-100);
+  --ds-surface-1: #ffffff;
+  --ds-surface-2: var(--ds-p-slate-100);
+  --ds-surface-3: var(--ds-p-slate-200);
+  --ds-surface-inverse: var(--ds-p-slate-900);
+
+  --ds-fg: var(--ds-p-slate-900);
+  --ds-fg-muted: var(--ds-p-slate-600);
+  --ds-fg-subtle: var(--ds-p-slate-500);
+  --ds-fg-on-accent: #ffffff;
+  --ds-fg-inverse: var(--ds-p-slate-050);
+
+  --ds-accent: var(--ds-p-cyan-700);
+  --ds-accent-strong: var(--ds-p-cyan-800);
+  --ds-accent-emphasis: var(--ds-p-cyan-600, #0284c7);
+  --ds-accent-subtle: rgb(3 105 161 / 10%);
+  --ds-accent-hover: rgb(3 105 161 / 18%);
+  --ds-focus-ring: var(--ds-p-cyan-700);
+  --ds-link: var(--ds-p-cyan-700);
+  --ds-link-hover: var(--ds-p-cyan-800);
+
+  --ds-border: rgb(14 27 46 / 14%);
+  --ds-border-strong: rgb(14 27 46 / 30%);
+  --ds-border-accent: rgb(3 105 161 / 45%);
+
+  --ds-severity-critical: var(--ds-p-red-700);
+  --ds-severity-critical-bg: rgb(185 28 28 / 10%);
+  --ds-severity-high: #c2410c;
+  --ds-severity-high-bg: rgb(194 65 12 / 10%);
+  --ds-severity-medium: var(--ds-p-amber-700);
+  --ds-severity-medium-bg: rgb(180 83 9 / 10%);
+  --ds-severity-low: var(--ds-p-cyan-700);
+  --ds-severity-low-bg: rgb(3 105 161 / 10%);
+  --ds-severity-info: var(--ds-p-slate-600);
+  --ds-severity-info-bg: rgb(74 86 112 / 10%);
+
+  --ds-confidence-high: var(--ds-p-emerald-600);
+  --ds-confidence-high-bg: rgb(5 150 105 / 10%);
+  --ds-confidence-medium: var(--ds-p-amber-700);
+  --ds-confidence-medium-bg: rgb(180 83 9 / 10%);
+  --ds-confidence-low: #c2410c;
+  --ds-confidence-low-bg: rgb(194 65 12 / 10%);
+  --ds-confidence-unknown: var(--ds-p-slate-500);
+  --ds-confidence-unknown-bg: rgb(102 116 143 / 10%);
+
+  --ds-success: var(--ds-p-emerald-600);
+  --ds-success-bg: rgb(5 150 105 / 10%);
+  --ds-warning: var(--ds-p-amber-700);
+  --ds-warning-bg: rgb(180 83 9 / 10%);
+  --ds-error: var(--ds-p-red-700);
+  --ds-error-bg: rgb(185 28 28 / 10%);
+  --ds-info: var(--ds-p-cyan-700);
+  --ds-info-bg: rgb(3 105 161 / 10%);
+
+  --ds-p-shadow-1: 0 1px 2px rgb(14 27 46 / 10%);
+  --ds-p-shadow-2: 0 4px 12px rgb(14 27 46 / 14%);
+  --ds-p-shadow-3: 0 12px 32px rgb(14 27 46 / 18%);
+}
+
+/* --------------------------------------------------------------------------
+   LAYER 3 — COMPONENT TOKENS
+   Components consume ONLY these (never primitives directly).
+   -------------------------------------------------------------------------- */
+:root {
+  /* app shell */
+  --ds-topbar-bg: var(--ds-surface-1);
+  --ds-topbar-border: var(--ds-border);
+  --ds-sidenav-bg: var(--ds-bg-subtle);
+  --ds-sidenav-border: var(--ds-border);
+  --ds-content-bg: var(--ds-bg);
+
+  /* nav links */
+  --ds-nav-fg: var(--ds-fg-muted);
+  --ds-nav-fg-hover: var(--ds-fg);
+  --ds-nav-bg-hover: var(--ds-accent-subtle);
+  --ds-nav-active-fg: var(--ds-accent-strong);
+  --ds-nav-active-bg: var(--ds-accent-subtle);
+  --ds-nav-active-border: var(--ds-accent);
+
+  /* cards / panels */
+  --ds-card-bg: var(--ds-surface-1);
+  --ds-card-border: var(--ds-border);
+  --ds-card-shadow: var(--ds-shadow-1);
+
+  /* buttons */
+  --ds-btn-bg: var(--ds-surface-2);
+  --ds-btn-fg: var(--ds-fg);
+  --ds-btn-border: var(--ds-border-strong);
+  --ds-btn-bg-hover: var(--ds-surface-3);
+  --ds-btn-primary-bg: var(--ds-accent-emphasis);
+  --ds-btn-primary-fg: var(--ds-fg-on-accent);
+  --ds-btn-primary-bg-hover: var(--ds-accent);
+
+  /* badges / chips */
+  --ds-badge-bg: var(--ds-surface-2);
+  --ds-badge-fg: var(--ds-fg-muted);
+  --ds-badge-border: var(--ds-border);
+
+  /* feedback */
+  --ds-toast-error-bg: var(--ds-surface-2);
+  --ds-toast-error-border: var(--ds-error);
+  --ds-skeleton-bg: var(--ds-surface-2);
+
+  /* data visualization categorical ramp */
+  --ds-chart-1: var(--ds-accent);
+  --ds-chart-2: var(--ds-p-violet-400);
+  --ds-chart-3: var(--ds-p-emerald-400);
+  --ds-chart-4: var(--ds-p-amber-400);
+  --ds-chart-5: var(--ds-p-red-400);
+}
