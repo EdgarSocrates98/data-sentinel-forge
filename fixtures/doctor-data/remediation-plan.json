@@ -1,0 +1,16 @@
+{
+  "actions": [
+    "Add tests for model.orders in schema.yml"
+  ],
+  "check_id": "FD-DBT-042",
+  "contract_version": "forge-contracts/1",
+  "id": "rp-1",
+  "problem": "Model without tests",
+  "requires_approval": true,
+  "risks": [
+    "test runtime"
+  ],
+  "targets": [
+    "model.orders"
+  ]
+}

@@ -1,0 +1,1215 @@
+{
+  "capabilities": {
+    "adls": {
+      "ADLS_ABFSS_DRIVER": "supported",
+      "ADLS_HIERARCHICAL_NAMESPACE": "supported",
+      "ADLS_POSIX_ACLS": "supported",
+      "ADLS_SOFT_DELETE": "supported"
+    },
+    "athena": {
+      "ATHENA_ICEBERG": "unknown",
+      "ATHENA_PREPARED_STATEMENTS": "unknown",
+      "ATHENA_RESULT_REUSE": "unknown",
+      "ATHENA_SYNC_INTEGRATION": "supported",
+      "ATHENA_UNLOAD": "unknown",
+      "LAKEFORMATION_FGAC": "unknown",
+      "LAKEFORMATION_FTA": "unknown"
+    },
+    "azure_fabric": {
+      "FABRIC_CAPACITY_THROTTLING": "conditional",
+      "FABRIC_DIRECT_LAKE": "supported",
+      "FABRIC_ONELAKE_SHORTCUTS": "supported"
+    },
+    "bigquery": {
+      "BIGLAKE_EXTERNAL": "supported",
+      "BI_ENGINE": "supported",
+      "CLUSTERING": "supported",
+      "DML_MUTATIONS": "conditional",
+      "PARTITIONING": "supported",
+      "SLOTS_RESERVATIONS": "supported",
+      "TIME_TRAVEL": "supported"
+    },
+    "catalog": {
+      "FINE_GRAINED_ACCESS": "unknown"
+    },
+    "compute_engine": {
+      "SERVERLESS_OPTION": "unknown"
+    },
+    "databricks": {
+      "DBX_BUNDLES": "supported",
+      "DBX_LAKEFLOW_PIPELINES": "supported",
+      "DBX_SERVERLESS_COMPUTE": "conditional",
+      "DBX_SQL_WAREHOUSE": "supported",
+      "DBX_UNITY_CATALOG": "supported"
+    },
+    "dataflow": {
+      "DATAFLOW_AUTOSCALING": "supported",
+      "DATAFLOW_DRAIN": "supported",
+      "DATAFLOW_STREAMING_ENGINE": "supported"
+    },
+    "dataplex": {
+      "DATAPLEX_AUTO_DISCOVERY": "supported",
+      "DATAPLEX_DATA_QUALITY": "supported",
+      "DATAPLEX_LAKE_ZONES": "supported"
+    },
+    "dataproc": {
+      "DATAPROC_AUTOSCALING": "supported",
+      "DATAPROC_PREEMPTIBLE_WORKERS": "supported",
+      "DATAPROC_SERVERLESS_BATCHES": "supported"
+    },
+    "delta": {
+      "DELTA_CDF": "conditional",
+      "DELTA_COLUMN_MAPPING": "conditional",
+      "DELTA_DELETION_VECTORS": "conditional",
+      "DELTA_LIQUID_CLUSTERING": "conditional",
+      "DELTA_MERGE": "supported",
+      "DELTA_OPTIMIZE": "supported",
+      "DELTA_SCHEMA_EVOLUTION": "supported",
+      "DELTA_VACUUM": "supported"
+    },
+    "dynamodb": {
+      "DYNAMODB_GLOBAL_TABLE_MREC": "supported",
+      "DYNAMODB_GLOBAL_TABLE_MRSC": "supported",
+      "DYNAMODB_GSI": "supported",
+      "DYNAMODB_LSI": "supported",
+      "DYNAMODB_STREAMS": "supported",
+      "DYNAMODB_STRONG_READ": "supported",
+      "DYNAMODB_TRANSACTIONS": "supported"
+    },
+    "dynamodb_global_table": {
+      "DYNAMODB_STRONG_READ": "conditional",
+      "DYNAMODB_TRANSACTIONS": "conditional"
+    },
+    "elasticsearch": {
+      "INGEST_PIPELINES": "supported",
+      "LIFECYCLE_MANAGEMENT": "supported",
+      "SERVERLESS_DEPLOYMENT": "conditional",
+      "VECTOR_SEARCH_KNN": "conditional"
+    },
+    "emr": {
+      "EMR_DELTA": "unknown",
+      "EMR_ICEBERG": "unknown",
+      "EMR_LAKE_FORMATION": "unknown",
+      "EMR_SERVERLESS": "unknown",
+      "LAKEFORMATION_FGAC": "unknown"
+    },
+    "eventhubs": {
+      "EVENTHUBS_CAPTURE": "supported",
+      "EVENTHUBS_KAFKA_ENDPOINT": "supported",
+      "EVENTHUBS_LONG_RETENTION": "conditional"
+    },
+    "flink": {
+      "FLINK_EXACTLY_ONCE_CHECKPOINTING": "conditional",
+      "FLINK_ROCKSDB_STATE": "supported",
+      "FLINK_SAVEPOINT_UPGRADES": "supported"
+    },
+    "glue": {
+      "ICEBERG_DELETE": "unknown",
+      "ICEBERG_MERGE_WRITE": "unknown",
+      "ICEBERG_UPDATE": "unknown",
+      "LAKEFORMATION_FGAC": "unknown",
+      "LAKEFORMATION_FTA": "unknown"
+    },
+    "graph": {
+      "GRAPH_BULK_LOAD": "conditional",
+      "GRAPH_PROPERTY_MODEL": "supported",
+      "GRAPH_QUERY_LANGUAGE_GREMLIN": "conditional",
+      "GRAPH_QUERY_LANGUAGE_OPENCYPHER": "conditional",
+      "GRAPH_QUERY_LANGUAGE_SPARQL": "conditional",
+      "GRAPH_RDF_MODEL": "supported"
+    },
+    "iceberg": {
+      "ICEBERG_DELETE": "conditional",
+      "ICEBERG_MERGE_WRITE": "conditional",
+      "ICEBERG_UPDATE": "conditional"
+    },
+    "kafka": {
+      "KAFKA_CONSUMER_GROUPS": "supported",
+      "KAFKA_REPLAYABLE_SOURCE": "supported"
+    },
+    "kinesis": {
+      "KINESIS_ENHANCED_FANOUT": "supported",
+      "KINESIS_EXTENDED_RETENTION": "supported",
+      "KINESIS_ON_DEMAND_MODE": "supported",
+      "KINESIS_REPLAYABLE_SOURCE": "supported"
+    },
+    "lakeformation": {
+      "LAKEFORMATION_CROSS_ACCOUNT": "conditional",
+      "LAKEFORMATION_HYBRID_ACCESS": "supported"
+    },
+    "lambda": {
+      "LAMBDA_DESTINATIONS": "supported",
+      "LAMBDA_RESERVED_CONCURRENCY": "supported",
+      "LAMBDA_SNAPSTART": "unknown",
+      "LAMBDA_STREAM_TO_LAKE": "conditional"
+    },
+    "managed_flink": {
+      "MANAGED_FLINK_AUTOSCALING": "supported"
+    },
+    "msk": {
+      "MSK_IAM_AUTH": "supported",
+      "MSK_SERVERLESS": "supported"
+    },
+    "neptune": {
+      "GRAPH_BULK_LOAD": "supported",
+      "GRAPH_PROPERTY_MODEL": "supported",
+      "GRAPH_RDF_MODEL": "supported",
+      "NEPTUNE_BULK_LOADER": "supported",
+      "NEPTUNE_EXPLAIN": "supported",
+      "NEPTUNE_GLOBAL_DATABASE": "supported",
+      "NEPTUNE_GREMLIN": "supported",
+      "NEPTUNE_OPENCYPHER": "supported",
+      "NEPTUNE_PROFILE": "supported",
+      "NEPTUNE_SPARQL": "supported"
+    },
+    "neptune_analytics": {
+      "NEPTUNE_ANALYTICS_ALGORITHMS": "supported"
+    },
+    "object_storage": {
+      "ENCRYPTION_AT_REST": "supported",
+      "VERSIONING": "unknown"
+    },
+    "opensearch": {
+      "INGEST_PIPELINES": "supported",
+      "LIFECYCLE_MANAGEMENT": "supported",
+      "SERVERLESS_DEPLOYMENT": "supported",
+      "VECTOR_SEARCH_KNN": "supported"
+    },
+    "operational_store": {
+      "TIME_TO_LIVE": "supported"
+    },
+    "pubsub": {
+      "PUBSUB_DEAD_LETTER": "supported",
+      "PUBSUB_EXACTLY_ONCE": "supported",
+      "PUBSUB_ORDERING_KEYS": "supported",
+      "PUBSUB_SEEK": "supported"
+    },
+    "purview": {
+      "PURVIEW_AUTOMATED_SCAN": "supported",
+      "PURVIEW_CLASSIFICATION": "supported",
+      "PURVIEW_LINEAGE": "supported"
+    },
+    "redshift": {
+      "AUTO_MATERIALIZED_VIEWS": "conditional",
+      "CONCURRENCY_SCALING": "supported",
+      "DATASHARES": "supported",
+      "DIST_SORT_KEYS": "supported",
+      "RA3_MANAGED_STORAGE": "conditional",
+      "SERVERLESS_RPU": "supported",
+      "SPECTRUM_EXTERNAL": "supported"
+    },
+    "snowflake": {
+      "CLUSTERING_KEYS": "supported",
+      "MULTI_CLUSTER_WAREHOUSE": "conditional",
+      "RESULT_CACHE": "supported",
+      "SHARING": "supported",
+      "SNOWPIPE": "supported",
+      "STREAMS_AND_TASKS": "supported",
+      "TIME_TRAVEL": "supported",
+      "ZERO_COPY_CLONE": "supported"
+    },
+    "spark_ss": {
+      "KAFKA_TRANSACTIONAL_SINK": "conditional"
+    },
+    "stream": {
+      "MESSAGE_ORDERING": "conditional",
+      "RETENTION_CONFIG": "supported"
+    },
+    "synapse": {
+      "SYNAPSE_CETAS": "supported",
+      "SYNAPSE_SERVERLESS_SQL": "supported",
+      "SYNAPSE_SPARK_AUTOSCALE": "supported"
+    },
+    "trino": {
+      "EVENT_LISTENERS": "conditional",
+      "FEDERATED_READ": "supported",
+      "FEDERATED_WRITE": "conditional",
+      "PUSHDOWN": "conditional",
+      "RESOURCE_GROUPS": "conditional",
+      "SPILL_TO_DISK": "conditional",
+      "TRANSACTIONAL_TABLES": "conditional"
+    },
+    "warehouse": {
+      "MATERIALIZED_VIEWS": "conditional",
+      "RESULT_CACHE": "conditional",
+      "SHARING": "conditional",
+      "SQL_QUERY": "supported",
+      "TIME_TRAVEL": "conditional",
+      "ZERO_COPY_CLONE": "unknown"
+    }
+  },
+  "contract": "handoff-bundle",
+  "contract_version": 1,
+  "graph": {
+    "entities": [],
+    "relationships": []
+  },
+  "plans": [],
+  "project": {
+    "name": "glue-project",
+    "root": "/tmp/doc-probe/glue-project"
+  },
+  "results": [
+    {
+      "category": "airflow",
+      "check_id": "AIR000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "a1dd3ab3ee0a6a00",
+      "line": null,
+      "message": "no Airflow usage detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Airflow usage"
+    },
+    {
+      "category": "serverless",
+      "check_id": "ATH000",
+      "confidence": "medium",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "a3220d0892512feb",
+      "line": null,
+      "message": "no Athena workgroups/queries/config detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Athena usage"
+    },
+    {
+      "category": "aws",
+      "check_id": "AWS001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "5fab4cbb7c1789a4",
+      "line": null,
+      "message": "AWS CLI not found",
+      "recommendation": "Install AWS CLI v2 for SSO and credential helpers.",
+      "severity": "info",
+      "title": "AWS CLI"
+    },
+    {
+      "category": "aws",
+      "check_id": "AWS002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "10679ac97bf915c3",
+      "line": null,
+      "message": "no AWS region configured",
+      "recommendation": "Set AWS_REGION/AWS_DEFAULT_REGION or add `region` to ~/.aws/config.",
+      "severity": "warning",
+      "title": "AWS region"
+    },
+    {
+      "category": "aws",
+      "check_id": "AWS003",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "9907f7abe0b0b0a9",
+      "line": null,
+      "message": "no credentials detected",
+      "recommendation": "Configure credentials via environment, ~/.aws/credentials, or SSO.",
+      "severity": "info",
+      "title": "AWS credentials"
+    },
+    {
+      "category": "aws",
+      "check_id": "AWS004",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "187ab1da4763c9d9",
+      "line": null,
+      "message": "using default resolution",
+      "recommendation": null,
+      "severity": "info",
+      "title": "AWS profile"
+    },
+    {
+      "category": "azure",
+      "check_id": "AZ000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "3d05a8b713404da5",
+      "line": null,
+      "message": "no Azure data-platform evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Azure data-platform surface"
+    },
+    {
+      "category": "bigquery",
+      "check_id": "BQ000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "7e0558bddf46f2e9",
+      "line": null,
+      "message": "no BigQuery evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "BigQuery surface"
+    },
+    {
+      "category": "ci",
+      "check_id": "CI001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "0cb325d0289fb66d",
+      "line": null,
+      "message": "No CI configuration found.",
+      "recommendation": "Add a CI pipeline (e.g. .github/workflows) to run tests and lint.",
+      "severity": "info",
+      "title": "CI configured"
+    },
+    {
+      "category": "cloud",
+      "check_id": "CLOUD000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "212e4d549110d76d",
+      "line": null,
+      "message": "no cloud-platform evidence",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Multi-cloud abstraction surface"
+    },
+    {
+      "category": "controlm",
+      "check_id": "CTM000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "6a9a40e88d290d63",
+      "line": null,
+      "message": "no Control-M usage detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Control-M usage"
+    },
+    {
+      "category": "dbt",
+      "check_id": "DBT000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "9fc856dccd6000c4",
+      "line": null,
+      "message": "no dbt evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "dbt surface"
+    },
+    {
+      "category": "platforms",
+      "check_id": "DBX000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "88168b7c1a86002e",
+      "line": null,
+      "message": "no Databricks workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Databricks usage"
+    },
+    {
+      "category": "datacontract",
+      "check_id": "DCTR000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "60a11eca2b7de057",
+      "line": null,
+      "message": "no data contract files detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Data contract surface"
+    },
+    {
+      "category": "dynamodb",
+      "check_id": "DDB001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "0ada8c74244e5a00",
+      "line": null,
+      "message": "no dynamodb workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "DynamoDB workload detected"
+    },
+    {
+      "category": "platforms",
+      "check_id": "DELTA000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "47be4dd24c536117",
+      "line": null,
+      "message": "no Delta Lake usage detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Delta Lake usage"
+    },
+    {
+      "category": "dependencies",
+      "check_id": "DEP001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "ce5ff79a12ee0925",
+      "line": null,
+      "message": "no lock file detected",
+      "recommendation": "Pin dependencies (poetry.lock, requirements.txt, uv.lock) for reproducible installs.",
+      "severity": "info",
+      "title": "Lock file"
+    },
+    {
+      "category": "dependencies",
+      "check_id": "DEP002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "25994d1f556fc57c",
+      "line": null,
+      "message": "requests has no version constraint",
+      "recommendation": "Declare a minimum or compatible version range.",
+      "severity": "warning",
+      "title": "Unrestricted dependencies"
+    },
+    {
+      "category": "dependencies",
+      "check_id": "DEP003",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "564ca3637956fc30",
+      "line": null,
+      "message": "no dev tools in runtime dependencies",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Dev tools as runtime deps"
+    },
+    {
+      "category": "docker",
+      "check_id": "DOCKER001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "bf2a460222517ce8",
+      "line": null,
+      "message": "No Dockerfile found.",
+      "recommendation": "Add a Dockerfile if this project ships a container image.",
+      "severity": "info",
+      "title": "Dockerfile present"
+    },
+    {
+      "category": "quality",
+      "check_id": "DQ000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "8a08ac8c31155c19",
+      "line": null,
+      "message": "no data-quality evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Data quality surface"
+    },
+    {
+      "category": "platforms",
+      "check_id": "EMR000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "b9c633ecf3329374",
+      "line": null,
+      "message": "no EMR workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "EMR usage"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "FLK000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "ce073cb05ff9393c",
+      "line": null,
+      "message": "no flink evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Flink surface detected"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "FLK001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "f6cb722466df4dca",
+      "line": null,
+      "message": "flink checkpointing configured (or no flink)",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Flink job without checkpointing"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "FLK002",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "f0fe62268335b007",
+      "line": null,
+      "message": "keyed state is checkpointed (or absent)",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Flink keyed state without checkpointing"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "FLK003",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "172463d8da962951",
+      "line": null,
+      "message": "managed apps autoscale or set parallelism",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Managed Flink app without autoscaling"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "FLK004",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "a5b462c662114906",
+      "line": null,
+      "message": "no AT_LEAST_ONCE declaration",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Flink checkpointing at AT_LEAST_ONCE"
+    },
+    {
+      "category": "gcp",
+      "check_id": "GCP000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "cc78e595a8de6dbf",
+      "line": null,
+      "message": "no GCP data-platform evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "GCP data-platform surface"
+    },
+    {
+      "category": "git",
+      "check_id": "GIT001",
+      "confidence": "high",
+      "evidence_kind": "observed_metadata",
+      "file": null,
+      "fingerprint": "b3f9dc1de5f22a12",
+      "line": null,
+      "message": "Project is not a git repository.",
+      "recommendation": "Run 'git init' to track changes and enable collaboration.",
+      "severity": "info",
+      "title": "Git repository"
+    },
+    {
+      "category": "glue",
+      "check_id": "GLUE001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "b1b6eaa8f3a0c189",
+      "line": null,
+      "message": "1 file(s) use awsglue/glue client",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Glue usage"
+    },
+    {
+      "category": "glue",
+      "check_id": "GLUE003",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "f0d58cfce2ffecf6",
+      "line": null,
+      "message": "no getResolvedOptions usage - job params may be hardcoded",
+      "recommendation": "Pass parameters via job arguments and getResolvedOptions.",
+      "severity": "info",
+      "title": "Job parameters"
+    },
+    {
+      "category": "graph",
+      "check_id": "GRAPH001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "a4580a21b9501598",
+      "line": null,
+      "message": "no graph workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Graph workload detected"
+    },
+    {
+      "category": "iceberg",
+      "check_id": "ICE000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "29dbca7f90c25722",
+      "line": null,
+      "message": "no Iceberg usage detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Iceberg usage"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "257394306a69e967",
+      "line": null,
+      "message": "no kafka evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka surface detected"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "d68f0592d62a706f",
+      "line": null,
+      "message": "no plaintext client-broker traffic detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "MSK cluster without TLS client-broker encryption"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "19779bf27be14581",
+      "line": null,
+      "message": "no single-partition topics detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka topic with a single partition"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK003",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "2f94b2c4ababb861",
+      "line": null,
+      "message": "no kafka streaming sources detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka source without maxOffsetsPerTrigger"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK004",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "2eba4eec6bd74939",
+      "line": null,
+      "message": "schema registry evidence present (or no kafka)",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka topics consumed without a schema registry"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK005",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "54e9a2ade15619f5",
+      "line": null,
+      "message": "consumer groups declared (or no consumers)",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka consumer without a consumer group"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KFK006",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "2a1320487f3246ed",
+      "line": null,
+      "message": "kafka security evidence present (or no kafka)",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kafka traffic without security evidence"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KIN000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "facd3aa73932fe5b",
+      "line": null,
+      "message": "no kinesis evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kinesis surface detected"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KIN001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "2e9da3a652909bef",
+      "line": null,
+      "message": "no single-shard provisioned streams",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kinesis stream with a single shard"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KIN002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "08a1184e65504937",
+      "line": null,
+      "message": "streams declare extended retention",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Kinesis stream with default retention"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "KIN003",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "61d3862794710e62",
+      "line": null,
+      "message": "fan-out is EFO-backed or single-consumer",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Multiple consumers without enhanced fan-out"
+    },
+    {
+      "category": "serverless",
+      "check_id": "LAM000",
+      "confidence": "medium",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "7cf91ac20dad177e",
+      "line": null,
+      "message": "no Lambda functions/config detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Lambda usage"
+    },
+    {
+      "category": "lakeformation",
+      "check_id": "LF000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "4420bb88d96a731b",
+      "line": null,
+      "message": "no Lake Formation resources detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Lake Formation usage"
+    },
+    {
+      "category": "metadata",
+      "check_id": "META000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "a28df8797e828749",
+      "line": null,
+      "message": "no metadata-catalog evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Metadata estate surface"
+    },
+    {
+      "category": "neptune",
+      "check_id": "NEP001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "928eb8fd18b18a40",
+      "line": null,
+      "message": "no neptune workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Neptune workload detected"
+    },
+    {
+      "category": "parquet",
+      "check_id": "PARQ000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "10cdc68c2027d83a",
+      "line": null,
+      "message": "no Parquet usage detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Parquet usage"
+    },
+    {
+      "category": "python",
+      "check_id": "PY001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "27da7d15f11d9f19",
+      "line": null,
+      "message": "Python 3.14.7 found on PATH.",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Python version"
+    },
+    {
+      "category": "python",
+      "check_id": "PY002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "a2e865a251367d42",
+      "line": null,
+      "message": "requires-python is not declared.",
+      "recommendation": "Declare requires-python (e.g. '>=3.11') in pyproject.toml.",
+      "severity": "warning",
+      "title": "requires-python"
+    },
+    {
+      "category": "python",
+      "check_id": "PY004",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "05932dbe01d74f54",
+      "line": null,
+      "message": "Virtual environment detected.",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Virtual environment"
+    },
+    {
+      "category": "python",
+      "check_id": "PY005",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "48df1b867efb74d3",
+      "line": null,
+      "message": "No pytest or tox configuration found.",
+      "recommendation": "Add [tool.pytest.ini_options] to pyproject.toml.",
+      "severity": "info",
+      "title": "Test configuration"
+    },
+    {
+      "category": "python",
+      "check_id": "PY006",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "50ddde4835c70cf5",
+      "line": null,
+      "message": "No linter configuration found (ruff, flake8, pre-commit).",
+      "recommendation": "Add a [tool.ruff] section or a ruff.toml file.",
+      "severity": "info",
+      "title": "Linter configuration"
+    },
+    {
+      "category": "python",
+      "check_id": "PY007",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "04cd4f11df1aa40f",
+      "line": null,
+      "message": "No type checker configuration found (mypy, pyright).",
+      "recommendation": "Add a [tool.mypy] section or a pyrightconfig.json file.",
+      "severity": "info",
+      "title": "Type checker"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP001",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": "pyproject.toml",
+      "fingerprint": "73cb56d7fc8f4358",
+      "line": null,
+      "message": "pyproject.toml found.",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "pyproject.toml"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP002",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "3d719653fe98ce8b",
+      "line": null,
+      "message": "No README.md, README.rst or README.txt at the project root.",
+      "recommendation": "Add a README describing the project and how to run it.",
+      "severity": "warning",
+      "title": "README"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP003",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "09060e35a31d9e2e",
+      "line": null,
+      "message": "No LICENSE, LICENCE or COPYING file found.",
+      "recommendation": "Add a license file so others know the terms of use.",
+      "severity": "info",
+      "title": "License"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP004",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "e611f9937049dd9f",
+      "line": null,
+      "message": "No .gitignore found.",
+      "recommendation": "Add a .gitignore covering __pycache__, .venv and .env.",
+      "severity": "info",
+      "title": ".gitignore"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP005",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "0328a57b8e551c1a",
+      "line": null,
+      "message": "No tests/ directory or test_*.py files found.",
+      "recommendation": "Add a tests/ directory with pytest test modules.",
+      "severity": "info",
+      "title": "Tests"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP006",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "79fb83ecd787e626",
+      "line": null,
+      "message": "No Python sources under src/.",
+      "recommendation": "Consider a src layout (src/<package>/) to avoid accidental imports of the working tree.",
+      "severity": "info",
+      "title": "src layout"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP007",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "8d93135ff21446b1",
+      "line": null,
+      "message": "No conflicting dependency manifests.",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Conflicting manifests"
+    },
+    {
+      "category": "repository",
+      "check_id": "REP008",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "5b330714830e6e77",
+      "line": null,
+      "message": "No CI configuration found.",
+      "recommendation": "Add a CI pipeline (e.g. .github/workflows) to run tests and lint.",
+      "severity": "info",
+      "title": "CI configuration"
+    },
+    {
+      "category": "redshift",
+      "check_id": "RS000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "8c5e97f8c027a782",
+      "line": null,
+      "message": "no Redshift evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Redshift surface"
+    },
+    {
+      "category": "stepfunctions",
+      "check_id": "SFN000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "d03b1d7059e33a34",
+      "line": null,
+      "message": "no Step Functions detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Step Functions usage"
+    },
+    {
+      "category": "snowflake",
+      "check_id": "SNOW000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "c7c680e06a5372ff",
+      "line": null,
+      "message": "no Snowflake evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Snowflake surface"
+    },
+    {
+      "category": "spark",
+      "check_id": "SPARK007",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "525e29d02e25eafd",
+      "line": null,
+      "message": "1 PySpark files analyzed",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "PySpark usage"
+    },
+    {
+      "category": "search",
+      "check_id": "SRCH000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "442aad8f260e37c1",
+      "line": null,
+      "message": "no search-platform evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Search surface"
+    },
+    {
+      "category": "streaming",
+      "check_id": "STREAM001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "74b9ce443799b1d8",
+      "line": null,
+      "message": "no streaming workloads detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Streaming workload detected"
+    },
+    {
+      "category": "streaming-bus",
+      "check_id": "STREAM080",
+      "confidence": "high",
+      "evidence_kind": "derived",
+      "file": null,
+      "fingerprint": "a4bde13a95805670",
+      "line": null,
+      "message": "no streaming queries detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Streaming delivery semantics"
+    },
+    {
+      "category": "terraform",
+      "check_id": "TF000",
+      "confidence": "high",
+      "evidence_kind": "config",
+      "file": null,
+      "fingerprint": "2f7642f17979ea71",
+      "line": null,
+      "message": "no Terraform detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Terraform usage"
+    },
+    {
+      "category": "trino",
+      "check_id": "TRINO000",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "b0ffb8f5083a04bd",
+      "line": null,
+      "message": "no trino evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Trino surface"
+    },
+    {
+      "category": "warehouse",
+      "check_id": "WARE001",
+      "confidence": "high",
+      "evidence_kind": "static",
+      "file": null,
+      "fingerprint": "7b0ac80e8c492c64",
+      "line": null,
+      "message": "no warehouse evidence detected",
+      "recommendation": null,
+      "severity": "pass",
+      "title": "Warehouse surface"
+    }
+  ],
+  "schema_version": "1.0",
+  "summary": {
+    "errors": 0,
+    "info": 16,
+    "passed": 53,
+    "warnings": 4
+  },
+  "tool": {
+    "name": "forge-doctor-data",
+    "version": "1.0.3"
+  }
+}
+

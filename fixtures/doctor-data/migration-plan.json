@@ -1,0 +1,15 @@
+{
+  "contract_version": "forge-contracts/1",
+  "id": "mp-1",
+  "kind": "orchestration",
+  "readiness": "beta",
+  "risks": [
+    "sensor parity"
+  ],
+  "source": "airflow@1.10",
+  "steps": [
+    "export dags",
+    "map operators"
+  ],
+  "target": "dagster@1.9"
+}

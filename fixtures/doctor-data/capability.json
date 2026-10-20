@@ -1,0 +1,10 @@
+{
+  "confidence": "high",
+  "contract_version": "forge-contracts/1",
+  "domain": "dbt",
+  "evidence_refs": [
+    "target/manifest.json"
+  ],
+  "id": "dbt.manifest.parse",
+  "status": "supported"
+}

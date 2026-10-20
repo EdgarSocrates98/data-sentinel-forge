@@ -1,0 +1,8 @@
+{
+  "attrs": {},
+  "contract_version": "forge-contracts/1",
+  "dst": "source.raw_orders",
+  "evidence_kind": "dbt-manifest",
+  "kind": "depends-on",
+  "src": "model.orders"
+}

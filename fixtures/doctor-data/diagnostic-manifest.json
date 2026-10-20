@@ -1,0 +1,32 @@
+{
+  "capabilities": [
+    {
+      "contract_version": "forge-contracts/1",
+      "domain": "dbt",
+      "evidence_refs": [],
+      "id": "dbt.manifest.parse",
+      "status": "supported"
+    }
+  ],
+  "contract_version": "forge-contracts/1",
+  "domains": [
+    "dbt",
+    "sql"
+  ],
+  "entity_count": 12,
+  "evidence_refs": [
+    "target/manifest.json"
+  ],
+  "finding_count": 7,
+  "risks": [
+    {
+      "risk": "no tests",
+      "severity": "warning"
+    }
+  ],
+  "tool": {
+    "name": "forge-doctor-data",
+    "version": "0.9.0"
+  },
+  "unknown_count": 1
+}

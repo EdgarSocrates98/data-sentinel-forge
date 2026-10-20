@@ -1,0 +1,8 @@
+{
+  "contract_version": "forge-contracts/1",
+  "detail": "workspace.py declares assets",
+  "kind": "unknown-domain",
+  "reason": "no dagster collector installed",
+  "source": "scan",
+  "subject": "dagster.assets"
+}

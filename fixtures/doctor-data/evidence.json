@@ -1,0 +1,7 @@
+{
+  "contract_version": "forge-contracts/1",
+  "detail": "manifest v12",
+  "kind": "dbt-manifest",
+  "ref": "target/manifest.json",
+  "source": "parser"
+}

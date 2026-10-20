@@ -1,0 +1,13 @@
+{
+  "attrs": {
+    "materialized": "incremental"
+  },
+  "contract_version": "forge-contracts/1",
+  "domain": "dbt",
+  "file": "models/orders.sql",
+  "id": "model.orders",
+  "identifier": "",
+  "kind": "model",
+  "line": 3,
+  "name": "orders"
+}

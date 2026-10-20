@@ -1,0 +1,18 @@
+{
+  "category": "quality",
+  "check_id": "FD-DBT-042",
+  "confidence": "high",
+  "contract_version": "forge-contracts/1",
+  "evidence": "models/orders.sql",
+  "evidence_kind": "dbt-manifest",
+  "fixable": false,
+  "message": "Model orders has no tests declared",
+  "recommendation": "Add tests in schema.yml",
+  "severity": "warning",
+  "source": "dbt",
+  "tags": [
+    "dbt",
+    "testing"
+  ],
+  "title": "Model without tests"
+}
