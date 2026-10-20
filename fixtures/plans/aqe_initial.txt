@@ -1,0 +1,10 @@
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- == Initial Plan ==
+   SortMergeJoin [user_id#10L], [user_id#20L], Inner
+   :- Sort [user_id#10L ASC NULLS FIRST], false, 0
+   :  +- Exchange hashpartitioning(user_id#10L, 200), ENSURE_REQUIREMENTS, [id=#40]
+   :     +- FileScan parquet [user_id#10L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<user_id:bigint>
+   +- Sort [user_id#20L ASC NULLS FIRST], false, 0
+      +- Exchange hashpartitioning(user_id#20L, 200), ENSURE_REQUIREMENTS, [id=#46]
+         +- FileScan parquet [user_id#20L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<user_id:bigint>

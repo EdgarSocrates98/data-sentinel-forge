@@ -1,0 +1,13 @@
+{
+  "tables": {
+    "orders": {
+      "row_count": 230000000,
+      "source": "declared",
+      "keys": {"store_id": {"distinct": 500}},
+      "top_keys": [{"key": "store-042", "fraction": 0.35}]
+    }
+  },
+  "runtime": {
+    "stage_7": {"task_time_p50_ms": 400, "task_time_p99_ms": 9800, "shuffle_skew": true}
+  }
+}

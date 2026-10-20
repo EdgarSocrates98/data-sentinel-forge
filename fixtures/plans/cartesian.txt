@@ -1,0 +1,4 @@
+== Physical Plan ==
+*(1) CartesianProduct
+:- *(1) FileScan parquet [a#1L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<a:bigint>
++- *(1) FileScan parquet [b#2L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<b:bigint>

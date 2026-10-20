@@ -15,6 +15,7 @@ import sqlglot
 from sqlglot import exp
 
 from data_sentinel.analyzers.protocol import AnalysisResult, Analyzer
+from data_sentinel.analyzers.spark.joins.extractor import load_stats
 from data_sentinel.core.contracts import (
     DiagnosticRequest,
     Evidence,
@@ -40,6 +41,13 @@ PLATFORM_DIALECTS: dict[Platform, str] = {
 
 IN_LIST_THRESHOLD = 20
 
+SEMANTIC_CHECKLIST = (
+    "Checklist antes de aplicar qualquer sugestão: validar schema, tipos, "
+    "semântica de NULL, duplicatas, cardinalidade, ordenação quando "
+    "relevante, regras de negócio e equivalência de resultados — "
+    "equivalência NÃO é garantida por comparação de AST."
+)
+
 
 SqlHit = exp.Expr | str
 
@@ -56,7 +64,20 @@ class SqlCheck:
 
 
 def _select_stars(tree: exp.Expr, _text: str) -> list[SqlHit]:
-    return list(tree.find_all(exp.Star))
+    """Bare SELECT * hits. Stars inside EXISTS/COUNT wrappers are
+    legitimate — the count/existence test reads no columns."""
+    hits: list[SqlHit] = []
+    for star in tree.find_all(exp.Star):
+        parent = star.parent
+        inside_wrapper = False
+        while parent is not None:
+            if isinstance(parent, (exp.Exists, exp.Count, exp.AggFunc)):
+                inside_wrapper = True
+                break
+            parent = parent.parent
+        if not inside_wrapper:
+            hits.append(star)
+    return hits
 
 
 def _is_trivial_on(on: exp.Expr | None) -> bool:
@@ -119,6 +140,83 @@ def _large_in_lists(tree: exp.Expr, _text: str) -> list[SqlHit]:
         i
         for i in tree.find_all(exp.In)
         if len(i.args.get("expressions") or []) >= IN_LIST_THRESHOLD
+    ]
+
+
+def _cast_on_join_key(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    hits: list[SqlHit] = []
+    for join in tree.find_all(exp.Join):
+        on = join.args.get("on")
+        if on is None:
+            continue
+        for cast in on.find_all(exp.Cast):
+            if cast.find(exp.Column) is not None:
+                hits.append(cast)
+    return hits
+
+
+def _func_on_join_key(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    hits: list[SqlHit] = []
+    for join in tree.find_all(exp.Join):
+        on = join.args.get("on")
+        if on is None:
+            continue
+        for func in on.find_all(exp.Func):
+            if not isinstance(func, exp.Cast) and func.find(exp.Column) is not None:
+                hits.append(func)
+    return hits
+
+
+def _complex_subqueries(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    hits: list[SqlHit] = []
+    for sub in tree.find_all(exp.Subquery):
+        depth = sum(1 for _ in list(sub.find_all(exp.Subquery)))
+        if depth >= 2:
+            hits.append(sub)
+    return hits
+
+
+def _select_distinct(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    return [
+        s.args["distinct"]
+        for s in tree.find_all(exp.Select)
+        if s.args.get("distinct")
+    ]
+
+
+def _unfiltered_scan(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    """SELECT over a table with no WHERE/LIMIT anywhere in that SELECT's
+    scope — a broad read. Contextual: may be intentional (full dumps)."""
+    hits: list[SqlHit] = []
+    for select in tree.find_all(exp.Select):
+        if (
+            select.args.get("from_") is not None
+            and select.args.get("where") is None
+            and select.args.get("limit") is None
+            and select.find(exp.Join) is None
+        ):
+            hits.append(select.args["from_"])
+    return hits
+
+
+def _reused_join_keys(tree: exp.Expr, _text: str) -> list[SqlHit]:
+    """Same key column name reused across multiple joins — potential
+    multiplicative fan-out when intermediate joins are many-to-many."""
+    from collections import Counter
+
+    key_names: Counter[str] = Counter()
+    join_nodes: dict[str, exp.Expr] = {}
+    for join in tree.find_all(exp.Join):
+        on = join.args.get("on")
+        if on is None:
+            continue
+        for col in on.find_all(exp.Column):
+            key_names[col.name] += 1
+            join_nodes.setdefault(col.name, join)
+    return [
+        join_nodes[name]
+        for name, count in key_names.items()
+        if count >= 3  # key appears on both sides of >=2 joins → count>=3 cols
     ]
 
 
@@ -202,6 +300,73 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         "Materializar valores em tabela e usar JOIN/semi-join.",
         _large_in_lists,
     ),
+    SqlCheck(
+        "cast-on-join-key",
+        Severity.MEDIUM,
+        FindingStatus.POSSIBLE,
+        "CAST em chave de JOIN",
+        "CAST sobre coluna na condição de junção derrota "
+        "bucketing/partitioning e pode indicar tipos inconsistentes "
+        "entre tabelas.",
+        "Alinhar tipos no schema ou materializar a coluna convertida — "
+        "validar semântica de NULL e precisão antes de mudar.",
+        _cast_on_join_key,
+    ),
+    SqlCheck(
+        "function-on-join-key",
+        Severity.MEDIUM,
+        FindingStatus.POSSIBLE,
+        "Função sobre chave de JOIN",
+        "Função envolvendo coluna na condição de junção pode impedir "
+        "partition pruning e o uso de índices/estatísticas.",
+        "Reescrever a expressão sobre a chave ou materializar a coluna "
+        "derivada — validar equivalência de resultados.",
+        _func_on_join_key,
+    ),
+    SqlCheck(
+        "complex-subquery",
+        Severity.MEDIUM,
+        FindingStatus.POSSIBLE,
+        "Subqueries aninhadas profundas",
+        "Aninhamento ≥2 níveis aumenta custo de otimização e risco de "
+        "recomputação; CTEs nomeadas são mais auditáveis.",
+        "Avaliar extração para CTE — semântica de duplicatas/NULLs "
+        "pode mudar; validar equivalência.",
+        _complex_subqueries,
+    ),
+    SqlCheck(
+        "select-distinct",
+        Severity.MEDIUM,
+        FindingStatus.POSSIBLE,
+        "SELECT DISTINCT potencialmente custoso",
+        "DISTINCT global força deduplicação completa; em joins com "
+        "fan-out pode mascarar multiplicidade errada.",
+        "Verificar se a duplicata vem de join many-to-many; considerar "
+        "GROUP BY nas chaves reais.",
+        _select_distinct,
+    ),
+    SqlCheck(
+        "unfiltered-scan",
+        Severity.LOW,
+        FindingStatus.POSSIBLE,
+        "Leitura ampla sem WHERE/LIMIT",
+        "SELECT sobre tabela sem filtro nem limite lê a relação "
+        "inteira — pode ser intencional (carga completa) ou filtro "
+        "esquecido.",
+        "Confirmar intenção; se for exploração, adicionar LIMIT.",
+        _unfiltered_scan,
+    ),
+    SqlCheck(
+        "reused-join-key",
+        Severity.LOW,
+        FindingStatus.POSSIBLE,
+        "Chave de join reutilizada em múltiplos joins",
+        "Mesma coluna em ≥2 predicados de join pode indicar fan-out "
+        "multiplicativo quando joins intermediários são many-to-many.",
+        "Medir multiplicidade por chave nos lados antes de assumir "
+        "cardinalidade.",
+        _reused_join_keys,
+    ),
 )
 
 
@@ -220,6 +385,66 @@ def _line_of_fragment(source: str, fragment: str) -> int:
     return source[:idx].count("\n") + 1
 
 
+def _query_structure(tree: exp.Expr, dialect: str) -> dict[str, object]:
+    """Structured representation from the AST — join graph, tables vs
+    CTEs, predicates, aggregations, subquery depth, costly ops."""
+    cte_names = {c.alias for c in tree.find_all(exp.CTE)}
+    tables = []
+    for t in tree.find_all(exp.Table):
+        tables.append(
+            {
+                "name": t.name,
+                "alias": t.alias or None,
+                "is_cte": t.name in cte_names,
+            }
+        )
+    join_graph = []
+    for j in tree.find_all(exp.Join):
+        on = j.args.get("on")
+        join_graph.append(
+            {
+                "kind": str(j.args.get("kind") or "INNER").upper(),
+                "side": str(j.args.get("side") or "").upper() or None,
+                "table": getattr(j.this, "name", None)
+                or getattr(j.this, "alias_or_name", None),
+                "predicate": on.sql(dialect=dialect)[:200] if on is not None else None,
+                "equality_keys": [
+                    f"{eq.left.sql(dialect=dialect)}={eq.right.sql(dialect=dialect)}"
+                    for eq in (on.find_all(exp.EQ) if on is not None else [])
+                ][:8],
+            }
+        )
+    predicates = [
+        w.sql(dialect=dialect)[:200] for w in tree.find_all(exp.Where)
+    ]
+    aggregations = sorted(
+        {a.sql(dialect=dialect)[:60] for a in tree.find_all(exp.AggFunc)}
+    )
+    max_depth = 0
+    for sub in tree.find_all(exp.Subquery):
+        depth = 1
+        node: exp.Expr = sub
+        while node.parent is not None:
+            if isinstance(node.parent, exp.Subquery):
+                depth += 1
+            node = node.parent
+        max_depth = max(max_depth, depth)
+    costly = []
+    for check in SQL_CHECKS:
+        if check.detect(tree, ""):
+            costly.append(check.check_id)
+    return {
+        "tables": tables,
+        "join_graph": join_graph,
+        "predicates": predicates,
+        "aggregations": aggregations,
+        "cte_count": len(cte_names),
+        "subquery_max_depth": max_depth,
+        "window_functions": len(list(tree.find_all(exp.Window))),
+        "costly_operation_candidates": costly,
+    }
+
+
 class SqlStaticAnalyzer(Analyzer):
     """Pattern-based static inspection of SQL text. No execution, no plan."""
 
@@ -229,7 +454,7 @@ class SqlStaticAnalyzer(Analyzer):
 
     @property
     def version(self) -> str:
-        return "0.1.0"
+        return "0.2.0"
 
     @property
     def supported_source_types(self) -> tuple[SourceType, ...]:
@@ -247,6 +472,63 @@ class SqlStaticAnalyzer(Analyzer):
             "Cobertura limitada à lista de antipadrões documentada",
         )
 
+    def _check_selectivity(
+        self,
+        tree: exp.Expr,
+        input_file: InputFile,
+        digest: str,
+        captured: datetime,
+        stats: dict[str, object],
+        findings: list[Finding],
+        evidence: list[Evidence],
+    ) -> None:
+        """Flag WHERE equality predicates on columns whose declared
+        top-key concentration suggests low selectivity."""
+        for where in tree.find_all(exp.Where):
+            for eq in where.find_all(exp.EQ):
+                cols = list(eq.find_all(exp.Column))
+                if len(cols) != 1:
+                    continue
+                for tname, meta in stats.items():
+                    top = getattr(meta, "top_keys", None) or []
+                    for tk in top:
+                        frac = float(tk.get("fraction", 0) or 0)
+                        if frac >= 0.5:
+                            ev = Evidence(
+                                source="sql",
+                                source_location=str(input_file.path),
+                                captured_at=captured,
+                                content_hash=digest,
+                                sanitized_excerpt=sanitize_evidence_excerpt(
+                                    eq.sql()[:300], max_chars=400
+                                ),
+                                provenance=EvidenceProvenance.DECLARED,
+                                confidence=0.6,
+                            )
+                            evidence.append(ev)
+                            findings.append(
+                                Finding(
+                                    category=FindingCategory.COST,
+                                    severity=Severity.LOW,
+                                    status=FindingStatus.POSSIBLE,
+                                    explanation=(
+                                        f"Predicado potencialmente pouco "
+                                        f"seletivo: '{tk.get('key', '?')}' "
+                                        f"cobre {frac:.0%} das linhas "
+                                        f"declaradas de {tname}. "
+                                        "Avaliar se o filtro reduz o volume "
+                                        "esperado."
+                                    ),
+                                    evidence_ids=[ev.evidence_id],
+                                    recommendations=[
+                                        "Medir selectividade real com "
+                                        "amostra antes de assumir pruning",
+                                        SEMANTIC_CHECKLIST,
+                                    ],
+                                )
+                            )
+                            return
+
     def analyze(self, request: DiagnosticRequest, inputs: Sequence[InputFile]) -> AnalysisResult:
         self.validate_input(request, inputs)
         captured = datetime.now(UTC)
@@ -259,8 +541,25 @@ class SqlStaticAnalyzer(Analyzer):
             "estatísticas).",
         ]
         queries_meta: list[dict[str, object]] = []
+        stats_meta: dict[str, object] = {}
+        declared_stats: dict[str, object] = {}
 
+        sql_inputs: list[InputFile] = []
         for input_file in inputs:
+            if str(input_file.path).endswith(".json"):
+                tables, _runtime, warns = load_stats(input_file.text)
+                declared_stats.update(tables)
+                stats_meta = {
+                    "tables_with_stats": sorted(tables),
+                    "source": "declared (descritor JSON)",
+                }
+                limitations.extend(
+                    f"{input_file.path}: {w}" for w in warns
+                )
+            else:
+                sql_inputs.append(input_file)
+
+        for input_file in sql_inputs:
             digest = hashlib.sha256(input_file.text.encode()).hexdigest()
             try:
                 tree = sqlglot.parse_one(input_file.text, read=dialect)
@@ -286,28 +585,18 @@ class SqlStaticAnalyzer(Analyzer):
                 limitations.append(f"SQL vazio ou sem statement: {input_file.path}")
                 continue
 
-            clauses = [
-                name
-                for cls, name in (
-                    (exp.Group, "group_by"),
-                    (exp.Order, "order_by"),
-                    (exp.Limit, "limit"),
-                    (exp.Having, "having"),
-                    (exp.With, "cte"),
-                )
-                if tree.find(cls) is not None
-            ]
             queries_meta.append(
                 {
                     "file": str(input_file.path),
-                    "tables": sorted({t.name for t in tree.find_all(exp.Table)}),
-                    "join_count": len(list(tree.find_all(exp.Join))),
-                    "cte_count": len(list(tree.find_all(exp.CTE))),
-                    "subquery_count": len(list(tree.find_all(exp.Subquery))),
-                    "clauses": clauses,
+                    **_query_structure(tree, dialect),
                 }
             )
 
+            if declared_stats:
+                self._check_selectivity(
+                    tree, input_file, digest, captured, declared_stats,
+                    findings, evidence,
+                )
             for check in SQL_CHECKS:
                 hits = check.detect(tree, input_file.text)
                 if not hits:
@@ -343,7 +632,7 @@ class SqlStaticAnalyzer(Analyzer):
                         ),
                         evidence_ids=ids,
                         alternatives=[],
-                        recommendations=[check.suggestion],
+                        recommendations=[check.suggestion, SEMANTIC_CHECKLIST],
                         validation_steps=[
                             "Revisar a ocorrência indicada na evidência",
                             "Confirmar intenção antes de reescrever",
@@ -351,6 +640,20 @@ class SqlStaticAnalyzer(Analyzer):
                     )
                 )
 
+        engine = (
+            "athena/trino" if dialect == "trino" else "spark"
+        )
+        if dialect == "trino":
+            limitations.append(
+                "Engine assumido: Athena/Trino — conector-based, sem AQE/"
+                "bucketing Spark; estratégias físicas e pruning diferem do "
+                "Spark. Nenhuma afirmação sobre execução Spark se aplica."
+            )
+        else:
+            limitations.append(
+                "Engine assumido: Spark — estratégias (AQE, broadcast, "
+                "shuffle) não se aplicam a execução Athena/Trino."
+            )
         return AnalysisResult(
             analyzer_id=self.analyzer_id,
             analyzer_version=self.version,
@@ -358,5 +661,10 @@ class SqlStaticAnalyzer(Analyzer):
             findings=findings,
             evidence=evidence,
             limitations=limitations,
-            metadata={"dialect": dialect, "queries": queries_meta},
+            metadata={
+                "dialect": dialect,
+                "engine": engine,
+                "queries": queries_meta,
+                "statistics": stats_meta,
+            },
         )

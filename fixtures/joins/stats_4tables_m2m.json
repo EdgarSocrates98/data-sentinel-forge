@@ -1,0 +1,31 @@
+{
+  "tables": {
+    "orders": {
+      "row_count": 230000000,
+      "source": "declared",
+      "keys": {
+        "customer_id": {"distinct": 40000000},
+        "order_id": {"distinct": 180000000},
+        "store_id": {"distinct": 500}
+      }
+    },
+    "customers": {
+      "row_count": 73000000,
+      "source": "declared",
+      "keys": {"customer_id": {"distinct": 60000000}}
+    },
+    "order_items": {
+      "row_count": 230000000,
+      "source": "declared",
+      "keys": {
+        "order_id": {"distinct": 120000000},
+        "product_id": {"distinct": 2000000}
+      }
+    },
+    "products": {
+      "row_count": 250000000,
+      "source": "declared",
+      "keys": {"product_id": {"distinct": 200000000}}
+    }
+  }
+}

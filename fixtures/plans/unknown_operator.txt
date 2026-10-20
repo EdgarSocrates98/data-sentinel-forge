@@ -1,0 +1,4 @@
+== Physical Plan ==
+*(1) Project [x#1L]
++- *(1) ZappelinCustomOperator foo=bar
+   +- *(1) FileScan parquet [x#1L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<x:bigint>

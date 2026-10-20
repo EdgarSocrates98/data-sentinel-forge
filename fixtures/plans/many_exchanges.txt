@@ -1,0 +1,11 @@
+== Physical Plan ==
+*(3) Project [a#1L, cnt#30L]
++- *(3) SortMergeJoin [a#1L], [a#20L], Inner
+   :- *(3) Sort [a#1L ASC NULLS FIRST], false, 0
+   :  +- Exchange hashpartitioning(a#1L, 200), ENSURE_REQUIREMENTS, [id=#60]
+   :     +- *(2) HashAggregate(keys=[a#1L], functions=[count(1)], output=[a#1L, cnt#30L])
+   :        +- Exchange hashpartitioning(a#1L, 200), ENSURE_REQUIREMENTS, [id=#55]
+   :           +- *(2) FileScan parquet [a#1L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<a:bigint>
+   +- *(3) Sort [a#20L ASC NULLS FIRST], false, 0
+      +- Exchange hashpartitioning(a#20L, 200), ENSURE_REQUIREMENTS, [id=#70]
+         +- *(2) FileScan parquet [a#20L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<a:bigint>

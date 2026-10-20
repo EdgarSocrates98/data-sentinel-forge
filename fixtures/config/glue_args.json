@@ -1,0 +1,1 @@
+{"--job-language": "python", "--conf": "spark.sql.adaptive.enabled=true spark.sql.shuffle.partitions=400", "--enable-auto-scaling": "true"}

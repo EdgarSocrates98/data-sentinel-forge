@@ -1,0 +1,1 @@
+{"tables": {"huge_table": {"row_count": 1000000, "top_keys": [{"key": "status=active", "fraction": 0.92}]}}}

@@ -1,0 +1,8 @@
+== Physical Plan ==
+*(1) Project [x#1L]
++- *(1) Filter (x#1L > 0)
+   +- *(1) Project [x#1L]
+      +- *(1) Filter (x#1L < 100)
+         +- *(1) Project [x#1L]
+            +- *(1) Filter isnotnull(x#1L)
+               +- *(1) FileScan parquet [x#1L] Batched: true, DataFilters: [isnotnull(x#1L)], Format: Parquet, PartitionFilters: [], PushedFilters: [IsNotNull(x)], ReadSchema: struct<x:bigint>

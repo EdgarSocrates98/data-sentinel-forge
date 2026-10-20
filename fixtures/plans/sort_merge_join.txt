@@ -1,0 +1,8 @@
+== Physical Plan ==
+*(1) SortMergeJoin [id#1L], [id#2L], Inner
+:- *(1) Sort [id#1L ASC NULLS FIRST], false, 0
+:  +- Exchange hashpartitioning(id#1L, 200), ENSURE_REQUIREMENTS, [id=#10]
+:     +- *(1) FileScan parquet [id#1L,name#4] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<id:bigint,name:string>
++- *(1) Sort [id#2L ASC NULLS FIRST], false, 0
+   +- Exchange hashpartitioning(id#2L, 200), ENSURE_REQUIREMENTS, [id=#16]
+      +- *(1) FileScan parquet [id#2L,dept#5] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<id:bigint,dept:string>

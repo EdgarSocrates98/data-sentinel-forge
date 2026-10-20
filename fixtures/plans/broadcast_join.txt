@@ -1,0 +1,6 @@
+== Physical Plan ==
+*(2) BroadcastHashJoin [id#1L], [id#2L], Inner, BuildRight, false
+:- *(2) FileScan parquet [id#1L] Batched: true, DataFilters: [], Format: Parquet, PartitionFilters: [], PushedFilters: [], ReadSchema: struct<id:bigint>
++- BroadcastExchange HashedRelationBroadcastMode(List(input[0, bigint, true]),false), [id=#24]
+   +- *(2) Filter (isnotnull(id#2L) AND (id#2L < 100))
+      +- *(2) FileScan parquet [id#2L] Batched: true, DataFilters: [isnotnull(id#2L), (id#2L < 100)], Format: Parquet, PartitionFilters: [], PushedFilters: [IsNotNull(id), LessThan(id,100)], ReadSchema: struct<id:bigint>

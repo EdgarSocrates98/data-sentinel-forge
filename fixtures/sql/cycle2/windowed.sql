@@ -1,0 +1,2 @@
+SELECT id, ROW_NUMBER() OVER (PARTITION BY grp ORDER BY ts DESC) rn
+FROM events
