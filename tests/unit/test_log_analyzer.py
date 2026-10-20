@@ -96,7 +96,7 @@ class TestDetection:
         hostile = tmp_path / "hostile.log"
         hostile.write_text(
             "ERROR: OutOfMemoryError password=topsecret123\n"
-        )
+        , encoding="utf-8")
         f = read_input_file(
             hostile, max_file_bytes=1_000_000, allowed_roots=[tmp_path]
         )

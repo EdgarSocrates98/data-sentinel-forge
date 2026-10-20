@@ -14,7 +14,7 @@ runner = CliRunner()
 def test_quality_validate_ok(tmp_path: Path) -> None:
     c = tmp_path / "c.yaml"
     c.write_text('contract_version: "1.0"\ndataset: a.b\n'
-                 'rules:\n - {id: r1, type: completeness, column: x}\n')
+                 'rules:\n - {id: r1, type: completeness, column: x}\n', encoding="utf-8")
     r = runner.invoke(app, ["quality", "validate", "--file", str(c)])
     assert r.exit_code == 0
     assert "OK" in r.output
@@ -22,7 +22,7 @@ def test_quality_validate_ok(tmp_path: Path) -> None:
 
 def test_quality_validate_bad_type(tmp_path: Path) -> None:
     c = tmp_path / "bad.yaml"
-    c.write_text("dataset: a.b\nrules:\n - {id: x, type: telepathy}\n")
+    c.write_text("dataset: a.b\nrules:\n - {id: x, type: telepathy}\n", encoding="utf-8")
     r = runner.invoke(app, ["quality", "validate", "--file", str(c)])
     assert r.exit_code == 1
     assert "desconhecido" in r.output
@@ -60,11 +60,11 @@ def test_report_export_bundle(tmp_path: Path) -> None:
     report = tmp_path / "r.json"
     report.write_text(json.dumps({
         "request_id": "x", "created_at": "2026-10-20T00:00:00Z",
-        "findings": []}))
+        "findings": []}), encoding="utf-8")
     out = tmp_path / "b.json"
     r = runner.invoke(app, ["report", "export",
                             "--file", str(report), "--output", str(out)])
     assert r.exit_code == 0
-    bundle = json.loads(out.read_text())
+    bundle = json.loads(out.read_text(encoding="utf-8"))
     assert bundle["contract_version"] == "forge-contracts/1"
     assert bundle["integrity"]["content_sha256"]

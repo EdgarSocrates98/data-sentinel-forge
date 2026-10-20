@@ -19,7 +19,7 @@ FX = Path("fixtures/access")
 
 def _run(name: str):
     p = FX / name
-    t = p.read_text()
+    t = p.read_text(encoding="utf-8")
     req = DiagnosticRequest(
         source_type=SourceType.ACCESS_CONTEXT,
         artifact_references=[ArtifactReference(uri="file://ctx")],

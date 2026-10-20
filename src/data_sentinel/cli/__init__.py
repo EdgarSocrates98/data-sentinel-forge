@@ -177,9 +177,11 @@ def _analyze(
 
     if output is not None:
         if output.suffix in (".md", ".markdown"):
-            output.write_text(render_markdown(report, evidence, mode_label=mode_label) + "\n")
+            output.write_text(
+                render_markdown(report, evidence, mode_label=mode_label) + "\n",
+                encoding="utf-8")
         else:
-            output.write_text(report.to_json() + "\n")
+            output.write_text(report.to_json() + "\n", encoding="utf-8")
 
     if json_mode:
         _emit_json(report.model_dump(mode="json"))
@@ -546,7 +548,7 @@ def glue_diagnose(
                 render_markdown(report, evidence, mode_label="cloud (aws)") + "\n"
             )
         else:
-            output.write_text(report.to_json() + "\n")
+            output.write_text(report.to_json() + "\n", encoding="utf-8")
 
     if json_mode:
         _emit_json(report.model_dump(mode="json"))

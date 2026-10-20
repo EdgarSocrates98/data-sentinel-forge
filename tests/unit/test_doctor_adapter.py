@@ -48,21 +48,21 @@ def test_import_canonical_forge_contracts() -> None:
 
 def test_reject_malformed_json(tmp_path: Path) -> None:
     p = tmp_path / "bad.json"
-    p.write_text("{not json")
+    p.write_text("{not json", encoding="utf-8")
     with pytest.raises(DoctorBundleError, match="malformed"):
         import_doctor_bundle(p)
 
 
 def test_reject_unrecognized_shape(tmp_path: Path) -> None:
     p = tmp_path / "x.json"
-    p.write_text(json.dumps({"hello": "world"}))
+    p.write_text(json.dumps({"hello": "world"}), encoding="utf-8")
     with pytest.raises(DoctorBundleError, match="unrecognized"):
         import_doctor_bundle(p)
 
 
 def test_reject_non_dict(tmp_path: Path) -> None:
     p = tmp_path / "arr.json"
-    p.write_text("[1,2,3]")
+    p.write_text("[1,2,3]", encoding="utf-8")
     with pytest.raises(DoctorBundleError, match="object"):
         import_doctor_bundle(p)
 
@@ -95,7 +95,7 @@ def test_secrets_redacted(tmp_path: Path) -> None:
         "graph": {"entities": [], "relationships": []},
         "capabilities": {}, "plans": [],
         "project": {}, "summary": {},
-    }))
+    }), encoding="utf-8")
     r = import_doctor_bundle(p)
     blob = r.findings[0].explanation + r.evidence[0].sanitized_excerpt
     assert "AKIAIOSFODNN7EXAMPLE" not in blob
@@ -111,7 +111,7 @@ def test_unknown_confidence_maps_to_unknown_status(tmp_path: Path) -> None:
             "severity": "HIGH", "confidence": "UNKNOWN",
             "unknowns": [{"subject": "s", "missing": "m"}],
         }],
-    }))
+    }), encoding="utf-8")
     r = import_doctor_bundle(p)
     assert r.findings[0].status == FindingStatus.UNKNOWN
     assert "desconhecidos: 1" in r.findings[0].explanation
@@ -129,7 +129,7 @@ def test_detect_all_formats() -> None:
 
 def test_empty_bundle_file_rejected(tmp_path: Path) -> None:
     p = tmp_path / "e.json"
-    p.write_text("")
+    p.write_text("", encoding="utf-8")
     with pytest.raises(DoctorBundleError, match="empty"):
         load_doctor_file(p)
 

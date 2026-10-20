@@ -11,7 +11,7 @@ FIX = Path(__file__).parent.parent / "fixtures" / "lineage"
 
 def _graph():
     ing = parse_openlineage_events(
-        (FIX / "marquez-real.jsonl").read_text())
+        (FIX / "marquez-real.jsonl").read_text(encoding="utf-8"))
     return build_graph(ing.events)
 
 

@@ -44,7 +44,7 @@ def test_unknown_tool_fails_cleanly() -> None:
 
 def test_sql_analyze_tool_real(tmp_path: Path) -> None:
     q = tmp_path / "q.sql"
-    q.write_text("SELECT * FROM a JOIN b ON a.id = b.id")
+    q.write_text("SELECT * FROM a JOIN b ON a.id = b.id", encoding="utf-8")
     res = execute_tool(_inv("sentinel.sql.analyze", file=str(q)))
     assert res.ok, res.error
     assert res.output["findings"] is not None
@@ -80,8 +80,8 @@ def test_lineage_impact_tool() -> None:
 def test_detect_drift_tool(tmp_path: Path) -> None:
     b = tmp_path / "b.json"
     c = tmp_path / "c.json"
-    b.write_text(json.dumps([0.0] * 50))
-    c.write_text(json.dumps([5.0] * 50))
+    b.write_text(json.dumps([0.0] * 50), encoding="utf-8")
+    c.write_text(json.dumps([5.0] * 50), encoding="utf-8")
     res = execute_tool(_inv("sentinel.quality.detect_drift",
                             baseline_file=str(b), current_file=str(c)))
     assert res.ok
@@ -100,7 +100,7 @@ def test_doctor_import_tool(tmp_path: Path) -> None:
         "schema_version": "1.0.0",
         "producer": {"name": "forge-doctor-data", "version": "1.0.3"},
         "findings": [{"check_id": "c1", "message": "issue",
-                      "severity": "high"}]}))
+                      "severity": "high"}]}), encoding="utf-8")
     res = execute_tool(_inv("sentinel.doctor.import_bundle",
                             file=str(bundle)))
     assert res.ok

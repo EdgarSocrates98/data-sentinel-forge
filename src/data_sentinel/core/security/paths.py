@@ -32,13 +32,10 @@ def safe_resolve(
     ``allowed_roots`` (e.g. a user-supplied CLI argument).
     """
     try:
-        candidate = Path(path).expanduser().resolve(strict=must_exist)
-    except FileNotFoundError as exc:
-        raise InputValidationError(
-            code="entrada.nao_encontrada",
-            message=f"arquivo não encontrado: {path}",
-            details={"path": str(path)},
-        ) from exc
+        # Resolve non-strict first so the allowed-roots check runs before
+        # any filesystem existence check — an out-of-root path must be
+        # rejected even when it does not exist (order-independent).
+        candidate = Path(path).expanduser().resolve(strict=False)
     except (OSError, ValueError) as exc:
         raise InputValidationError(
             code="entrada.caminho_invalido",

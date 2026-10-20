@@ -41,7 +41,8 @@ class TestMaliciousPlanInput:
             "   +- eval(compile('1+1')) foo\n"
         )
         plan = parse_plan(evil)
-        assert not (Path("/tmp/pwned").exists())  # noqa: S108 - assertiva prova que nada foi escrito
+        # prova: nada foi escrito fora do diretório de trabalho
+        assert not Path("/tmp/pwned").exists()  # noqa: S108
         assert plan.nodes  # parsed as text only
 
     def test_deeply_nested_plan_no_recursion_bomb(self) -> None:

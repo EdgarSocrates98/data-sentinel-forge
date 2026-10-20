@@ -19,7 +19,7 @@ FIXTURES = Path(__file__).resolve().parent.parent.parent / "fixtures" / "config"
 
 def _load(name: str) -> InputFile:
     p = FIXTURES / name
-    return InputFile(path=str(p), text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=str(p), text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 def _request(**extra: object) -> DiagnosticRequest:

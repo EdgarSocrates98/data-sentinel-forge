@@ -30,7 +30,7 @@ def _inp(name: str, text: str | None = None, sub: str = "logs") -> InputFile:
     p = FIXTURES / sub / name
     if text is not None:
         return InputFile(path=p, text=text, size_bytes=len(text.encode()))
-    return InputFile(path=p, text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=p, text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 def _req(source_type: SourceType) -> DiagnosticRequest:
@@ -87,7 +87,9 @@ class TestOrchestrator:
             platform=Platform.SPARK,
             execution_context=ExecutionContext(extra={"spark_version": "3.4"}),
         )
-        inp = InputFile(path=cfg, text=cfg.read_text(), size_bytes=cfg.stat().st_size)
+        inp = InputFile(
+            path=cfg, text=cfg.read_text(encoding="utf-8"),
+            size_bytes=cfg.stat().st_size)
         out = run_diagnostics(req, [inp])
         # config advisor puts recs in metadata["recommendations"]
         assert out.recommendations or any(

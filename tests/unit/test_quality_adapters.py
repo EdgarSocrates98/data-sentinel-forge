@@ -16,7 +16,7 @@ FIX = Path(__file__).parent.parent / "fixtures" / "quality"
 
 
 def test_pydeequ_metrics() -> None:
-    data = json.loads((FIX / "pydeequ_metrics.json").read_text())
+    data = json.loads((FIX / "pydeequ_metrics.json").read_text(encoding="utf-8"))
     obs = parse_pydeequ(data, source="test")
     assert len(obs) == 4
     assert obs[0].observed_value == 0.97
@@ -29,7 +29,7 @@ def test_pydeequ_metrics() -> None:
 
 
 def test_ge_results() -> None:
-    data = json.loads((FIX / "ge_result.json").read_text())
+    data = json.loads((FIX / "ge_result.json").read_text(encoding="utf-8"))
     obs = parse_ge(data)
     assert len(obs) == 2
     assert obs[0].status == ObservationStatus.PASS
@@ -39,7 +39,7 @@ def test_ge_results() -> None:
 
 
 def test_sql_rows() -> None:
-    text = (FIX / "sql_results.json").read_text()
+    text = (FIX / "sql_results.json").read_text(encoding="utf-8")
     obs = normalize(text, adapter="sql_results")
     assert len(obs) == 2
     assert obs[0].status == ObservationStatus.PASS
@@ -49,7 +49,7 @@ def test_sql_rows() -> None:
 
 
 def test_deequ_checks_autodetect() -> None:
-    text = (FIX / "deequ_checks.json").read_text()
+    text = (FIX / "deequ_checks.json").read_text(encoding="utf-8")
     data = json.loads(text)
     assert detect_adapter(data) == "deequ_checks"
     obs = normalize(text)
@@ -59,7 +59,7 @@ def test_deequ_checks_autodetect() -> None:
 
 
 def test_detect_ge() -> None:
-    data = json.loads((FIX / "ge_result.json").read_text())
+    data = json.loads((FIX / "ge_result.json").read_text(encoding="utf-8"))
     assert detect_adapter(data) == "great_expectations"
 
 

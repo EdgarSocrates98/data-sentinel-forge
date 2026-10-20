@@ -108,7 +108,7 @@ rules:
 
 def test_load_contract_file(tmp_path: Path) -> None:
     p = tmp_path / "c.yaml"
-    p.write_text(VALID)
+    p.write_text(VALID, encoding="utf-8")
     c = load_contract(p)
     assert c.provenance == str(p)
     with pytest.raises(ContractFormatError):

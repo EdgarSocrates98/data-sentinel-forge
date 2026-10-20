@@ -44,7 +44,7 @@ def test_b_specialists_registered_and_routed() -> None:
 
 def test_c_tools_registry_execute(tmp_path: Path) -> None:
     f = tmp_path / "q.sql"
-    f.write_text("SELECT * FROM a")
+    f.write_text("SELECT * FROM a", encoding="utf-8")
     res = execute_tool(ToolInvocation(
         invocation_id="e2e", tool_id="sentinel.sql.analyze",
         input={"file": str(f)}))
@@ -100,7 +100,7 @@ def test_h_guardrails_block_unsafe() -> None:
 
 def test_i_investigate_cli_end_to_end(tmp_path: Path) -> None:
     f = tmp_path / "q.sql"
-    f.write_text("SELECT * FROM t JOIN u ON t.a=u.a")
+    f.write_text("SELECT * FROM t JOIN u ON t.a=u.a", encoding="utf-8")
     rep = investigate("sql query lenta",
                       {"sentinel.sql.analyze": str(f)})
     assert rep.tools_used == ["sentinel.sql.analyze"]
@@ -125,7 +125,7 @@ def test_cache_bounded() -> None:
 
 def test_tool_benchmark_smoke(tmp_path: Path) -> None:
     f = tmp_path / "q.sql"
-    f.write_text("SELECT * FROM a JOIN b ON a.x=b.x")
+    f.write_text("SELECT * FROM a JOIN b ON a.x=b.x", encoding="utf-8")
     t0 = time.perf_counter()
     for _ in range(5):
         execute_tool(ToolInvocation(

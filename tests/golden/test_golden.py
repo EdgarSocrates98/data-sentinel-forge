@@ -24,7 +24,9 @@ def _run(manifest: dict):
     files = []
     for rel in inp["files"]:
         p = ROOT / rel
-        files.append(InputFile(path=p, text=p.read_text(), size_bytes=p.stat().st_size))
+        files.append(InputFile(
+            path=p, text=p.read_text(encoding="utf-8"),
+            size_bytes=p.stat().st_size))
     req = DiagnosticRequest(
         source_type=SourceType(inp["source_type"]),
         artifact_references=[ArtifactReference(uri=f"golden://{manifest['id']}")],
@@ -35,7 +37,7 @@ def _run(manifest: dict):
 
 @pytest.mark.parametrize("manifest_path", MANIFESTS, ids=lambda p: p.stem)
 def test_golden(manifest_path: Path) -> None:
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     out = _run(manifest)
     exp = manifest["expect"]
 

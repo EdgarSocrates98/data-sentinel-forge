@@ -89,7 +89,7 @@ def test_e2e_malicious_bundle_rejected(tmp_path: Path) -> None:
     ]
     for i, p in enumerate(payloads):
         f = tmp_path / f"p{i}.json"
-        f.write_text(json.dumps(p))
+        f.write_text(json.dumps(p), encoding="utf-8")
         r = import_doctor_bundle(f)  # deve importar como dados inertes
         assert r.findings  # texto preservado como achado, nunca executado
     # file:// nunca é perseguido: sem evidência criada a partir dele

@@ -37,8 +37,8 @@ def test_empty_query_limitation() -> None:
 
 
 def test_load_dir(tmp_path: Path) -> None:
-    (tmp_path / "a.md").write_text("lakeformation grant")
-    (tmp_path / "b.md").write_text("kafka stream")
+    (tmp_path / "a.md").write_text("lakeformation grant", encoding="utf-8")
+    (tmp_path / "b.md").write_text("kafka stream", encoding="utf-8")
     kb = KnowledgeBase()
     assert kb.load_dir(tmp_path) == 2
     r = kb.search("lakeformation")

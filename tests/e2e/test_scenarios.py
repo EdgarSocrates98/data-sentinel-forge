@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def _inp(rel: str) -> InputFile:
     p = ROOT / rel
-    return InputFile(path=p, text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=p, text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 class TestScenarioA:
@@ -45,7 +45,7 @@ class TestScenarioA:
         assert payload["findings"]
         assert payload["schema_version"] == "1.0.0"
         assert payload["analyzer_versions"]
-        saved = json.loads(out.read_text())
+        saved = json.loads(out.read_text(encoding="utf-8"))
         assert saved["report_id"] == payload["report_id"]
         # 4) human rendering works on the same report
         r2 = runner.invoke(app, ["report", "show", "--file", str(out)])

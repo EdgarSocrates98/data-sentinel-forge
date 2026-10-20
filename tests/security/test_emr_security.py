@@ -34,7 +34,7 @@ def test_no_secrets_in_fixtures() -> None:
     for f in Path("fixtures").rglob("emr*"):
         if not f.is_file():
             continue
-        txt = f.read_text()
+        txt = f.read_text(encoding="utf-8")
         assert "AKIA" not in txt
         assert "secret" not in txt.lower()
         assert "password" not in txt.lower()

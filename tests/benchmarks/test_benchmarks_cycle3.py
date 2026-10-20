@@ -88,7 +88,7 @@ def test_report_latency_lakehouse():
     from data_sentinel.core.contracts.entities import ArtifactReference, DiagnosticRequest
     from data_sentinel.core.contracts.enums import Platform, SourceType
     p = Path("fixtures/iceberg/v2_evolved.json")
-    t = p.read_text()
+    t = p.read_text(encoding="utf-8")
     req = DiagnosticRequest(
         source_type=SourceType.ICEBERG_METADATA,
         artifact_references=[ArtifactReference(uri="x")],
@@ -103,5 +103,5 @@ def test_report_latency_lakehouse():
 
 def test_dump_results():
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({"cycle": 3, "results": RES}, indent=2))
+    OUT.write_text(json.dumps({"cycle": 3, "results": RES}, indent=2), encoding="utf-8")
     assert OUT.exists()

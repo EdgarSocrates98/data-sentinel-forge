@@ -138,7 +138,7 @@ def run_scenario(s: dict) -> dict:
 
 @pytest.mark.parametrize("path", SCEN, ids=lambda p: p.stem)
 def test_golden_scenario(path: Path) -> None:
-    s = json.loads(path.read_text())
+    s = json.loads(path.read_text(encoding="utf-8"))
     missing = REQUIRED - set(s)
     assert not missing, f"{path.name} sem campos {missing}"
     res = run_scenario(s)

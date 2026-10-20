@@ -82,7 +82,7 @@ class TestAnalyze:
     def test_analyze_oversized_rejected(self, tmp_path: Path) -> None:
         big = tmp_path / "big.log"
         big.write_bytes(b"x" * 200)
-        (tmp_path / "data-sentinel.toml").write_text("max_file_bytes = 100")
+        (tmp_path / "data-sentinel.toml").write_text("max_file_bytes = 100", encoding="utf-8")
         monkeypatch = pytest.MonkeyPatch()
         monkeypatch.chdir(tmp_path)
         try:
@@ -138,7 +138,7 @@ class TestAnalyze:
             ],
         )
         assert r.exit_code == 0
-        assert json.loads(out.read_text())["schema_version"] == "1.0.0"
+        assert json.loads(out.read_text(encoding="utf-8"))["schema_version"] == "1.0.0"
 
 
 class TestReport:

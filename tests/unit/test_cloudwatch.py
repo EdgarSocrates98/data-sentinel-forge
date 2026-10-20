@@ -35,7 +35,9 @@ FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "cloudwatch"
 
 
 def _input(path: Path) -> InputFile:
-    return InputFile(path=path, text=path.read_text(), size_bytes=path.stat().st_size)
+    return InputFile(
+        path=path, text=path.read_text(encoding="utf-8"),
+        size_bytes=path.stat().st_size)
 
 
 def _request() -> DiagnosticRequest:
@@ -48,19 +50,19 @@ def _request() -> DiagnosticRequest:
 
 class TestLogParser:
     def test_parses_exceptions_and_timestamps(self) -> None:
-        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text())
+        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text(encoding="utf-8"))
         assert len(parsed.exceptions) == 3
         assert parsed.exceptions[0].exception_class == "OutOfMemoryError"
         assert all(e.timestamp for e in parsed.events)
 
     def test_chained_exception_marked(self) -> None:
-        parsed = parse_log_text((FIXTURES / "chained_exceptions.log").read_text())
+        parsed = parse_log_text((FIXTURES / "chained_exceptions.log").read_text(encoding="utf-8"))
         chained = [e for e in parsed.events if e.is_chained]
         assert len(chained) >= 1
         assert any(e.exception_class == "OutOfMemoryError" for e in chained)
 
     def test_unknown_lines_pass_through(self) -> None:
-        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text())
+        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text(encoding="utf-8"))
         assert parsed.exceptions == []
         assert parsed.unparsed_lines >= 1
 
@@ -78,7 +80,7 @@ class TestLogParser:
 
 class TestCorrelation:
     def test_primary_vs_cascade(self) -> None:
-        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text())
+        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text(encoding="utf-8"))
         result = correlate(parsed)
         assert result.incidents[0].primary is not None
         assert result.incidents[0].primary.exception_class == "OutOfMemoryError"
@@ -86,13 +88,13 @@ class TestCorrelation:
         assert "FetchFailedException" in cascades
 
     def test_chained_attached_to_primary(self) -> None:
-        parsed = parse_log_text((FIXTURES / "chained_exceptions.log").read_text())
+        parsed = parse_log_text((FIXTURES / "chained_exceptions.log").read_text(encoding="utf-8"))
         result = correlate(parsed)
         assert result.chained_count >= 1
         assert result.incidents[0].secondary  # chained attached, not primary
 
     def test_no_exceptions_single_inconclusive_incident(self) -> None:
-        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text())
+        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text(encoding="utf-8"))
         result = correlate(parsed)
         assert result.incidents and result.incidents[0].primary is None
 
@@ -107,19 +109,19 @@ class TestCorrelation:
 
 class TestTimeline:
     def test_entries_carry_real_timestamps(self) -> None:
-        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text())
+        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text(encoding="utf-8"))
         tl = build_timeline(parsed)
         assert len(tl.entries) >= 5
         assert all(e.timestamp for e in tl.entries)
         assert tl.entries[0].timestamp <= tl.entries[-1].timestamp
 
     def test_render_format(self) -> None:
-        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text())
+        parsed = parse_log_text((FIXTURES / "glue_failure_events.log").read_text(encoding="utf-8"))
         out = build_timeline(parsed).render()
         assert "14:09:10" in out and "OutOfMemoryError" in out
 
     def test_undated_lines_counted(self) -> None:
-        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text())
+        parsed = parse_log_text((FIXTURES / "no_exceptions.log").read_text(encoding="utf-8"))
         tl = build_timeline(parsed)
         assert tl.undated_lines >= 1
 

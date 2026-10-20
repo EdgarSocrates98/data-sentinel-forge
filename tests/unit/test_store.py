@@ -1,6 +1,7 @@
 """Tests for the SQLite persistence layer."""
 
 import sqlite3
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -155,6 +156,8 @@ class TestMigrations:
 
 
 class TestErrors:
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="chmod não impede escrita em diretório no Windows")
     def test_readonly_dir_raises_domain_error(self, tmp_path: Path) -> None:
         ro = tmp_path / "ro"
         ro.mkdir()
@@ -177,7 +180,7 @@ class TestErrors:
         src = (
             Path(__file__).resolve().parents[2]
             / "src/data_sentinel/persistence/store.py"
-        ).read_text()
+        ).read_text(encoding="utf-8")
         for line in src.splitlines():
             if "execute(" in line and ("f\"" in line or "f'" in line):
                 assert "FROM analyses" in line or "schema_migrations" in line

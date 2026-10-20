@@ -25,7 +25,7 @@ FIXTURES = Path(__file__).resolve().parent.parent.parent / "fixtures" / "joins"
 
 def _load(name: str) -> InputFile:
     p = FIXTURES / name
-    return InputFile(path=str(p), text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=str(p), text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 def _request() -> DiagnosticRequest:
@@ -168,7 +168,7 @@ class TestSkew:
             }
         }
         f = FIXTURES / "_tmp_skew.json"
-        f.write_text(json.dumps(stats))
+        f.write_text(json.dumps(stats), encoding="utf-8")
         try:
             result = _analyze("high_volume_4tables.sql", "_tmp_skew.json")
         finally:

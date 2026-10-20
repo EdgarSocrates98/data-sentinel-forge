@@ -41,9 +41,9 @@ RESULTS: dict[str, object] = {
     "benchmarks": {},
 }
 
-PLAN = (ROOT / "fixtures" / "plans" / "sort_merge_join.txt").read_text()
-SQL = (ROOT / "fixtures" / "sql" / "cycle2" / "multi_join.sql").read_text()
-LOG = (ROOT / "fixtures" / "logs" / "mixed.log").read_text()
+PLAN = (ROOT / "fixtures" / "plans" / "sort_merge_join.txt").read_text(encoding="utf-8")
+SQL = (ROOT / "fixtures" / "sql" / "cycle2" / "multi_join.sql").read_text(encoding="utf-8")
+LOG = (ROOT / "fixtures" / "logs" / "mixed.log").read_text(encoding="utf-8")
 
 
 def _req(st: SourceType) -> DiagnosticRequest:
@@ -150,4 +150,4 @@ def _write_results() -> None:
     yield
     if OUT is not None:
         OUT.parent.mkdir(parents=True, exist_ok=True)
-        OUT.write_text(json.dumps(RESULTS, indent=2) + "\n")
+        OUT.write_text(json.dumps(RESULTS, indent=2) + "\n", encoding="utf-8")

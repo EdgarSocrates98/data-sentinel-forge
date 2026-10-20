@@ -103,14 +103,14 @@ class SessionAuth:
         if env:
             return env
         try:
-            return _TOKEN_FILE.read_text().strip() or None
+            return _TOKEN_FILE.read_text(encoding="utf-8").strip() or None
         except OSError:
             return None
 
     def _persist(self) -> None:
         try:
             _TOKEN_FILE.parent.mkdir(parents=True, exist_ok=True)
-            _TOKEN_FILE.write_text(self._token)
+            _TOKEN_FILE.write_text(self._token, encoding="utf-8")
             _TOKEN_FILE.chmod(0o600)
         except OSError:
             pass  # session-only token still works in-memory

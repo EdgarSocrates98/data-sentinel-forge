@@ -17,7 +17,7 @@ FIXTURES = Path(__file__).resolve().parent.parent.parent / "fixtures" / "sql" / 
 
 def _load(name: str) -> InputFile:
     p = FIXTURES / name
-    return InputFile(path=str(p), text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=str(p), text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 def _request(platform: Platform = Platform.SPARK) -> DiagnosticRequest:
@@ -149,7 +149,7 @@ class TestSelectivity:
     def test_selective_predicate_flag(self) -> None:
         sql = "SELECT id FROM huge_table WHERE status = 'active'"
         f = FIXTURES / "_tmp_sel.sql"
-        f.write_text(sql)
+        f.write_text(sql, encoding="utf-8")
         try:
             result = _analyze("_tmp_sel.sql", "stats_selectivity.json")
         finally:

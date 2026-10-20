@@ -1,6 +1,7 @@
 """Cycle 04 E2E A-H (ds-0048)."""
 
 import random
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def test_e2e_a_contract_validation() -> None:
 
 def test_e2e_b_pydeequ_parsing() -> None:
     """B: PyDeequ export normalized preserving metric semantics."""
-    obs = normalize((FIX / "quality/pydeequ_metrics.json").read_text(),
+    obs = normalize((FIX / "quality/pydeequ_metrics.json").read_text(encoding="utf-8"),
                     adapter="pydeequ")
     assert len(obs) == 4
     comp = next(o for o in obs if o.rule_id == "customer_id")
@@ -45,7 +46,7 @@ def test_e2e_b_pydeequ_parsing() -> None:
 
 def test_e2e_c_quality_regression() -> None:
     """C: FAIL observation + drift finding surface a regression signal."""
-    obs = normalize((FIX / "quality/sql_results.json").read_text(),
+    obs = normalize((FIX / "quality/sql_results.json").read_text(encoding="utf-8"),
                     adapter="sql_results")
     fails = [o for o in obs if o.status == ObservationStatus.FAIL]
     assert len(fails) == 1 and fails[0].rule_id == "fresh_h"
@@ -59,7 +60,7 @@ def test_e2e_c_quality_regression() -> None:
 def test_e2e_d_operational_lineage() -> None:
     """D: real Marquez events -> graph edges."""
     ing = parse_openlineage_events(
-        (FIX / "lineage/marquez-real.jsonl").read_text())
+        (FIX / "lineage/marquez-real.jsonl").read_text(encoding="utf-8"))
     g = build_graph(ing.events)
     assert len(g.downstream) == 2
     fail_ev = [e for e in ing.events if e.event_type == "FAIL"]
@@ -69,7 +70,7 @@ def test_e2e_d_operational_lineage() -> None:
 def test_e2e_e_impact_analysis() -> None:
     """E: impact = potential-only reachability."""
     g = build_graph(parse_openlineage_events(
-        (FIX / "lineage/marquez-real.jsonl").read_text()).events)
+        (FIX / "lineage/marquez-real.jsonl").read_text(encoding="utf-8")).events)
     imp = impact(g, DatasetReference(namespace="s3://lakehouse-raw",
                                      name="raw/events"))
     assert imp.potential_only is True
@@ -107,8 +108,8 @@ def test_e2e_g_doctor_interop() -> None:
             explanation="observação de qualidade confirmada",
             evidence_ids=["obs:1"])])
     text = export_report_json(r)
-    p = Path("/tmp/e2e_bundle.json")  # noqa: S108 — fixture de ida-volta
-    p.write_text(text)
+    p = Path(tempfile.gettempdir()) / "e2e_bundle.json"
+    p.write_text(text, encoding="utf-8")
     imported = import_doctor_bundle(p)
     assert len(imported.findings) == 1
     assert "qualidade" in imported.findings[0].explanation

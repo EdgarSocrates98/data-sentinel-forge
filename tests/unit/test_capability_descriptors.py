@@ -32,6 +32,6 @@ def test_no_forge_imports_in_src() -> None:
     import pathlib
     src = pathlib.Path(__file__).resolve().parents[2] / "src" / "data_sentinel"
     for py in src.rglob("*.py"):
-        for i, line in enumerate(py.read_text().splitlines(), 1):
+        for i, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
             assert "import forge_" not in line and "from forge_" not in line, \
                 f"{py}:{i} importa ecossistema forge"

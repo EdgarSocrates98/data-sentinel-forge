@@ -26,7 +26,7 @@ DAPI = FIX / "doctor-api"
 
 
 def _load(path: Path) -> dict:
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def test_canonical_handoff_fixture_parses() -> None:

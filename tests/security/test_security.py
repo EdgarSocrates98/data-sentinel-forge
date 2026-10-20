@@ -21,7 +21,7 @@ SRC_DIR = Path(__file__).resolve().parents[2] / "src"
 @pytest.fixture()
 def workdir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     (tmp_path / "inner").mkdir()
-    (tmp_path / "inner/ok.log").write_text("hello log\n")
+    (tmp_path / "inner/ok.log").write_text("hello log\n", encoding="utf-8")
     monkeypatch.chdir(tmp_path)
     return tmp_path
 
@@ -31,7 +31,7 @@ class TestSafeResolve:
         assert safe_resolve("inner/ok.log").is_file()
 
     def test_rejects_dotdot_escape(self, workdir: Path) -> None:
-        (workdir.parent / "outside.log").write_text("x")
+        (workdir.parent / "outside.log").write_text("x", encoding="utf-8")
         with pytest.raises(PathViolationError):
             safe_resolve("inner/../../outside.log")
 
@@ -41,13 +41,13 @@ class TestSafeResolve:
 
     def test_absolute_allowed_when_explicit_root(self, workdir: Path) -> None:
         outside = workdir.parent / "outside.log"
-        outside.write_text("x")
+        outside.write_text("x", encoding="utf-8")
         resolved = safe_resolve(str(outside), allowed_roots=[workdir.parent])
         assert resolved == outside.resolve()
 
     def test_rejects_symlink_escape(self, workdir: Path) -> None:
         outside = workdir.parent / "secret.log"
-        outside.write_text("x")
+        outside.write_text("x", encoding="utf-8")
         link = workdir / "inner/link.log"
         try:
             link.symlink_to(outside)
@@ -207,7 +207,7 @@ BANNED_CALLS = {"eval", "exec", "system", "popen", "spawnl", "spawnv"}
 def test_no_dangerous_calls_in_src() -> None:
     offenders: list[str] = []
     for file in SRC_DIR.rglob("*.py"):
-        tree = ast.parse(file.read_text())
+        tree = ast.parse(file.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 names = {a.name.split(".")[0] for a in node.names}
@@ -230,6 +230,6 @@ def test_no_dangerous_calls_in_src() -> None:
 
 def test_src_has_no_os_system_usage() -> None:
     for file in SRC_DIR.rglob("*.py"):
-        content = file.read_text()
+        content = file.read_text(encoding="utf-8")
         assert "os.system(" not in content
         assert "os.popen(" not in content

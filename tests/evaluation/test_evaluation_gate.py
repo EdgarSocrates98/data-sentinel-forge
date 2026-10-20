@@ -23,7 +23,7 @@ def test_results_file_exists_with_real_data() -> None:
         "complementarity-results.json"
     assert p.exists()
     import json
-    d = json.loads(p.read_text())
+    d = json.loads(p.read_text(encoding="utf-8"))
     assert d["status"] == "VERIFIED"
     assert d["totals"]["scenarios"] == 10
     assert d["totals"]["external_calls"] == 0

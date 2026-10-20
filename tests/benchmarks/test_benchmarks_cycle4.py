@@ -73,8 +73,8 @@ def test_benchmarks_cycle4() -> None:
 
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     out = EVIDENCE / "benchmarks-cycle4.json"
-    existing = json.loads(out.read_text()) if out.exists() else {}
+    existing = json.loads(out.read_text(encoding="utf-8")) if out.exists() else {}
     existing.update(results)
-    out.write_text(json.dumps(existing, indent=2, sort_keys=True))
+    out.write_text(json.dumps(existing, indent=2, sort_keys=True), encoding="utf-8")
     for k, v in results.items():
         assert v["seconds"] < 30, f"{k} too slow: {v['seconds']:.3f}s"

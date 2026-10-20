@@ -411,7 +411,7 @@ def _routing_eval() -> dict[str, Any]:
     from data_sentinel.agents.specialists import route
     out: dict[str, Any] = {"datasets": [], "total_cases": 0, "hits": 0}
     for name in ("agentic_evals.json", "emr_evals.json"):
-        ds = json.loads((EVALS_DIR / name).read_text())
+        ds = json.loads((EVALS_DIR / name).read_text(encoding="utf-8"))
         cases = ds["cases"]
         hits = 0
         t0 = time.perf_counter()
@@ -459,7 +459,7 @@ def _det_vs_agentic(paths: list[Path]) -> dict[str, Any]:
     provider = StubProvider()
     rows: list[dict[str, Any]] = []
     for path in paths:
-        s = json.loads(path.read_text())
+        s = json.loads(path.read_text(encoding="utf-8"))
         if s["runner"] != "analyzer":
             continue
         problem = f"{s['title']}: {s['ground_truth']}"
@@ -545,7 +545,7 @@ def evaluate() -> dict[str, Any]:
     tracemalloc.start()
     records: list[dict[str, Any]] = []
     for path in paths:
-        s = json.loads(path.read_text())
+        s = json.loads(path.read_text(encoding="utf-8"))
         tracemalloc.reset_peak()
         base_mem, _ = tracemalloc.get_traced_memory()
         t0 = time.perf_counter()
@@ -666,7 +666,7 @@ def run(write: bool = True) -> dict[str, Any]:
     if write:
         OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
         OUT_JSON.write_text(
-            json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+            json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return result
 
 

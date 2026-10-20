@@ -149,7 +149,7 @@ def result_dialect(platform: Platform) -> str:
 
 def _write(text: str, d: Path, name: str) -> Path:
     p = d / name
-    p.write_text(text)
+    p.write_text(text, encoding="utf-8")
     return p
 
 

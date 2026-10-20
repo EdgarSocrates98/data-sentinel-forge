@@ -18,13 +18,13 @@ def _req() -> DiagnosticRequest:
 
 def _analyze():
     from data_sentinel.core.security import InputFile
-    inp = InputFile(path=FX, text=FX.read_text(),
+    inp = InputFile(path=FX, text=FX.read_text(encoding="utf-8"),
                     size_bytes=FX.stat().st_size)
     return EmrEc2Analyzer().analyze(_req(), [inp])
 
 
 def test_parser_bundle() -> None:
-    d = parse_cluster(FX.read_text())
+    d = parse_cluster(FX.read_text(encoding="utf-8"))
     assert d.cluster["Id"] == "j-2AXXXXXX"
     assert len(d.steps) == 1 and len(d.instance_groups) == 1
 

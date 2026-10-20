@@ -27,7 +27,7 @@ FX = Path("fixtures/policies")
 
 def _run(name: str):
     p = FX / name
-    t = p.read_text()
+    t = p.read_text(encoding="utf-8")
     req = DiagnosticRequest(
         source_type=SourceType.POLICY_DOC,
         artifact_references=[ArtifactReference(uri="file://pol")],
@@ -40,13 +40,13 @@ def _run(name: str):
 
 class TestParser:
     def test_parse_statements(self):
-        d = parse_policy((FX / "glue_role.json").read_text())
+        d = parse_policy((FX / "glue_role.json").read_text(encoding="utf-8"))
         assert len(d.statements) == 3
         assert d.statements[2].effect == "Deny"
 
     def test_malformed_raises(self):
         with pytest.raises(PolicyParseError):
-            parse_policy((FX / "malformed.json").read_text())
+            parse_policy((FX / "malformed.json").read_text(encoding="utf-8"))
 
     def test_principal_dict_flattened(self):
         d = parse_policy(json.dumps({"Statement": [{
@@ -58,25 +58,25 @@ class TestParser:
 
 class TestEvaluate:
     def test_deny_wins_over_allow(self):
-        env = json.loads((FX / "deny_wins.json").read_text())
+        env = json.loads((FX / "deny_wins.json").read_text(encoding="utf-8"))
         docs = [parse_policy(json.dumps(v), name=k)
                 for k, v in env["policies"].items()]
         r = evaluate(docs, "s3:GetObject", "arn:aws:s3:::b/file")
         assert r.verdict == "denied"
 
     def test_allow_is_not_proof(self):
-        d = parse_policy((FX / "glue_role.json").read_text())
+        d = parse_policy((FX / "glue_role.json").read_text(encoding="utf-8"))
         r = evaluate([d], "s3:GetObject", "arn:aws:s3:::data-bucket/x")
         assert r.verdict == "allowed"
         assert any("não prova" in x for x in r.reasons)
 
     def test_no_match_unknown(self):
-        d = parse_policy((FX / "glue_role.json").read_text())
+        d = parse_policy((FX / "glue_role.json").read_text(encoding="utf-8"))
         r = evaluate([d], "s3:PutObject", "arn:aws:s3:::other/x")
         assert r.verdict == "unknown"
 
     def test_wildcard_action_matches(self):
-        d = parse_policy((FX / "wildcard.json").read_text())
+        d = parse_policy((FX / "wildcard.json").read_text(encoding="utf-8"))
         r = evaluate([d], "anything:Do", "arn:aws:s3:::x")
         assert r.verdict == "allowed"
 

@@ -180,7 +180,7 @@ SCENARIOS: list[dict[str, Any]] = [
 def _write(root: Path, files: dict[str, str]) -> None:
     root.mkdir(parents=True, exist_ok=True)
     for name, content in files.items():
-        (root / name).write_text(content)
+        (root / name).write_text(content, encoding="utf-8")
 
 
 def run_doctor(project: Path) -> dict[str, Any]:
@@ -230,7 +230,7 @@ def run_sentinel(scenario: dict[str, Any], workdir: Path) -> dict[str, Any]:
 
         af = workdir / "artifacts" / art["file"]
         af.parent.mkdir(parents=True, exist_ok=True)
-        af.write_text(art["content"])
+        af.write_text(art["content"], encoding="utf-8")
         request = DiagnosticRequest(
             source_type=SourceType(art["source_type"]),
             artifact_references=[ArtifactReference(uri=str(af))],
@@ -355,6 +355,6 @@ def evaluate() -> dict[str, Any]:
 if __name__ == "__main__":
     result = evaluate()
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-    OUT_JSON.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")
+    OUT_JSON.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(result["totals"], indent=2))  # noqa: T201
     print("status:", result.get("status"), "->", OUT_JSON)  # noqa: T201

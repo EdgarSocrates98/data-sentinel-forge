@@ -42,7 +42,7 @@ def _req(st: SourceType) -> DiagnosticRequest:
 
 def _inp(rel: str) -> InputFile:
     p = ROOT / rel
-    return InputFile(path=p, text=p.read_text(), size_bytes=p.stat().st_size)
+    return InputFile(path=p, text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
 
 
 def _run(st: SourceType, rel: str):

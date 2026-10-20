@@ -46,12 +46,12 @@ def test_emr_compare(tmp_path: Path) -> None:
     a.write_text(json.dumps({
         "context": {"platform": "emr_ec2", "spark_version": "3.5"},
         "observation": {"metrics": [
-            {"name": "duration_ms", "value": 100, "unit": "ms"}]}}))
+            {"name": "duration_ms", "value": 100, "unit": "ms"}]}}), encoding="utf-8")
     b.write_text(json.dumps({
         "context": {"platform": "emr_serverless",
                     "spark_version": "3.4"},
         "observation": {"metrics": [
-            {"name": "duration_ms", "value": 80, "unit": "ms"}]}}))
+            {"name": "duration_ms", "value": 80, "unit": "ms"}]}}), encoding="utf-8")
     r = runner.invoke(app, ["emr", "compare",
                             "--baseline", str(a),
                             "--current", str(b), "--json"])

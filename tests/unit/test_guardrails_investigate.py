@@ -52,7 +52,7 @@ def test_redact_secrets() -> None:
 
 def test_investigate_cli_real(tmp_path: Path) -> None:
     sql = tmp_path / "q.sql"
-    sql.write_text("SELECT * FROM a JOIN b ON a.x=b.x JOIN c ON b.y=c.y")
+    sql.write_text("SELECT * FROM a JOIN b ON a.x=b.x JOIN c ON b.y=c.y", encoding="utf-8")
     r = runner.invoke(app, [
         "investigate", "run", "-p", "sql lenta",
         "-f", f"sentinel.sql.analyze:{sql}", "--json"])

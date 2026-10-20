@@ -6,7 +6,7 @@ from pathlib import Path
 from data_sentinel.agents.specialists import route
 
 DS = json.loads((Path(__file__).parent / "agentic_evals.json")
-                .read_text())
+                .read_text(encoding="utf-8"))
 
 
 def test_routing_eval_precision() -> None:
@@ -30,7 +30,7 @@ def test_emr_routing_eval() -> None:
     import json
     from pathlib import Path
     ds = json.loads((Path(__file__).parent / "emr_evals.json")
-                    .read_text())
+                    .read_text(encoding="utf-8"))
     hits = 0
     for c in ds["cases"]:
         got = route(c["problem"])

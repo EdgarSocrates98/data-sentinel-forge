@@ -46,8 +46,8 @@ def test_export_import_roundtrip(tmp_path: Path) -> None:
     """Sentinel export must be importable by the Sentinel Doctor adapter."""
     b = export_report(_report())
     p = tmp_path / "sentinel-bundle.json"
-    p.write_text(b.model_dump_json())
-    fmt = detect_bundle_format(json.loads(p.read_text()))
+    p.write_text(b.model_dump_json(), encoding="utf-8")
+    fmt = detect_bundle_format(json.loads(p.read_text(encoding="utf-8")))
     imported = import_doctor_bundle(p)
     assert fmt
     assert len(imported.findings) == 1

@@ -54,9 +54,9 @@ def test_d_spark_cross_platform_honest(tmp_path: Path) -> None:
     m = {"metrics": [{"name": "duration_ms", "value": 5,
                       "unit": "ms"}]}
     a.write_text(json.dumps({"context": {"platform": "emr_ec2"},
-                             "observation": m}))
+                             "observation": m}), encoding="utf-8")
     b.write_text(json.dumps({"context": {"platform": "emr_eks"},
-                             "observation": m}))
+                             "observation": m}), encoding="utf-8")
     r = runner.invoke(app, ["emr", "compare",
                             "--baseline", str(a),
                             "--current", str(b)])

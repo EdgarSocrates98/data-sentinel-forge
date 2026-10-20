@@ -44,7 +44,7 @@ def test_committed_schemas_cover_main_entities() -> None:
 
 @pytest.mark.parametrize("name", MAIN_ENTITIES)
 def test_example_validates_against_schema(name: str) -> None:
-    schema = json.loads((SCHEMA_DIR / f"{name}.schema.json").read_text())
+    schema = json.loads((SCHEMA_DIR / f"{name}.schema.json").read_text(encoding="utf-8"))
     instance = json.loads(EXAMPLES[name]().to_json())
     Draft202012Validator(schema).validate(instance)
 
@@ -52,6 +52,6 @@ def test_example_validates_against_schema(name: str) -> None:
 def test_exported_schemas_are_stable(tmp_path: Path) -> None:
     export_schemas(tmp_path)
     for name in ENTITIES:
-        regenerated = (tmp_path / f"{name}.schema.json").read_text()
-        committed = (SCHEMA_DIR / f"{name}.schema.json").read_text()
+        regenerated = (tmp_path / f"{name}.schema.json").read_text(encoding="utf-8")
+        committed = (SCHEMA_DIR / f"{name}.schema.json").read_text(encoding="utf-8")
         assert regenerated == committed, f"schema drift for {name}"

@@ -11,7 +11,7 @@ FIX = Path(__file__).parent.parent / "fixtures" / "lineage"
 
 def test_real_marquez_jsonl() -> None:
     """Events POSTed to a real Marquez Docker instance (PROVENANCE.json)."""
-    text = (FIX / "marquez-real.jsonl").read_text()
+    text = (FIX / "marquez-real.jsonl").read_text(encoding="utf-8")
     ing = parse_openlineage_events(text, provenance="marquez-real")
     assert len(ing.events) == 4
     assert ing.kind == LineageKind.OBSERVED
@@ -26,7 +26,7 @@ def test_real_marquez_jsonl() -> None:
 
 
 def test_column_lineage_facet_preserved() -> None:
-    text = (FIX / "marquez-real.jsonl").read_text()
+    text = (FIX / "marquez-real.jsonl").read_text(encoding="utf-8")
     ev = parse_openlineage_events(text).events[0]
     raw_out = ev.facets["_raw_outputs"][0]
     cl = raw_out["facets"]["columnLineage"]["fields"]
@@ -35,14 +35,14 @@ def test_column_lineage_facet_preserved() -> None:
 
 
 def test_single_event_object() -> None:
-    ev = json.loads((FIX / "marquez-real.jsonl").read_text().splitlines()[0])
+    ev = json.loads((FIX / "marquez-real.jsonl").read_text(encoding="utf-8").splitlines()[0])
     ing = parse_openlineage_events(json.dumps(ev))
     assert len(ing.events) == 1
 
 
 def test_batch_envelope() -> None:
     evs = [json.loads(ln) for ln in
-           (FIX / "marquez-real.jsonl").read_text().splitlines()[:2]]
+           (FIX / "marquez-real.jsonl").read_text(encoding="utf-8").splitlines()[:2]]
     ing = parse_openlineage_events(json.dumps({"events": evs}))
     assert len(ing.events) == 2
 

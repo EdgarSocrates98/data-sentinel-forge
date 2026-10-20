@@ -27,7 +27,7 @@ def _req(st: SourceType) -> DiagnosticRequest:
 
 
 def _inp(p: Path) -> InputFile:
-    t = p.read_text()
+    t = p.read_text(encoding="utf-8")
     return InputFile(path=p, text=t, size_bytes=len(t.encode()))
 
 

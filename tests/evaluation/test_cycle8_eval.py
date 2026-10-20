@@ -34,5 +34,5 @@ def test_cycle8_eval_measured() -> None:
         assert r["latency_ms"] >= 0 and r["verdict"] in {
             "tp", "fp", "fn", "tn", "delegated"}
     assert OUT.exists()
-    on_disk = json.loads(OUT.read_text())
+    on_disk = json.loads(OUT.read_text(encoding="utf-8"))
     assert on_disk["totals"] == t

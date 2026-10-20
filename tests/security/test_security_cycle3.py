@@ -111,7 +111,7 @@ class TestPolicyEdgeCases:
 class TestPartialVisibility:
     def test_unverified_share_not_denial(self):
         p = Path("fixtures/access/cross_read.json")
-        t = p.read_text()
+        t = p.read_text(encoding="utf-8")
         r = registry.get("lakehouse.cross_account").analyze(
             _req(SourceType.ACCESS_CONTEXT),
             [InputFile(path=p, text=t, size_bytes=len(t.encode()))])

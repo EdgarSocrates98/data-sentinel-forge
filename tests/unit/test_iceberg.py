@@ -34,7 +34,7 @@ def _req() -> DiagnosticRequest:
 
 def _inp(name: str) -> InputFile:
     p = FX / name
-    t = p.read_text()
+    t = p.read_text(encoding="utf-8")
     return InputFile(path=p, text=t, size_bytes=len(t.encode()))
 
 
@@ -44,7 +44,7 @@ def _run(*names: str):
 
 class TestParser:
     def test_v1_basic(self):
-        m = parse_metadata((FX / "v1_simple.json").read_text())
+        m = parse_metadata((FX / "v1_simple.json").read_text(encoding="utf-8"))
         assert m.format_version == 1
         assert len(m.snapshots) == 1
         assert m.snapshots[0].manifest_list.startswith("s3://")
@@ -52,20 +52,20 @@ class TestParser:
         assert m.refs["main"]["snapshot-id"] == 1
 
     def test_v2_evolution(self):
-        m = parse_metadata((FX / "v2_evolved.json").read_text())
+        m = parse_metadata((FX / "v2_evolved.json").read_text(encoding="utf-8"))
         assert m.format_version == 2
         assert len(m.schemas) == 2 and len(m.partition_specs) == 2
         assert m.snapshots[1].sequence_number == 1
         assert m.partition_specs[1].fields[1].transform == "void"
 
     def test_v3_unknown_fields_preserved(self):
-        m = parse_metadata((FX / "v3_unknown_fields.json").read_text())
+        m = parse_metadata((FX / "v3_unknown_fields.json").read_text(encoding="utf-8"))
         assert m.format_version == 3
         assert "next-row-id" in m.extras and "row-lineage" in m.extras
 
     def test_malformed_raises_parse_error(self):
         with pytest.raises(MetadataParseError):
-            parse_metadata((FX / "malformed.json").read_text())
+            parse_metadata((FX / "malformed.json").read_text(encoding="utf-8"))
 
     def test_non_object_rejected(self):
         with pytest.raises(MetadataParseError):
