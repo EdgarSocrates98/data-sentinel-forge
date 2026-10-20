@@ -1,0 +1,8 @@
+{
+  "metrics": [
+    {"entity": "Column", "instance": "customer_id", "name": "Completeness", "value": 0.97},
+    {"entity": "Multicolumn", "instance": "event_id", "name": "Uniqueness", "value": 1.0},
+    {"entity": "Dataset", "instance": "*", "name": "Size", "value": 145000},
+    {"entity": "Column", "instance": "amount", "name": "Completeness", "error": "column not found"}
+  ]
+}

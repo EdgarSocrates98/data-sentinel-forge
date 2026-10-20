@@ -1,0 +1,14 @@
+{
+  "meta": {"run_id": {"run_name": "nightly-2026-03"}},
+  "validation_time": "2026-03-10T02:00:00Z",
+  "results": [
+    {"success": true,
+     "expectation_config": {"expectation_type": "expect_column_values_to_not_be_null",
+                            "kwargs": {"column": "customer_id"}},
+     "result": {"unexpected_count": 0}},
+    {"success": false,
+     "expectation_config": {"expectation_type": "expect_column_values_to_be_between",
+                            "kwargs": {"column": "amount", "min_value": 0}},
+     "result": {"unexpected_count": 42, "observed_value": null}}
+  ]
+}

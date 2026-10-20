@@ -30,6 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 aws = ["boto3>=1.34"]
+stats = ["numpy>=1.26", "scipy>=1.11"]
 api = ["fastapi>=0.110", "uvicorn>=0.29"]
 dev = [
     "pytest>=8.0",

@@ -1,0 +1,8 @@
+{
+  "results": [
+    {"rule_id": "pk_dups", "metric": "duplicate_count", "value": 0,
+     "expected": 0, "status": "PASS", "run_id": "job-7"},
+    {"rule_id": "fresh_h", "metric": "max_age_hours", "value": 30,
+     "expected": 24, "status": "FAIL", "unit": "hours"}
+  ]
+}

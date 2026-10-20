@@ -1,0 +1,10 @@
+{
+  "checks": [
+    {"status": "Success", "constraint_results": [
+      {"status": "Success", "constraint": {"id": "size_gt", "type": "Size"},
+       "metric": {"name": "Size", "value": 145000}},
+      {"status": "Failure", "constraint": {"id": "comp_cid", "type": "Completeness"},
+       "metric": {"name": "Completeness(customer_id)", "value": 0.97}}
+    ]}
+  ]
+}
