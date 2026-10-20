@@ -130,7 +130,7 @@ class SessionAuth:
                     os.fchmod(fd, 0o600)
             else:
                 with contextlib.suppress(OSError):
-                    os.chmod(_TOKEN_FILE, 0o600)
+                    _TOKEN_FILE.chmod(0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as fh:
                 fh.write(self._token)
         except OSError:
