@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0054.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:06:22+00:00",
+  "id": "ds-0054",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0054.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0054.md",
+  "spec_sha256": "db1c4d088e1bb3efd40ab2a4468f551d08fa288404c408d6d64ecf751c30daf2",
+  "status": "planned",
+  "title": "Context engineering"
+}

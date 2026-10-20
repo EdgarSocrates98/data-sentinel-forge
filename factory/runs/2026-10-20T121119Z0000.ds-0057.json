@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0057.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:11:19+00:00",
+  "id": "ds-0057",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0057.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0057.md",
+  "spec_sha256": "1404a104f220402e7ec9abf9f2ebf81cc7c18a2a556c7ce6fe68a0ff8b7f4e40",
+  "status": "planned",
+  "title": "Specialist agents"
+}

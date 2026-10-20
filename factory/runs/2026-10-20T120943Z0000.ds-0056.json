@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0056.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:09:43+00:00",
+  "id": "ds-0056",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0056.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0056.md",
+  "spec_sha256": "75842a6369661742134cd2e968ff68b668dc4c3f2007558cd4315009b2345402",
+  "status": "planned",
+  "title": "Hypothesis & root cause engine"
+}

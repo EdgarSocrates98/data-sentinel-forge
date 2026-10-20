@@ -1,0 +1,17 @@
+{
+  "dataset": "data-sentinel-agentic-v1",
+  "cases": [
+    {"id": "ev01", "problem": "glue job driver out of memory",
+     "expect_route": ["glue-expert"]},
+    {"id": "ev02", "problem": "iceberg snapshot expiration falhou",
+     "expect_route": ["iceberg-expert"]},
+    {"id": "ev03", "problem": "sql query com join lenta",
+     "expect_route": ["sql-expert"]},
+    {"id": "ev04", "problem": "lakeformation access denied",
+     "expect_route": ["lakeformation-expert"]},
+    {"id": "ev05", "problem": "iam policy s3 negado",
+     "expect_route": ["security-reviewer"]},
+    {"id": "ev06", "problem": "problema vago sem domínio",
+     "expect_route": ["coordinator"]}
+  ]
+}

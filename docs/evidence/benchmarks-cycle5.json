@@ -1,0 +1,5 @@
+{
+  "sql_analyze_avg_ms": 10.38,
+  "rag_search_200docs_avg_ms": 0.82,
+  "context_build_avg_ms": 0.01
+}

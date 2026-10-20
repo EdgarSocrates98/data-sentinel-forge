@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0050.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T11:56:57+00:00",
+  "id": "ds-0050",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0050.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0050.md",
+  "spec_sha256": "92d7e2ed5ffc388e2de68d3d74713637bafca5b64539e3c9dc3447b1bf68e0a4",
+  "status": "planned",
+  "title": "Baseline C01-C04 + contratos Cycle 05"
+}

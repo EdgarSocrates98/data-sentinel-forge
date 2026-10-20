@@ -1060,3 +1060,70 @@ def report_export(
         typer.echo(f"bundle exportado -> {output}")
     else:
         typer.echo(text)
+
+
+mcp_app = typer.Typer(help="Servidor MCP (stdio).")
+app.add_typer(mcp_app, name="mcp")
+
+
+@mcp_app.command("serve")
+def mcp_serve() -> None:
+    """Inicia o servidor MCP em stdio (requer extra `mcp`)."""
+    try:
+        from data_sentinel.mcp_server import serve
+    except ImportError as exc:
+        typer.echo(
+            "erro: extra `mcp` não instalado — "
+            "uv pip install 'data-sentinel[mcp]'", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+    serve()
+
+investigate_app = typer.Typer(help="Investigação agêntica determinística.")
+app.add_typer(investigate_app, name="investigate")
+
+
+@investigate_app.command("run")
+def investigate_run(
+    problem: Annotated[str, typer.Option(
+        "--problem", "-p", help="Descrição do problema.")],
+    files: Annotated[list[str], typer.Option(
+        "--file", "-f",
+        help="Par tool_id:caminho (repetível).")] = [],  # noqa: B006 — typer precisa
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Investiga: roteia especialistas, executa tools, valida, RCA."""
+    from data_sentinel.agents.investigator import investigate
+    file_map: dict[str, str] = {}
+    for spec in files:
+        tool, _, path = spec.partition(":")
+        if not path:
+            typer.echo(f"erro: --file '{spec}' precisa ser tool:caminho",
+                       err=True)
+            raise typer.Exit(code=EXIT_USAGE)
+        file_map[tool] = path
+    rep = investigate(problem, file_map)
+    if json_mode:
+        _emit_json(rep.model_dump(mode="json"))
+        return
+    typer.echo(f"investigação: {len(rep.findings)} finding(s), "
+               f"{len(rep.tools_used)} tool call(s)")
+    for c in rep.conclusions:
+        typer.echo(f"  {c}")
+    for lim in rep.limitations:
+        typer.echo(f"  [limitação] {lim}")
+
+
+@app.command("agents")
+def agents_list() -> None:
+    """Lista os especialistas registrados."""
+    from data_sentinel.agents.specialists import specialist_descriptors
+    for d in specialist_descriptors():
+        typer.echo(f"{d.agent_id:24} {d.name} — {d.responsibility}")
+
+
+@app.command("tools")
+def tools_list() -> None:
+    """Lista as tools registradas."""
+    from data_sentinel.tools.registry import build_default_registry
+    for t in build_default_registry().list_tools():
+        typer.echo(f"{t.tool_id:36} {t.name}")

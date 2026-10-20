@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0053.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:03:57+00:00",
+  "id": "ds-0053",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0053.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0053.md",
+  "spec_sha256": "96093fac042aa256535dbf6a1ef5d2452ffbd9791ef7c837143e7e2f3f3dbbcd",
+  "status": "planned",
+  "title": "MCP server stdio"
+}

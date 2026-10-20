@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0052.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:00:07+00:00",
+  "id": "ds-0052",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0052.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0052.md",
+  "spec_sha256": "3a0ac168e0b3360a007894cd23c1e7e656f6689344da4ea30e2f02f9ac88477a",
+  "status": "planned",
+  "title": "Tool registry + tools"
+}

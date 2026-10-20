@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0059.implement.codex.md)"
+  ],
+  "created_at": "2026-10-20T12:14:35+00:00",
+  "id": "ds-0059",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0059.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0059.md",
+  "spec_sha256": "0a40b1e5b65256f056d0e3469a6d1e6774a2eec5dc3ef6b156640d5490f9bfe8",
+  "status": "planned",
+  "title": "Evals + E2E A-J + docs finais"
+}
