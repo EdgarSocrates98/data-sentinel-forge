@@ -1,0 +1,1 @@
+MERGE INTO prod.sales t USING staging.sales s ON t.id = s.id WHEN MATCHED THEN UPDATE SET amt = s.amt WHEN NOT MATCHED THEN INSERT *

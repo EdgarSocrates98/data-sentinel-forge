@@ -1,0 +1,1 @@
+DELETE FROM prod.t

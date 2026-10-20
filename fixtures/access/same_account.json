@@ -1,0 +1,1 @@
+{"source_account": "702561771161", "destination_account": "702561771161", "principal": "arn:aws:iam::702561771161:role/r", "region": "us-east-1", "catalog": "c", "database": "d", "table": "t", "lf_mode": "iam", "required_operation": "select", "observed_permissions": ["SELECT"], "unknown_permissions": []}

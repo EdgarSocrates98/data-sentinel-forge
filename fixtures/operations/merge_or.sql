@@ -1,0 +1,1 @@
+MERGE INTO t USING s ON t.id = s.id OR t.alt_id = s.alt_id WHEN MATCHED THEN DELETE

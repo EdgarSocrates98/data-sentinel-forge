@@ -1,0 +1,1 @@
+{"policies": {"identity": {"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/*"}]}, "boundary": {"Version": "2012-10-17", "Statement": [{"Effect": "Deny", "Action": "s3:*", "Resource": "*"}]}}, "evaluate": [{"action": "s3:GetObject", "resource": "arn:aws:s3:::b/file"}]}

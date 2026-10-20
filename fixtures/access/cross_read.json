@@ -1,0 +1,1 @@
+{"source_account": "111111111111", "destination_account": "702561771161", "principal": "arn:aws:iam::111111111111:role/glue-etl", "region": "us-east-1", "catalog": "dest-catalog", "database": "sales", "table": "orders", "resource_link": "sales-orders-link", "lf_mode": "fgac", "required_operation": "select", "observed_permissions": [], "unknown_permissions": ["SELECT"]}

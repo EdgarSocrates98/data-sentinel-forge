@@ -1,0 +1,1 @@
+INSERT INTO prod.events SELECT * FROM staging.events
