@@ -25,3 +25,29 @@ jobs:
       - run: uv run mypy src
       - run: uv build
       - run: uv run pytest -q
+
+  minimal-install:
+    name: minimal wheel install (no extras)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: uv build
+      - name: install wheel with only runtime deps
+        run: |
+          python -m venv /tmp/minvenv
+          /tmp/minvenv/bin/pip install dist/data_sentinel-*.whl
+      - name: core must work without optional extras
+        run: |
+          /tmp/minvenv/bin/python -c "
+          import data_sentinel
+          from data_sentinel.core.contracts import DiagnosticReport
+          from data_sentinel.spark.plan_analyzer import analyze_plan
+          print('minimal install OK')
+          "
+          /tmp/minvenv/bin/data-sentinel --help > /dev/null
+          /tmp/minvenv/bin/data-sentinel capabilities > /dev/null
+          echo "CLI OK without extras"
