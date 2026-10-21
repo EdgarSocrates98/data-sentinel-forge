@@ -101,3 +101,17 @@ def test_idempotent_reinstall(tmp_path: Path) -> None:
         (tmp_path / ".data-sentinel/install/install-ledger.json").read_text()
     )
     assert isinstance(second["entries"], dict)
+
+
+def test_manifest_static_matches_programmatic(tmp_path: Path) -> None:
+    """forge.json / forge.agentic.json must not drift from `install manifest`."""
+    repo = Path(__file__).resolve().parents[3]
+    for name, args in (
+        ("forge.json", []),
+        ("forge.agentic.json", ["--agentic"]),
+    ):
+        result = runner.invoke(app, ["install", "manifest", *args])
+        assert result.exit_code == 0
+        emitted = json.loads(result.output)
+        static = json.loads((repo / name).read_text(encoding="utf-8"))
+        assert static == emitted, f"{name} drifted — regenerate via install manifest"

@@ -1,0 +1,63 @@
+{
+  "schema": "forge/SpecialistAgenticManifest/v1",
+  "provider": "data-sentinel-forge",
+  "version": "0.1.0",
+  "cli": "data-sentinel",
+  "cli_entry": "data_sentinel.cli:app",
+  "workflows": [
+    {
+      "id": "analyze",
+      "mode": "DIAGNOSTIC_ONLY",
+      "command": [
+        "{cli}",
+        "analyze",
+        "--file",
+        "{artifact}"
+      ],
+      "description": "Diagnóstico determinístico de artefato",
+      "read_only": true
+    },
+    {
+      "id": "spark-explain",
+      "mode": "DIAGNOSTIC_ONLY",
+      "command": [
+        "{cli}",
+        "spark",
+        "explain",
+        "--file",
+        "{plan}"
+      ],
+      "description": "Análise de plano físico Spark",
+      "read_only": true
+    },
+    {
+      "id": "capabilities",
+      "mode": "DIAGNOSTIC_ONLY",
+      "command": [
+        "{cli}",
+        "capabilities",
+        "--descriptors"
+      ],
+      "description": "Descoberta de capacidades",
+      "read_only": true
+    }
+  ],
+  "skills": [],
+  "agents": [],
+  "coordinators": [],
+  "mcp_command": [
+    "{cli}",
+    "mcp",
+    "serve"
+  ],
+  "host_adapters": [
+    "claude",
+    "devin",
+    "codex",
+    "copilot",
+    "cursor"
+  ],
+  "read_only_default": true,
+  "requires_aws_credentials": false,
+  "requires_llm": false
+}
