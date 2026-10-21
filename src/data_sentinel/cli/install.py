@@ -83,8 +83,9 @@ def _interactive_flow(
         gateway = typer.prompt("Gateway profile? [balanced]", default="balanced",
                                show_default=False).strip()
     if components is None:
-        typer.echo("componentes: skills | agents | mcp | host-config | markers |"
-                   " portal-launcher (csv, vazio = perfil)")
+        # H2 — only names the engine actually accepts (OPTIONAL_COMPONENTS).
+        typer.echo("componentes: skills | agents | mcp | tui | graph-studio"
+                   " (csv, vazio = perfil)")
         components = typer.prompt(
             "Componentes? [perfil]", default="", show_default=False
         ).strip() or None
@@ -168,6 +169,11 @@ def install_cmd(
         typer.echo(f"erro: {exc}", err=True)
         raise typer.Exit(code=1) from exc
     _emit(doc, json_mode)
+    # M5 — a completed write with failed verification is not a success.
+    if doc.get("status") in ("failed", "partial") or doc.get(
+        "verification", {}
+    ).get("status") == "FAIL":
+        raise typer.Exit(code=1)
 
 
 def _life(verb: str) -> Callable[..., None]:
@@ -175,11 +181,27 @@ def _life(verb: str) -> Callable[..., None]:
         scope: _SCOPE = "project",
         root: _ROOT = None,
         dry_run: Annotated[bool, typer.Option("--dry-run")] = False,
+        yes: Annotated[
+            bool, typer.Option("--yes", "-y", help="Confirma a operação.")
+        ] = False,
         json_mode: _JSON = False,
         purge: Annotated[
             bool, typer.Option("--purge", help="Também remove o state dir.")
         ] = False,
     ) -> None:
+        # M9 — destructive verbs share the install approval contract.
+        if verb in ("repair", "uninstall") and not dry_run:
+            if not sys.stdin.isatty() and not yes:
+                typer.echo(
+                    "erro: ambiente não-interativo — use --yes ou --dry-run",
+                    err=True,
+                )
+                raise typer.Exit(code=2)
+            if sys.stdin.isatty() and not yes and not typer.confirm(
+                f"{verb} — aplicar?", default=False
+            ):
+                typer.echo("cancelado — nada foi escrito.")
+                raise typer.Exit(code=0)
         try:
             kw: dict[str, Any] = {"scope": scope, "root": root}
             if verb in ("repair", "uninstall"):
@@ -239,7 +261,7 @@ def manifest_cmd(
     doc: dict[str, Any] = {
         "forge_id": service.FORGE_ID,
         "package": "data_sentinel",
-        "distribution": "data-sentinel-forge",
+        "distribution": "data-sentinel",
         "cli": "data-sentinel",
         "python": ">=3.11",
         "version": __version__,
@@ -269,7 +291,9 @@ def manifest_cmd(
             ],
             "skills": [], "agents": [], "coordinators": [],
             "mcp_command": ["{cli}", "mcp", "serve"],
-            "host_adapters": list(service.HOSTS),
+            # M11 — adapters render a catalog; cursor gets marker/mcp only.
+            "host_adapters": [h for h in service.HOSTS if h != "cursor"],
+            "host_partial": {"cursor": "marker + .mcp.json only — no skill/agent catalog adapter"},
             "read_only_default": True,
             "requires_aws_credentials": False,
             "requires_llm": False,

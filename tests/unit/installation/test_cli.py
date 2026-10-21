@@ -86,7 +86,7 @@ def test_uninstall_clean(tmp_path: Path) -> None:
     _installed(tmp_path)
     (tmp_path / "user.txt").write_text("mine", encoding="utf-8")
     result = runner.invoke(
-        app, ["install", "uninstall", "--root", str(tmp_path)]
+        app, ["install", "uninstall", "--root", str(tmp_path), "--yes"]
     )
     assert result.exit_code == 0, result.output
     assert (tmp_path / "user.txt").is_file()
@@ -141,7 +141,7 @@ def test_drift_detect_and_repair_restores(tmp_path: Path) -> None:
     )
     assert "drift" in status.output or skill.name in status.output
     result = runner.invoke(
-        app, ["install", "repair", "--root", str(tmp_path)]
+        app, ["install", "repair", "--root", str(tmp_path), "--yes"]
     )
     assert result.exit_code == 0, result.output
     assert skill.read_bytes() == original
@@ -153,6 +153,6 @@ def test_repair_refuses_foreign_file(tmp_path: Path) -> None:
     foreign.write_text("user edit", encoding="utf-8")
     # repair on a file never owned by the ledger is a refused/skip, not a clobber
     result = runner.invoke(
-        app, ["install", "repair", "--root", str(tmp_path)]
+        app, ["install", "repair", "--root", str(tmp_path), "--yes"]
     )
     assert result.exit_code in (0, 1), result.output

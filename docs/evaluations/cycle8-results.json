@@ -1,8 +1,8 @@
 {
   "spec": "ds-0094",
   "phase": "cycle-08 §5 benchmarks & evaluation",
-  "generated_at": "2026-10-21T01:38:18.660547+00:00",
-  "git_sha": "39bef88ce97ac42f58ad17196bfc2894168ad380",
+  "generated_at": "2026-10-21T02:11:02.846011+00:00",
+  "git_sha": "ca7f78b30f6f62c76578a3083bddae39f9cc3953",
   "status": "VERIFIED",
   "environment": {
     "python": "3.12.3",
@@ -30,7 +30,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "executed by tests/e2e/test_cycle7_ops.py — not measured by this harness",
-      "latency_ms": 0.027,
+      "latency_ms": 0.018,
       "peak_memory_kb": 0.1
     },
     {
@@ -53,7 +53,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "executed by tests/e2e/test_cycle7_ops.py — not measured by this harness",
-      "latency_ms": 0.022,
+      "latency_ms": 0.014,
       "peak_memory_kb": 0.1
     },
     {
@@ -76,7 +76,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "executed by tests/e2e/test_cycle7_ops.py — not measured by this harness",
-      "latency_ms": 0.019,
+      "latency_ms": 0.013,
       "peak_memory_kb": 0.1
     },
     {
@@ -99,7 +99,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "executed by tests/e2e/test_cycle7_ops.py — not measured by this harness",
-      "latency_ms": 0.02,
+      "latency_ms": 0.017,
       "peak_memory_kb": 0.1
     },
     {
@@ -145,7 +145,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected alert condition emitted",
-      "latency_ms": 2.054,
+      "latency_ms": 1.942,
       "peak_memory_kb": 4.5
     },
     {
@@ -168,8 +168,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected regression signal produced",
-      "latency_ms": 2.457,
-      "peak_memory_kb": 8.0
+      "latency_ms": 1.703,
+      "peak_memory_kb": 7.9
     },
     {
       "scenario_id": "volume-growth",
@@ -191,7 +191,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected regression signal produced",
-      "latency_ms": 2.065,
+      "latency_ms": 1.885,
       "peak_memory_kb": 4.4
     },
     {
@@ -215,7 +215,7 @@
       "forbidden_violations": 0,
       "detail": "no alert and no declaration — permitted by contract; see detection notes",
       "detection_note": true,
-      "latency_ms": 1.637,
+      "latency_ms": 1.303,
       "peak_memory_kb": 3.7
     },
     {
@@ -238,7 +238,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "alerts emitted without contract violation",
-      "latency_ms": 2.234,
+      "latency_ms": 1.975,
       "peak_memory_kb": 4.6
     },
     {
@@ -261,7 +261,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected regression signal produced",
-      "latency_ms": 1.45,
+      "latency_ms": 1.289,
       "peak_memory_kb": 3.7
     },
     {
@@ -284,8 +284,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 99.787,
-      "peak_memory_kb": 47.8
+      "latency_ms": 106.599,
+      "peak_memory_kb": 49.3
     },
     {
       "scenario_id": "emr-serverless-delay",
@@ -307,8 +307,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 34.212,
-      "peak_memory_kb": 47.7
+      "latency_ms": 39.688,
+      "peak_memory_kb": 47.8
     },
     {
       "scenario_id": "emr-ec2-idle",
@@ -330,7 +330,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 24.231,
+      "latency_ms": 32.724,
       "peak_memory_kb": 47.7
     },
     {
@@ -353,8 +353,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 60.617,
-      "peak_memory_kb": 51.6
+      "latency_ms": 74.802,
+      "peak_memory_kb": 51.7
     },
     {
       "scenario_id": "iceberg-small-files",
@@ -376,7 +376,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 61.928,
+      "latency_ms": 88.336,
       "peak_memory_kb": 125.6
     },
     {
@@ -399,7 +399,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "UNKNOWN honored — no fabricated regression",
-      "latency_ms": 1.048,
+      "latency_ms": 1.563,
       "peak_memory_kb": 3.2
     },
     {
@@ -422,7 +422,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "conservative silence, no unsupported claim",
-      "latency_ms": 1.453,
+      "latency_ms": 2.263,
       "peak_memory_kb": 7.3
     },
     {
@@ -445,8 +445,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "UNKNOWN + exclusions instead of invented price",
-      "latency_ms": 0.257,
-      "peak_memory_kb": 0.7
+      "latency_ms": 0.234,
+      "peak_memory_kb": 0.6
     },
     {
       "scenario_id": "alert-dedup",
@@ -468,8 +468,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "repeat eval deduped — no duplicate emitted",
-      "latency_ms": 0.421,
-      "peak_memory_kb": 0.5
+      "latency_ms": 0.416,
+      "peak_memory_kb": 0.4
     },
     {
       "scenario_id": "alert-recovery",
@@ -491,7 +491,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected alert condition emitted",
-      "latency_ms": 2.376,
+      "latency_ms": 2.332,
       "peak_memory_kb": 4.4
     },
     {
@@ -514,7 +514,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "watch stayed disabled — no silent monitoring",
-      "latency_ms": 0.358,
+      "latency_ms": 0.379,
       "peak_memory_kb": 0.5
     },
     {
@@ -537,7 +537,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "budget enforced as expected",
-      "latency_ms": 1.507,
+      "latency_ms": 1.307,
       "peak_memory_kb": 3.2
     },
     {
@@ -560,7 +560,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "executed by tests/e2e/test_cycle7_ops.py — not measured by this harness",
-      "latency_ms": 0.05,
+      "latency_ms": 0.048,
       "peak_memory_kb": 0.1
     },
     {
@@ -583,7 +583,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "status BLOCKED as required",
-      "latency_ms": 0.067,
+      "latency_ms": 0.091,
       "peak_memory_kb": 0.1
     },
     {
@@ -606,8 +606,8 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "imported 1 finding(s) with provenance",
-      "latency_ms": 6.792,
-      "peak_memory_kb": 16.7
+      "latency_ms": 9.178,
+      "peak_memory_kb": 16.6
     },
     {
       "scenario_id": "false-positive-regression",
@@ -629,7 +629,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "conservative silence, no unsupported claim",
-      "latency_ms": 1.26,
+      "latency_ms": 1.454,
       "peak_memory_kb": 6.0
     },
     {
@@ -652,7 +652,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "conservative silence, no unsupported claim",
-      "latency_ms": 1.487,
+      "latency_ms": 2.048,
       "peak_memory_kb": 7.3
     },
     {
@@ -675,7 +675,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "honest incomparable + reasons",
-      "latency_ms": 0.113,
+      "latency_ms": 0.157,
       "peak_memory_kb": 0.1
     },
     {
@@ -698,7 +698,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "analyzer produced findings or declared limitations",
-      "latency_ms": 39.511,
+      "latency_ms": 50.806,
       "peak_memory_kb": 73.1
     },
     {
@@ -721,7 +721,7 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "detail": "expected regression signal produced",
-      "latency_ms": 1.379,
+      "latency_ms": 1.949,
       "peak_memory_kb": 5.0
     }
   ],
@@ -741,15 +741,15 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.022,
-        0.027
+        0.014,
+        0.018
       ],
       "peak_memory_kb": 0.1,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.022,
-      "p95_ms": 0.027
+      "p50_ms": 0.014,
+      "p95_ms": 0.018
     },
     "streaming-sse": {
       "scenarios": 2,
@@ -766,15 +766,15 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.019,
-        0.02
+        0.013,
+        0.017
       ],
       "peak_memory_kb": 0.1,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.019,
-      "p95_ms": 0.02
+      "p50_ms": 0.013,
+      "p95_ms": 0.017
     },
     "concurrency": {
       "scenarios": 1,
@@ -815,16 +815,16 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.421,
-        2.054,
-        2.376
+        0.416,
+        1.942,
+        2.332
       ],
       "peak_memory_kb": 4.5,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": null,
-      "p50_ms": 2.054,
-      "p95_ms": 2.376
+      "p50_ms": 1.942,
+      "p95_ms": 2.332
     },
     "regressions": {
       "scenarios": 7,
@@ -841,20 +841,20 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        1.048,
-        1.26,
-        1.45,
-        1.453,
-        1.487,
-        2.065,
-        2.457
+        1.289,
+        1.454,
+        1.563,
+        1.703,
+        1.885,
+        2.048,
+        2.263
       ],
-      "peak_memory_kb": 8.0,
+      "peak_memory_kb": 7.9,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": 1.0,
-      "p50_ms": 1.453,
-      "p95_ms": 2.457
+      "p50_ms": 1.703,
+      "p95_ms": 2.263
     },
     "quality": {
       "scenarios": 1,
@@ -871,14 +871,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        1.637
+        1.303
       ],
       "peak_memory_kb": 3.7,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 1.637,
-      "p95_ms": 1.637
+      "p50_ms": 1.303,
+      "p95_ms": 1.303
     },
     "watch": {
       "scenarios": 2,
@@ -895,15 +895,15 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.358,
-        2.234
+        0.379,
+        1.975
       ],
       "peak_memory_kb": 4.6,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.358,
-      "p95_ms": 2.234
+      "p50_ms": 0.379,
+      "p95_ms": 1.975
     },
     "spark": {
       "scenarios": 2,
@@ -920,15 +920,15 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        39.511,
-        99.787
+        50.806,
+        106.599
       ],
       "peak_memory_kb": 73.1,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": 0.0,
-      "p50_ms": 39.511,
-      "p95_ms": 99.787
+      "p50_ms": 50.806,
+      "p95_ms": 106.599
     },
     "emr": {
       "scenarios": 3,
@@ -945,16 +945,16 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        24.231,
-        34.212,
-        60.617
+        32.724,
+        39.688,
+        74.802
       ],
-      "peak_memory_kb": 51.6,
+      "peak_memory_kb": 51.7,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": 1.0,
-      "p50_ms": 34.212,
-      "p95_ms": 60.617
+      "p50_ms": 39.688,
+      "p95_ms": 74.802
     },
     "iceberg": {
       "scenarios": 1,
@@ -971,14 +971,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        61.928
+        88.336
       ],
       "peak_memory_kb": 125.6,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": 1.0,
-      "p50_ms": 61.928,
-      "p95_ms": 61.928
+      "p50_ms": 88.336,
+      "p95_ms": 88.336
     },
     "cost": {
       "scenarios": 1,
@@ -995,14 +995,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.257
+        0.234
       ],
-      "peak_memory_kb": 0.7,
+      "peak_memory_kb": 0.6,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.257,
-      "p95_ms": 0.257
+      "p50_ms": 0.234,
+      "p95_ms": 0.234
     },
     "agent-runtime": {
       "scenarios": 1,
@@ -1019,14 +1019,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        1.507
+        1.307
       ],
       "peak_memory_kb": 3.2,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": null,
-      "p50_ms": 1.507,
-      "p95_ms": 1.507
+      "p50_ms": 1.307,
+      "p95_ms": 1.307
     },
     "api-security": {
       "scenarios": 1,
@@ -1043,14 +1043,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.05
+        0.048
       ],
       "peak_memory_kb": 0.1,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.05,
-      "p95_ms": 0.05
+      "p50_ms": 0.048,
+      "p95_ms": 0.048
     },
     "remediation": {
       "scenarios": 1,
@@ -1067,14 +1067,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.067
+        0.091
       ],
       "peak_memory_kb": 0.1,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": null,
-      "p50_ms": 0.067,
-      "p95_ms": 0.067
+      "p50_ms": 0.091,
+      "p95_ms": 0.091
     },
     "interop": {
       "scenarios": 1,
@@ -1091,14 +1091,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        6.792
+        9.178
       ],
-      "peak_memory_kb": 16.7,
+      "peak_memory_kb": 16.6,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": null,
-      "p50_ms": 6.792,
-      "p95_ms": 6.792
+      "p50_ms": 9.178,
+      "p95_ms": 9.178
     },
     "comparison": {
       "scenarios": 1,
@@ -1115,14 +1115,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        0.113
+        0.157
       ],
       "peak_memory_kb": 0.1,
       "precision": null,
       "recall": null,
       "evidence_coverage": null,
-      "p50_ms": 0.113,
-      "p95_ms": 0.113
+      "p50_ms": 0.157,
+      "p95_ms": 0.157
     },
     "regression": {
       "scenarios": 1,
@@ -1139,14 +1139,14 @@
       "unsupported_claims": 0,
       "forbidden_violations": 0,
       "latencies_ms": [
-        1.379
+        1.949
       ],
       "peak_memory_kb": 5.0,
       "precision": 1.0,
       "recall": 1.0,
       "evidence_coverage": 1.0,
-      "p50_ms": 1.379,
-      "p95_ms": 1.379
+      "p50_ms": 1.949,
+      "p95_ms": 1.949
     }
   },
   "spec_domain_coverage": {
@@ -1208,14 +1208,14 @@
         "cases": 6,
         "hits": 6,
         "accuracy": 1.0,
-        "elapsed_ms": 0.395
+        "elapsed_ms": 0.364
       },
       {
         "dataset": "data-sentinel-emr-v1",
         "cases": 4,
         "hits": 4,
         "accuracy": 1.0,
-        "elapsed_ms": 0.187
+        "elapsed_ms": 0.26
       }
     ],
     "total_cases": 10,
@@ -1238,13 +1238,13 @@
           "findings": 2,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 59.606
+          "latency_ms": 71.007
         },
         "agentic_stub": {
           "findings": 2,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 39.334,
+          "latency_ms": 47.708,
           "execution_state": "completed"
         }
       },
@@ -1254,13 +1254,13 @@
           "findings": 4,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 47.936
+          "latency_ms": 50.582
         },
         "agentic_stub": {
           "findings": 4,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 39.064,
+          "latency_ms": 52.36,
           "execution_state": "completed"
         }
       },
@@ -1270,13 +1270,13 @@
           "findings": 1,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 30.978
+          "latency_ms": 42.064
         },
         "agentic_stub": {
           "findings": 1,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 31.047,
+          "latency_ms": 44.504,
           "execution_state": "completed"
         }
       },
@@ -1286,13 +1286,13 @@
           "findings": 1,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 64.341
+          "latency_ms": 86.353
         },
         "agentic_stub": {
           "findings": 1,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 67.424,
+          "latency_ms": 85.375,
           "execution_state": "completed"
         }
       },
@@ -1302,13 +1302,13 @@
           "findings": 2,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 84.235
+          "latency_ms": 100.172
         },
         "agentic_stub": {
           "findings": 2,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 79.576,
+          "latency_ms": 110.916,
           "execution_state": "completed"
         }
       },
@@ -1318,13 +1318,13 @@
           "findings": 2,
           "tokens_used": 0,
           "cost_usd": 0.0,
-          "latency_ms": 47.148
+          "latency_ms": 63.491
         },
         "agentic_stub": {
           "findings": 2,
           "tokens_used": 26,
           "cost_usd": 0.0,
-          "latency_ms": 55.332,
+          "latency_ms": 67.235,
           "execution_state": "completed"
         }
       }
@@ -1334,10 +1334,10 @@
       "agentic_tokens": 156,
       "deterministic_cost_usd": 0.0,
       "agentic_cost_usd": 0.0,
-      "p50_det_ms": 47.936,
-      "p95_det_ms": 84.235,
-      "p50_agentic_ms": 39.334,
-      "p95_agentic_ms": 79.576
+      "p50_det_ms": 63.491,
+      "p95_det_ms": 100.172,
+      "p50_agentic_ms": 52.36,
+      "p95_agentic_ms": 110.916
     }
   },
   "totals": {
@@ -1352,8 +1352,8 @@
     "unsupported_claims": 0,
     "forbidden_violations": 0,
     "external_calls": 0,
-    "p50_ms": 1.453,
-    "p95_ms": 60.617,
+    "p50_ms": 1.563,
+    "p95_ms": 74.802,
     "precision": 1.0,
     "recall": 1.0
   },

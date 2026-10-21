@@ -11,6 +11,7 @@ handshake) lives in the installkit; this module carries the Sentinel
 
 from __future__ import annotations
 
+import dataclasses
 import importlib.util
 import json
 import os
@@ -86,7 +87,7 @@ def _spec() -> kit.ForgeSpec:
     return kit.ForgeSpec(
         forge_id=FORGE_ID,
         package="data_sentinel",
-        distribution="data-sentinel-forge",
+        distribution="data-sentinel",  # M1 — must match pyproject name
         cli_name="data-sentinel",
         python_spec=">=3.11",
         state_dir=STATE_DIR,
@@ -104,7 +105,10 @@ def _spec() -> kit.ForgeSpec:
             "Content between the `data-sentinel-forge:managed` markers is "
             "managed; content outside belongs to the user."
         ),
-        user_state_dir="~/.data-sentinel",
+        # H1 fix: nested "install" keeps the install state apart from the
+        # shared runtime state (~/.data-sentinel/{sentinel.db,session-token})
+        # so `uninstall --scope user --purge` can never wipe user data.
+        user_state_dir="~/.data-sentinel/install",
         spawn_ok=True,  # confined to _spawn(): mcp-verify/update only
     )
 
@@ -138,6 +142,10 @@ def _ctx(
     gateway_profile: str = "balanced",
 ) -> kit.InstallContext:
     spec = _spec()
+    if scope == "user":
+        # M12 — no host reads ~/AGENTS.md; markers only make sense inside
+        # a project/workspace root.
+        spec = dataclasses.replace(spec, marker_files=())
     target = kit.resolve_scope(spec, scope, Path.cwd(), root)
     options = kit.component_options(profile, components)
     options["execution_profile"] = gateway_profile
@@ -194,14 +202,22 @@ def install(
         # §2.5 — preview must not write, not even the state dir/lock file.
         plan = kit.apply_install(ctx, approved=yes)
         plan["source"] = _detect_source()
+        # M4 — the .mcp.json merge is a real write; the plan must show it.
+        if components is None or "mcp" in components:
+            plan["planned_mcp"] = {
+                "file": ".mcp.json",
+                "server": "data-sentinel",
+                "action": "merge-preserve-foreign",
+            }
         return plan
     with kit.acquire_lock(state):
         receipt = kit.apply_install(ctx, approved=yes)
-    if not dry_run and receipt.get("status") == "completed":
-        receipt["source"] = _detect_source()
-        receipt["source_version"] = __version__
-        kit._write_receipt(state, receipt)
-        _register(ctx)
+        # M3 — receipt + registry writes stay inside the install lock.
+        if receipt.get("status") == "completed":
+            receipt["source"] = _detect_source()
+            receipt["source_version"] = __version__
+            kit._write_receipt(state, receipt)
+            _register(ctx)
     return receipt
 
 
@@ -248,20 +264,23 @@ def uninstall(
 ) -> dict[str, Any]:
     ctx = _ctx(scope, root, (), "recommended", dry_run)
     if dry_run:
-        st = kit.status(ctx)
+        kit.status(ctx)
         return {
             "schema": kit.SCHEMA_RECEIPT,
             "forge_id": FORGE_ID,
             "operation": "uninstall",
             "scope": scope,
             "dry_run": True,
-            "would_remove": st.get("drift", {}),
+            # M8 — enumerate what uninstall would actually delete.
+            "would_remove": kit.Ledger.load(ctx.state_dir).owned_paths(),
             "status": "planned",
             "verification": {"status": "UNVERIFIED"},
             "created_at": kit._utc_now(),
         }
     with kit.acquire_lock(ctx.state_dir):
-        return kit.uninstall(ctx, purge_state=purge)
+        doc = kit.uninstall(ctx, purge_state=purge)
+        kit.deregister_installation(FORGE_ID)  # M3 — registry must not lie
+    return doc
 
 
 def environment(
@@ -321,7 +340,7 @@ def environment(
         "env_vars": {
             # §11.3 — declared knobs only; values never emitted.
             name: "set" if os.environ.get(name) else "unset"
-            for name in sorted(_ENV_KNOBS)
+            for name in _env_knobs()
         },
         "forge_registry": {
             "dir": str(registry),
@@ -352,12 +371,26 @@ _HOST_BINS: dict[str, tuple[str, ...]] = {
     "copilot": ("copilot",),
     "cursor": ("cursor",),
 }
-# Declared DATA_SENTINEL_* knobs read anywhere in the codebase.
-_ENV_KNOBS: tuple[str, ...] = (
-    "DATA_SENTINEL_DB",
-    "DATA_SENTINEL_MCP_ROOTS",
-    "DATA_SENTINEL_TOKEN",
-)
+def _env_knobs() -> tuple[str, ...]:
+    """M6 — every DATA_SENTINEL_* knob the codebase actually reads.
+
+    ``SentinelConfig`` fields are env-overridable via the documented
+    ``DATA_SENTINEL_<FIELD>`` convention (``core/configuration``); the
+    three out-of-band knobs (DB/MCP_ROOTS/TOKEN) are read directly.
+    """
+    from data_sentinel.core.configuration.models import SentinelConfig
+
+    config_knobs = (
+        f"DATA_SENTINEL_{name.upper()}"
+        for name in SentinelConfig.model_fields
+        if name != "sources"
+    )
+    return tuple(
+        sorted(
+            (*config_knobs, "DATA_SENTINEL_DB",
+             "DATA_SENTINEL_MCP_ROOTS", "DATA_SENTINEL_TOKEN")
+        )
+    )
 
 
 def mcp_verify() -> dict[str, Any]:
@@ -418,7 +451,7 @@ def _register(ctx: kit.InstallContext) -> None:
             "schema": kit.SCHEMA_MANIFEST,
             "forge_id": FORGE_ID,
             "package": "data_sentinel",
-            "distribution": FORGE_ID,
+            "distribution": "data-sentinel",  # M1 — pyproject name
             "cli": {
                 "name": "data-sentinel",
                 "version_cmd": ["data-sentinel", "--version"],
@@ -433,11 +466,12 @@ def _register(ctx: kit.InstallContext) -> None:
             "source": doc.get("source", {"kind": "project-install", "path": str(ctx.root)}),
         }
     )
-    doc.setdefault("install_root", str(kit.installs_root() / FORGE_ID))
+    # M3 — real root, not a phantom ~/.forge/installs/<id> path.
+    doc["install_root"] = str(ctx.root)
     doc.setdefault(
         "mcp",
         {
-            "server_name": FORGE_ID,
+            "server_name": "data-sentinel",  # M2 — actual .mcp.json key
             "command": ["data-sentinel", "mcp", "serve"],
             "verified": False,
         },

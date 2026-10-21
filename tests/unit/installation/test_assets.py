@@ -341,7 +341,7 @@ def test_uninstall_removes_host_assets(tmp_path: Path) -> None:
          "--profile", "full", "--yes"],
     )
     assert (tmp_path / ".claude/skills").is_dir()
-    runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path)])
+    runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path), "--yes"])
     assert not (tmp_path / ".claude").exists()
 
 

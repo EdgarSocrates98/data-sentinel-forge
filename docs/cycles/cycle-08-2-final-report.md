@@ -123,7 +123,7 @@ integração opcional, nunca dependência.
 gateway, hosts, components, pre-existing files, lifecycle, refusal
 paths, MCP, secrets-scan, env report) + golden plan matrix §13.4
 (30 planos scope x host x profile, 160 arquivos planejados, determinístico
-via sha256). Suíte total: ~1014 pytest.
+via sha256). Suíte total: 1023 pytest (full suite verde).
 
 ## 21. CI
 
@@ -173,6 +173,34 @@ agentic + env vars + notas corporativas. README atualizado.
 Todos os P0 verificados por teste (§22). P1 cobertos. P2 (UX do
 instalador, novos hosts, templates extras, auto-discovery) ficam como
 backlog explícito.
+
+### Revisão independente (ds-0118)
+
+Revisor independente sobre o diff `d36a00b..HEAD`: kit verificado
+**byte-idêntico** ao upstream (1.732 linhas, stamp `_SOURCE_SHA256`
+consistente com as 7 cópias vendored); MANIFEST.sha256 íntegro.
+Achados e correções aplicadas:
+
+| Sev | Achado | Fix |
+|---|---|---|
+| H1 | `uninstall --scope user --purge` apagaria `~/.data-sentinel/{sentinel.db,session-token}` | `user_state_dir` aninhado em `install/`; teste de regressão |
+| H2 | prompt interativo oferecia nomes de componente que o engine recusa | prompt alinhado a `OPTIONAL_COMPONENTS`; teste |
+| M1 | `distribution` divergia do nome real do pacote | `data-sentinel` em spec/manifests/registry |
+| M2 | registry `mcp.server_name` ≠ chave real em `.mcp.json` | `data-sentinel` |
+| M3 | registry nunca deregistrado; `install_root` fantasma; writes fora do lock | deregister no uninstall; `install_root=ctx.root`; dentro do lock |
+| M4 | `.mcp.json` ausente do plano | `planned_mcp` no dry-run |
+| M5 | `install --yes` exit 0 com `verification=FAIL` | exit 1; teste com `.mcp.json` malformado |
+| M6 | env report omitia knobs `DATA_SENTINEL_<campo>` | derivado de `SentinelConfig.model_fields` |
+| M7 | planner recusava arquivo estrangeiro byte-idêntico | compara sha256 → SKIP vs REFUSE real |
+| M8 | `uninstall --dry-run` mostrava drift, não remoções | `would_remove` = ledger `owned_paths` |
+| M9 | uninstall/repair sem gate de confirmação | `--yes`/TTY confirm, simétrico ao install |
+| M10 | gaps de teste | user-purge, registry deregister, malformed mcp, host none, interactive, stamp |
+| M11 | `cursor` listado como adapter no manifest | `host_partial` declara marker+mcp only |
+| M12 | `--scope user` escrevia `~/AGENTS.md` que nenhum host lê | markers omitidos no user scope |
+
+LOWs restantes: backlog documentado (planner `_detect_source` duplicado,
+receipt escrito duas vezes, `_life` expõe flags ignorados, receipt
+secret-scan guard não ligado ao fluxo kit, `env` hard-fail fora de repo).
 
 ## 28. Acceptance decision
 

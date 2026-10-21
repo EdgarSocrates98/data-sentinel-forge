@@ -54,10 +54,12 @@
     "claude",
     "devin",
     "codex",
-    "copilot",
-    "cursor"
+    "copilot"
   ],
   "read_only_default": true,
   "requires_aws_credentials": false,
-  "requires_llm": false
+  "requires_llm": false,
+  "host_partial": {
+    "cursor": "marker + .mcp.json only — no skill/agent catalog adapter"
+  }
 }

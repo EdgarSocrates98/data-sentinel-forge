@@ -99,12 +99,21 @@ def plan_installation(
         action = _ACTION.get(f["action"], PlannedAction.CREATE)
         entry = ledger.get(rel)
         if target.exists() and entry is None:
-            # Foreign file — kit skips it at apply; surface it at plan time.
-            action = PlannedAction.REFUSE
-            conflicts.append(f"{rel}: existe e não é gerenciado pelo Sentinel")
-            refusals.append(f"{rel}: recusado — arquivo do usuário preservado")
+            # M7 — the kit *adopts* byte-identical foreign files at apply;
+            # only a real divergence is a refusal.
+            identical = kit._sha(target.read_bytes()) == f.get("sha256")
+            if identical:
+                action = PlannedAction.SKIP
+            else:
+                action = PlannedAction.REFUSE
+                conflicts.append(f"{rel}: existe e não é gerenciado pelo Sentinel")
+                refusals.append(f"{rel}: recusado — arquivo do usuário preservado")
         elif target.exists() and entry is not None:
-            action = PlannedAction.BACKUP_UPDATE
+            # M7 — identical managed content is `unchanged`, not a backup.
+            if kit._sha(target.read_bytes()) == f.get("sha256"):
+                action = PlannedAction.SKIP
+            else:
+                action = PlannedAction.BACKUP_UPDATE
         changes.append(
             InstallChange(
                 action=action,

@@ -165,7 +165,7 @@ def test_matrix_uninstall_preserves_user_files(tmp_path: Path) -> None:
     user_skill.parent.mkdir(parents=True, exist_ok=True)
     user_skill.write_text("user\n", encoding="utf-8")
     (tmp_path / "keep.txt").write_text("x", encoding="utf-8")
-    _lifecycle(tmp_path, "uninstall")
+    _lifecycle(tmp_path, "uninstall", "--yes")
     assert user_skill.read_text(encoding="utf-8") == "user\n"
     assert (tmp_path / "keep.txt").is_file()
     assert not (tmp_path / ".mcp.json").exists() or "data-sentinel" not in (
@@ -295,3 +295,134 @@ def test_p0_dry_run_creates_no_state(tmp_path: Path) -> None:
          "--host", "all", "--profile", "full", "--dry-run"],
     )
     assert list(tmp_path.rglob("*")) == []
+
+
+# --- review findings (ds-0118 independent review) ---------------------------
+
+def test_h1_user_purge_preserves_runtime_state(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """--scope user --purge must never delete ~/.data-sentinel/sentinel.db."""
+    fake_home = tmp_path / "home"
+    fake_home.mkdir()
+    monkeypatch.setenv("HOME", str(fake_home))
+    result = runner.invoke(
+        app,
+        ["install", "--scope", "user", "--yes", "--host", "claude", "--json"],
+    )
+    assert result.exit_code == 0, result.output
+    runtime = fake_home / ".data-sentinel"
+    (runtime / "sentinel.db").write_text("db", encoding="utf-8")
+    (runtime / "session-token").write_text("tok", encoding="utf-8")
+    out = runner.invoke(
+        app, ["install", "uninstall", "--scope", "user", "--yes", "--purge"]
+    )
+    assert out.exit_code == 0, out.output
+    assert (runtime / "sentinel.db").read_text() == "db"
+    assert (runtime / "session-token").read_text() == "tok"
+
+
+def test_m9_uninstall_needs_yes_non_tty(tmp_path: Path) -> None:
+    _install(tmp_path, "--host", "claude")
+    result = runner.invoke(
+        app, ["install", "uninstall", "--root", str(tmp_path)]
+    )
+    assert result.exit_code == 2
+    assert "--yes" in result.output
+
+
+def test_m9_uninstall_dry_run_lists_owned_paths(tmp_path: Path) -> None:
+    _install(tmp_path, "--host", "claude")
+    result = runner.invoke(
+        app,
+        ["install", "uninstall", "--root", str(tmp_path),
+         "--dry-run", "--json"],
+    )
+    assert result.exit_code == 0
+    doc = json.loads(result.output)
+    assert doc["dry_run"] is True
+    assert isinstance(doc["would_remove"], list)
+    assert any("SKILL.md" in p or "AGENTS" in p for p in doc["would_remove"])
+
+
+def test_m5_malformed_mcp_json_fails_install(tmp_path: Path) -> None:
+    (tmp_path / ".mcp.json").write_text("{not json", encoding="utf-8")
+    result = runner.invoke(
+        app,
+        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
+         "--host", "claude", "--json"],
+    )
+    assert result.exit_code == 1
+    doc = json.loads(result.output)
+    assert doc["verification"]["status"] == "FAIL"
+
+
+def test_m4_dry_run_shows_mcp_merge(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app,
+        ["install", "--scope", "project", "--root", str(tmp_path),
+         "--host", "claude", "--dry-run", "--json"],
+    )
+    doc = json.loads(result.output)
+    assert doc["planned_mcp"]["server"] == "data-sentinel"
+
+
+def test_m3_uninstall_deregisters_forge_registry(
+    tmp_path: Path, monkeypatch
+) -> None:
+    fake_home = tmp_path / "forge-home"
+    monkeypatch.setenv("FORGE_HOME_OVERRIDE", str(fake_home))
+    reg = fake_home / ".forge/installations/data-sentinel-forge.json"
+    _install(tmp_path, "--host", "claude")
+    assert reg.is_file()
+    _lifecycle(tmp_path, "uninstall", "--yes")
+    assert not reg.exists()
+
+
+def test_host_none_installs_markers_only(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app,
+        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
+         "--host", "none", "--json"],
+    )
+    assert result.exit_code == 0
+    assert not list(tmp_path.rglob("SKILL.md"))
+
+
+def test_m6_env_report_lists_config_knobs(tmp_path: Path) -> None:
+    doc = _lifecycle(tmp_path, "env")
+    knobs = doc["env_vars"]
+    assert "DATA_SENTINEL_PROFILE" in knobs
+    assert "DATA_SENTINEL_TOKEN" in knobs
+    assert knobs["DATA_SENTINEL_PROFILE"] in ("set", "unset")
+
+
+def test_interactive_components_real_names(monkeypatch, capsys) -> None:
+    """H2 — the interactive prompt must offer engine-valid component names."""
+    import io
+    import sys as _sys
+
+    class _Tty(io.StringIO):
+        def isatty(self) -> bool:
+            return True
+
+    from data_sentinel.cli import install as install_cli
+
+    monkeypatch.setattr(
+        _sys, "stdin",
+        _Tty("project\nclaude\nrecommended\nbalanced\nskills\n"),
+    )
+    *_, components = install_cli._interactive_flow(
+        None, None, None, None, None
+    )
+    assert components == "skills"
+    out = capsys.readouterr().out
+    assert "host-config" not in out and "tui" in out
+
+
+def test_vendored_installkit_stamp() -> None:
+    """Drift gate: vendored copy carries the upstream source sha."""
+    from data_sentinel import _installkit
+
+    assert _installkit._SOURCE_SHA256 not in ("", "canonical")
+    assert len(_installkit._SOURCE_SHA256) >= 12
