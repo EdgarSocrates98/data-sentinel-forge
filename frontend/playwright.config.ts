@@ -62,7 +62,10 @@ export default defineConfig({
       stderr: "pipe",
     },
     {
-      command: `npx ng serve --port ${FRONTEND_PORT}`,
+      // --host pins IPv4 loopback: on CI runners `localhost` resolves
+      // to ::1 and the dev server binds IPv6-only — the url check on
+      // 127.0.0.1 then times out even though the server is up.
+      command: `npx ng serve --host 127.0.0.1 --port ${FRONTEND_PORT}`,
       url: BASE_URL,
       reuseExistingServer: !process.env["CI"],
       timeout: 180_000,
