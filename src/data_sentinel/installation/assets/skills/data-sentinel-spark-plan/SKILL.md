@@ -1,12 +1,6 @@
 ---
 name: data-sentinel-spark-plan
 description: "Use quando tiver a saída de df.explain()/EXPLAIN salva em arquivo, ou um log de execução Spark/Glue, e precisar de achados ancorados em evidência — `data-sentinel spark explain --file` analisa o plano físico (scans, shuffles, joins, agregações) e `data-sentinel analyze --file` cobre o log (OOM, skew, falhas de executor/driver). Use também para a análise composta SQL + joins/cardinalidade + config com `data-sentinel spark optimize --sql --config --stats`. Perguntas típicas: 'por que esse job faz tanto shuffle', 'onde está o gargalo', 'o plano lê a tabela inteira?'."
-metadata:
-  contract: data-sentinel/skill/v1
-  primary_verbs:
-  - data-sentinel spark explain
-  - data-sentinel analyze
-  - data-sentinel spark optimize
 ---
 
 # Data Sentinel — Plano físico Spark

@@ -1,15 +1,6 @@
 ---
 name: data-sentinel-investigate
 description: "Use quando a pergunta for 'por que meu job falhou / está lento / custa caro' e a investigação precisar ir do artefato ao relatório: descobrir capacidades (`data-sentinel capabilities`), escolher o verbo certo por tipo de artefato (log, plano, SQL, export de metadados), rodar a investigação orquestrada (`data-sentinel investigate run`) ou a análise direta (`data-sentinel analyze`, `data-sentinel glue inspect|runs|diagnose`) e fechar com `data-sentinel report show`. Use também quando não souber qual especialista responde — `data-sentinel agents` e `data-sentinel tools` listam o registry real antes de montar os pares tool:arquivo."
-metadata:
-  contract: data-sentinel/skill/v1
-  primary_verbs:
-  - data-sentinel investigate run
-  - data-sentinel analyze
-  - data-sentinel capabilities
-  - data-sentinel agents
-  - data-sentinel tools
-  - data-sentinel report show
 ---
 
 # Data Sentinel — Investigate

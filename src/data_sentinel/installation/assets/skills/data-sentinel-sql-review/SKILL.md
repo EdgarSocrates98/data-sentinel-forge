@@ -1,11 +1,6 @@
 ---
 name: data-sentinel-sql-review
 description: "Use quando houver um arquivo .sql ou uma query colada e a pergunta for de review estático — antipadrões, joins sem cardinalidade declarada, SELECT *, funções não-determinísticas, dialeto. `data-sentinel analyze --sql/--file` e `data-sentinel sql ...` cobrem a leitura; a tool MCP é `sentinel.sql.analyze`. Perguntas típicas: 'esse SQL tá certo?', 'por que essa query tá lenta?', 'tem antipadrão aqui?'."
-metadata:
-  contract: data-sentinel/skill/v1
-  primary_verbs:
-  - data-sentinel analyze
-  - data-sentinel sql
 ---
 
 # Data Sentinel — SQL Review
@@ -35,3 +30,8 @@ Análise estática de SQL: offline, determinística, sem executar a query.
 
 - Sem execução: cardinalidade real e tempo são hipóteses qualificadas,
   nunca medições — diga isso ao recomendar reescrita.
+
+Esta skill é **despachável** (`subagent: true` no espelho
+`.agents/skills/`): análise estática sobre um `.sql` já em disco. Se
+rodar como subagente, não peça confirmação — o que precisar de decisão
+volta como limitação do relatório.

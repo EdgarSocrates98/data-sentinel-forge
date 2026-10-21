@@ -26,31 +26,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+        "sha256": "71e3b71694537ce7836d4cca52485aa75234b8cf2ff8c169f0223ed341f3a897"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-report/SKILL.md",
-        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+        "sha256": "2547aa5f783dd36f1479f382b5180ae1105b7634fe5c0934c9ffabfda7710690"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+        "sha256": "8bc6b1dcb5b77a3b814f381d84b9b8e360f402ccf4b6ff135fef2d5d514d94e6"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+        "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
     "planned_markers": [
@@ -101,31 +101,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+        "sha256": "71e3b71694537ce7836d4cca52485aa75234b8cf2ff8c169f0223ed341f3a897"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-report/SKILL.md",
-        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+        "sha256": "2547aa5f783dd36f1479f382b5180ae1105b7634fe5c0934c9ffabfda7710690"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+        "sha256": "8bc6b1dcb5b77a3b814f381d84b9b8e360f402ccf4b6ff135fef2d5d514d94e6"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+        "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
     "planned_markers": [
@@ -145,31 +145,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -220,31 +220,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -300,31 +300,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -375,31 +375,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -476,31 +476,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -524,31 +524,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -599,31 +599,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -647,31 +647,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -709,31 +709,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+        "sha256": "71e3b71694537ce7836d4cca52485aa75234b8cf2ff8c169f0223ed341f3a897"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-report/SKILL.md",
-        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+        "sha256": "2547aa5f783dd36f1479f382b5180ae1105b7634fe5c0934c9ffabfda7710690"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+        "sha256": "8bc6b1dcb5b77a3b814f381d84b9b8e360f402ccf4b6ff135fef2d5d514d94e6"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+        "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
     "planned_markers": [
@@ -784,31 +784,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+        "sha256": "71e3b71694537ce7836d4cca52485aa75234b8cf2ff8c169f0223ed341f3a897"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-report/SKILL.md",
-        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+        "sha256": "2547aa5f783dd36f1479f382b5180ae1105b7634fe5c0934c9ffabfda7710690"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+        "sha256": "8bc6b1dcb5b77a3b814f381d84b9b8e360f402ccf4b6ff135fef2d5d514d94e6"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+        "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
     "planned_markers": [
@@ -828,31 +828,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -903,31 +903,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -983,31 +983,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -1058,31 +1058,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -1159,31 +1159,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -1207,31 +1207,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
@@ -1282,31 +1282,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       },
       {
         "action": "create",
@@ -1330,31 +1330,31 @@
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
-        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+        "sha256": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
-        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+        "sha256": "101acd5d3c9017eb57c69a0fb6e979795cce512942b007cd3283b00b83bb5e50"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-report/SKILL.md",
-        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+        "sha256": "ee2c83d7bec3ad6bf62c7ceb863a8691537a7b0824bd025c332e22149dbc1b8c"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
-        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+        "sha256": "c653888c942dc194b0b5266aaa049beab509ee706cbcd8ca9d86bcd29fcd8034"
       },
       {
         "action": "create",
         "kind": "skill",
         "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
-        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+        "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
     "planned_markers": [
