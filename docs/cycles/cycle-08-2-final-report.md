@@ -4,7 +4,7 @@ Specs: ds-0109 → ds-0118 (Loop Factory). Commits: `6377e17..HEAD` sobre `main`
 
 ## 1. SHA da main
 
-`76a6521` (HEAD no momento da escrita; range do ciclo `6377e17..76a6521` + ds-0118 pendente de commit).
+`d453ea7` — range do ciclo `6377e17..d453ea7`, CI (6/6 matrix) + Frontend verdes.
 
 ## 2. Matriz de paridade
 
