@@ -73,13 +73,19 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      # Playwright spawns the backend itself via `uv run data-sentinel
+      # serve` — sync the env first or `uv run` builds it lazily and the
+      # spawned server misses the `api` extra (CI run 39518096227 timed
+      # out 180s on config.webServer).
+      - run: uv sync --all-extras
       - working-directory: frontend
         run: npm ci
+      # Install the BROWSER for this project — project names carry an
+      # "-auth" suffix (chromium-auth → chromium).
       - working-directory: frontend
-        run: npx playwright install --with-deps ${{ matrix.project }}
-      # Playwright spawns both servers itself: the FastAPI backend via
-      # `uv run data-sentinel serve --port 8790` (pinned test token +
-      # isolated SQLite under test-results/) and `ng serve` on :4200.
+        run: npx playwright install --with-deps ${BROWSER%-auth}
+        env:
+          BROWSER: ${{ matrix.project }}
       - working-directory: frontend
         run: npx playwright test --project=${{ matrix.project }}
       - uses: actions/upload-artifact@v4
@@ -110,6 +116,7 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --all-extras
       - working-directory: frontend
         run: npm ci
       - working-directory: frontend
