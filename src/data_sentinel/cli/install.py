@@ -203,6 +203,21 @@ install_app.command("repair")(_life("repair"))
 install_app.command("uninstall")(_life("uninstall"))
 
 
+@install_app.command("env")
+def env_cmd(
+    scope: _SCOPE = "project",
+    root: _ROOT = None,
+    json_mode: _JSON = False,
+) -> None:
+    """Descoberta de ambiente — runtime, hosts detectados, registry (§11.1)."""
+    try:
+        doc = service.environment(scope=scope, root=root)
+    except kit.InstallError as exc:
+        typer.echo(f"erro: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    _emit(doc, json_mode)
+
+
 @install_app.command("mcp-verify")
 def mcp_verify_cmd(json_mode: _JSON = False) -> None:
     """Verifica o handshake MCP (initialize + tools/list)."""

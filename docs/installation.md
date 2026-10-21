@@ -33,3 +33,38 @@ opt-in via extra `aws` + credenciais explícitas; sem credenciais, nada
 `pip install -U data-sentinel` / `pip uninstall data-sentinel`.
 Dados locais em `~/.data-sentinel/` (SQLite + token) sobrevivem à
 desinstalação — remover manualmente se desejado.
+
+## Instalação agentic (Cycle 08.2)
+
+`data-sentinel install` instala skills/agents/mcp nos hosts suportados
+(Claude, Devin, Codex, Copilot; Cursor declarado sem adapter de catálogo).
+Todos os writes passam pelo ledger do installkit vendored — arquivos do
+usuário nunca são sobrescritos; conflitos geram backup + receipt.
+
+| Comando | Função |
+|---|---|
+| `data-sentinel install` | interativo (TTY) ou `--yes --profile` |
+| `data-sentinel install env` | descoberta de ambiente — Python, tools, hosts detectados, registry `~/.forge` |
+| `data-sentinel install status` | instalações, receipts, arquivos gerenciados, drift |
+| `data-sentinel install doctor` | runtime, config, handshake MCP, assets — findings acionáveis |
+| `data-sentinel install repair` | restaura managed files corrompidos; recusa arquivos estrangeiros |
+| `data-sentinel install uninstall` | remove só o que o ledger possui (`--purge` remove o state dir) |
+| `data-sentinel install mcp-verify` | handshake MCP real (initialize + tools/list) |
+
+### Variáveis de ambiente
+
+O pacote não lê `.env` — configuração é via flags do CLI e três
+variáveis documentadas (`install env` reporta `set`/`unset`, nunca valores):
+
+| Variável | Efeito |
+|---|---|
+| `DATA_SENTINEL_DB` | path do SQLite de investigações |
+| `DATA_SENTINEL_MCP_ROOTS` | roots extras permitidos no servidor MCP (`:`-separados) |
+| `DATA_SENTINEL_TOKEN` | bearer token do `data-sentinel serve` |
+
+### Ambientes corporativos
+
+O core não faz network I/O. `uv`/`pip` honram `HTTPS_PROXY` e
+`PIP_INDEX_URL` para instalação por trás de proxy/index interno.
+Assets (skills/agents/manifests) viajam dentro da wheel — nenhum download
+adicional é necessário em runtime.

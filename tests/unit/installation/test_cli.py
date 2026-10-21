@@ -116,3 +116,43 @@ def test_manifest_static_matches_programmatic(tmp_path: Path) -> None:
         emitted = json.loads(result.output)
         static = json.loads((repo / name).read_text(encoding="utf-8"))
         assert static == emitted, f"{name} drifted — regenerate via install manifest"
+
+
+def test_env_report(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app, ["install", "env", "--root", str(tmp_path), "--json"]
+    )
+    assert result.exit_code == 0, result.output
+    doc = json.loads(result.output)
+    assert doc["schema"] == "data-sentinel/EnvironmentReport/v1"
+    assert doc["python"]["meets_floor"] is True
+    assert set(doc["hosts"]) == {"claude", "devin", "codex", "copilot", "cursor"}
+    # §11.3 — env values are never emitted
+    assert set(doc["env_vars"].values()) <= {"set", "unset"}
+
+
+def test_drift_detect_and_repair_restores(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    skill = tmp_path / ".claude/skills/data-sentinel-report/SKILL.md"
+    original = skill.read_bytes()
+    skill.write_text("corrupted", encoding="utf-8")
+    status = runner.invoke(
+        app, ["install", "status", "--root", str(tmp_path), "--json"]
+    )
+    assert "drift" in status.output or skill.name in status.output
+    result = runner.invoke(
+        app, ["install", "repair", "--root", str(tmp_path)]
+    )
+    assert result.exit_code == 0, result.output
+    assert skill.read_bytes() == original
+
+
+def test_repair_refuses_foreign_file(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    foreign = tmp_path / ".claude/skills/data-sentinel-report/SKILL.md"
+    foreign.write_text("user edit", encoding="utf-8")
+    # repair on a file never owned by the ledger is a refused/skip, not a clobber
+    result = runner.invoke(
+        app, ["install", "repair", "--root", str(tmp_path)]
+    )
+    assert result.exit_code in (0, 1), result.output

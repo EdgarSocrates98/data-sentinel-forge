@@ -12,6 +12,8 @@ handshake) lives in the installkit; this module carries the Sentinel
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -251,6 +253,102 @@ def uninstall(
         }
     with kit.acquire_lock(ctx.state_dir):
         return kit.uninstall(ctx, purge_state=purge)
+
+
+def environment(
+    *, scope: str = "project", root: Path | None = None
+) -> dict[str, Any]:
+    """§11.1 — environment discovery, read-only and honest.
+
+    Probes the runtime (python/uv/pip/OS/arch), the declared
+    ``DATA_SENTINEL_*`` knobs (names only — values are never emitted,
+    several are secrets-adjacent), host detection signals at ``root``,
+    and existing installs via the forge-neutral ``~/.forge`` registry.
+    """
+    import platform
+
+    target = kit.resolve_scope(_spec(), scope, Path.cwd(), root)
+    host_signals: dict[str, list[str]] = {
+        h: list(
+            *(f"dir:{d}" for d in _HOST_HINTS[h] if (target / d).exists()),
+            *(f"bin:{b}" for b in _HOST_BINS[h] if shutil.which(b)),
+        )
+        for h in HOSTS
+    }
+    registry = kit.installations_dir()
+    installs = []
+    if registry.is_dir():
+        for f in sorted(registry.glob("*.json")):
+            try:
+                doc = json.loads(f.read_text(encoding="utf-8"))
+                installs.append({
+                    "forge_id": doc.get("forge_id", f.stem),
+                    "version": doc.get("version"),
+                    "installed_at": doc.get("installed_at"),
+                    "scope": doc.get("scope"),
+                })
+            except (OSError, json.JSONDecodeError):
+                installs.append({"forge_id": f.stem, "unreadable": True})
+    return {
+        "schema": "data-sentinel/EnvironmentReport/v1",
+        "python": {
+            "version": platform.python_version(),
+            "executable": sys.executable,
+            "meets_floor": sys.version_info >= MIN_PYTHON,
+            "floor": ".".join(map(str, MIN_PYTHON)),
+        },
+        "tools": {
+            "uv": bool(shutil.which("uv")),
+            "pip": bool(shutil.which("pip")),
+            "git": bool(shutil.which("git")),
+        },
+        "platform": {
+            "os": platform.uname().system,
+            "arch": platform.uname().machine,
+        },
+        "scope": {"requested": scope, "resolved_root": str(target)},
+        "source": _detect_source(),
+        "hosts": host_signals,
+        "env_vars": {
+            # §11.3 — declared knobs only; values never emitted.
+            name: "set" if os.environ.get(name) else "unset"
+            for name in sorted(_ENV_KNOBS)
+        },
+        "forge_registry": {
+            "dir": str(registry),
+            "installs": installs,
+        },
+        "notes": [
+            "corporate proxies: uv/pip honor HTTPS_PROXY/PIP_INDEX_URL; "
+            "data-sentinel itself performs no network I/O",
+            "`.env` templates are not shipped — configuration is CLI "
+            "flags + DATA_SENTINEL_* env, never overwritten by install",
+        ],
+    }
+
+
+# §11.1 — directories each host is known to read (detection hints only;
+# these never receive writes by themselves).
+_HOST_HINTS: dict[str, tuple[str, ...]] = {
+    "claude": (".claude",),
+    "devin": (".devin", ".agents"),
+    "codex": (".codex", ".agents"),
+    "copilot": (".github", ".agents"),
+    "cursor": (".cursor",),
+}
+_HOST_BINS: dict[str, tuple[str, ...]] = {
+    "claude": ("claude",),
+    "devin": ("devin",),
+    "codex": ("codex",),
+    "copilot": ("copilot",),
+    "cursor": ("cursor",),
+}
+# Declared DATA_SENTINEL_* knobs read anywhere in the codebase.
+_ENV_KNOBS: tuple[str, ...] = (
+    "DATA_SENTINEL_DB",
+    "DATA_SENTINEL_MCP_ROOTS",
+    "DATA_SENTINEL_TOKEN",
+)
 
 
 def mcp_verify() -> dict[str, Any]:

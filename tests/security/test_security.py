@@ -202,11 +202,18 @@ class TestSanitize:
 
 BANNED_IMPORTS = {"subprocess"}
 BANNED_CALLS = {"eval", "exec", "system", "popen", "spawnl", "spawnv"}
+# Vendored canonical installkit — byte-identical to the-forge upstream
+# (drift-checked via _SOURCE_SHA256). Its subprocess use is the declared
+# install/MCP-verify boundary, confined to `_spawn()` and gated by
+# `ForgeSpec.spawn_ok`; the deterministic core stays subprocess-free.
+VENDORED_FILES = {"_installkit.py"}
 
 
 def test_no_dangerous_calls_in_src() -> None:
     offenders: list[str] = []
     for file in SRC_DIR.rglob("*.py"):
+        if file.name in VENDORED_FILES:
+            continue
         tree = ast.parse(file.read_text(encoding="utf-8"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
