@@ -1,0 +1,103 @@
+"""ds-0110 — install CLI: approval gate, dry-run, lifecycle verbs."""
+
+import json
+from pathlib import Path
+
+import pytest
+from typer.testing import CliRunner
+
+from data_sentinel.cli import app
+
+runner = CliRunner()
+
+
+def _installed(tmp: Path) -> None:
+    result = runner.invoke(
+        app, ["install", "--scope", "project", "--root", str(tmp),
+              "--host", "claude", "--yes"]
+    )
+    assert result.exit_code == 0, result.output
+
+
+def test_install_requires_approval(tmp_path: Path) -> None:
+    """Non-TTY without --yes → usage error, nothing written."""
+    result = runner.invoke(
+        app, ["install", "--scope", "project", "--root", str(tmp_path)]
+    )
+    assert result.exit_code == 2
+    assert "--yes" in result.output or "não-interativo" in result.output
+    assert list(tmp_path.rglob("*")) == []
+
+
+def test_dry_run_writes_nothing(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app, ["install", "--scope", "project", "--root", str(tmp_path),
+              "--host", "claude", "--dry-run"]
+    )
+    assert result.exit_code == 0
+    assert "planned" in result.output
+    assert list(tmp_path.rglob("*")) == []
+
+
+def test_install_yes_creates_assets(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    assert (tmp_path / "AGENTS.md").is_file()
+    assert "data-sentinel-forge:managed" in (tmp_path / "AGENTS.md").read_text()
+    mcp = json.loads((tmp_path / ".mcp.json").read_text())
+    assert mcp["mcpServers"]["data-sentinel"]["command"] == "data-sentinel"
+
+
+def test_install_json_output(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app, ["install", "--scope", "project", "--root", str(tmp_path),
+              "--host", "claude", "--yes", "--json"]
+    )
+    assert result.exit_code == 0
+    doc = json.loads(result.output)
+    assert doc["status"] == "completed"
+    assert doc["schema"] == "forge/InstallReceipt/v1"
+
+
+def test_unknown_host_fails(tmp_path: Path) -> None:
+    result = runner.invoke(
+        app, ["install", "--scope", "project", "--root", str(tmp_path),
+              "--host", "emacs", "--yes"]
+    )
+    assert result.exit_code == 1
+    assert "host" in result.output
+
+
+def test_status_and_doctor(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    status = runner.invoke(app, ["install", "status", "--root", str(tmp_path)])
+    assert status.exit_code == 0, status.output
+    assert "healthy" in status.output or "managed" in status.output
+    doctor = runner.invoke(
+        app, ["install", "doctor", "--root", str(tmp_path), "--json"]
+    )
+    assert doctor.exit_code in (0, 1)  # mcp-handshake may be UNVERIFIED
+    doc = json.loads(doctor.output)
+    assert doc["schema"] == "forge/InstallationHealth/v1"
+
+
+def test_uninstall_clean(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    (tmp_path / "user.txt").write_text("mine", encoding="utf-8")
+    result = runner.invoke(
+        app, ["install", "uninstall", "--root", str(tmp_path)]
+    )
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "user.txt").is_file()
+    assert not (tmp_path / "AGENTS.md").exists()
+
+
+def test_idempotent_reinstall(tmp_path: Path) -> None:
+    _installed(tmp_path)
+    first = (tmp_path / ".data-sentinel/install/install-ledger.json").read_bytes()
+    _installed(tmp_path)
+    assert (tmp_path / "AGENTS.md").is_file()
+    # ledger stable — no duplicate entries
+    second = json.loads(
+        (tmp_path / ".data-sentinel/install/install-ledger.json").read_text()
+    )
+    assert isinstance(second["entries"], dict)

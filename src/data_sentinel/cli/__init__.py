@@ -75,10 +75,23 @@ def _emit_json(payload: Any) -> None:
     typer.echo(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
 
 
+def _version_cb(value: bool) -> None:
+    if value:
+        typer.echo(f"data-sentinel {__version__}")
+        raise typer.Exit()
+
+
 @app.callback()
 def _main(
     verbose: Annotated[
         bool, typer.Option("--verbose", "-v", help="Mostra detalhes técnicos de erros.")
+    ] = False,
+    version_flag: Annotated[
+        bool,
+        typer.Option(
+            "--version", help="Mostra a versão e sai.", is_eager=True,
+            callback=_version_cb,
+        ),
     ] = False,
 ) -> None:
     """Data Sentinel — Intelligent Data Engineering & Agentic Diagnostics Platform."""
@@ -382,6 +395,10 @@ app.add_typer(sql_app, name="sql")
 app.add_typer(report_app, name="report")
 app.add_typer(lakehouse_app, name="lakehouse")
 app.add_typer(import_app, name="import")
+
+from data_sentinel.cli.install import install_app  # noqa: E402
+
+app.add_typer(install_app, name="install")
 
 _COMMON_JSON = Annotated[bool, typer.Option("--json", help="Saída em JSON.")]
 _QUIET = Annotated[bool, typer.Option("--quiet", "-q", help="Somente resumo.")]
