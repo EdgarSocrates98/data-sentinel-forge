@@ -1,0 +1,1368 @@
+{
+  "project|claude|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-investigator.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-reviewer.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-spark-specialist.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-report/SKILL.md",
+        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|claude|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|claude|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-investigator.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-reviewer.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-spark-specialist.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-report/SKILL.md",
+        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|codex|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-investigator.toml",
+        "sha256": "f823a85d3f03ee3de54708df9c80e6cd8ba94988bf79d2e9c7a392998d742017"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-reviewer.toml",
+        "sha256": "00bb3a97dd7d53e911b69d4ed23b260862861a83ac783aa01310c13ee30f2ee0"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-spark-specialist.toml",
+        "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|codex|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|codex|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-investigator.toml",
+        "sha256": "f823a85d3f03ee3de54708df9c80e6cd8ba94988bf79d2e9c7a392998d742017"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-reviewer.toml",
+        "sha256": "00bb3a97dd7d53e911b69d4ed23b260862861a83ac783aa01310c13ee30f2ee0"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-spark-specialist.toml",
+        "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|copilot|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-investigator.agent.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-reviewer.agent.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-spark-specialist.agent.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|copilot|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|copilot|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-investigator.agent.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-reviewer.agent.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-spark-specialist.agent.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|cursor|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|cursor|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|cursor|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|devin|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|devin|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "project|devin|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|claude|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-investigator.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-reviewer.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-spark-specialist.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-report/SKILL.md",
+        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|claude|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|claude|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-investigator.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-reviewer.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".claude/agents/sentinel-spark-specialist.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-report/SKILL.md",
+        "sha256": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".claude/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|codex|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-investigator.toml",
+        "sha256": "f823a85d3f03ee3de54708df9c80e6cd8ba94988bf79d2e9c7a392998d742017"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-reviewer.toml",
+        "sha256": "00bb3a97dd7d53e911b69d4ed23b260862861a83ac783aa01310c13ee30f2ee0"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-spark-specialist.toml",
+        "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|codex|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|codex|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-investigator.toml",
+        "sha256": "f823a85d3f03ee3de54708df9c80e6cd8ba94988bf79d2e9c7a392998d742017"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-reviewer.toml",
+        "sha256": "00bb3a97dd7d53e911b69d4ed23b260862861a83ac783aa01310c13ee30f2ee0"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".codex/agents/sentinel-spark-specialist.toml",
+        "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|copilot|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-investigator.agent.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-reviewer.agent.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-spark-specialist.agent.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|copilot|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|copilot|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-investigator.agent.md",
+        "sha256": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-reviewer.agent.md",
+        "sha256": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".github/agents/sentinel-spark-specialist.agent.md",
+        "sha256": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".github/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|cursor|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|cursor|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|cursor|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|devin|full": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|devin|minimal": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  },
+  "workspace|devin|recommended": {
+    "components": {
+      "execution_profile": "balanced"
+    },
+    "planned_files": [
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".agents/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".agents/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-investigator.md",
+        "sha256": "4e3f79855abbc862da897950faacf73711cea8dbb5f36882515974dca969d3e5"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-reviewer.md",
+        "sha256": "f4eb78b16160eb7857debddb21714851d173cdf5562e2165496b9d3ff5d075d6"
+      },
+      {
+        "action": "create",
+        "kind": "agent",
+        "path": ".devin/agents/sentinel-spark-specialist.md",
+        "sha256": "77f28bf0892633a2465216ae7028805e4e4524e982829efdccb204620064c963"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-investigate/SKILL.md",
+        "sha256": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-quality-drift/SKILL.md",
+        "sha256": "cc0ef0e70c2d569cd5b57744f3698ff970d0cc7872fe16e7d012b127acc4c306"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-report/SKILL.md",
+        "sha256": "2b229e52e0cfbe6f01919171fd6bd6db8f6f8a615a59fdd87615f13f2f24df1e"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-spark-plan/SKILL.md",
+        "sha256": "e39503b044f9d3a58bb6af4e4437c39b14a60141f2dfb10d57b67efbbc53f15a"
+      },
+      {
+        "action": "create",
+        "kind": "skill",
+        "path": ".devin/skills/data-sentinel-sql-review/SKILL.md",
+        "sha256": "9d86116eb82ce875574e73d44d2442152e14b54502fbf2af92d2121ed7a6585a"
+      }
+    ],
+    "planned_markers": [
+      {
+        "file": "AGENTS.md",
+        "marker": "data-sentinel-forge"
+      }
+    ],
+    "status": "planned"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0114.implement.codex.md)"
+  ],
+  "created_at": "2026-10-21T01:51:17+00:00",
+  "id": "ds-0114",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0114.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0114.md",
+  "spec_sha256": "efaec6e8dbd31044a7096bd4b69097442c9a88eb9e7ee693657ece18492599d9",
+  "status": "planned",
+  "title": "MCP installation & lifecycle (\u00a77)"
+}

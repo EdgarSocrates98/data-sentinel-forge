@@ -40,6 +40,20 @@ data-sentinel --help
 
 Detalhes: [docs/installation.md](docs/installation.md).
 
+### Instalação agentic
+
+Publica skills, agents e o servidor MCP nos hosts suportados (Claude,
+Devin, Codex, Copilot):
+
+```bash
+data-sentinel install                    # interativo
+data-sentinel install --yes --host all   # não-interativo
+data-sentinel install status|doctor|env  # lifecycle
+data-sentinel install uninstall          # remove só arquivos gerenciados
+```
+
+Guias por escopo/host/plataforma em [docs/installation/](docs/installation/).
+
 ## Quickstart
 
 ```bash
@@ -144,13 +158,20 @@ src/data_sentinel/
 
 ## Estado do projeto
 
-**Cycle 06 implementado** — Sentinel Control Center: API FastAPI real
-(`/api/v1/*`, SSE, segurança local-first) + portal Angular 19 com design
-system próprio (tokens 3-layer, dark/light, pt-BR/en, WCAG AA auditada) +
-studios de investigação/evidência/workloads/qualidade/agentes/relatórios.
-**745 testes Python + 49 specs Angular, ruff+mypy strict limpos** —
-evidência em [docs/cycles/cycle-06-final-report.md](docs/cycles/cycle-06-final-report.md)
-e [docs/cycles/cycle-06-visual-homologation.md](docs/cycles/cycle-06-visual-homologation.md).
+**Cycle 08.2 implementado** — installer portátil universal: CLI
+`data-sentinel install` (interativo + `--yes`), adapters para
+Claude/Devin/Codex/Copilot (Cursor declarado sem catálogo), 5 skills +
+3 agents versionados na wheel com `MANIFEST.sha256`, MCP lifecycle
+(`mcp serve`, handshake real), `forge.json`/`forge.agentic.json` para
+descoberta Forge CLI, lifecycle auditável (ledger sha256, receipts,
+repair, uninstall preservando arquivos do usuário) e
+`install env`/`status`/`doctor`. Evidência:
+[docs/cycles/cycle-08-2-final-report.md](docs/cycles/cycle-08-2-final-report.md).
+Cycle 06: Control Center Angular + API
+([cycle-06](docs/cycles/cycle-06-final-report.md)); ciclo anterior em
+[cycle-08-1](docs/cycles/cycle-08-1-final-report.md).
+**921 testes Python + 96 specs Angular + ~145 Playwright, ruff+mypy
+strict limpos.**
 Ciclos anteriores: [cycle-05](docs/cycles/cycle-05-final-report.md),
 [05.1](docs/cycles/cycle-05-1-final-report.md),
 [04](docs/cycles/cycle-04-final-report.md).

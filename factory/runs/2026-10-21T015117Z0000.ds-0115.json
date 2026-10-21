@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0115.implement.codex.md)"
+  ],
+  "created_at": "2026-10-21T01:51:17+00:00",
+  "id": "ds-0115",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0115.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0115.md",
+  "spec_sha256": "8d954267e0ddc8a80be24bd561d6e7ffc05257e7cbae1f3959203cb68cd638d0",
+  "status": "planned",
+  "title": "Python runtime, bootstrap & source methods (\u00a78)"
+}

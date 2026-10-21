@@ -112,11 +112,20 @@ def _spec() -> kit.ForgeSpec:
 def _render_assets(ctx: kit.InstallContext) -> dict[str, bytes]:
     """Host-mirror assets (skills/agents/config) for the chosen hosts.
 
-    Filled by ds-0111+ catalogs; returns {} until then.
+    P0 gate: every rendered path must be a pure relative path inside the
+    scope root — ``..`` segments or absolute paths are refused before the
+    installkit ever joins them to ``ctx.root``.
     """
     from data_sentinel.installation.assets import render_for_hosts
 
-    return render_for_hosts(ctx)
+    rendered = render_for_hosts(ctx)
+    for rel in rendered:
+        p = Path(rel)
+        if p.is_absolute() or ".." in p.parts:
+            raise kit.InstallError(
+                kit.E_VERIFY, f"asset path escapes scope root: {rel!r}"
+            )
+    return rendered
 
 
 def _ctx(

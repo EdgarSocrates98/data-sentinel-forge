@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0117.implement.codex.md)"
+  ],
+  "created_at": "2026-10-21T01:51:18+00:00",
+  "id": "ds-0117",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0117.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0117.md",
+  "spec_sha256": "e63e4e568627c122bc5a314d529f901fb8d2ea589f39f1c7934acd27aa3ebef1",
+  "status": "planned",
+  "title": "Environment intelligence + lifecycle: status/doctor/repair/uninstall (\u00a711, \u00a712)"
+}
