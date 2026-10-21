@@ -1,0 +1,15 @@
+{
+  "agent": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "$(cat /home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0109.implement.codex.md)"
+  ],
+  "created_at": "2026-10-21T00:34:06+00:00",
+  "id": "ds-0109",
+  "prompt_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/prompts/ds-0109.implement.codex.md",
+  "spec_path": "/home/edgar/Documentos/projetos/forjas/data-sentinel-forge/factory/specs/active/ds-0109.md",
+  "spec_sha256": "8acb417c19a75b95ec991a6f078a5b19b980f4df14c947bc0c9caad74fee50ac",
+  "status": "planned",
+  "title": "Forge parity audit + install architecture contracts (\u00a71, \u00a72)"
+}

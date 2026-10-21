@@ -92,6 +92,9 @@ select = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101"]
 "scripts/**" = ["T20"]
+# Vendored canonical installkit — byte-identical to
+# the-forge/scripts/installkit (drift-checked via _SOURCE_SHA256).
+"src/data_sentinel/_installkit.py" = ["ALL"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -99,6 +102,8 @@ strict = true
 mypy_path = "src"
 packages = ["data_sentinel"]
 plugins = ["pydantic.mypy"]
+# Canonical vendored copy — same rationale as the lint exclusion.
+exclude = ["data_sentinel._installkit"]
 
 [tool.pytest.ini_options]
 markers = ["slow: testes de integração pesados (venv limpa etc.)"]
