@@ -39,3 +39,8 @@ data-sentinel import doctor-bundle -f handoff.json --json
 - JSON apenas — nenhum código, expressão ou caminho do bundle é executado
   ou seguido (`file://`, `../../` são tratados como texto).
 - Sem rede, sem download, sem instalação do Doctor.
+
+## Evidência E2E
+
+Delegação real deste especialista (log-analysis e correlação doctor×sentinel)
+no ciclo de integrações: `forge-cli/docs/integration/cases/` (casos A, B, H).
