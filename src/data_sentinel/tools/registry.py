@@ -180,6 +180,18 @@ def build_default_registry() -> ToolRegistry:
         input_schema={"type": "object", "properties": {
             "file": {"type": "string"}}, "required": ["file"]},
         permissions=[ToolPermission.LOCAL_READ]))
+    r.register(ToolDescriptor(
+        tool_id="sentinel.doctor.correlate", name="correlate",
+        description=(
+            "Correlação determinística doctor(estático)xsentinel(runtime) "
+            "sobre chaves declaradas (location+categoria). Não é prova "
+            "independente e não infere causalidade da co-ocorrência."
+        ),
+        input_schema={"type": "object", "properties": {
+            "doctor_bundle": {"type": "string"},
+            "sentinel_report": {"type": "string"}},
+                      "required": ["doctor_bundle", "sentinel_report"]},
+        permissions=[ToolPermission.LOCAL_READ]))
     return r
 
 
@@ -386,4 +398,24 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor,
                 "findings": [f.model_dump(mode="json")
                              for f in res.findings],
                 "warnings": res.warnings}
+    if tid == "sentinel.doctor.correlate":
+        from data_sentinel.adapters.doctor import import_doctor_bundle
+        from data_sentinel.core.contracts import Evidence, Finding
+        from data_sentinel.diagnostics.cross_correlation import (
+            correlate_findings,
+        )
+        imported = import_doctor_bundle(
+            _checked(str(inp["doctor_bundle"]), allowed_roots))
+        report_file = _checked(str(inp["sentinel_report"]), allowed_roots)
+        raw = json.loads(report_file.read_text(encoding="utf-8"))
+        s_findings = [Finding.model_validate(item)
+                      for item in (raw.get("findings") or [])
+                      ] if isinstance(raw, dict) else []
+        s_evidence = [Evidence.model_validate(item)
+                      for item in (raw.get("evidence") or [])
+                      ] if isinstance(raw, dict) else []
+        corr = correlate_findings(
+            imported.findings, imported.evidence, s_findings, s_evidence)
+        out: dict[str, Any] = corr.to_dict()
+        return out
     raise ToolUnavailableError(f"sem implementação: {tid}")

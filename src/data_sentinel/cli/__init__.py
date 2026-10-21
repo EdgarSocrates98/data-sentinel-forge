@@ -23,6 +23,7 @@ from data_sentinel.core.contracts import (
     DiagnosticRequest,
     Evidence,
     ExecutionContext,
+    Finding,
     Platform,
     SourceType,
 )
@@ -884,27 +885,62 @@ def lakehouse_compat(
         typer.echo(f"  ref: {r}")
 
 
+def _load_sentinel_findings(file: Path) -> tuple[list[Finding], list[Evidence]]:
+    """Load a Sentinel-side findings+evidence JSON for correlation.
+
+    Accepted shapes (all offline, all parsed — nothing executes):
+    - the tool/registry output ``{"findings": [...], "evidence": [...]}``
+      produced by ``sentinel.*`` analyzer tools and ``run_diagnostics``;
+    - a bare ``DiagnosticReport`` dump (``findings`` only — evidence is
+      carried separately by the pipeline, so evidence may be absent).
+    """
+    from data_sentinel.adapters.doctor import DoctorBundleError
+
+    try:
+        raw = json.loads(file.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise DoctorBundleError(f"relatório sentinel ilegível: {exc}") from exc
+    if not isinstance(raw, dict) or "findings" not in raw:
+        raise DoctorBundleError(
+            "relatório sentinel: objeto JSON com 'findings' esperado"
+        )
+    findings = [Finding.model_validate(item) for item in raw.get("findings") or []]
+    evidence = [
+        Evidence.model_validate(item) for item in raw.get("evidence") or []
+    ]
+    return findings, evidence
+
+
 @import_app.command("doctor-bundle")
 def import_doctor_bundle_cmd(
     file: Annotated[Path, typer.Option("--file", "-f", exists=True,
                                        help="Bundle JSON produzido pelo Forge Doctor.")],
+    correlate: Annotated[Path | None, typer.Option(
+        "--correlate",
+        help="Relatório sentinel (findings+evidence JSON) para correlação determinística.")] = None,
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Importa findings de um bundle Forge Doctor (offline, opcional).
 
     Findings importados preservam proveniência externa e nunca viram
-    CONFIRMED automaticamente.
+    CONFIRMED automaticamente. Com ``--correlate``, emite a seção de
+    correlação doctorxsentinel — correlação não é prova independente
+    e co-ocorrência não estabelece causalidade.
     """
     from data_sentinel.adapters.doctor import DoctorBundleError, import_doctor_bundle
 
     try:
         result = import_doctor_bundle(file)
+        correlation = None
+        if correlate is not None:
+            s_findings, s_evidence = _load_sentinel_findings(correlate)
+            correlation = _correlate(result, s_findings, s_evidence)
     except DoctorBundleError as exc:
         typer.echo(f"erro: {exc}", err=True)
         raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
 
     if json_mode:
-        _emit_json({
+        payload: dict[str, Any] = {
             "format": result.format,
             "producer": result.bundle.producer.model_dump(mode="json"),
             "findings": [f.model_dump(mode="json") for f in result.findings],
@@ -912,7 +948,10 @@ def import_doctor_bundle_cmd(
             "unknowns": len(result.bundle.unknowns),
             "limitations": result.bundle.limitations,
             "warnings": result.warnings,
-        })
+        }
+        if correlation is not None:
+            payload["correlation"] = correlation.to_dict()
+        _emit_json(payload)
         return
     typer.echo(
         f"bundle {result.format} de {result.bundle.producer.name}"
@@ -925,6 +964,68 @@ def import_doctor_bundle_cmd(
         typer.echo(f"  [{f.severity.value}/{f.status.value}] {f.explanation[:120]}")
     if len(result.findings) > 20:
         typer.echo(f"  ... +{len(result.findings) - 20}")
+    if correlation is not None:
+        _echo_correlation(correlation)
+
+
+def _correlate(imported: Any, s_findings: list[Finding],
+               s_evidence: list[Evidence]) -> Any:
+    from data_sentinel.diagnostics.cross_correlation import correlate_findings
+
+    return correlate_findings(
+        imported.findings, imported.evidence, s_findings, s_evidence
+    )
+
+
+def _echo_correlation(report: Any) -> None:
+    typer.echo(f"correlação: {len(report.pairs)} par(es)")
+    for p in report.pairs:
+        typer.echo(
+            f"  [{p.match_strength}] doctor:{p.doctor_finding_id[:12]}"
+            f"({p.doctor_status}/{p.doctor_severity})"
+            f" x sentinel:{p.sentinel_finding_id[:12]}"
+            f"({p.sentinel_status}/{p.sentinel_severity})"
+            f" via {', '.join(p.matched_keys)}"
+        )
+    if report.doctor_only:
+        typer.echo(f"  somente doctor: {len(report.doctor_only)}")
+    if report.sentinel_only:
+        typer.echo(f"  somente sentinel: {len(report.sentinel_only)}")
+    if report.doctor_absent:
+        typer.echo("  doctor ausente: sem evidência estática para correlacionar")
+    typer.echo(f"  nota: {report.disclaimer}")
+
+
+@import_app.command("correlate")
+def import_correlate_cmd(
+    doctor: Annotated[Path, typer.Option(
+        "--doctor", exists=True,
+        help="Bundle JSON produzido pelo Forge Doctor (estático).")],
+    sentinel: Annotated[Path, typer.Option(
+        "--sentinel", exists=True,
+        help="Relatório sentinel (findings+evidence JSON) produzido em runtime.")],
+    json_mode: _COMMON_JSON = False,
+) -> None:
+    """Correlação determinística doctor(estático) x sentinel(runtime).
+
+    Chaves declaradas apenas (location + categoria). A correlação preserva
+    origem, severidade, status e confiança de cada lado — não é prova
+    independente e não infere causalidade da co-ocorrência.
+    """
+    from data_sentinel.adapters.doctor import DoctorBundleError, import_doctor_bundle
+
+    try:
+        imported = import_doctor_bundle(doctor)
+        s_findings, s_evidence = _load_sentinel_findings(sentinel)
+        report = _correlate(imported, s_findings, s_evidence)
+    except DoctorBundleError as exc:
+        typer.echo(f"erro: {exc}", err=True)
+        raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+
+    if json_mode:
+        _emit_json(report.to_dict())
+        return
+    _echo_correlation(report)
 
 
 quality_app = typer.Typer(help="Contratos e observações de qualidade de dados.")

@@ -73,12 +73,23 @@ plataformas, limitações declaradas). `--descriptors` emite a lista de
 ## `import` — bundles externos (opcional)
 
 ```bash
-data-sentinel import doctor-bundle -f <arquivo> [--json]
+data-sentinel import doctor-bundle -f <arquivo> [--correlate <relatorio>] [--json]
+data-sentinel import correlate --doctor <bundle> --sentinel <relatorio> [--json]
 ```
 
 Importa findings de um bundle Forge Doctor (handoff-bundle@1,
 forge-contracts/1 ou scan-json@3.0). Offline, sem Doctor instalado;
 findings importados preservam proveniência e nunca viram CONFIRMED.
+
+`--correlate` (ou o verbo `import correlate`) emite a seção
+`sentinel/doctor-correlation/v1`: correlação determinística entre
+findings estáticos do Doctor e findings de runtime do Sentinel sobre
+chaves declaradas (location + categoria; `path+category`,
+`basename+category`, `path-only`). A correlação preserva origem,
+severidade, status e confiança de cada lado — **não é prova
+independente** e **não infere causalidade** da co-ocorrência
+(`no_confirmation_upgrade: true`). Bundle vazio/ausente de findings
+retorna `doctor_absent: true`, não erro.
 
 ## `config show`
 

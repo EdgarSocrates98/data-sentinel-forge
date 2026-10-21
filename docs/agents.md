@@ -10,7 +10,7 @@ Camada opcional e **determinística-primeiro** sobre os analyzers.
 | Runtime | `agents/runtime.py` | máquina de estados, budgets, relógio injetável |
 | Providers | `agents/providers.py` | StubProvider (offline) + HTTP local (localhost-only) |
 | Especialistas | `agents/specialists.py` | 12 agentes, roteamento por keyword |
-| Tools | `tools/registry.py` | 16 tools sobre os analyzers existentes |
+| Tools | `tools/registry.py` | 21 tools sobre os analyzers existentes |
 | MCP | `mcp_server.py` | servidor stdio (SDK `mcp`, extra opcional) |
 | Contexto | `context/` | camadas ordenadas, budget de tokens, cache LRU |
 | RAG | `rag/` | TF-IDF lexical com proveniência; memória JSONL |
