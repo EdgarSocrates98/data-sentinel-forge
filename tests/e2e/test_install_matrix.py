@@ -55,6 +55,7 @@ def test_matrix_user_scope(tmp_path: Path, monkeypatch) -> None:
     fake_home = tmp_path / "home"
     fake_home.mkdir()
     monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("USERPROFILE", str(fake_home))
     result = runner.invoke(
         app,
         ["install", "--scope", "user", "--yes", "--host", "claude", "--json"],
@@ -222,7 +223,7 @@ def test_matrix_mcp_config_and_handshake_entry(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude")
     mcp = json.loads((tmp_path / ".mcp.json").read_text(encoding="utf-8"))
     entry = mcp["mcpServers"]["data-sentinel"]
-    assert entry["command"].endswith("data-sentinel")
+    assert Path(entry["command"]).stem == "data-sentinel"
     assert entry["args"] == ["mcp", "serve"]
 
 
@@ -306,6 +307,7 @@ def test_h1_user_purge_preserves_runtime_state(
     fake_home = tmp_path / "home"
     fake_home.mkdir()
     monkeypatch.setenv("HOME", str(fake_home))
+    monkeypatch.setenv("USERPROFILE", str(fake_home))
     result = runner.invoke(
         app,
         ["install", "--scope", "user", "--yes", "--host", "claude", "--json"],

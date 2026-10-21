@@ -45,7 +45,7 @@ def test_install_yes_creates_assets(tmp_path: Path) -> None:
     mcp = json.loads((tmp_path / ".mcp.json").read_text())
     entry = mcp["mcpServers"]["data-sentinel"]
     # §7.1 — absolute console script preferred, bare name is the fallback
-    assert entry["command"].endswith("data-sentinel")
+    assert Path(entry["command"]).stem == "data-sentinel"
     assert entry["args"] == ["mcp", "serve"]
 
 

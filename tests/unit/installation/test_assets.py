@@ -449,7 +449,7 @@ def test_python_floor_check() -> None:
 def test_mcp_command_resolution() -> None:
     cmd = service._resolve_mcp_command()
     assert cmd[-2:] == ("mcp", "serve")
-    assert cmd[0].endswith("data-sentinel")
+    assert Path(cmd[0]).stem == "data-sentinel"
 
 
 def test_mcp_json_preserves_foreign_servers(tmp_path: Path) -> None:
