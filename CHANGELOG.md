@@ -3,6 +3,12 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.0] - 2026-10-21
+
+### Added
+
+- Integrations cycle (lf-0030): deterministic doctor x sentinel cross-correlation — `data-sentinel import doctor-bundle --correlate` and `import correlate` merge doctor findings into sentinel diagnostics anchored on declared evidence only (no confidence promotion, no causality claims); `sentinel.doctor.correlate` registry tool.
+
 ## [0.1.0] — 2026-10-21
 
 First tagged release. Data Sentinel is an independent, offline-first,
