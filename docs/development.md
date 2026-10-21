@@ -17,9 +17,10 @@ uv run pytest -q
 uv run pytest --cov=data_sentinel --cov-report=term-missing -q
 ```
 
-Suite atual: **1025 testes**; cobertura medida em
-[evidence/coverage.txt](evidence/coverage.txt) — regenerado a cada
-release (`pytest --cov`).
+Suite atual: **1025 testes**; o artefato
+[evidence/coverage.txt](evidence/coverage.txt) reflete o baseline do
+Cycle 01 (`pytest --cov` completo leva >30min — regenerar em janela
+própria, não no caminho do release).
 
 ## Layout de testes
 
