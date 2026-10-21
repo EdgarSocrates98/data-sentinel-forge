@@ -11,10 +11,17 @@ Sentinel forge manifest marker only.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
 _PACKAGE_ASSETS = Path(__file__).parent / "assets"
+
+# §8.5 — every catalog file pinned by sha256. The manifest itself is not
+# listed (it is the trust anchor; tampering it is detectable only at a
+# higher layer — the wheel RECORD — which is the documented boundary).
+_MANIFEST_NAME = "MANIFEST.sha256"
 
 
 def _repo_root() -> Path | None:
@@ -41,6 +48,34 @@ def asset_source() -> Path | None:
     return _repo_assets()
 
 
+def verify_integrity(src: Path) -> None:
+    """§8.5 — pinned sha256 for every catalog file; tamper → refusal.
+
+    Missing/extra files fail closed; a stale manifest is a defect the
+    drift test (`test_asset_manifest_is_current`) catches before merge.
+    """
+    from data_sentinel._installkit import E_VERIFY, InstallError
+
+    manifest_path = src / _MANIFEST_NAME
+    if not manifest_path.is_file():
+        raise InstallError(
+            E_VERIFY, f"asset integrity manifest missing: {_MANIFEST_NAME}")
+    expected = json.loads(manifest_path.read_text(encoding="utf-8"))
+    actual = {
+        p.relative_to(src).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+        for p in sorted(src.rglob("*"))
+        if p.is_file() and p.name != _MANIFEST_NAME
+    }
+    if expected != actual:
+        diff = sorted(set(expected.items()) ^ set(actual.items())
+                      | {k for k in expected if k not in actual}
+                      | {k for k in actual if k not in expected})
+        raise InstallError(
+            E_VERIFY,
+            f"asset integrity mismatch — catalog refused: {diff[:5]}",
+        )
+
+
 def load_catalog(source: Path | None = None) -> Any:
     """Read ``assets/`` into an ``AssetCatalog``.
 
@@ -58,6 +93,7 @@ def load_catalog(source: Path | None = None) -> Any:
     if src is None or not src.is_dir():
         return AssetCatalog(skills=skills, agents=agents,
                             overlays=overlays, manifest=manifest)
+    verify_integrity(src)
     for path in sorted(src.rglob("*")):
         if not path.is_file():
             continue

@@ -210,3 +210,53 @@ def mcp_verify_cmd(json_mode: _JSON = False) -> None:
     _emit(doc, json_mode)
     if doc.get("status") == "degraded":
         raise typer.Exit(code=1)
+
+
+@install_app.command("manifest")
+def manifest_cmd(
+    agentic: Annotated[
+        bool, typer.Option("--agentic", help="Emite forge/SpecialistAgenticManifest/v1.")
+    ] = False,
+) -> None:
+    """Emite o manifesto Forge do Sentinel (descoberta por forge-cli)."""
+    from data_sentinel import __version__
+
+    doc: dict[str, Any] = {
+        "forge_id": service.FORGE_ID,
+        "package": "data_sentinel",
+        "distribution": "data-sentinel-forge",
+        "cli": "data-sentinel",
+        "python": ">=3.11",
+        "version": __version__,
+        "mcp_server_name": "data-sentinel",
+        "mcp_command": ["data-sentinel", "mcp", "serve"],
+        "extras": ["mcp", "api"],
+        "install_command": ["data-sentinel", "install", "--yes"],
+    }
+    if agentic:
+        doc = {
+            "schema": "forge/SpecialistAgenticManifest/v1",
+            "provider": service.FORGE_ID,
+            "version": __version__,
+            "cli": "data-sentinel",
+            "cli_entry": "data_sentinel.cli:app",
+            "workflows": [
+                {"id": "analyze", "mode": "DIAGNOSTIC_ONLY",
+                 "command": ["{cli}", "analyze", "--file", "{artifact}"],
+                 "description": "Diagnóstico determinístico de artefato",
+                 "read_only": True},
+                {"id": "spark-explain", "mode": "DIAGNOSTIC_ONLY",
+                 "command": ["{cli}", "spark", "explain", "--file", "{plan}"],
+                 "description": "Análise de plano físico Spark", "read_only": True},
+                {"id": "capabilities", "mode": "DIAGNOSTIC_ONLY",
+                 "command": ["{cli}", "capabilities", "--descriptors"],
+                 "description": "Descoberta de capacidades", "read_only": True},
+            ],
+            "skills": [], "agents": [], "coordinators": [],
+            "mcp_command": ["{cli}", "mcp", "serve"],
+            "host_adapters": list(service.HOSTS),
+            "read_only_default": True,
+            "requires_aws_credentials": False,
+            "requires_llm": False,
+        }
+    typer.echo(json.dumps(doc, ensure_ascii=False, indent=2))

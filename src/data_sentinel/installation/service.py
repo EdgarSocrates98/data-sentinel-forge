@@ -12,6 +12,8 @@ handshake) lives in the installkit; this module carries the Sentinel
 from __future__ import annotations
 
 import importlib.util
+import shutil
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +30,56 @@ SCOPES: tuple[str, ...] = ("project", "workspace", "user")
 HOSTS: tuple[str, ...] = ("claude", "devin", "codex", "copilot", "cursor")
 
 
+MIN_PYTHON = (3, 11)
+
+
+def _resolve_mcp_command() -> tuple[str, ...]:
+    """§7.1 — resolve the server entry point for the host environment.
+
+    Hosts may not inherit the installer's PATH, so the absolute console
+    script is preferred; the bare name is the documented fallback.
+    """
+    resolved = shutil.which("data-sentinel")
+    if resolved:
+        return (resolved, "mcp", "serve")
+    return ("data-sentinel", "mcp", "serve")
+
+
+def _check_python() -> None:
+    """§8.1 — honest refusal below the declared floor."""
+    if sys.version_info < MIN_PYTHON:
+        v = ".".join(map(str, sys.version_info[:3]))
+        need = ".".join(map(str, MIN_PYTHON))
+        raise kit.InstallError(
+            kit.E_PYTHON,
+            f"python {v} < {need} — data-sentinel requires >={need}",
+        )
+
+
+def _detect_source() -> dict[str, Any]:
+    """§8.4 — where this installation runs from.
+
+    ``repo`` when a VCS checkout is detected (pyproject.toml sibling of
+    ``src/``), ``copied-tree`` for the same layout without ``.git``
+    (extracted zip / copied dir), ``installed`` for site-packages
+    (wheel/sdist — presence of dist-info ``RECORD`` proves it).
+    """
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        pyproject = parent / "pyproject.toml"
+        if pyproject.is_file() and (parent / "src" / "data_sentinel").is_dir():
+            return {
+                "method": "repo" if (parent / ".git").is_dir() else "copied-tree",
+                "root": str(parent),
+            }
+    site = here.parent.parent
+    has_dist_info = any(site.glob("data_sentinel*-*.dist-info"))
+    return {
+        "method": "installed" if has_dist_info else "copied-tree",
+        "root": str(site),
+    }
+
+
 def _spec() -> kit.ForgeSpec:
     return kit.ForgeSpec(
         forge_id=FORGE_ID,
@@ -36,7 +88,7 @@ def _spec() -> kit.ForgeSpec:
         cli_name="data-sentinel",
         python_spec=">=3.11",
         state_dir=STATE_DIR,
-        mcp_command=("data-sentinel", "mcp", "serve"),
+        mcp_command=_resolve_mcp_command(),
         mcp_server_name="data-sentinel",
         mcp_verify_tool=None,  # no-arg read-only tool — tools/list is the probe
         version_cmd=("--version",),
@@ -117,6 +169,7 @@ def install(
     gateway_profile: str = "balanced",
 ) -> dict[str, Any]:
     """Apply the installation. Without ``yes``/``dry_run`` → refused."""
+    _check_python()
     if profile not in PROFILES:
         raise kit.InstallError(kit.E_PROFILE, f"profile {profile!r}; {PROFILES}")
     if gateway_profile not in GATEWAY_PROFILES:
@@ -128,10 +181,14 @@ def install(
     state = ctx.state_dir
     if dry_run:
         # §2.5 — preview must not write, not even the state dir/lock file.
-        return kit.apply_install(ctx, approved=yes)
+        plan = kit.apply_install(ctx, approved=yes)
+        plan["source"] = _detect_source()
+        return plan
     with kit.acquire_lock(state):
         receipt = kit.apply_install(ctx, approved=yes)
     if not dry_run and receipt.get("status") == "completed":
+        receipt["source"] = _detect_source()
+        receipt["source_version"] = __version__
         kit._write_receipt(state, receipt)
         _register(ctx)
     return receipt

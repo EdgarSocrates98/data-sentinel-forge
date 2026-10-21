@@ -21,9 +21,10 @@ Renderização e exportação de `DiagnosticReport`.
 
 ## Procedimento
 
-1. `data-sentinel report show --input <report_id|arquivo.json>
-   --format markdown` — `--input` aceita id persistido ou path.
-2. `data-sentinel report export --input <id>` para o bundle Doctor.
+1. `data-sentinel report show --id <report_id> --format markdown` —
+   `--file <arquivo.json>` para um relatório exportado em disco.
+2. `data-sentinel report export --file <report.json> [--output bundle.json]`
+   para o bundle Doctor.
 3. Novas análises já persistem o relatório por padrão; `--no-persist`
    desliga.
 

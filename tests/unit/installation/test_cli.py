@@ -43,7 +43,10 @@ def test_install_yes_creates_assets(tmp_path: Path) -> None:
     assert (tmp_path / "AGENTS.md").is_file()
     assert "data-sentinel-forge:managed" in (tmp_path / "AGENTS.md").read_text()
     mcp = json.loads((tmp_path / ".mcp.json").read_text())
-    assert mcp["mcpServers"]["data-sentinel"]["command"] == "data-sentinel"
+    entry = mcp["mcpServers"]["data-sentinel"]
+    # §7.1 — absolute console script preferred, bare name is the fallback
+    assert entry["command"].endswith("data-sentinel")
+    assert entry["args"] == ["mcp", "serve"]
 
 
 def test_install_json_output(tmp_path: Path) -> None:

@@ -1,0 +1,11 @@
+{
+  "agents/sentinel-investigator.md": "0c0ac9714580de149f78473d45f32f578e5c5b9f0e1ba6a04044ee599edabb21",
+  "agents/sentinel-reviewer.md": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603",
+  "agents/sentinel-spark-specialist.md": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b",
+  "manifest/forge.json": "a7d6817a3303dd208e0aa5ee7307635a3373168cb4d9a32527316050801865e0",
+  "skills/data-sentinel-investigate/SKILL.md": "d9fa57c813e55b09ad4ef312c9427c3c99ddf7f0eda10cc18a6e49070fee1358",
+  "skills/data-sentinel-quality-drift/SKILL.md": "e2081413eaa3f653262ab69fce5ecfadfd8e8da42662ce1b0cdcbaed13dd02ee",
+  "skills/data-sentinel-report/SKILL.md": "fba3f6e619d696e7e56dcaf7bfa2148f018bbd25ea01277069f61703e8e7a344",
+  "skills/data-sentinel-spark-plan/SKILL.md": "2be9508c02d8ab963e20c8b17411f859def428820bdc0b4daeb992b30bf1cfb0",
+  "skills/data-sentinel-sql-review/SKILL.md": "0e5a8d140a511ad22463aab49b689cf245aa290e6099b837c72769f80dc3c664"
+}
