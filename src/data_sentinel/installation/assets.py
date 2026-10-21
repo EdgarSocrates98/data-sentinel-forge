@@ -41,30 +41,52 @@ def asset_source() -> Path | None:
     return _repo_assets()
 
 
+def load_catalog(source: Path | None = None) -> Any:
+    """Read ``assets/`` into an ``AssetCatalog``.
+
+    Layout: ``skills/<name>/<inner>``, ``agents/<stem>.md``,
+    ``hosts/<host>/<rel>`` overlays, ``manifest/*`` (kept out of the
+    render — ``forge.json`` is Sentinel discovery, not a project asset).
+    """
+    from data_sentinel.installation.hosts import AssetCatalog
+
+    src = source or asset_source()
+    skills: dict[str, dict[str, bytes]] = {}
+    agents: dict[str, bytes] = {}
+    overlays: dict[str, dict[str, bytes]] = {}
+    manifest: dict[str, bytes] = {}
+    if src is None or not src.is_dir():
+        return AssetCatalog(skills=skills, agents=agents,
+                            overlays=overlays, manifest=manifest)
+    for path in sorted(src.rglob("*")):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(src).as_posix()
+        parts = rel.split("/")
+        if parts[0] == "skills" and len(parts) >= 3:
+            skills.setdefault(parts[1], {})["/".join(parts[2:])] = path.read_bytes()
+        elif parts[0] == "agents" and len(parts) == 2:
+            agents[Path(parts[1]).stem] = path.read_bytes()
+        elif parts[0] == "hosts" and len(parts) >= 3:
+            overlays.setdefault(parts[1], {})["/".join(parts[2:])] = path.read_bytes()
+        elif parts[0] == "manifest" and len(parts) == 2:
+            manifest[parts[1]] = path.read_bytes()
+    return AssetCatalog(skills=skills, agents=agents,
+                        overlays=overlays, manifest=manifest)
+
+
 def render_for_hosts(ctx: Any) -> dict[str, bytes]:
     """Render host assets for the install context.
 
-    ``ctx.hosts`` selects which host dirs receive mirrors. Empty catalog
-    → empty dict (install still records markers/MCP/ledger state).
+    ``ctx.hosts`` selects which host dirs receive mirrors; ``ctx.scope``
+    picks project/workspace vs user layouts. Empty catalog → empty dict
+    (install still records markers/MCP/ledger state).
     """
-    source = asset_source()
-    if source is None:
-        return {}
-    out: dict[str, bytes] = {}
-    hosts = set(getattr(ctx, "hosts", ()) or ())
-    for path in sorted(source.rglob("*")):
-        if not path.is_file():
-            continue
-        rel = path.relative_to(source).as_posix()
-        # layout: skills/<name>/..., agents/<name>.md, hosts/<host>/<rel>
-        parts = rel.split("/")
-        if parts[0] == "hosts":
-            if len(parts) < 3 or parts[1] not in hosts:
-                continue
-            rel = "/".join(parts[2:])
-        elif parts[0] in ("skills", "agents"):
-            # ds-0111 mirrors these into per-host dirs; for now they are
-            # host-agnostic source files — placed by host adapters later.
-            continue
-        out[rel] = path.read_bytes()
-    return dict(sorted(out.items()))
+    from data_sentinel.installation.hosts import render_hosts
+
+    catalog = load_catalog()
+    return render_hosts(
+        catalog,
+        hosts=tuple(getattr(ctx, "hosts", ()) or ()),
+        scope=getattr(ctx, "scope", "project"),
+    )

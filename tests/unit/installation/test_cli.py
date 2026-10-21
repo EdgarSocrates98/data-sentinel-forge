@@ -3,7 +3,6 @@
 import json
 from pathlib import Path
 
-import pytest
 from typer.testing import CliRunner
 
 from data_sentinel.cli import app
@@ -93,7 +92,6 @@ def test_uninstall_clean(tmp_path: Path) -> None:
 
 def test_idempotent_reinstall(tmp_path: Path) -> None:
     _installed(tmp_path)
-    first = (tmp_path / ".data-sentinel/install/install-ledger.json").read_bytes()
     _installed(tmp_path)
     assert (tmp_path / "AGENTS.md").is_file()
     # ledger stable — no duplicate entries
