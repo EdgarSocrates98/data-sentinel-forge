@@ -1,6 +1,6 @@
 # Sentinel Control Center
 
-Portal web (Angular 19) + API HTTP (FastAPI) para operar investigações,
+Portal web (Angular 20) + API HTTP (FastAPI) para operar investigações,
 explorar evidências e inspecionar capacidades — tudo sobre o núcleo
 determinístico existente. Nenhum dado é simulado: telas vazias são vazias,
 erros são reais, e toda análise delega aos analyzers/tools do core.
@@ -81,10 +81,8 @@ inexistente → `404`.
 
 ## Limitações (declaradas)
 
-- **Estado em memória**: investigações e streams vivem no processo; restart
-  apaga o histórico. Persistência é backlog (Cycle 07).
-- **Sem histórico entre sessões**: `GET /investigations` lista só a sessão
-  corrente; relatórios persistidos ficam na CLI (`data-sentinel report show`).
+- **Sem multi-hop entre especialistas** e sem execução de SQL/checks
+  contra o dado no portal.
 - **Sem multi-hop entre especialistas** e sem chamadas AWS de produção no
   portal (read-only assume o mesmo perfil `offline` da CLI).
 - **Contraste/UX**: ver achados corrigidos e backlog em
@@ -103,13 +101,14 @@ frontend/src/app/
 └── styles/          # tokens.css — 3 camadas (primitive/semantic/component)
 ```
 
-Rotas lazy: `/`, `/investigations`, `/investigations/new`,
+Rotas lazy: `/`, `/session`, `/investigations`, `/investigations/new`,
 `/investigations/:id`, `/evidence-graph`, `/workloads`, `/spark-plans`,
-`/quality-lineage`, `/agents`, `/reports`.
+`/quality-lineage`, `/agents`, `/reports`, `/operations` (+ `timeline`,
+`regressions`, `watches`, `remediation`).
 
 Testes do portal:
 
 ```bash
 cd frontend
-npx ng test --watch=false --browsers=ChromeHeadless   # 49 specs
+npx vitest run                                       # 96 specs
 ```

@@ -1,6 +1,6 @@
 # Data Sentinel — Control Center (frontend)
 
-Angular 19 frontend for the Sentinel Control Center. Standalone
+Angular 20 frontend for the Sentinel Control Center. Standalone
 components, signals, OnPush change detection, TypeScript strict mode,
 lazy-loaded routes. No Angular Material, no NgRx — the design system
 is custom (see "Design tokens" below).
@@ -11,7 +11,7 @@ is custom (see "Design tokens" below).
 npm install        # install dependencies
 npx ng serve       # dev server on http://localhost:4200
 npx ng build       # production build → dist/frontend
-npx ng test        # unit tests (Karma + Jasmine, ChromeHeadless)
+npx vitest run     # unit tests (Vitest)
 ```
 
 The app expects the Control Center API at `http://127.0.0.1:8790`
@@ -27,8 +27,9 @@ src/
   environments/           apiBaseUrl per build configuration
   app/
     app.component.*       shell: topbar + sidenav + content + error toast
-    app.routes.ts         lazy routes (/ , investigations, evidence-graph,
-                          workloads, spark-plans, quality-lineage, agents, reports)
+    app.routes.ts         lazy routes (/, session, investigations, evidence-graph,
+                          workloads, spark-plans, quality-lineage, agents,
+                          reports, operations/*)
     core/
       api.models.ts       typed payloads mirroring FastAPI /api/v1 responses
       api.service.ts      typed API client (health, capabilities, tools,
@@ -37,7 +38,7 @@ src/
       http-error.interceptor.ts  normalizes HttpErrorResponse → ApiError
       theme.service.ts    dark (default) / light theme, persisted
       i18n/               typed translation service (pt-BR default, en)
-    shared/page-shell/    real placeholder page for upcoming studios
+    shared/page-shell/    shared page shell component
     features/             one component per route
 ```
 

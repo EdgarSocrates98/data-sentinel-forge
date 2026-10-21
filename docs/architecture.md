@@ -82,7 +82,7 @@ diagnóstico foi duplicada na camada web.
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ frontend/ (Angular 19, standalone + signals + OnPush)       │
+│ frontend/ (Angular 20, standalone + signals + OnPush)       │
 │   design system próprio — tokens CSS 3-layer, pt-BR/en,     │
 │   tema dark/light; lazy routes por studio                   │
 └──────────────┬──────────────────────────────────────────────┘
@@ -104,8 +104,8 @@ Regras de fronteira mantidas:
   `investigate`, `build_incident_graph`, descriptors de capacidades) —
   **zero reimplementação** de analyzer/diagnóstico no handler.
 - Versão de API em `/api/v1/*`; OpenAPI exposto em `/api/openapi.json`.
-- Estado de investigações **em memória** por processo (deliberado no MVP;
-  persistência é backlog do Cycle 07).
+- Estado de investigações persiste em SQLite
+  (`~/.data-sentinel/sentinel.db`) — histórico sobrevive a restart.
 - Bind padrão `127.0.0.1`; bind não-local imprime aviso explícito.
 - O frontend é estaticamente buildado (`frontend/dist/`) e servido por
   qualquer servidor estático ou `ng serve`; a API é consumida via

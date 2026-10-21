@@ -26,7 +26,7 @@ Opções:
 
 | Opção | Efeito |
 |---|---|
-| `--platform, -p` | Plataforma do workload (`generic`, `spark`, `glue`, `athena`, `trino`…) |
+| `--platform, -p` | Plataforma do workload (`generic`, `spark`, `aws_glue`, `athena`, `trino`…) |
 | `--profile` | Perfil de análise (`economy`, `balanced`, `deep`, `offline`) |
 | `--dialect` | Sobrescreve dialeto SQL (ex.: `trino`) |
 | `--json` | Emite o `DiagnosticReport` em JSON (stdout puro) |
@@ -97,7 +97,7 @@ data-sentinel version   # data-sentinel 0.1.0
 
 ## `glue` — inspeção read-only de jobs AWS Glue
 
-Requer o extra `[aws]` (`pip install 'data-sentinel[aws]'`) e credenciais
+Requer o extra `[aws]` (`pip install '.[aws]'` (no checkout)) e credenciais
 da cadeia padrão do SDK.
 
 ```bash
@@ -131,7 +131,7 @@ pipeline composto: SQL estático + inteligência de joins + config advisor.
 data-sentinel sql analyze --file query.sql --dialect spark|trino [--json]
 ```
 
-AST SQLGlot — 9 checks com contexto (SELECT* sem falso positivo em
+AST SQLGlot — 14 checks com contexto (SELECT* sem falso positivo em
 EXISTS/COUNT, joins sem predicado, non-sargável, ORDER BY global, UNION
 sem ALL, COUNT DISTINCT, IN grande, scan sem filtro). Ver
 [docs/guides/sql-analysis.md](guides/sql-analysis.md).
@@ -170,7 +170,8 @@ formato completo em [docs/guides/join-intelligence.md](guides/join-intelligence.
 | `lakehouse operation -f` | SQL ou envelope | MERGE/APPEND/DDL (nunca executa) |
 | `lakehouse compat` | flags runtime/op/mode | veredito via knowledge base |
 
-Todos com `--json`, `--quiet`, `--no-persist`, `--format`, `--output`.
+Verbos de arquivo com `--json`, `--quiet`, `--no-persist`, `--format`,
+`--output`; `lakehouse compat` aceita só `--json` + seus flags próprios.
 
 ## `serve` — Control Center API (Cycle 06)
 
@@ -179,7 +180,7 @@ data-sentinel serve [--host 127.0.0.1] [--port 8790] [--root <dir>]
 ```
 
 Sobe a API FastAPI do Control Center via uvicorn (requer extra `api`:
-`pip install 'data-sentinel[api]'`).
+`pip install '.[api]'` (no checkout)).
 
 - `--host` default `127.0.0.1` — bind não-local emite **aviso** (a API
   expõe arquivos locais; use só em rede confiável).
@@ -190,6 +191,7 @@ Sobe a API FastAPI do Control Center via uvicorn (requer extra `api`:
 
 Endpoints versionados em `/api/v1/*` (health, capabilities, tools, agents,
 severities, investigations + SSE stream + graph, `analyze/{id}`); OpenAPI
-em `/api/openapi.json`, Swagger em `/api/docs`. Estado de investigações é
-**em memória** (por processo). Guia completo:
+em `/api/openapi.json`, Swagger em `/api/docs`. Investigações persistem
+em SQLite (`~/.data-sentinel/sentinel.db`) e sobrevivem a restart.
+Guia completo:
 [docs/guides/control-center.md](guides/control-center.md).

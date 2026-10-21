@@ -1,6 +1,6 @@
 # Instalação portátil
 
-A wheel `data-sentinel-forge` é Python puro — sem binários nativos.
+A wheel `data-sentinel` é Python puro — sem binários nativos.
 Todos os assets agentic (5 skills, 3 agents, manifestos) viajam dentro
 da wheel em `data_sentinel/installation/assets/`, fixados por
 `MANIFEST.sha256` (catálogo adulterado → `FORGE-INSTALL-VERIFY-FAILED`).

@@ -1,6 +1,7 @@
 # Codex CLI
 
-Layout: `.agents/skills/`, `.agents/agents/`, `.codex/agents/*.toml`.
+Layout: `.agents/skills/` + `.codex/agents/*.toml` (agents só no
+`.codex/`; `.agents/` recebe apenas skills).
 Agents Codex são TOML (`name`, `description`, `developer_instructions`).
 
 ```bash

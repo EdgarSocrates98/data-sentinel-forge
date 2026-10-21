@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | Claude | ✅ `.claude/skills` | ✅ `.claude/agents` | ✅ project | ✅ CLAUDE.md/AGENTS.md |
 | Devin | ✅ `.devin/skills` + `.agents/` | ✅ `.devin/agents` + `.agents/` | ✅ project | ✅ |
-| Codex | ✅ `.agents/skills` | ✅ TOML `.agents/`+`.codex/` | N-A project (não consome) | ✅ |
+| Codex | ✅ `.agents/skills` | ✅ TOML `.codex/agents/` | N-A project (não consome) | ✅ |
 | Copilot | ✅ `.github/skills` | ✅ `.github/agents/*.agent.md` | ✅ project | ✅ |
 | Cursor | ❌ sem adapter | ❌ sem adapter | shared | shared |
 

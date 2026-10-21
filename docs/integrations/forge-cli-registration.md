@@ -17,7 +17,7 @@ explicit owner approval — Sentinel never writes to another forge's tree.
     command: ['{bin}', 'install'],
     flags: ['scope', 'root', 'host', 'profile', 'components', 'gateway', 'yes', 'dry-run'],
     ops: {
-      update: ['{bin}', 'install', 'update'],
+      update: ['{bin}', 'install', '--yes'],  # reinstall aplica o catálogo novo
       uninstall: ['{bin}', 'install', 'uninstall'],
       status: ['{bin}', 'install', 'status'],
     },
@@ -31,7 +31,7 @@ explicit owner approval — Sentinel never writes to another forge's tree.
 ```ts
 {
   name: 'data-sentinel-forge',
-  dist: 'data-sentinel-forge',
+  dist: 'data-sentinel',
   bin: 'data-sentinel',
   minPython: '3.11',
   mcp: ['{bin}', 'mcp', 'serve'],

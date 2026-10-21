@@ -1,4 +1,4 @@
-# Instalação — Cycle 08 (ds-0093)
+# Instalação
 
 ## Verificado nesta sessão
 
@@ -30,7 +30,9 @@ opt-in via extra `aws` + credenciais explícitas; sem credenciais, nada
 
 ## Atualização / desinstalação
 
-`pip install -U data-sentinel` / `pip uninstall data-sentinel`.
+`pip install -U .` (no checkout) ou `pip install -U "data-sentinel @
+git+https://github.com/EdgarSocrates98/data-sentinel-forge"` até a
+publicação no PyPI; `pip uninstall data-sentinel` para remover.
 Dados locais em `~/.data-sentinel/` (SQLite + token) sobrevivem à
 desinstalação — remover manualmente se desejado.
 

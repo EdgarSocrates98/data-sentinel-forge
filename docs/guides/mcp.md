@@ -3,7 +3,7 @@
 ## Executar
 
 ```bash
-pip install "data-sentinel[mcp]"
+pip install ".[mcp]"   # no checkout
 data-sentinel mcp serve
 # ou: python -m data_sentinel.mcp_server
 ```

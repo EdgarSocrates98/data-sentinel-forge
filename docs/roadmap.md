@@ -1,57 +1,72 @@
 # Roadmap
 
-Visão por ciclo conforme o plano mestre (`prompt_inicial.md`).
-
-Estados: **entregue** / **entregue com restrições** / **em desenvolvimento** /
-**planejamento**. Histórico de decisões preservado abaixo.
+Visão por ciclo. Estados: **entregue** / **entregue com restrições** /
+**em desenvolvimento** / **planejamento**. Cada ciclo cita seu relatório
+final em `docs/cycles/`.
 
 ## Cycle 02 — Spark & Glue Intelligence — ENTREGUE COM RESTRIÇÕES
 
-Entregue (ds-0010..0019): conectores AWS read-only (Glue, CloudWatch),
-analyzer de plano físico, join intelligence, SQL v0.2 (AST/dialetos),
-config advisor, orquestrador, CLI grupos, Markdown, contratos API/MCP.
-Restrições: AWS validado com mocks/Stubber (não real), Windows/macOS só
-via CI (repo público — 6/6 matrix green desde Cycle 08), API/MCP sem servidor.
-Ver `docs/cycles/cycle-02-final-report.md`.
+Conectores AWS read-only (Glue, CloudWatch), analyzer de plano físico,
+join intelligence, SQL v0.2 (AST/dialetos), config advisor, orquestrador,
+CLI grupos, Markdown, contratos API/MCP. Restrições da época: AWS
+validado com mocks/Stubber, Windows/macOS só via CI. Ver
+`cycle-02-final-report.md`.
 
-## Cycle 03 — Iceberg, Lake Formation & Security — EM DESENVOLVIMENTO
+## Cycle 03 — Iceberg, Lake Formation & Security — ENTREGUE
 
-Escopo (`prompt_evo_cycle3.md`): Iceberg metadata intelligence, knowledge
-base de compatibilidade versionada, engine Glue/FGAC/FTA, diagnóstico
-cross-account, IAM/S3/KMS read-only, MERGE/APPEND intelligence, CLI e
-reporting lakehouse. Specs ds-0020..ds-0029.
+Iceberg metadata intelligence, knowledge base de compatibilidade
+versionada, engine Glue/FGAC/FTA, diagnóstico cross-account, IAM/S3/KMS
+read-only, MERGE/APPEND intelligence, CLI e reporting lakehouse.
+Specs ds-0020..ds-0029. Ver `cycle-03-final-report.md`.
 
-## Cycle 04 — Data Quality & Lineage
+## Cycle 03.1 — Doctor×Sentinel Convergence — ENTREGUE
+
+Boundaries, interop (`import doctor-bundle`), incident graph,
+capability discovery, avaliação de complementaridade. Ver
+`cycle-03.1-final-report.md`.
+
+## Cycle 04 — Data Quality & Lineage — ENTREGUE
 
 Contratos declarativos de qualidade, análise de impacto e lineage entre
-datasets/jobs.
+datasets/jobs. Ver `cycle-04-final-report.md`.
 
-## Cycle 05 — Agentic Intelligence
+## Cycle 05 — Agentic Intelligence — ENTREGUE
 
-Runtime agêntico controlado sobre as evidências determinísticas: planejamento,
-memória, orçamentos de token/tool-call (campos já reservados na config),
-agentes especialistas com responsabilidades delimitadas.
+Runtime agêntico controlado sobre evidências determinísticas: registry
+de especialistas, tools MCP (20), orçamentos, investigação orquestrada
+(`investigate run`). Ver `cycle-05-final-report.md` e
+`cycle-05-1-final-report.md`.
 
-## Cycle 06 — Sentinel Control Center
+## Cycle 06 — Sentinel Control Center — ENTREGUE
 
-Interface Angular para investigação, exploração e observabilidade, com
-design system próprio.
+API FastAPI (`serve`, `/api/v1/*`) + Control Center Angular 20
+(`frontend/`): investigações, evidence graph, workloads, relatórios.
+Ver `cycle-06-final-report.md`.
 
-## Cycle 07 — Autonomous Operations
+## Cycle 07 — Autonomous Operations — ENTREGUE
 
-Análise histórica (duração, tendências), alertas preventivos e operações
-assistidas — sempre com autorização explícita antes de qualquer escrita.
+Análise histórica, tendências, watches, regressões e remediação
+assistida — com autorização explícita antes de qualquer escrita.
+Persistência SQLite (`~/.data-sentinel/sentinel.db`). Ver
+`cycle-07-final-report.md`.
 
-## Cycle 08 — Production, Benchmarks & Open Source
+## Cycle 08 — Production, Benchmarks & Open Source — ENTREGUE COM RESTRIÇÕES
 
-Hardening, testes de carga/concorrência, benchmarks medidos (nunca inventados)
-e preparação para adoção externa.
+- **08** — hardening, CI multiplataforma (Linux/macOS/Windows ×
+  Python 3.11/3.12), benchmarks medidos, docs públicas. Ver
+  `cycle-08-final-report.md`.
+- **08.1** — independência total (core offline, sem The Forge/AI externa),
+  cobertura E2E, segurança. Ver `cycle-08-1-final-report.md`.
+- **08.2** — instalador portátil (`data-sentinel install`), adapters de
+  host (Claude/Devin/Codex/Copilot; Cursor parcial), 5 skills + 3 agents
+  no catálogo, MCP lifecycle, `install env`, integridade SHA-256.
+  Restrições: PyPI não publicado, Cursor sem adapter completo,
+  integração The Forge limitada a manifests. Ver
+  `cycle-08-2-final-report.md`.
 
----
+## Próximos passos (backlog conhecido)
 
-
-## Cycle 03.1 — concluído
-
-Convergência Doctor×Sentinel: boundaries, interop (import), incident
-graph, capability discovery, avaliação de complementaridade. Relatório:
-`cycles/cycle-03.1-final-report.md`. Backlog C04 registrado lá.
+- Publicação PyPI (workflow `release.yml` preparado com Trusted
+  Publishing, gated por aprovação humana).
+- Adapter completo de Cursor; integração The Forge além de manifests.
+- LOWs documentados no §27 do relatório do Cycle 08.2.

@@ -76,7 +76,7 @@ path = "src/data_sentinel/__init__.py"
 packages = ["src/data_sentinel"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "schemas", "README.md", "LICENSE"]
+include = ["src", "tests", "schemas", "README.md", "CHANGELOG.md", "LICENSE"]
 
 [tool.ruff]
 target-version = "py311"

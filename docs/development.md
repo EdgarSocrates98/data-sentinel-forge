@@ -4,7 +4,7 @@
 
 ```bash
 uv sync          # venv + deps dev (ruff, mypy, pytest, pytest-cov, jsonschema)
-uv run pytest    # 168 testes
+uv run pytest    # 1025 testes
 ```
 
 ## Qualidade
@@ -17,8 +17,9 @@ uv run pytest -q
 uv run pytest --cov=data_sentinel --cov-report=term-missing -q
 ```
 
-Suite atual: **168 testes, 93% de cobertura** (saída real em
-[evidence/coverage.txt](evidence/coverage.txt)).
+Suite atual: **1025 testes**; cobertura medida em
+[evidence/coverage.txt](evidence/coverage.txt) — regenerado a cada
+release (`pytest --cov`).
 
 ## Layout de testes
 

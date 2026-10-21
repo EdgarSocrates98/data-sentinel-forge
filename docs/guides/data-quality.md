@@ -47,7 +47,7 @@ Regra de ouro: **falha/ausência do engine → UNKNOWN, nunca PASS.**
 ## Profiling & drift (extra `stats`)
 
 ```bash
-pip install "data-sentinel[stats]"   # numpy + scipy
+pip install ".[stats]"   # no checkout; numpy + scipy
 ```
 
 ```python

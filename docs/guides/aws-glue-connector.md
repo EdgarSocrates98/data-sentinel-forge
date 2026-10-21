@@ -3,7 +3,7 @@
 Conector **read-only** de metadados do AWS Glue. Requer o extra `[aws]`:
 
 ```bash
-pip install 'data-sentinel[aws]'
+pip install '.[aws]'   # no checkout; PyPI ainda não publicado
 ```
 
 Sem o extra, qualquer uso do conector falha com `aws.boto3_ausente` e a

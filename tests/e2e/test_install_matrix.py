@@ -399,6 +399,24 @@ def test_m6_env_report_lists_config_knobs(tmp_path: Path) -> None:
     assert knobs["DATA_SENTINEL_PROFILE"] in ("set", "unset")
 
 
+def test_env_report_hosts_signals_well_formed(tmp_path: Path) -> None:
+    """Release blocker — `hosts` must list dir:/bin: signals, not a
+    char-split string, and never crash with >=2 signals for one host."""
+    (tmp_path / ".claude").mkdir()
+    (tmp_path / ".agents").mkdir()
+    doc = _lifecycle(tmp_path, "env")
+    hosts = doc["hosts"]
+    assert set(hosts) == {"claude", "devin", "codex", "copilot", "cursor"}
+    for signals in hosts.values():
+        assert isinstance(signals, list)
+        assert all(
+            s.startswith("dir:") or s.startswith("bin:") for s in signals
+        )
+    assert "dir:.claude" in hosts["claude"]
+    assert "dir:.agents" in hosts["devin"]
+    assert "dir:.agents" in hosts["codex"]
+
+
 def test_interactive_components_real_names(monkeypatch, capsys) -> None:
     """H2 — the interactive prompt must offer engine-valid component names."""
     import io

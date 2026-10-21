@@ -76,8 +76,8 @@ de wheel e de source tree.
 
 ## 12. Source methods
 
-`install env` → `source.method`: repo / copied-tree / installed /
-editable, detectado honestamente.
+`install env` → `source.method`: repo / copied-tree / installed,
+detectado honestamente.
 
 ## 13. Integrity manifests
 

@@ -297,10 +297,10 @@ def environment(
 
     target = kit.resolve_scope(_spec(), scope, Path.cwd(), root)
     host_signals: dict[str, list[str]] = {
-        h: list(
+        h: [
             *(f"dir:{d}" for d in _HOST_HINTS[h] if (target / d).exists()),
             *(f"bin:{b}" for b in _HOST_BINS[h] if shutil.which(b)),
-        )
+        ]
         for h in HOSTS
     }
     registry = kit.installations_dir()

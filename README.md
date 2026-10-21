@@ -101,7 +101,7 @@ Mais exemplos: [examples/README.md](examples/README.md) e
 ## Control Center (Cycle 06)
 
 Portal web real sobre o mesmo núcleo — API FastAPI (`data-sentinel serve`,
-bind `127.0.0.1:8790`) + frontend Angular 19 (`frontend/`). Investigações
+bind `127.0.0.1:8790`) + frontend Angular 20 (`frontend/`). Investigações
 agênticas via `/api/v1/investigations`, stream SSE, grafo de evidências,
 explorers de workloads/Spark/qualidade e registry de agentes — sem dado
 simulado.
@@ -152,8 +152,9 @@ src/data_sentinel/
 ├── persistence/   # SQLite store + migrations (stdlib)
 ├── api/           # FastAPI app (Cycle 06) — `data-sentinel serve`, /api/v1/*
 ├── agents/ + tools/ + mcp/   # runtime agêntico + registry + MCP (Cycle 05)
-├── cli/           # Typer app
-└── frontend/      # Angular 19 Control Center (Cycle 06)
+└── cli/           # Typer app
+
+frontend/          # Angular 20 Control Center (Cycle 06) — raiz do repo
 ```
 
 ## Estado do projeto
@@ -170,7 +171,7 @@ repair, uninstall preservando arquivos do usuário) e
 Cycle 06: Control Center Angular + API
 ([cycle-06](docs/cycles/cycle-06-final-report.md)); ciclo anterior em
 [cycle-08-1](docs/cycles/cycle-08-1-final-report.md).
-**921 testes Python + 96 specs Angular + ~145 Playwright, ruff+mypy
+**1025 testes Python + 96 specs Angular + ~145 Playwright, ruff+mypy
 strict limpos.**
 Ciclos anteriores: [cycle-05](docs/cycles/cycle-05-final-report.md),
 [05.1](docs/cycles/cycle-05-1-final-report.md),

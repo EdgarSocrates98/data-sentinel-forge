@@ -8,7 +8,7 @@ números de linha), correlação de erros e timeline ordenada por timestamps
 ## Instalação
 
 ```bash
-pip install 'data-sentinel[aws]'   # traz boto3/botocore
+pip install '.[aws]'   # no checkout; traz boto3/botocore
 ```
 
 O núcleo funciona sem o extra — só os conectores AWS o exigem

@@ -1,7 +1,8 @@
 # Instalação standalone
 
 O Sentinel funciona standalone — sem The Forge, sem forge-cli, sem AWS,
-sem LLM. `pip install data-sentinel-forge` entrega o CLI completo:
+sem LLM. A distribuição `data-sentinel` (checkout ou git+https — PyPI
+ainda não publicado) entrega o CLI completo:
 
 ```bash
 data-sentinel capabilities     # inventário de tools

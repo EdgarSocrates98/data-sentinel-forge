@@ -5,7 +5,10 @@ Instala o Data Sentinel no host/agente do seu projeto em um comando.
 ## Instalar
 
 ```bash
-pip install data-sentinel-forge
+# do checkout do repositório (PyPI ainda não publicado):
+pip install .
+# ou direto do git:
+# pip install "data-sentinel @ git+https://github.com/EdgarSocrates98/data-sentinel-forge"
 cd meu-projeto
 data-sentinel install          # interativo (pergunta profile/hosts)
 ```
