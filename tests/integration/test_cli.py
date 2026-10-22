@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
+from data_sentinel import __version__
 from data_sentinel.cli import app
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -25,7 +26,7 @@ def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
 class TestBasics:
     def test_version(self) -> None:
         r = runner.invoke(app, ["version"])
-        assert r.exit_code == 0 and "0.1.0" in r.stdout
+        assert r.exit_code == 0 and __version__ in r.stdout
 
     def test_help_lists_all_commands(self) -> None:
         r = runner.invoke(app, ["--help"])

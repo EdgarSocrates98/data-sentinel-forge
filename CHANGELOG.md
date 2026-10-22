@@ -3,6 +3,17 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.1] - 2026-10-21
+
+### Fixed
+
+- CLI stdout/stderr reconfigured to UTF-8 at startup — report glyphs (e.g. `⋈`)
+  no longer crash on Windows consoles defaulting to cp1252
+  (`UnicodeEncodeError` in release smoke).
+- Release workflow: `test_version` reads `__version__` dynamically;
+  `install manifest` regenerated for 0.2.x; wheel test builds its own wheel
+  when `dist/` is absent (verify-before-build ordering).
+
 ## [0.2.0] - 2026-10-21
 
 ### Added

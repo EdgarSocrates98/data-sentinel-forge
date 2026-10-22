@@ -17,6 +17,8 @@ from data_sentinel.knowledge import (
     validate_rule,
 )
 
+ROOT = Path(__file__).resolve().parents[2]
+
 VALID = """
 rule_id: test-rule
 version: "1.0.0"
@@ -153,9 +155,22 @@ class TestPackagedRules:
 
 
 @pytest.mark.slow
-def test_wheel_contains_rules_and_loads_outside_checkout():
+def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
     """§8.4: wheel instalado em venv limpa carrega as regras — sem checkout."""
-    wheel = next(Path("dist").glob("data_sentinel-*.whl"))
+    wheel = next(iter(Path("dist").glob("data_sentinel-*.whl")), None)
+    if wheel is None:
+        dist = tmp_path / "dist"
+        dist.mkdir()
+        try:
+            subprocess.run(  # noqa: S603 - wheel construído pelo próprio teste
+                ["uv", "build", "--wheel", "--out-dir", str(dist)],  # noqa: S607
+                cwd=ROOT, check=True, capture_output=True, text=True)
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            subprocess.run(  # noqa: S603 - fallback pip em ausência de uv
+                [sys.executable, "-m", "pip", "wheel", ".",
+                 "--no-deps", "-w", str(dist)],
+                cwd=ROOT, check=True, capture_output=True, text=True)
+        wheel = next(dist.glob("data_sentinel-*.whl"))
     with tempfile.TemporaryDirectory() as td:
         venv.create(td, with_pip=True)
         scripts = "Scripts" if sys.platform == "win32" else "bin"

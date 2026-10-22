@@ -1,7 +1,7 @@
 {
   "schema": "forge/SpecialistAgenticManifest/v1",
   "provider": "data-sentinel-forge",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "cli": "data-sentinel",
   "cli_entry": "data_sentinel.cli:app",
   "workflows": [
@@ -56,10 +56,10 @@
     "codex",
     "copilot"
   ],
-  "read_only_default": true,
-  "requires_aws_credentials": false,
-  "requires_llm": false,
   "host_partial": {
     "cursor": "marker + .mcp.json only — no skill/agent catalog adapter"
-  }
+  },
+  "read_only_default": true,
+  "requires_aws_credentials": false,
+  "requires_llm": false
 }

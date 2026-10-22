@@ -46,6 +46,22 @@ EXIT_DOMAIN_ERROR = 1
 EXIT_USAGE = 2
 EXIT_INTERNAL = 3
 
+
+def _configure_stdio() -> None:
+    """Windows consoles default to cp1252 — reconfigure stdout/stderr to
+    UTF-8 (with replacement on exotic streams) so report glyphs never
+    crash the CLI. No-op when the stream is already UTF-8."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        encoding = (getattr(stream, "encoding", None) or "").lower()
+        if encoding not in ("utf-8", "utf8"):
+            reconfigure(encoding="utf-8", errors="replace")
+
+
+_configure_stdio()
+
 app = typer.Typer(
     name="data-sentinel",
     help="Diagnostica workloads de engenharia de dados com evidência determinística.",

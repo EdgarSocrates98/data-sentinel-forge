@@ -1,10 +1,10 @@
 {
   "forge_id": "data-sentinel-forge",
   "package": "data_sentinel",
-  "distribution": "data-sentinel-forge",
+  "distribution": "data-sentinel",
   "cli": "data-sentinel",
   "python": ">=3.11",
-  "version": "0.1.0",
+  "version": "0.2.1",
   "mcp_server_name": "data-sentinel",
   "mcp_command": [
     "data-sentinel",
