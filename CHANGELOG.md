@@ -3,6 +3,16 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.2.2] - 2026-10-24
+
+### Security
+
+- Vendored `_installkit` backported 1.0.0 -> 1.0.4: stale-lock ownership tokens
+  and reclaim race fix, credential redaction covering URL userinfo, unsafe-path
+  refusals (`FORGE-INSTALL-UNSAFE-PATH`) in plan/apply/repair/uninstall/prune,
+  atomic-write mode preservation, and unsafe ledger entries surfaced in
+  `status()`/`doctor` as non-repairable.
+
 ## [0.2.1] - 2026-10-21
 
 ### Fixed
