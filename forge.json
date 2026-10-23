@@ -4,7 +4,7 @@
   "distribution": "data-sentinel",
   "cli": "data-sentinel",
   "python": ">=3.11",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "mcp_server_name": "data-sentinel",
   "mcp_command": [
     "data-sentinel",

@@ -144,3 +144,40 @@ def test_uninstall_removes_only_managed(tmp_path: Path) -> None:
     assert user_file.is_file()  # user file survives
     assert not (tmp_path / ".mcp.json").exists()  # managed key removed
     assert not (tmp_path / "AGENTS.md").exists()
+
+
+# --- vendored installkit 1.0.4 hardening (ds backport) ---------------------
+
+
+def test_kit_unsafe_rel_refused() -> None:
+    assert not kit._safe_rel("../escape.md")
+    assert not kit._safe_rel("/abs/x.md")
+    assert not kit._safe_rel("C:\\\\x.md")
+    assert not kit._safe_rel("a\\\\b.md")
+    assert kit._safe_rel("knowledge/rules/x.yaml")
+
+
+def test_kit_userinfo_redaction_full() -> None:
+    out = kit.redact_url_userinfo("GET https://u@raw:pw@host/x -> 401")
+    assert "u@raw" not in out and "pw" not in out
+    assert "host" in out
+
+
+def test_kit_status_surfaces_unsafe_drift(tmp_path: Path) -> None:
+    ledger_path = tmp_path / ".forge" / "install-ledger.json"
+    ledger_path.parent.mkdir(parents=True)
+    ledger_path.write_text(
+        '{"schema": 1, "entries": {"../x.md": {"sha256": "%s", "kind": "file",'
+        ' "action": "written", "managed": true, "updated_at": "t"}}}' % ("0" * 64)
+    )
+    ledger = kit.Ledger.load(tmp_path / ".forge")
+    drift = ledger.drift(tmp_path, None)
+    assert drift[0]["status"] == "unsafe"
+
+
+def test_kit_lock_token_unique(tmp_path: Path) -> None:
+    with kit.acquire_lock(tmp_path) as a:
+        payload = (tmp_path / ".install.lock").read_text()
+        assert '"token"' in payload and a._token in payload
+    locks = list(tmp_path.glob("*.lock"))
+    assert not locks
