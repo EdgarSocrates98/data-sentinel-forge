@@ -3,7 +3,7 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [0.2.2] - 2026-10-24
+## [0.2.2] - 2026-10-23
 
 ### Security
 
@@ -85,3 +85,7 @@ evidence and declares an honest confidence level.
 - The Forge / forge-cli integration is manifest- and docs-level only.
 
 [0.1.0]: https://github.com/EdgarSocrates98/data-sentinel-forge/releases/tag/v0.1.0
+
+> **PyPI**: `v0.2.2` não publicado — workflow `Release` gated no
+> environment `pypi` (trusted publisher + aprovação humana). Jobs de
+> verify/smoke verdes; publish falhou por design até aprovação do dono.
