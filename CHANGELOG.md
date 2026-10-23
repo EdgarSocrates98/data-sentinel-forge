@@ -3,6 +3,13 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.0] - 2026-10-23
+
+### Fixed
+
+- Changelog: PyPI publish for 0.2.2 recorded as blocked (approval-gated
+  `pypi` environment).
+
 ## [0.2.2] - 2026-10-23
 
 ### Security
