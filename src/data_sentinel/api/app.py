@@ -342,6 +342,49 @@ def create_app(allowed_roots: list[str] | None = None,
     app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
                   docs_url="/api/docs", openapi_url="/api/openapi.json")
 
+    # ---- error taxonomy + trace IDs (Cycle 09 §G-05) ----
+    # Every error response carries `detail` (v1 compat), `request_id`
+    # and, for SentinelError, the stable `code`/`details` taxonomy from
+    # core.exceptions. Internal errors are redacted to a 500 envelope.
+
+    from data_sentinel.core.exceptions import (
+        InputValidationError,
+        SecurityViolationError,
+        SentinelError,
+    )
+
+    _SENTINEL_STATUS: tuple[tuple[type[SentinelError], int], ...] = (
+        (InputValidationError, 400),
+        (SecurityViolationError, 403),
+    )
+
+    @app.exception_handler(SentinelError)
+    async def sentinel_error_handler(
+            request: Request, exc: SentinelError) -> JSONResponse:
+        status = next(
+            (s for t, s in _SENTINEL_STATUS if isinstance(exc, t)), 500)
+        rid = getattr(request.state, "request_id", "")
+        _audit("?", request.url.path, status)
+        return JSONResponse(
+            {"detail": exc.message, "code": exc.code,
+             "details": exc.details, "request_id": rid}, status)
+
+    @app.exception_handler(HTTPException)
+    async def http_error_handler(
+            request: Request, exc: HTTPException) -> JSONResponse:
+        rid = getattr(request.state, "request_id", "")
+        return JSONResponse(
+            {"detail": exc.detail, "request_id": rid},
+            exc.status_code, headers=exc.headers)
+
+    @app.exception_handler(Exception)
+    async def unhandled_error_handler(
+            request: Request, exc: Exception) -> JSONResponse:
+        rid = getattr(request.state, "request_id", "")
+        _audit("?", request.url.path, 500)
+        return JSONResponse(
+            {"detail": "internal error", "request_id": rid}, 500)
+
     @app.middleware("http")
     async def local_guard(request: Request, call_next):  # type: ignore[no-untyped-def]
         """Host/Origin guards — DNS rebinding + CSRF defense (§1.2)."""
@@ -428,6 +471,16 @@ def create_app(allowed_roots: list[str] | None = None,
         response = await call_next(request)
         _audit(client, request.url.path, response.status_code)
         return response
+
+    @app.middleware("http")
+    async def request_id_mw(request: Request, call_next):  # type: ignore[no-untyped-def]
+        """Trace IDs (§G-05): honor inbound X-Request-Id or mint one and
+        stamp it on every response, including guard rejections."""
+        rid = request.headers.get("x-request-id") or secrets.token_hex(8)
+        request.state.request_id = rid
+        resp = await call_next(request)
+        resp.headers["X-Request-Id"] = rid
+        return resp
 
     # CORS registered LAST so it is the OUTERMOST middleware — a
     # preflight OPTIONS must be answered by CORSMiddleware, not by a

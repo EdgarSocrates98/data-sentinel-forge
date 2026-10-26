@@ -60,6 +60,7 @@ class SentinelStore:
             self._conn = sqlite3.connect(self.db_path)
             self._conn.execute("PRAGMA foreign_keys = ON")
             self._conn.execute("PRAGMA journal_mode = WAL")
+            self._conn.execute("PRAGMA busy_timeout = 5000")
             apply_migrations(self._conn)
         except sqlite3.Error as exc:
             raise PersistenceError(

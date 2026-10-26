@@ -22,7 +22,7 @@ from data_sentinel.persistence.investigations import DEFAULT_DB
 from data_sentinel.remediation.plans import RemediationPlan
 from data_sentinel.watch.engine import Alert, WatchDefinition
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 _MIGRATIONS: dict[int, str] = {
     1: """
@@ -101,6 +101,17 @@ CREATE TABLE IF NOT EXISTS investigation_links (
     UNIQUE (investigation_id, entity_kind, entity_id)
 );
 """,
+    # v2 (Cycle 09): durable ingestion checkpoints — resumable offsets
+    # for streaming/bounded ingestion (event logs, catalogs). Payload is
+    # an opaque JSON cursor owned by the producer; the store never
+    # interprets it.
+    2: """
+CREATE TABLE IF NOT EXISTS ingestion_checkpoints (
+    source_id TEXT PRIMARY KEY,
+    checkpoint_json TEXT NOT NULL,
+    updated_ts REAL NOT NULL
+);
+""",
 }
 
 
@@ -126,6 +137,7 @@ class OpsStore:
             str(self.db_path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA busy_timeout=5000")
         with self._lock, self._conn:
             _migrate(self._conn)
 
@@ -331,6 +343,31 @@ class OpsStore:
             " WHERE investigation_id=?",
             (investigation_id,)).fetchall()
         return [dict(r) for r in rows]
+
+    # ---- ingestion checkpoints (schema v2, Cycle 09) ----
+
+    def save_checkpoint(self, source_id: str,
+                        checkpoint: dict[str, Any]) -> None:
+        """Upsert a resumable ingestion cursor for one source."""
+        with self._lock, self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO ingestion_checkpoints"
+                " (source_id, checkpoint_json, updated_ts)"
+                " VALUES (?,?,?)",
+                (source_id, json.dumps(checkpoint), time.time()))
+
+    def get_checkpoint(self, source_id: str) -> dict[str, Any] | None:
+        row = self._conn.execute(
+            "SELECT checkpoint_json FROM ingestion_checkpoints"
+            " WHERE source_id=?", (source_id,)).fetchone()
+        return json.loads(row["checkpoint_json"]) if row else None
+
+    def delete_checkpoint(self, source_id: str) -> bool:
+        with self._lock, self._conn:
+            cur = self._conn.execute(
+                "DELETE FROM ingestion_checkpoints WHERE source_id=?",
+                (source_id,))
+            return cur.rowcount > 0
 
     # ---- retention ----
 

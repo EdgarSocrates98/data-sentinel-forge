@@ -232,6 +232,39 @@ export interface LineageIngestResult {
 }
 
 /**
+ * PlanNode wire shape — `ExecutionPlan.to_dict()` emitted under the
+ * `plan` key of `sentinel.spark.analyze_plan` results (Cycle 09).
+ */
+export interface PlanNodeWire {
+  node_id: number;
+  operator: string;
+  parent_id: number | null;
+  children: number[];
+  expressions: string[];
+  statistics: Record<string, string>;
+  /** estimated | declared | observed */
+  stats_provenance: string;
+  /** [start_line, end_line] */
+  source_span: number[];
+  raw_text: string;
+  metadata: Record<string, string>;
+}
+
+/** ExecutionPlan wire shape — typed plan tree in analyze results. */
+export interface ExecutionPlanWire {
+  plan_id: string;
+  /** explain_simple | explain_extended | explain_formatted | explain_cost | df_explain */
+  format: string;
+  spark_version: string | null;
+  roots: number[];
+  /** keyed by String(node_id) */
+  nodes: Record<string, PlanNodeWire>;
+  warnings: string[];
+  source: string;
+  aqe: Record<string, string>;
+}
+
+/**
  * One message received on the SSE stream
  * `GET /api/v1/investigations/{id}/stream`. The backend emits the event
  * name in the `event:` field and a JSON payload in `data:`; `ts` is

@@ -127,6 +127,25 @@ def test_analyze_multi_input_path_traversal(
     assert r.status_code == 403
 
 
+def test_trace_id_stamped_on_responses(client: TestClient) -> None:
+    r = client.get("/api/v1/health")
+    assert r.status_code == 200
+    rid = r.headers["x-request-id"]
+    assert len(rid) == 16  # token_hex(8)
+    # inbound id is propagated, not overridden
+    r2 = client.get("/api/v1/health",
+                    headers={"X-Request-Id": "caller-supplied-1"})
+    assert r2.headers["x-request-id"] == "caller-supplied-1"
+
+
+def test_error_envelope_carries_request_id(client: TestClient) -> None:
+    r = client.post("/api/v1/analyze/nope.x", json={"file": "x.json"})
+    assert r.status_code == 404
+    body = r.json()
+    assert "detail" in body  # v1 compat
+    assert body["request_id"] == r.headers["x-request-id"]
+
+
 def test_investigation_lifecycle(client: TestClient) -> None:
     r = client.post("/api/v1/investigations", json={
         "problem": "Glue job failing with OOM", "files": {}})

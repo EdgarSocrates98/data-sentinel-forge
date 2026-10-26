@@ -178,15 +178,57 @@ class TestOps:
         assert restored.get_snapshot("s1") is not None
 
     def test_versioned_migration(self, tmp_path):
+        from data_sentinel.persistence.operations import SCHEMA_VERSION
         db = tmp_path / "o.db"
         OpsStore(db).close()
         v = sqlite3.connect(db).execute(
             "PRAGMA user_version").fetchone()[0]
-        assert v == 1
+        assert v == SCHEMA_VERSION
         # reabrir é idempotente
         OpsStore(db).close()
         assert sqlite3.connect(db).execute(
-            "PRAGMA user_version").fetchone()[0] == 1
+            "PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
+
+    def test_v1_to_v2_upgrade_preserves_data(self, tmp_path):
+        """Cycle 09: an existing v1 DB upgrades in place — no data loss."""
+        db = tmp_path / "o.db"
+        con = sqlite3.connect(db)
+        # simulate a v1 database: run only the v1 DDL, stamp version 1
+        from data_sentinel.persistence.operations import _MIGRATIONS
+        con.executescript(_MIGRATIONS[1])
+        con.execute("PRAGMA user_version=1")
+        con.commit()
+        con.close()
+        s = OpsStore(db)
+        s.save_snapshot(_snap("kept"))
+        s.close()
+        v = sqlite3.connect(db).execute(
+            "PRAGMA user_version").fetchone()[0]
+        assert v == 2
+        # checkpoint table exists after upgrade and data survived
+        s2 = OpsStore(db)
+        assert s2.get_snapshot("kept") is not None
+        s2.save_checkpoint("src-a", {"offset": 42})
+        assert s2.get_checkpoint("src-a") == {"offset": 42}
+        s2.close()
+
+    def test_checkpoint_roundtrip(self, tmp_path):
+        s = OpsStore(tmp_path / "o.db")
+        assert s.get_checkpoint("missing") is None
+        s.save_checkpoint("src-a", {"offset": 7, "epoch": "e1"})
+        assert s.get_checkpoint("src-a") == {"offset": 7, "epoch": "e1"}
+        s.save_checkpoint("src-a", {"offset": 9})  # upsert advances
+        assert s.get_checkpoint("src-a") == {"offset": 9}
+        assert s.delete_checkpoint("src-a") is True
+        assert s.delete_checkpoint("src-a") is False
+        assert s.get_checkpoint("src-a") is None
+        s.close()
+
+    def test_busy_timeout_set(self, tmp_path):
+        s = OpsStore(tmp_path / "o.db")
+        v = s._conn.execute("PRAGMA busy_timeout").fetchone()[0]
+        assert v == 5000
+        s.close()
 
     def test_newer_schema_refused(self, tmp_path):
         db = tmp_path / "o.db"

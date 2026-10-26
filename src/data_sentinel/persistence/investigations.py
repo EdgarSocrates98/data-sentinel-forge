@@ -97,6 +97,7 @@ class InvestigationStore:
             str(self.db_path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
+        self._conn.execute("PRAGMA busy_timeout=5000")
         with self._lock, self._conn:
             self._conn.executescript(_DDL)
             # §2.3: RUNNING/QUEUED at boot → INTERRUPTED; resume is
