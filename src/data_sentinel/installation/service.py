@@ -87,7 +87,7 @@ def _spec() -> kit.ForgeSpec:
     return kit.ForgeSpec(
         forge_id=FORGE_ID,
         package="data_sentinel",
-        distribution="data-sentinel",  # M1 — must match pyproject name
+        distribution="data-sentinel-forge",  # M1 — must match pyproject name
         cli_name="data-sentinel",
         python_spec=">=3.11",
         state_dir=STATE_DIR,
@@ -451,7 +451,7 @@ def _register(ctx: kit.InstallContext) -> None:
             "schema": kit.SCHEMA_MANIFEST,
             "forge_id": FORGE_ID,
             "package": "data_sentinel",
-            "distribution": "data-sentinel",  # M1 — pyproject name
+            "distribution": "data-sentinel-forge",  # M1 — pyproject name
             "cli": {
                 "name": "data-sentinel",
                 "version_cmd": ["data-sentinel", "--version"],

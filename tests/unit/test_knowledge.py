@@ -157,7 +157,7 @@ class TestPackagedRules:
 @pytest.mark.slow
 def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
     """§8.4: wheel instalado em venv limpa carrega as regras — sem checkout."""
-    wheel = next(iter(Path("dist").glob("data_sentinel-*.whl")), None)
+    wheel = next(iter(Path("dist").glob("data_sentinel_forge-*.whl")), None)
     if wheel is None:
         dist = tmp_path / "dist"
         dist.mkdir()
@@ -170,7 +170,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
                 [sys.executable, "-m", "pip", "wheel", ".",
                  "--no-deps", "-w", str(dist)],
                 cwd=ROOT, check=True, capture_output=True, text=True)
-        wheel = next(dist.glob("data_sentinel-*.whl"))
+        wheel = next(dist.glob("data_sentinel_forge-*.whl"))
     with tempfile.TemporaryDirectory() as td:
         venv.create(td, with_pip=True)
         scripts = "Scripts" if sys.platform == "win32" else "bin"

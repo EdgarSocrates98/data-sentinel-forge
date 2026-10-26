@@ -261,7 +261,7 @@ def manifest_cmd(
     doc: dict[str, Any] = {
         "forge_id": service.FORGE_ID,
         "package": "data_sentinel",
-        "distribution": "data-sentinel",
+        "distribution": "data-sentinel-forge",
         "cli": "data-sentinel",
         "python": ">=3.11",
         "version": __version__,
