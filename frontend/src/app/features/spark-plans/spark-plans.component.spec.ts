@@ -153,6 +153,73 @@ describe("SparkPlansComponent", () => {
     });
   });
 
+  it("extractPlanTree rebuilds the Cycle 09 typed ExecutionPlan", () => {
+    fixture.detectChanges();
+    setup(http); // the constructor load still needs a response
+    // ExecutionPlan.to_dict wire shape: nodes keyed by str(node_id),
+    // children as node-id lists, roots marking entry points.
+    const plan = {
+      plan_id: "p1",
+      format: "df_explain",
+      spark_version: "3.5.0",
+      roots: [0],
+      nodes: {
+        "0": {
+          node_id: 0,
+          operator: "SortMergeJoin",
+          parent_id: null,
+          children: [1, 2],
+          expressions: [],
+          statistics: {},
+          stats_provenance: "declared",
+          source_span: [1, 2],
+          raw_text: "",
+          metadata: {},
+        },
+        "1": {
+          node_id: 1,
+          operator: "Scan",
+          parent_id: 0,
+          children: [],
+          expressions: [],
+          statistics: { sizeInBytes: "10.0 MiB" },
+          stats_provenance: "declared",
+          source_span: [3, 3],
+          raw_text: "",
+          metadata: {},
+        },
+        "2": {
+          node_id: 2,
+          operator: "Exchange",
+          parent_id: 0,
+          children: [],
+          expressions: [],
+          statistics: {},
+          stats_provenance: "declared",
+          source_span: [4, 4],
+          raw_text: "",
+          metadata: {},
+        },
+      },
+      warnings: [],
+      source: "x",
+      aqe: {},
+    };
+    const tree = extractPlanTree({ plan });
+    expect(tree).toEqual({
+      kind: "nodes",
+      nodes: [
+        {
+          label: "SortMergeJoin#0",
+          children: [
+            { label: "Scan#1 (sizeInBytes=10.0 MiB)", children: [] },
+            { label: "Exchange#2", children: [] },
+          ],
+        },
+      ],
+    });
+  });
+
   it("shows an error alert when the analysis fails", () => {
     fixture.detectChanges();
     setup(http);

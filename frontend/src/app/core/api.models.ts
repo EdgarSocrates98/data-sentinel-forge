@@ -169,10 +169,15 @@ export function isInvestigationReport(
   return "findings" in detail;
 }
 
-/** POST /api/v1/analyze/{analyzer_id} — request body. */
-export interface AnalyzeRequest {
-  file: string;
-}
+/**
+ * POST /api/v1/analyze/{analyzer_id} — request body. Since Cycle 09 the
+ * endpoint forwards the whole object to the tool's `inputSchema` (see
+ * GET /api/v1/tools): single-file tools keep `{"file": "..."}`, while
+ * multi-input tools accept e.g. `{baseline_file, current_file}` or
+ * `{file, target}`. Keys ending in `_file`/`_path`/`_bundle`/`_report`
+ * are resolved as server-side paths under the API's allowed roots.
+ */
+export type AnalyzeRequest = Record<string, unknown>;
 
 /* ---- Typed shapes inside analyze responses (per-tool payloads). ----
    The endpoint returns `dict[str, Any]`; these interfaces document the

@@ -90,12 +90,44 @@ function toNode(v: unknown, depth: number): PlanTreeNode | null {
   return { label: nodeLabel(v), children };
 }
 
+/** Cycle 09 typed ExecutionPlan wire shape (ExecutionPlan.to_dict). */
+function isTypedPlan(v: Record<string, unknown>): boolean {
+  return Array.isArray(v["roots"]) && isRecord(v["nodes"]);
+}
+
+/** Rebuild the indented tree from roots over the node-id dict. */
+function fromTypedPlan(v: Record<string, unknown>): PlanTreeNode[] {
+  const nodes = v["nodes"] as Record<string, unknown>;
+  const build = (id: unknown, depth: number): PlanTreeNode | null => {
+    if (depth > MAX_DEPTH) return null;
+    const n = nodes[String(id)];
+    if (!isRecord(n)) return null;
+    const children = Array.isArray(n["children"])
+      ? (n["children"] as unknown[])
+          .map((c) => build(c, depth + 1))
+          .filter((c): c is PlanTreeNode => c !== null)
+      : [];
+    const stats = isRecord(n["statistics"])
+      ? Object.entries(n["statistics"] as Record<string, unknown>)
+          .map(([k, val]) => `${k}=${String(val)}`)
+          .join(" ")
+      : "";
+    const label =
+      `${String(n["operator"] ?? "unknown")}#${String(id)}` +
+      (stats ? ` (${stats})` : "");
+    return { label, children };
+  };
+  return (v["roots"] as unknown[])
+    .map((r) => build(r, 0))
+    .filter((n): n is PlanTreeNode => n !== null);
+}
+
 /**
- * Look for a structured plan tree in the payload. Diagnostics-backed
- * tools currently emit `{report_id, findings, summary, limitations}` —
- * no tree — so this returns null today and the findings table is the
- * honest rendering. If a future payload carries one of TREE_KEYS it is
- * rendered indented without any UI change.
+ * Look for a structured plan tree in the payload. Since Cycle 09,
+ * `sentinel.spark.analyze_plan` emits a typed `plan` (ExecutionPlan
+ * wire shape) — rendered indented. Legacy payloads with TREE_KEYS
+ * arrays/records fall back to the generic `toNode` walk; payloads with
+ * no tree render the findings table honestly.
  */
 export function extractPlanTree(payload: unknown): PlanTree {
   if (!isRecord(payload)) return null;
@@ -112,6 +144,10 @@ export function extractPlanTree(payload: unknown): PlanTree {
       if (nodes.length) return { kind: "nodes", nodes };
     }
     if (isRecord(raw)) {
+      if (isTypedPlan(raw)) {
+        const nodes = fromTypedPlan(raw);
+        if (nodes.length) return { kind: "nodes", nodes };
+      }
       const n = toNode(raw, 0);
       if (n) return { kind: "nodes", nodes: [n] };
     }

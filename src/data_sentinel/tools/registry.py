@@ -240,6 +240,40 @@ def _run_diagnostics(tool: ToolDescriptor, source: SourceType,
     }
 
 
+def _run_plan_tool(tool: ToolDescriptor, file: str,
+                   allowed_roots: list[Path] | None = None
+                   ) -> dict[str, Any]:
+    """spark.analyze_plan — diagnostics plus the parsed plan tree.
+
+    The tree is a typed output (ExecutionPlan.to_dict) so API/MCP/CLI
+    consumers can render or navigate the operator graph without
+    re-parsing the raw text. Bounded by the same file-size limits as
+    every other analyzer.
+    """
+    from data_sentinel.analyzers.spark.plans.parser import parse_plan
+    from data_sentinel.core.security.paths import read_input_file
+    from data_sentinel.diagnostics.orchestrator import AnalysisLimits, run_diagnostics
+
+    inputs = [read_input_file(
+        file, max_file_bytes=50 * 1024 * 1024,
+        allowed_roots=_roots_for(file, allowed_roots))]
+    req = DiagnosticRequest(
+        source_type=SourceType.SPARK_PLAN,
+        artifact_references=[ArtifactReference(uri=file)],
+        platform=Platform.AWS_GLUE)
+    outcome = run_diagnostics(req, inputs, limits=AnalysisLimits())
+    rep = outcome.report
+    plan = parse_plan(inputs[0].text, source=file)
+    return {
+        "report_id": rep.report_id,
+        "findings": [f.model_dump(mode="json") for f in rep.findings],
+        "evidence": [e.model_dump(mode="json") for e in outcome.evidence],
+        "summary": rep.summary,
+        "limitations": rep.limitations,
+        "plan": plan.to_dict(),
+    }
+
+
 _SOURCE_FOR: dict[str, SourceType] = {
     "sentinel.glue.inspect_run": SourceType.GLUE_JOB,
     "sentinel.glue.diagnose_run": SourceType.GLUE_JOB,
@@ -341,6 +375,8 @@ def _dispatch(inv: ToolInvocation, desc: ToolDescriptor,
     if tid in _EMR_ANALYZER:
         return _run_one_analyzer(_EMR_ANALYZER[tid],
                                  str(inp["file"]), allowed_roots)
+    if tid == "sentinel.spark.analyze_plan":
+        return _run_plan_tool(desc, str(inp["file"]), allowed_roots)
     if tid in _SOURCE_FOR:
         return _run_diagnostics(desc, _SOURCE_FOR[tid],
                                 str(inp["file"]), allowed_roots)

@@ -88,6 +88,28 @@ def test_detect_drift_tool(tmp_path: Path) -> None:
     assert res.output["drift"]["level"] in ("medium", "high")
 
 
+def test_analyze_plan_returns_typed_tree() -> None:
+    """Cycle 09 — the plan tree is a typed tool output, not just findings."""
+    fixture = Path(__file__).parent.parent.parent / (
+        "fixtures/plans/sort_merge_join.txt")
+    res = execute_tool(_inv("sentinel.spark.analyze_plan",
+                            file=str(fixture)))
+    assert res.ok, res.error
+    plan = res.output["plan"]
+    assert plan["format"] == "df_explain"
+    assert plan["roots"], "expected at least one root node"
+    assert plan["nodes"], "expected typed nodes"
+    root = plan["nodes"][str(plan["roots"][0])]
+    assert root["operator"]
+    assert isinstance(root["children"], list)
+    assert isinstance(root["source_span"], list)
+    # every node's children must resolve inside the same tree
+    ids = set(plan["nodes"])
+    for node in plan["nodes"].values():
+        for child in node["children"]:
+            assert str(child) in ids
+
+
 def test_dry_run() -> None:
     res = execute_tool(_inv("sentinel.sql.analyze", file="/x"),
                        dry_run=True)

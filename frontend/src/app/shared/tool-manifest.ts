@@ -2,12 +2,11 @@ import type { ToolManifestEntry } from "../core/api.models";
 
 /**
  * Helpers over the MCP-style tool manifest (GET /api/v1/tools).
- * The analyze endpoint (`POST /api/v1/analyze/{id}`) only forwards a
- * single `{file}` argument, so a tool is callable through it iff every
- * required input is exactly `file`. Tools like detect_drift (2 files),
- * lineage.impact (file+target) or emr.estimate_cost (non-file inputs)
- * are detectable via `missingInputs` and must be declared unavailable
- * honestly — never hidden behind a fake form.
+ * The analyze endpoint (`POST /api/v1/analyze/{id}`) forwards the whole
+ * request body to the tool's `inputSchema` — `acceptsSingleFile` marks
+ * tools runnable from a lone file picker; `missingInputs` lists extra
+ * inputs the caller must supply for multi-input tools (detect_drift,
+ * lineage.impact, emr.estimate_cost).
  */
 
 /** Required input names declared by a manifest inputSchema. */

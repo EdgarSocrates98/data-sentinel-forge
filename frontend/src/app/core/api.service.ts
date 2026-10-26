@@ -111,9 +111,10 @@ export class ApiService {
 
   analyze(
     analyzerId: string,
-    file: string,
+    inputs: AnalyzeRequest | string,
   ): Observable<Record<string, unknown>> {
-    const body: AnalyzeRequest = { file };
+    const body: AnalyzeRequest =
+      typeof inputs === "string" ? { file: inputs } : inputs;
     return this.http.post<Record<string, unknown>>(
       `${this.base}/analyze/${encodeURIComponent(analyzerId)}`,
       body,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -66,6 +67,64 @@ def test_analyze_real_sql_fixture(client: TestClient) -> None:
                     json={"file": str(sql)})
     assert r.status_code == 200
     assert "findings" in r.json()
+
+
+def test_analyze_multi_input_drift(
+        client: TestClient, tmp_path: Path) -> None:
+    b = tmp_path / "baseline.json"
+    c = tmp_path / "current.json"
+    b.write_text(json.dumps([0.0] * 50), encoding="utf-8")
+    c.write_text(json.dumps([5.0] * 50), encoding="utf-8")
+    r = client.post("/api/v1/analyze/quality.detect_drift",
+                    json={"baseline_file": str(b),
+                          "current_file": str(c)})
+    assert r.status_code == 200
+    assert r.json()["drift"]["level"] in ("medium", "high")
+
+
+def test_analyze_multi_input_lineage_impact(
+        client: TestClient, tmp_path: Path) -> None:
+    src = Path(__file__).resolve().parents[3] / (
+        "tests/fixtures/lineage/marquez-real.jsonl")
+    f = tmp_path / "marquez.jsonl"
+    f.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+    r = client.post("/api/v1/analyze/lineage.impact",
+                    json={"file": str(f),
+                          "target": "s3://lakehouse-raw/raw/events"})
+    assert r.status_code == 200
+    assert r.json()["potential_only"] is True
+    assert len(r.json()["downstream"]) == 2
+
+
+def test_analyze_no_file_cost_estimate(client: TestClient) -> None:
+    r = client.post("/api/v1/analyze/emr.estimate_cost",
+                    json={"platform": "emr_serverless",
+                          "vcpu_hours": 10, "mem_gb_hours": 40})
+    assert r.status_code == 200
+    assert r.json()
+
+
+def test_analyze_missing_required_input_400(client: TestClient) -> None:
+    r = client.post("/api/v1/analyze/quality.detect_drift",
+                    json={"current_file": "x.json"})
+    assert r.status_code == 400
+    assert "baseline_file" in r.json()["detail"]
+
+
+def test_analyze_wrong_input_type_422(client: TestClient) -> None:
+    r = client.post("/api/v1/analyze/emr.estimate_cost",
+                    json={"platform": 123})
+    assert r.status_code == 422
+
+
+def test_analyze_multi_input_path_traversal(
+        client: TestClient, tmp_path: Path) -> None:
+    f = tmp_path / "x.json"
+    f.write_text("[]", encoding="utf-8")
+    r = client.post("/api/v1/analyze/quality.detect_drift",
+                    json={"baseline_file": "/etc/passwd",
+                          "current_file": str(f)})
+    assert r.status_code == 403
 
 
 def test_investigation_lifecycle(client: TestClient) -> None:

@@ -1,10 +1,12 @@
 """Spark execution plan model (§5.2).
 
 Internal models — preserve hierarchy/order; statistics carry provenance
-(estimated/declared/observed).
+(estimated/declared/observed). ``to_dict`` is the stable wire shape
+exposed by ``sentinel.spark.analyze_plan`` (JSON-safe).
 """
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -20,6 +22,21 @@ class PlanNode:
     raw_text: str = ""
     metadata: dict[str, str] = field(default_factory=dict)
 
+    def to_dict(self) -> dict[str, Any]:
+        """Typed wire shape — JSON-safe, node ids as ints."""
+        return {
+            "node_id": self.node_id,
+            "operator": self.operator,
+            "parent_id": self.parent_id,
+            "children": list(self.children),
+            "expressions": list(self.expressions),
+            "statistics": dict(self.statistics),
+            "stats_provenance": self.stats_provenance,
+            "source_span": list(self.source_span),
+            "raw_text": self.raw_text,
+            "metadata": dict(self.metadata),
+        }
+
 
 @dataclass
 class ExecutionPlan:
@@ -31,6 +48,19 @@ class ExecutionPlan:
     warnings: list[str] = field(default_factory=list)
     source: str = ""
     aqe: dict[str, str] = field(default_factory=dict)  # isFinalPlan, level markers
+
+    def to_dict(self) -> dict[str, Any]:
+        """Typed wire shape — ``nodes`` keyed by str(node_id) for JSON."""
+        return {
+            "plan_id": self.plan_id,
+            "format": self.format,
+            "spark_version": self.spark_version,
+            "roots": list(self.roots),
+            "nodes": {str(k): n.to_dict() for k, n in self.nodes.items()},
+            "warnings": list(self.warnings),
+            "source": self.source,
+            "aqe": dict(self.aqe),
+        }
 
     def children_of(self, node_id: int) -> list[PlanNode]:
         return [self.nodes[c] for c in self.nodes[node_id].children if c in self.nodes]

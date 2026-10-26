@@ -15,6 +15,7 @@ import asyncio
 import contextlib
 import json
 import os
+import re
 import secrets
 import time
 from collections import deque
@@ -74,6 +75,9 @@ from data_sentinel.watch.engine import (
 MAX_PAYLOAD = 10 * 1024 * 1024  # 10 MB
 ALLOWED_FILE_EXTS = {".json", ".log", ".txt", ".sql", ".yaml", ".yml", ".plan",
                      ".xml", ".csv", ".jsonl"}
+
+# Input keys in POST /api/v1/analyze bodies that resolve as file paths.
+_FILE_INPUT_KEY = re.compile(r"(^file$|_file$|_path$|_bundle$|_report$)")
 
 API_VERSION = "v1"
 
@@ -613,12 +617,44 @@ def create_app(allowed_roots: list[str] | None = None,
 
     # ---- analyzer-backed read endpoints (thin delegation) ----
 
-    @app.post("/api/v1/analyze/{analyzer_id}")
-    def analyze(analyzer_id: str, body: dict[str, str]) -> dict[str, Any]:
-        """Run one existing analyzer on an uploaded file path.
+    def _validate_tool_input(
+            schema: dict[str, Any], body: dict[str, Any]) -> None:
+        """Minimal JSON-schema check against the tool's input_schema."""
+        required = schema.get("required") or []
+        missing = [k for k in required if k not in body]
+        if missing:
+            raise HTTPException(
+                400, f"missing required inputs: {missing}")
+        props = schema.get("properties") or {}
+        py_types: dict[str, type | tuple[type, ...]] = {
+            "string": str, "number": (int, float), "integer": int,
+            "boolean": bool, "array": list, "object": dict,
+        }
+        for key, spec in props.items():
+            if key not in body or "type" not in spec:
+                continue
+            want = py_types.get(spec["type"])
+            if want is None:
+                continue
+            val = body[key]
+            # bool is a subclass of int — reject it for numeric types
+            bad = isinstance(val, bool) and spec["type"] != "boolean"
+            if bad or not isinstance(val, want):
+                raise HTTPException(
+                    422, f"input '{key}': expected {spec['type']}")
 
-        ``body``: {"file": "/abs/path"}. Delegates to the analyzer
-        registry — no logic duplicated here.
+    @app.post("/api/v1/analyze/{analyzer_id}")
+    def analyze(analyzer_id: str, body: dict[str, Any]) -> dict[str, Any]:
+        """Run one analyzer with inputs matching its input_schema.
+
+        ``body``: an object matching the tool's declared ``inputSchema``
+        (see ``GET /api/v1/tools``). Keys named ``file`` or ending in
+        ``_file``/``_path``/``_bundle``/``_report`` are resolved as file
+        paths under the server's allowed roots; every other value passes
+        through untouched. Single-file tools keep the v1
+        ``{"file": "..."}`` contract; multi-input tools (quality drift,
+        lineage impact, Doctor correlate, EMR cost estimate) are now
+        reachable through the API.
         """
         from data_sentinel.core.contracts.agent import ToolInvocation
         from data_sentinel.tools.registry import (
@@ -628,24 +664,29 @@ def create_app(allowed_roots: list[str] | None = None,
         tool_id = f"sentinel.{analyzer_id}"
         reg = build_default_registry()
         try:
-            reg.get(tool_id)
+            desc = reg.get(tool_id)
         except Exception:
             raise HTTPException(404, f"unknown analyzer: {analyzer_id}") from None
-        raw = body.get("file")
-        if not raw:
-            raise HTTPException(400, "file is required")
-        p = _safe_path(raw, roots)
-        if p.suffix.lower() not in ALLOWED_FILE_EXTS:
-            raise HTTPException(
-                400, f"file type not allowed: {p.suffix}")
-        if not p.is_file():
-            raise HTTPException(404, "file not found")
+        if not isinstance(body, dict):
+            raise HTTPException(400, "object body required")
+        _validate_tool_input(desc.input_schema, body)
+        inputs: dict[str, Any] = dict(body)
+        for key, val in body.items():
+            if isinstance(val, str) and _FILE_INPUT_KEY.search(key):
+                p = _safe_path(val, roots)
+                if p.suffix.lower() not in ALLOWED_FILE_EXTS:
+                    raise HTTPException(
+                        400, f"file type not allowed: {p.suffix}")
+                if not p.is_file():
+                    raise HTTPException(
+                        404, f"file not found for input '{key}'")
+                inputs[key] = str(p)
         res = execute_tool(ToolInvocation(
             invocation_id=f"api-{secrets.token_hex(4)}",
-            tool_id=tool_id, input={"file": str(p)}))
+            tool_id=tool_id, input=inputs), allowed_roots=roots)
         if not res.ok:
             raise HTTPException(422, res.error or "analysis failed")
-        out: dict[str, Any] = res.output if isinstance(res.output, dict) else {}
+        out = res.output if isinstance(res.output, dict) else {}
         return _redact(out)
 
     @app.get("/api/v1/severities")
