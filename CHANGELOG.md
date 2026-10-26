@@ -3,6 +3,35 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-10-26
+
+### Added
+
+- `POST /api/v1/analyze/{id}` now accepts the full tool `inputSchema` —
+  multi-input tools (`quality.detect_drift`, `lineage.impact`,
+  `doctor.correlate`) and file-free tools (`emr.estimate_cost`) are
+  callable through the API. File-like keys resolve under allowed roots
+  with the extension allowlist; v1 `{"file": "..."}` stays valid.
+- `sentinel.spark.analyze_plan` emits the parsed plan tree as a typed
+  output (`plan` key; `ExecutionPlan.to_dict()` wire shape). The Angular
+  plan explorer renders the operator tree.
+- Operational schema v2: `ingestion_checkpoints` table with
+  save/get/delete — resumable cursors for streaming ingestion.
+- `X-Request-Id` on every API response (inbound header honored);
+  `SentinelError` taxonomy mapped to `{detail, code, details,
+  request_id}` envelopes; redacted 500 catch-all.
+- Contract test `test_ts_contract_parity.py` validates
+  `frontend/.../api.models.ts` field names against the Python wire
+  shapes (8 interfaces).
+
+### Changed
+
+- `PRAGMA busy_timeout=5000` on all SQLite stores (WAL concurrency).
+- `ApiService.analyze` accepts a full inputs object; `AnalyzeRequest`
+  generalized to the tool inputSchema shape.
+- Phase-0 baseline audit: `docs/audits/pre-cycle-09-baseline.md`;
+  cycle report: `docs/cycles/cycle-09-report.md`.
+
 ## [0.3.0] - 2026-10-23
 
 ### Fixed
