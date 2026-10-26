@@ -34,7 +34,7 @@ jobs:
       - name: clean-venv wheel install + CLI smoke
         run: |
           python -m venv /tmp/relvenv
-          /tmp/relvenv/bin/pip install dist/data_sentinel-*.whl
+          /tmp/relvenv/bin/pip install dist/data_sentinel_forge-*.whl
           /tmp/relvenv/bin/data-sentinel --help > /dev/null
           /tmp/relvenv/bin/data-sentinel capabilities > /dev/null
       - name: MCP stdio smoke (real initialize + tools/list)
@@ -117,7 +117,7 @@ jobs:
           uv venv .smoke
           PY=.smoke/bin/python
           [ -f "$PY" ] || PY=.smoke/Scripts/python.exe
-          uv pip install --python "$PY" dist/data_sentinel-*.whl
+          uv pip install --python "$PY" dist/data_sentinel_forge-*.whl
           echo "SMOKE_PY=$PY" >> "$GITHUB_ENV"
       - name: CLI analyze on a real fixture
         run: |

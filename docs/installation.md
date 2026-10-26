@@ -30,9 +30,9 @@ opt-in via extra `aws` + credenciais explícitas; sem credenciais, nada
 
 ## Atualização / desinstalação
 
-`pip install -U .` (no checkout) ou `pip install -U "data-sentinel @
+`pip install -U .` (no checkout) ou `pip install -U "data-sentinel-forge @
 git+https://github.com/EdgarSocrates98/data-sentinel-forge"` até a
-publicação no PyPI; `pip uninstall data-sentinel` para remover.
+publicação no PyPI; `pip uninstall data-sentinel-forge` para remover.
 Dados locais em `~/.data-sentinel/` (SQLite + token) sobrevivem à
 desinstalação — remover manualmente se desejado.
 

@@ -1,7 +1,7 @@
 {
   "forge_id": "data-sentinel-forge",
   "package": "data_sentinel",
-  "distribution": "data-sentinel",
+  "distribution": "data-sentinel-forge",
   "cli": "data-sentinel",
   "python": ">=3.11",
   "version": "0.4.0",

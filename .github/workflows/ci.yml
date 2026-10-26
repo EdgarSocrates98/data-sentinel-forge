@@ -39,7 +39,7 @@ jobs:
       - name: install wheel with only runtime deps
         run: |
           python -m venv /tmp/minvenv
-          /tmp/minvenv/bin/pip install dist/data_sentinel-*.whl
+          /tmp/minvenv/bin/pip install dist/data_sentinel_forge-*.whl
       - name: core must work without optional extras
         run: |
           /tmp/minvenv/bin/python -c "

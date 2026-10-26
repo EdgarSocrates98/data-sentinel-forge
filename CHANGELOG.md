@@ -26,6 +26,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- **Distribution renamed to `data-sentinel-forge`** (PyPI name-policy;
+  module stays `data_sentinel`, CLI stays `data-sentinel`). Install:
+  `pip install data-sentinel-forge`.
 - `PRAGMA busy_timeout=5000` on all SQLite stores (WAL concurrency).
 - `ApiService.analyze` accepts a full inputs object; `AnalyzeRequest`
   generalized to the tool inputSchema shape.
