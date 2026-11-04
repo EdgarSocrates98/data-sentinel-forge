@@ -16,6 +16,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `forge.json` / `forge.agentic.json` regenerated — `version` drifted to
   `0.4.0` after the 0.5.0 bump, failing the manifest drift test.
 
+## [0.5.1] - 2026-11-04
+
+### Fixed
+- Human-readable install receipts now include notes and repair/uninstall
+  file lists consistently with JSON output.
+
 ## [0.5.0] - 2026-11-04
 
 ### Added
