@@ -3,6 +3,12 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.0] - 2026-11-04
+
+### Added
+- **Guided install lifecycle + wizard** — install planning, receipts and
+  host-aware guided flow on a real TTY; flags stay non-interactive.
+
 ## [0.4.0] - 2026-10-26
 
 ### Added
