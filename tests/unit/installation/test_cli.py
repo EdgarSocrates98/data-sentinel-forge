@@ -156,3 +156,38 @@ def test_repair_refuses_foreign_file(tmp_path: Path) -> None:
         app, ["install", "repair", "--root", str(tmp_path), "--yes"]
     )
     assert result.exit_code in (0, 1), result.output
+
+
+def test_uninstall_human_lists_removed(tmp_path: Path) -> None:
+    """Non-JSON uninstall must name the files it removed/kept."""
+    _installed(tmp_path)
+    (tmp_path / "user.txt").write_text("mine", encoding="utf-8")
+    result = runner.invoke(
+        app, ["install", "uninstall", "--root", str(tmp_path), "--yes"]
+    )
+    assert result.exit_code == 0, result.output
+    assert "removed" in result.output and "AGENTS.md" in result.output
+
+
+def test_render_receipt_shows_notes_and_verb_lists(capsys) -> None:
+    """Human render must surface file notes and repair/uninstall lists —
+    previously they only existed in JSON mode."""
+    from data_sentinel.cli.install import _render_receipt
+
+    _render_receipt({
+        "operation": "repair",
+        "status": "completed",
+        "managed_files": [
+            {"path": "AGENTS.md", "action": "unchanged",
+             "note": "user-owned, not managed — skipped"},
+        ],
+        "repaired": [".claude/skills/x/SKILL.md"],
+        "kept": ["custom.txt"],
+        "skipped": ["foreign.md"],
+        "checks": [{"id": "repair", "status": "FAIL", "detail": "1 restored"}],
+    })
+    out = capsys.readouterr().out
+    assert "user-owned, not managed — skipped" in out
+    assert "repaired" in out and ".claude/skills/x/SKILL.md" in out
+    assert "kept" in out and "custom.txt" in out
+    assert "skipped" in out and "foreign.md" in out

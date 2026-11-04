@@ -51,9 +51,13 @@ def _render_receipt(doc: dict[str, Any]) -> None:
     op = doc.get("operation", "install")
     typer.echo(f"{op}: {doc.get('status', '?')}")
     for f in doc.get("planned_files", doc.get("managed_files", [])):
-        typer.echo(f"  {f.get('action', '-'):10} {f['path']}")
+        note = f" — {f['note']}" if f.get("note") else ""
+        typer.echo(f"  {f.get('action', '-'):10} {f['path']}{note}")
     for m in doc.get("planned_markers", doc.get("markers", [])):
         typer.echo(f"  marker     {m['file']} [{m['marker']}]")
+    for key in ("repaired", "removed", "kept", "skipped"):
+        for rel in doc.get(key, []):
+            typer.echo(f"  {key:10} {rel}")
     for c in doc.get("checks", []):
         typer.echo(f"  [{c.get('status','?')}] {c.get('id','?')} {c.get('detail','')}")
     for w in doc.get("warnings", []):

@@ -6,6 +6,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Fixed
+- `install` human render now surfaces per-file `note` (e.g. "user-owned,
+  not managed — skipped") and the `repaired`/`removed`/`kept`/`skipped`
+  lists emitted by repair and uninstall receipts — previously this data
+  only existed in `--json` output.
 - `sqlglot` lower bound raised to `>=30` — `exp.Expr` (used across the
   SQL analyzers) only exists in sqlglot 30.x; `>=25` let pip resolve
   versions where `data_sentinel.analyzers.sql` fails at import.
