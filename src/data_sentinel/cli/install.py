@@ -299,3 +299,40 @@ def manifest_cmd(
             "requires_llm": False,
         }
     typer.echo(json.dumps(doc, ensure_ascii=False, indent=2))
+
+
+def run_guided_install() -> int:
+    """Guided wizard (ui/kit, arrow-key menus) — same UX contract as
+    `sparkforge-aws install` / `productforge install`. Bare
+    `data-sentinel install` on a TTY lands here; flag invocations keep
+    the typer callback path above."""
+    from data_sentinel.ui.kit import UIContext
+    from data_sentinel.ui.wizard import run_wizard
+
+    def _install(**kw: Any) -> dict[str, Any]:
+        return service.install(
+            host=kw.get("host") or "none",
+            scope=kw.get("scope", "project"),
+            profile=kw.get("profile", "recommended"),
+            gateway_profile=kw.get("gateway_profile") or "balanced",
+            components=kw.get("components"),
+            dry_run=bool(kw.get("dry_run")),
+            yes=bool(kw.get("yes")),
+        )
+
+    def _doctor(**kw: Any) -> dict[str, Any]:
+        return service.doctor(scope=kw.get("scope", "project"))
+
+    return run_wizard(
+        forge_name="data-sentinel-forge",
+        install_fn=_install,
+        doctor_fn=_doctor,
+        hosts_available=service.HOSTS,
+        next_hint="data-sentinel install status · data-sentinel install doctor",
+        ctx=UIContext.detect(),
+    )
+
+
+def guided_install_available() -> bool:
+    """Bare `install` may route to the wizard only on a real TTY."""
+    return sys.stdin.isatty() and sys.stdout.isatty()

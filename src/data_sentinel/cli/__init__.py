@@ -1394,3 +1394,22 @@ def serve(
     typer.echo(f"session token (Authorization: Bearer): {token}")
     typer.echo("também em ~/.data-sentinel/session-token", err=True)
     uvicorn.run(app_obj, host=host, port=port, log_level="warning")
+
+
+def main() -> None:
+    # Bare `data-sentinel install` on a TTY → guided wizard (same contract
+    # as `sparkforge-aws install` / `productforge install`); flags and
+    # pipes keep the typer path unchanged.
+    if sys.argv[1:] == ["install"]:
+        from data_sentinel.cli.install import (
+            guided_install_available,
+            run_guided_install,
+        )
+        from data_sentinel.ui.kit import NonInteractive
+
+        if guided_install_available():
+            try:
+                raise SystemExit(run_guided_install())
+            except NonInteractive:
+                pass
+    app()

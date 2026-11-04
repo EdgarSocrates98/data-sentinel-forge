@@ -63,7 +63,10 @@ dev = [
 ]
 
 [project.scripts]
-data-sentinel = "data_sentinel.cli:app"
+# Route the installed command through the small dispatcher so a bare
+# `data-sentinel install` gets the guided wizard on a real TTY.  Pointing the
+# entry point directly at the Typer object bypasses that contract in wheels.
+data-sentinel = "data_sentinel.cli:main"
 
 [project.urls]
 Repository = "https://github.com/EdgarSocrates98/data-sentinel-forge"
@@ -95,6 +98,9 @@ select = [
 # Vendored canonical installkit — byte-identical to
 # the-forge/scripts/installkit (drift-checked via _SOURCE_SHA256).
 "src/data_sentinel/_installkit.py" = ["ALL"]
+# Vendored Forge UI kit (canonical: the-forge/src/theforge/ui) —
+# byte-identical to the shared source; linted in the canonical repo.
+"src/data_sentinel/ui/**/*.py" = ["ALL"]
 
 [tool.mypy]
 python_version = "3.11"
