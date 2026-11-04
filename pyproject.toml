@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "pydantic>=2.7,<3",
     "typer>=0.12",
-    "sqlglot>=25",
+    "sqlglot>=30",
     "pyyaml>=6.0",
 ]
 

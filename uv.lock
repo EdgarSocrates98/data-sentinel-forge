@@ -552,7 +552,7 @@ requires-dist = [
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5" },
     { name = "scipy", marker = "extra == 'stats'", specifier = ">=1.11" },
-    { name = "sqlglot", specifier = ">=25" },
+    { name = "sqlglot", specifier = ">=30" },
     { name = "typer", specifier = ">=0.12" },
     { name = "uvicorn", marker = "extra == 'api'", specifier = ">=0.29" },
 ]

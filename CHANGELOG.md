@@ -3,6 +3,15 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Fixed
+- `sqlglot` lower bound raised to `>=30` — `exp.Expr` (used across the
+  SQL analyzers) only exists in sqlglot 30.x; `>=25` let pip resolve
+  versions where `data_sentinel.analyzers.sql` fails at import.
+- `forge.json` / `forge.agentic.json` regenerated — `version` drifted to
+  `0.4.0` after the 0.5.0 bump, failing the manifest drift test.
+
 ## [0.5.0] - 2026-11-04
 
 ### Added
