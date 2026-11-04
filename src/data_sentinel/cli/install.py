@@ -120,7 +120,9 @@ def install_cmd(
     """Instala o Sentinel nos hosts/escopo escolhidos (interativo por padrão)."""
     if ctx.invoked_subcommand:
         return
-    tty = sys.stdin.isatty()
+    # A usable terminal requires both directions.  A piped stdin with a live
+    # stdout (or the inverse) must never fall through to a prompt.
+    tty = sys.stdin.isatty() and sys.stdout.isatty()
     if not tty and not yes and not dry_run:
         # CI / non-TTY: never block on a prompt.
         typer.echo(
@@ -135,11 +137,16 @@ def install_cmd(
     comp_v = tuple(c.strip() for c in components.split(",") if c.strip()) if components else None
 
     if tty and not yes and not dry_run:
+        # Keep the Typer callback safe even when an embedder invokes ``app``
+        # directly instead of the console entry point.  The canonical visual
+        # wizard is the only default interactive path.
+        if all(value is None for value in (scope, host, profile, gateway, components)):
+            raise typer.Exit(run_guided_install())
         scope_v, host_v, profile_v, gateway_v, comp_raw = _interactive_flow(
             scope, host, profile, gateway, components
         )
         comp_v = tuple(c.strip() for c in comp_raw.split(",") if c.strip()) if comp_raw else None
-        # show the plan, ask once to confirm
+        # show the plan, ask once to confirm for legacy partial-flag calls
         try:
             plan = plan_installation(
                 scope=InstallScope(scope_v), host=host_v,
