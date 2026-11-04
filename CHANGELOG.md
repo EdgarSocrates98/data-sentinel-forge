@@ -6,6 +6,9 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Fixed
+- `install` now requires both stdin and stdout to be real TTYs and routes the
+  default interactive path through the visual wizard; pipes and CI never fall
+  through to plain prompts.
 - `install` human render now surfaces per-file `note` (e.g. "user-owned,
   not managed — skipped") and the `repaired`/`removed`/`kept`/`skipped`
   lists emitted by repair and uninstall receipts — previously this data
@@ -15,6 +18,11 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   versions where `data_sentinel.analyzers.sql` fails at import.
 - `forge.json` / `forge.agentic.json` regenerated — `version` drifted to
   `0.4.0` after the 0.5.0 bump, failing the manifest drift test.
+
+## [0.5.2] - 2026-11-04
+
+### Fixed
+- TTY/TUI install parity and release metadata for the guided installer.
 
 ## [0.5.1] - 2026-11-04
 
