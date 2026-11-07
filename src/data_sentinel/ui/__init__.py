@@ -16,6 +16,8 @@ from data_sentinel.ui.kit import (
     select,
     status_table,
 )
+from data_sentinel.ui.home import run_home
+from data_sentinel.ui.tui import run_tui
 
 __all__ = [
     "UIContext",
@@ -25,5 +27,7 @@ __all__ = [
     "prompt",
     "select",
     "status_table",
+    "run_home",
+    "run_tui",
     "t",
 ]
