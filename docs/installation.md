@@ -1,5 +1,21 @@
 # Instalação
 
+## Instalador portátil
+
+A partir de um checkout, instale o CLI em uma venv user-scoped sem depender
+do workspace depois da instalação:
+
+```bash
+./install.sh              # Linux/macOS/Git Bash
+./install.sh --dry-run    # mostra o plano sem escrever
+```
+
+No PowerShell use `.\install.ps1`; `install.windows.sh` é a rota equivalente
+para Git Bash. O launcher e o receipt ficam em `~/.forjas/data-sentinel-forge/`
+(ou no diretório indicado por `FORGE_INSTALL_HOME`). Adicione `bin/` ao
+`PATH` uma vez. Depois, `data-sentinel install` continua sendo o fluxo
+agentic para skills, agents e integrações de host.
+
 ## Verificado nesta sessão
 
 | Verificação | Método | Resultado |
