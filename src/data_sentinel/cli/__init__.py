@@ -1400,6 +1400,14 @@ def main() -> None:
     # Bare `data-sentinel install` on a TTY → guided wizard (same contract
     # as `sparkforge-aws install` / `productforge install`); flags and
     # pipes keep the typer path unchanged.
+    if sys.argv[1:] in ([], ["tui"]):
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            from data_sentinel.ui.home import run_home
+
+            raise SystemExit(run_home())
+        if sys.argv[1:] == ["tui"]:
+            typer.echo("data-sentinel tui requires an interactive TTY", err=True)
+            raise SystemExit(2)
     if sys.argv[1:] == ["install"]:
         from data_sentinel.cli.install import (
             guided_install_available,
