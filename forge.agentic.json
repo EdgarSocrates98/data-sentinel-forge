@@ -43,8 +43,15 @@
     }
   ],
   "skills": [],
-  "agents": [],
+  "agents": [
+    "sentinel-investigator",
+    "sentinel-reviewer",
+    "sentinel-spark-specialist"
+  ],
   "coordinators": [],
+  "agent_roster_paths": [
+    "src/data_sentinel/installation/assets/agents"
+  ],
   "mcp_command": [
     "{cli}",
     "mcp",
