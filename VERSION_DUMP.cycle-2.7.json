@@ -1,0 +1,9 @@
+{
+  "cycle": "2.7",
+  "repository": "data-sentinel-forge",
+  "version": "0.5.2",
+  "tag": "v0.5.2",
+  "source_commit": "69fc2ca58457c2e16b393bf9e14c87bd97595ce4",
+  "version_source": "data_sentinel.__version__",
+  "verified_at": "2026-11-10"
+}
