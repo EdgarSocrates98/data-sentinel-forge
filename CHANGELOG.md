@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-10
+
+### Fixed
+
+- Published the Cycle 2.7 release certification baseline.
+
 ### Fixed
 - `install` now requires both stdin and stdout to be real TTYs and routes the
   default interactive path through the visual wizard; pipes and CI never fall
