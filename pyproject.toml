@@ -115,6 +115,11 @@ plugins = ["pydantic.mypy"]
 # Canonical vendored copies — same rationale as the lint exclusion.
 exclude = ["data_sentinel._installkit", "data_sentinel._forge_obsidian"]
 
+[[tool.mypy.overrides]]
+# Optional extras — absent outside their profile installs by design.
+module = ["numpy", "mcp", "mcp.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 markers = ["slow: testes de integração pesados (venv limpa etc.)"]
 testpaths = ["tests"]
