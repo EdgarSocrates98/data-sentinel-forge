@@ -157,7 +157,7 @@ class TestLogsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         conn = CloudWatchLogsConnector(session)
         conn._client = client
@@ -169,7 +169,7 @@ class TestLogsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         client = session.client("logs")
         stub = Stubber(client)
@@ -245,7 +245,7 @@ class TestLogsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         from data_sentinel.core.exceptions import SentinelError
 
@@ -260,7 +260,7 @@ class TestMetricsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         conn = CloudWatchMetricsConnector(session)
         conn._client = client
@@ -272,7 +272,7 @@ class TestMetricsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         client = session.client("cloudwatch")
         stub = Stubber(client)
@@ -309,7 +309,7 @@ class TestMetricsConnector:
         session = boto3.session.Session(
             aws_access_key_id="t",
             aws_secret_access_key="t",
-            region_name="us-east-1",  # noqa: S106
+            region_name="us-east-1",
         )
         client = session.client("cloudwatch")
         stub = Stubber(client)

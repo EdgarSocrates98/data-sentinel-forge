@@ -93,11 +93,14 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101"]
+"tests/**" = ["S101", "S106", "S603"]
 "scripts/**" = ["T20"]
 # Vendored canonical installkit — byte-identical to
 # the-forge/scripts/installkit (drift-checked via _SOURCE_SHA256).
 "src/data_sentinel/_installkit.py" = ["ALL"]
+# Vendored shared forge-context engine — byte-identical to the canonical
+# the-forge copy; linted there.
+"src/data_sentinel/_forgecontext.py" = ["ALL"]
 "src/data_sentinel/_forge_obsidian/*" = ["ALL"]
 # Vendored Forge UI kit (canonical: the-forge/src/theforge/ui) —
 # byte-identical to the shared source; linted in the canonical repo.

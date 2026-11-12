@@ -66,7 +66,7 @@ def test_no_network_calls_in_quality_import() -> None:
         "assert len(obs) == 1\n"
     )
     out = subprocess.run(
-        [sys.executable, "-c", code],  # noqa: S603
+        [sys.executable, "-c", code],
         capture_output=True,
         text=True,
         cwd=Path(__file__).parent.parent.parent,
