@@ -3,19 +3,38 @@
     "id": "sentinel-investigator",
     "kind": "agent",
     "location": "src/data_sentinel/installation/assets/agents/sentinel-investigator.md",
-    "resource_class": "agentic"
+    "resource_class": "agentic",
+    "packaged_location": "installation/assets/agents/sentinel-investigator.md"
   },
   {
     "id": "sentinel-reviewer",
     "kind": "agent",
     "location": "src/data_sentinel/installation/assets/agents/sentinel-reviewer.md",
-    "resource_class": "agentic"
+    "resource_class": "agentic",
+    "packaged_location": "installation/assets/agents/sentinel-reviewer.md"
   },
   {
     "id": "sentinel-spark-specialist",
     "kind": "agent",
     "location": "src/data_sentinel/installation/assets/agents/sentinel-spark-specialist.md",
-    "resource_class": "agentic"
+    "resource_class": "agentic",
+    "packaged_location": "installation/assets/agents/sentinel-spark-specialist.md"
+  },
+  {
+    "id": "src/data_sentinel/knowledge/rules/glue-fgac.yaml",
+    "kind": "knowledge",
+    "location": "src/data_sentinel/knowledge/rules/glue-fgac.yaml",
+    "format": "yaml",
+    "resource_class": "read-only",
+    "packaged_location": "knowledge/rules/glue-fgac.yaml"
+  },
+  {
+    "id": "src/data_sentinel/knowledge/rules/glue-runtime-iceberg.yaml",
+    "kind": "knowledge",
+    "location": "src/data_sentinel/knowledge/rules/glue-runtime-iceberg.yaml",
+    "format": "yaml",
+    "resource_class": "read-only",
+    "packaged_location": "knowledge/rules/glue-runtime-iceberg.yaml"
   },
   {
     "id": "schemas/AccessContext.schema.json",
