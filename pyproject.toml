@@ -112,8 +112,8 @@ strict = true
 mypy_path = "src"
 packages = ["data_sentinel"]
 plugins = ["pydantic.mypy"]
-# Canonical vendored copy — same rationale as the lint exclusion.
-exclude = ["data_sentinel._installkit"]
+# Canonical vendored copies — same rationale as the lint exclusion.
+exclude = ["data_sentinel._installkit", "data_sentinel._forge_obsidian"]
 
 [tool.pytest.ini_options]
 markers = ["slow: testes de integração pesados (venv limpa etc.)"]
