@@ -57,6 +57,7 @@
     "mcp",
     "serve"
   ],
+  "mcp_verify_tool": "sentinel.status",
   "host_adapters": [
     "claude",
     "devin",
