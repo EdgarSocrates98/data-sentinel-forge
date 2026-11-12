@@ -350,6 +350,7 @@ def manifest_cmd(
             "coordinators": [],
             "agent_roster_paths": ["src/data_sentinel/installation/assets/agents"],
             "mcp_command": ["{cli}", "mcp", "serve"],
+            "mcp_verify_tool": service._spec().mcp_verify_tool,
             # M11 — adapters render a catalog; cursor gets marker/mcp only.
             "host_adapters": [h for h in service.HOSTS if h != "cursor"],
             "host_partial": {"cursor": "marker + .mcp.json only — no skill/agent catalog adapter"},

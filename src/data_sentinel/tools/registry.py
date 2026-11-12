@@ -98,6 +98,23 @@ def build_default_registry() -> ToolRegistry:
     """Register only tools backed by real, working analyzers."""
     r = ToolRegistry()
     r.register(
+        ToolDescriptor(
+            tool_id="sentinel.status",
+            name="status",
+            description=(
+                "Estado operacional do Sentinel: versão, analyzers e tools "
+                "registradas. No-arg e read-only — verificação de vida do "
+                "servidor MCP (mcp_verify_tool)."
+            ),
+            input_schema={
+                "type": "object",
+                "properties": {},
+                "additionalProperties": False,
+            },
+            permissions=[ToolPermission.LOCAL_READ],
+        )
+    )
+    r.register(
         _file_tool(
             "sentinel.glue.inspect_run",
             SourceType.GLUE_JOB,
@@ -491,6 +508,18 @@ def _dispatch(
 ) -> dict[str, Any]:
     tid = inv.tool_id
     inp = inv.input
+    if tid == "sentinel.status":
+        from data_sentinel import __version__
+        from data_sentinel.analyzers import registry as analyzer_registry
+        from data_sentinel.diagnostics.capabilities import all_descriptors
+
+        return {
+            "engine": "data-sentinel-forge",
+            "version": __version__,
+            "tools": len(build_default_registry().list_tools()),
+            "analyzers": len(analyzer_registry.all()),
+            "capabilities": len(all_descriptors()),
+        }
     if tid == "sentinel.emr.estimate_cost":
         from data_sentinel.analyzers.emr.cost import estimate_ec2, estimate_eks, estimate_serverless
 

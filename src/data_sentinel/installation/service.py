@@ -94,7 +94,7 @@ def _spec() -> kit.ForgeSpec:
         state_dir=STATE_DIR,
         mcp_command=_resolve_mcp_command(),
         mcp_server_name="data-sentinel",
-        mcp_verify_tool=None,  # no-arg read-only tool — tools/list is the probe
+        mcp_verify_tool="sentinel.status",  # no-arg read-only tool for tools/call
         version_cmd=("--version",),
         render_assets=_render_assets,
         # Consumer docs (AGENTS.md/CLAUDE.md/AGENT_PROTOCOL.md) sao da
