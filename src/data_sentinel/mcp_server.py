@@ -34,11 +34,11 @@ def _mcp_roots() -> list[Path]:
 
 def create_server(registry: Any = None) -> Any:
     """Build an MCPServer exposing every registered tool."""
-    from mcp.server.fastmcp import FastMCP
+    from mcp.server.mcpserver import MCPServer
 
     reg = registry or build_default_registry()
     roots = _mcp_roots()
-    server = FastMCP("data-sentinel")
+    server = MCPServer("data-sentinel")
 
     def _make(tool_id: str) -> Any:
         async def _handler(

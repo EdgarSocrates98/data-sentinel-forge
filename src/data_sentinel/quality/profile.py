@@ -11,6 +11,9 @@ import math
 from dataclasses import dataclass, field
 from typing import Any
 
+from types import ModuleType
+
+np: ModuleType | None
 try:
     import numpy as np
 
