@@ -68,5 +68,437 @@
   },
   "read_only_default": true,
   "requires_aws_credentials": false,
-  "requires_llm": false
+  "requires_llm": false,
+  "resources": [
+    {
+      "id": "sentinel-investigator",
+      "kind": "agent",
+      "location": "src/data_sentinel/installation/assets/agents/sentinel-investigator.md",
+      "resource_class": "agentic"
+    },
+    {
+      "id": "sentinel-reviewer",
+      "kind": "agent",
+      "location": "src/data_sentinel/installation/assets/agents/sentinel-reviewer.md",
+      "resource_class": "agentic"
+    },
+    {
+      "id": "sentinel-spark-specialist",
+      "kind": "agent",
+      "location": "src/data_sentinel/installation/assets/agents/sentinel-spark-specialist.md",
+      "resource_class": "agentic"
+    },
+    {
+      "id": "schemas/AccessContext.schema.json",
+      "kind": "contract",
+      "location": "schemas/AccessContext.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/AccessMetadata.schema.json",
+      "kind": "contract",
+      "location": "schemas/AccessMetadata.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/AgentDescriptor.schema.json",
+      "kind": "contract",
+      "location": "schemas/AgentDescriptor.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/AgentExecution.schema.json",
+      "kind": "contract",
+      "location": "schemas/AgentExecution.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/AgentTask.schema.json",
+      "kind": "contract",
+      "location": "schemas/AgentTask.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ArtifactReference.schema.json",
+      "kind": "contract",
+      "location": "schemas/ArtifactReference.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/CapabilityDescriptor.schema.json",
+      "kind": "contract",
+      "location": "schemas/CapabilityDescriptor.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/CapabilityManifest.schema.json",
+      "kind": "contract",
+      "location": "schemas/CapabilityManifest.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/CompatibilityAssessment.schema.json",
+      "kind": "contract",
+      "location": "schemas/CompatibilityAssessment.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/DataQualityContract.schema.json",
+      "kind": "contract",
+      "location": "schemas/DataQualityContract.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/DatasetReference.schema.json",
+      "kind": "contract",
+      "location": "schemas/DatasetReference.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/DiagnosticReport.schema.json",
+      "kind": "contract",
+      "location": "schemas/DiagnosticReport.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/DiagnosticRequest.schema.json",
+      "kind": "contract",
+      "location": "schemas/DiagnosticRequest.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/EMRExecutionContext.schema.json",
+      "kind": "contract",
+      "location": "schemas/EMRExecutionContext.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/EMRResourceObservation.schema.json",
+      "kind": "contract",
+      "location": "schemas/EMRResourceObservation.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/Environment.schema.json",
+      "kind": "contract",
+      "location": "schemas/Environment.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/Evidence.schema.json",
+      "kind": "contract",
+      "location": "schemas/Evidence.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ExecutionContext.schema.json",
+      "kind": "contract",
+      "location": "schemas/ExecutionContext.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ExecutionMetadata.schema.json",
+      "kind": "contract",
+      "location": "schemas/ExecutionMetadata.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ExternalDiagnosticBundle.schema.json",
+      "kind": "contract",
+      "location": "schemas/ExternalDiagnosticBundle.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/Finding.schema.json",
+      "kind": "contract",
+      "location": "schemas/Finding.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/Hypothesis.schema.json",
+      "kind": "contract",
+      "location": "schemas/Hypothesis.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/IcebergSnapshotSummary.schema.json",
+      "kind": "contract",
+      "location": "schemas/IcebergSnapshotSummary.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/IcebergTableMetadata.schema.json",
+      "kind": "contract",
+      "location": "schemas/IcebergTableMetadata.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ImpactAssessment.schema.json",
+      "kind": "contract",
+      "location": "schemas/ImpactAssessment.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/InvestigationBudget.schema.json",
+      "kind": "contract",
+      "location": "schemas/InvestigationBudget.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/InvestigationPlan.schema.json",
+      "kind": "contract",
+      "location": "schemas/InvestigationPlan.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/InvestigationReport.schema.json",
+      "kind": "contract",
+      "location": "schemas/InvestigationReport.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/InvestigationState.schema.json",
+      "kind": "contract",
+      "location": "schemas/InvestigationState.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/LakehouseOperation.schema.json",
+      "kind": "contract",
+      "location": "schemas/LakehouseOperation.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/LineageEvent.schema.json",
+      "kind": "contract",
+      "location": "schemas/LineageEvent.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/OptimizationRecommendation.schema.json",
+      "kind": "contract",
+      "location": "schemas/OptimizationRecommendation.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/QualityAssessment.schema.json",
+      "kind": "contract",
+      "location": "schemas/QualityAssessment.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/QualityObservation.schema.json",
+      "kind": "contract",
+      "location": "schemas/QualityObservation.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/QualityRule.schema.json",
+      "kind": "contract",
+      "location": "schemas/QualityRule.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/RequestConstraints.schema.json",
+      "kind": "contract",
+      "location": "schemas/RequestConstraints.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ResourceContext.schema.json",
+      "kind": "contract",
+      "location": "schemas/ResourceContext.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ToolDescriptor.schema.json",
+      "kind": "contract",
+      "location": "schemas/ToolDescriptor.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ToolInvocation.schema.json",
+      "kind": "contract",
+      "location": "schemas/ToolInvocation.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "schemas/ToolResult.schema.json",
+      "kind": "contract",
+      "location": "schemas/ToolResult.schema.json",
+      "format": "json",
+      "resource_class": "validation"
+    },
+    {
+      "id": "examples/README.md",
+      "kind": "example",
+      "location": "examples/README.md",
+      "format": "markdown",
+      "resource_class": "read-only"
+    },
+    {
+      "id": "fixtures/access",
+      "kind": "fixture",
+      "location": "fixtures/access",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/cloudwatch",
+      "kind": "fixture",
+      "location": "fixtures/cloudwatch",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/config",
+      "kind": "fixture",
+      "location": "fixtures/config",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/doctor-api",
+      "kind": "fixture",
+      "location": "fixtures/doctor-api",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/doctor-data",
+      "kind": "fixture",
+      "location": "fixtures/doctor-data",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr",
+      "kind": "fixture",
+      "location": "fixtures/emr",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr-ec2-failed-step.json",
+      "kind": "fixture",
+      "location": "fixtures/emr-ec2-failed-step.json",
+      "format": "json",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr-ec2-spot-idle.json",
+      "kind": "fixture",
+      "location": "fixtures/emr-ec2-spot-idle.json",
+      "format": "json",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr-eks-pods.yaml",
+      "kind": "fixture",
+      "location": "fixtures/emr-eks-pods.yaml",
+      "format": "yaml",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr-serverless-failed.json",
+      "kind": "fixture",
+      "location": "fixtures/emr-serverless-failed.json",
+      "format": "json",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/emr-serverless-slow-start.json",
+      "kind": "fixture",
+      "location": "fixtures/emr-serverless-slow-start.json",
+      "format": "json",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/evals",
+      "kind": "fixture",
+      "location": "fixtures/evals",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/golden",
+      "kind": "fixture",
+      "location": "fixtures/golden",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/iceberg",
+      "kind": "fixture",
+      "location": "fixtures/iceberg",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/joins",
+      "kind": "fixture",
+      "location": "fixtures/joins",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/logs",
+      "kind": "fixture",
+      "location": "fixtures/logs",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/operations",
+      "kind": "fixture",
+      "location": "fixtures/operations",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/plans",
+      "kind": "fixture",
+      "location": "fixtures/plans",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/policies",
+      "kind": "fixture",
+      "location": "fixtures/policies",
+      "resource_class": "test-only"
+    },
+    {
+      "id": "fixtures/sql",
+      "kind": "fixture",
+      "location": "fixtures/sql",
+      "resource_class": "test-only"
+    }
+  ]
 }
