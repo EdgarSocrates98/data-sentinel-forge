@@ -53,12 +53,7 @@
         "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|claude|minimal": {
@@ -66,12 +61,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|claude|recommended": {
@@ -128,12 +118,7 @@
         "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|codex|full": {
@@ -190,12 +175,7 @@
         "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|codex|minimal": {
@@ -203,12 +183,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|codex|recommended": {
@@ -265,12 +240,7 @@
         "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|copilot|full": {
@@ -327,12 +297,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|copilot|minimal": {
@@ -340,12 +305,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|copilot|recommended": {
@@ -402,12 +362,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|cursor|full": {
@@ -415,12 +370,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|cursor|minimal": {
@@ -428,12 +378,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|cursor|recommended": {
@@ -441,12 +386,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|devin|full": {
@@ -551,12 +491,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|devin|minimal": {
@@ -564,12 +499,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "project|devin|recommended": {
@@ -674,12 +604,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|claude|full": {
@@ -736,12 +661,7 @@
         "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|claude|minimal": {
@@ -749,12 +669,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|claude|recommended": {
@@ -811,12 +726,7 @@
         "sha256": "bd46065fecba7eb2bf10a4d7bed3162915e54409e3e4c33c4acb11ddd7310307"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|codex|full": {
@@ -873,12 +783,7 @@
         "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|codex|minimal": {
@@ -886,12 +791,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|codex|recommended": {
@@ -948,12 +848,7 @@
         "sha256": "725f48bc23c7f48af5dc97451e44d798847950faf9c641ca88d69e68cb9bd1fa"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|copilot|full": {
@@ -1010,12 +905,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|copilot|minimal": {
@@ -1023,12 +913,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|copilot|recommended": {
@@ -1085,12 +970,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|cursor|full": {
@@ -1098,12 +978,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|cursor|minimal": {
@@ -1111,12 +986,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|cursor|recommended": {
@@ -1124,12 +994,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|devin|full": {
@@ -1234,12 +1099,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|devin|minimal": {
@@ -1247,12 +1107,7 @@
       "execution_profile": "balanced"
     },
     "planned_files": [],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   },
   "workspace|devin|recommended": {
@@ -1357,12 +1212,7 @@
         "sha256": "b4ad5e7d7946376ce423e2866a01ad430dfbb6bc74e79a36137cfd362224a2ca"
       }
     ],
-    "planned_markers": [
-      {
-        "file": "AGENTS.md",
-        "marker": "data-sentinel-forge"
-      }
-    ],
+    "planned_markers": [],
     "status": "planned"
   }
 }

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(data-sentinel --version)",
+      "Exec(data-sentinel doctor)",
+      "Exec(data-sentinel obsidian status)",
+      "Exec(data-sentinel obsidian scan)",
+      "Exec(data-sentinel obsidian preview)",
+      "Exec(data-sentinel obsidian sync-plan)",
+      "Exec(data-sentinel obsidian history)"
+    ]
+  }
+}

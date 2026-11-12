@@ -98,6 +98,7 @@ select = [
 # Vendored canonical installkit — byte-identical to
 # the-forge/scripts/installkit (drift-checked via _SOURCE_SHA256).
 "src/data_sentinel/_installkit.py" = ["ALL"]
+"src/data_sentinel/_forge_obsidian/*" = ["ALL"]
 # Vendored Forge UI kit (canonical: the-forge/src/theforge/ui) —
 # byte-identical to the shared source; linted in the canonical repo.
 "src/data_sentinel/ui/**/*.py" = ["ALL"]

@@ -1267,6 +1267,10 @@ def tools_list() -> None:
 emr_app = typer.Typer(help="Diagnósticos Amazon EMR (EC2/Serverless/EKS).")
 app.add_typer(emr_app, name="emr")
 
+from data_sentinel._forge_obsidian.cli import obsidian_app as _obsidian_app  # noqa: E402
+
+app.add_typer(_obsidian_app("data-sentinel-forge"), name="obsidian")
+
 
 @emr_app.command("analyze")
 def emr_analyze(

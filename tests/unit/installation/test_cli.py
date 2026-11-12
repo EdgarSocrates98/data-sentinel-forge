@@ -41,7 +41,17 @@ def test_dry_run_writes_nothing(tmp_path: Path) -> None:
 def test_install_yes_creates_assets(tmp_path: Path) -> None:
     _installed(tmp_path)
     assert (tmp_path / "AGENTS.md").is_file()
-    assert "data-sentinel-forge:managed" in (tmp_path / "AGENTS.md").read_text()
+    # Consumer docs sao da camada forge_context: blocos `forge:*` +
+    # registry `.forge/context/` — nao markers `data-sentinel-forge:managed`.
+    text = (tmp_path / "AGENTS.md").read_text()
+    assert "forge:data-sentinel-forge:begin" in text
+    assert "forge:ecosystem:begin" in text
+    registry = json.loads(
+        (tmp_path / ".forge/context/registry.json").read_text())
+    assert registry["schema"] == "forge/context-registry/v1"
+    entry = next(
+        f for f in registry["forges"] if f["forge_id"] == "data-sentinel-forge")
+    assert entry["kind"] == "diagnostic-provider"
     mcp = json.loads((tmp_path / ".mcp.json").read_text())
     entry = mcp["mcpServers"]["data-sentinel"]
     # §7.1 — absolute console script preferred, bare name is the fallback
@@ -166,7 +176,13 @@ def test_uninstall_human_lists_removed(tmp_path: Path) -> None:
         app, ["install", "uninstall", "--root", str(tmp_path), "--yes"]
     )
     assert result.exit_code == 0, result.output
-    assert "removed" in result.output and "AGENTS.md" in result.output
+    # Doc removal now surfaces via the forge_context checks (the kit
+    # `removed` list holds ledger paths only).
+    assert "removed" in result.output and "consumer-docs" in result.output
+    registry = json.loads(
+        (tmp_path / ".forge/context/registry.json").read_text())
+    assert all(
+        f["forge_id"] != "data-sentinel-forge" for f in registry["forges"])
 
 
 def test_render_receipt_shows_notes_and_verb_lists(capsys) -> None:

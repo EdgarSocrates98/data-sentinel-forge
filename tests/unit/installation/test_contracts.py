@@ -1,5 +1,6 @@
 """ds-0109 — install contracts, planner over vendored kit, ownership."""
 
+import json
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -9,6 +10,7 @@ from data_sentinel import _installkit as kit
 from data_sentinel.core.exceptions import SentinelError
 from data_sentinel.installation import service
 from data_sentinel.installation.contracts import (
+    ComponentKind,
     InstallProfile,
     InstallReceipt,
     InstallScope,
@@ -42,10 +44,11 @@ def test_plan_id_changes_with_inputs(tmp_path: Path) -> None:
     assert _plan(tmp_path).plan_id != _plan(tmp_path, host="codex").plan_id
 
 
-def test_plan_covers_marker(tmp_path: Path) -> None:
+def test_plan_covers_docs_not_markers(tmp_path: Path) -> None:
+    """Consumer docs are forge_context-managed now — outside the kit plan.
+    The marker-component era ended: no MARKERS change may be planned."""
     plan = _plan(tmp_path)
-    paths = {Path(c.path).name for c in plan.planned_changes}
-    assert "AGENTS.md" in paths
+    assert ComponentKind.MARKERS not in {c.component for c in plan.planned_changes}
 
 
 def test_unknown_host_refused(tmp_path: Path) -> None:
@@ -68,8 +71,10 @@ def test_foreign_file_refused_in_plan(tmp_path: Path) -> None:
     (tmp_path / "AGENTS.md").write_text("user content", encoding="utf-8")
     plan = _plan(tmp_path)
     names = {c.source_asset: c for c in plan.planned_changes}
-    # AGENTS.md marker update is allowed (marker-block merge preserves text)
-    assert "AGENTS.md" in names
+    # AGENTS.md left the kit plan — the forge_context doc layer merges
+    # `forge:*` blocks into the user file at apply time.
+    assert "AGENTS.md" not in names
+    assert not plan.conflicts
 
 
 def test_dry_run_writes_nothing(tmp_path: Path) -> None:
@@ -90,11 +95,18 @@ def test_install_creates_managed_files_and_ledger(tmp_path: Path) -> None:
     receipt = service.install(host="claude", scope="project", root=tmp_path, yes=True)
     assert receipt["status"] == "completed"
     assert (tmp_path / "AGENTS.md").is_file()
-    assert "data-sentinel-forge:managed" in (tmp_path / "AGENTS.md").read_text()
+    text = (tmp_path / "AGENTS.md").read_text()
+    assert "forge:data-sentinel-forge:begin" in text
+    assert "forge:ecosystem:begin" in text
     mcp = (tmp_path / ".mcp.json").read_text(encoding="utf-8")
     assert '"data-sentinel"' in mcp
     ledger = load_ledger(tmp_path)
-    assert ledger.is_managed(Path("AGENTS.md"), tmp_path)
+    # Consumer docs are forge_context-owned — never ledger entries.
+    assert not ledger.is_managed(Path("AGENTS.md"), tmp_path)
+    registry = json.loads(
+        (tmp_path / ".forge/context/registry.json").read_text())
+    assert any(
+        f["forge_id"] == "data-sentinel-forge" for f in registry["forges"])
     # receipt written under state dir
     assert list((tmp_path / ".data-sentinel/install").glob("receipts/*.json"))
 
