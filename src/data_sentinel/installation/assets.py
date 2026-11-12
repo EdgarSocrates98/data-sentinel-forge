@@ -67,9 +67,8 @@ def verify_integrity(src: Path) -> None:
     }
     if expected != actual:
         diff = sorted(
-            set(expected.items()) ^ set(actual.items())
-            | {k for k in expected if k not in actual}
-            | {k for k in actual if k not in expected}
+            set(expected) ^ set(actual)
+            | {k for k in expected if k in actual and expected[k] != actual[k]}
         )
         raise InstallError(
             E_VERIFY,
