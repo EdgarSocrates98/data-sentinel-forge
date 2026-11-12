@@ -1,0 +1,9 @@
+{
+  "cycle": "unified-release",
+  "repository": "data-sentinel-forge",
+  "version": "0.5.5",
+  "tag": "v0.5.5",
+  "source_commit": "279c9be18b480d3122b2ab909c970a5e94ffa452",
+  "version_source": "pyproject.toml|package.json|__init__",
+  "verified_at": "2026-11-12"
+}
