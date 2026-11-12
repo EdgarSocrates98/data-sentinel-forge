@@ -12,10 +12,10 @@ from dataclasses import dataclass, field
 from types import ModuleType
 from typing import Any
 
-np: ModuleType | None
 try:
-    import numpy as np
+    import numpy as _np
 
+    np: ModuleType | None = _np
     _HAS_NUMPY = True
 except ImportError:  # pragma: no cover
     np = None
