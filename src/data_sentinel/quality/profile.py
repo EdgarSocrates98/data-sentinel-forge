@@ -16,7 +16,7 @@ try:
 
     _HAS_NUMPY = True
 except ImportError:  # pragma: no cover
-    np = None  # type: ignore[assignment]
+    np = None
     _HAS_NUMPY = False
 
 MAX_SAMPLE = 1_000_000

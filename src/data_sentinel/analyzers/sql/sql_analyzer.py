@@ -49,7 +49,7 @@ SEMANTIC_CHECKLIST = (
 )
 
 
-SqlHit = exp.Expression | str
+SqlHit = exp.Expr | str
 
 
 @dataclass(frozen=True)
@@ -60,10 +60,10 @@ class SqlCheck:
     title: str
     rationale: str
     suggestion: str
-    detect: Callable[[exp.Expression, str], list[SqlHit]]
+    detect: Callable[[exp.Expr, str], list[SqlHit]]
 
 
-def _select_stars(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _select_stars(tree: exp.Expr, _text: str) -> list[SqlHit]:
     """Bare SELECT * hits. Stars inside EXISTS/COUNT wrappers are
     legitimate — the count/existence test reads no columns."""
     hits: list[SqlHit] = []
@@ -80,7 +80,7 @@ def _select_stars(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _is_trivial_on(on: exp.Expression | None) -> bool:
+def _is_trivial_on(on: exp.Expr | None) -> bool:
     """True when ON is absent or a constant TRUE (sqlglot synthesizes on=TRUE
     for JOIN without predicate)."""
     if on is None:
@@ -88,7 +88,7 @@ def _is_trivial_on(on: exp.Expression | None) -> bool:
     return isinstance(on, exp.Boolean) and on.this is True
 
 
-def _predicateless_joins(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _predicateless_joins(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for join in tree.find_all(exp.Join):
         kind = str(join.args.get("kind") or "").upper()
@@ -101,14 +101,14 @@ def _predicateless_joins(tree: exp.Expression, _text: str) -> list[SqlHit]:
 _COMMA_FROM_RE = re.compile(r"\bFROM\s+[^\s,()]+\s+(?:AS\s+)?[A-Za-z_]\w*\s*,", re.IGNORECASE)
 
 
-def _implicit_joins(tree: exp.Expression, text: str) -> list[SqlHit]:
+def _implicit_joins(tree: exp.Expr, text: str) -> list[SqlHit]:
     """Comma-syntax joins: sqlglot normalizes them to CROSS joins, so the
     textual `FROM a, b` shape is detected on the raw text."""
     _ = tree
     return [m.group(0) for m in _COMMA_FROM_RE.finditer(text)]
 
 
-def _nonsargable_predicates(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _nonsargable_predicates(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for where in tree.find_all(exp.Where):
         for func in where.find_all(exp.Func):
@@ -117,7 +117,7 @@ def _nonsargable_predicates(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _order_without_limit(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _order_without_limit(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for select in tree.find_all(exp.Select):
         if select.args.get("order") and not select.args.get("limit"):
@@ -125,15 +125,15 @@ def _order_without_limit(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _union_without_all(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _union_without_all(tree: exp.Expr, _text: str) -> list[SqlHit]:
     return [u for u in tree.find_all(exp.Union) if u.args.get("distinct", True)]
 
 
-def _count_distinct(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _count_distinct(tree: exp.Expr, _text: str) -> list[SqlHit]:
     return [c for c in tree.find_all(exp.Count) if c.args.get("distinct")]
 
 
-def _large_in_lists(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _large_in_lists(tree: exp.Expr, _text: str) -> list[SqlHit]:
     return [
         i
         for i in tree.find_all(exp.In)
@@ -141,7 +141,7 @@ def _large_in_lists(tree: exp.Expression, _text: str) -> list[SqlHit]:
     ]
 
 
-def _cast_on_join_key(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _cast_on_join_key(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for join in tree.find_all(exp.Join):
         on = join.args.get("on")
@@ -153,7 +153,7 @@ def _cast_on_join_key(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _func_on_join_key(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _func_on_join_key(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for join in tree.find_all(exp.Join):
         on = join.args.get("on")
@@ -165,7 +165,7 @@ def _func_on_join_key(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _complex_subqueries(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _complex_subqueries(tree: exp.Expr, _text: str) -> list[SqlHit]:
     hits: list[SqlHit] = []
     for sub in tree.find_all(exp.Subquery):
         depth = sum(1 for _ in list(sub.find_all(exp.Subquery)))
@@ -174,11 +174,11 @@ def _complex_subqueries(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _select_distinct(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _select_distinct(tree: exp.Expr, _text: str) -> list[SqlHit]:
     return [s.args["distinct"] for s in tree.find_all(exp.Select) if s.args.get("distinct")]
 
 
-def _unfiltered_scan(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _unfiltered_scan(tree: exp.Expr, _text: str) -> list[SqlHit]:
     """SELECT over a table with no WHERE/LIMIT anywhere in that SELECT's
     scope — a broad read. Contextual: may be intentional (full dumps)."""
     hits: list[SqlHit] = []
@@ -193,13 +193,13 @@ def _unfiltered_scan(tree: exp.Expression, _text: str) -> list[SqlHit]:
     return hits
 
 
-def _reused_join_keys(tree: exp.Expression, _text: str) -> list[SqlHit]:
+def _reused_join_keys(tree: exp.Expr, _text: str) -> list[SqlHit]:
     """Same key column name reused across multiple joins — potential
     multiplicative fan-out when intermediate joins are many-to-many."""
     from collections import Counter
 
     key_names: Counter[str] = Counter()
-    join_nodes: dict[str, exp.Expression] = {}
+    join_nodes: dict[str, exp.Expr] = {}
     for join in tree.find_all(exp.Join):
         on = join.args.get("on")
         if on is None:
@@ -374,7 +374,7 @@ def _line_of_fragment(source: str, fragment: str) -> int:
     return source[:idx].count("\n") + 1
 
 
-def _query_structure(tree: exp.Expression, dialect: str) -> dict[str, object]:
+def _query_structure(tree: exp.Expr, dialect: str) -> dict[str, object]:
     """Structured representation from the AST — join graph, tables vs
     CTEs, predicates, aggregations, subquery depth, costly ops."""
     cte_names = {c.alias for c in tree.find_all(exp.CTE)}
@@ -407,7 +407,7 @@ def _query_structure(tree: exp.Expression, dialect: str) -> dict[str, object]:
     max_depth = 0
     for sub in tree.find_all(exp.Subquery):
         depth = 1
-        node: exp.Expression = sub
+        node: exp.Expr = sub
         while node.parent is not None:
             if isinstance(node.parent, exp.Subquery):
                 depth += 1
@@ -458,7 +458,7 @@ class SqlStaticAnalyzer(Analyzer):
 
     def _check_selectivity(
         self,
-        tree: exp.Expression,
+        tree: exp.Expr,
         input_file: InputFile,
         digest: str,
         captured: datetime,
