@@ -35,9 +35,7 @@ KNOWN_EXCEPTIONS: tuple[str, ...] = (
 _EXC_RE = re.compile(
     r"(?:^|[\s(])(?P<exc>(?:[\w.]+\.)?(?:" + "|".join(KNOWN_EXCEPTIONS) + r"))[\s:(]"
 )
-_TS_RE = re.compile(
-    r"^(?P<ts>\d{2,4}[-/]\d{2}[-/]\d{2,4}[ T]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?)"
-)
+_TS_RE = re.compile(r"^(?P<ts>\d{2,4}[-/]\d{2}[-/]\d{2,4}[ T]\d{2}:\d{2}:\d{2}(?:[.,]\d+)?)")
 _ISO_RE = re.compile(r"^(?P<ts>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z?)")
 _CAUSED_RE = re.compile(r"^\s*(Caused by:|Suppressed:)", re.IGNORECASE)
 

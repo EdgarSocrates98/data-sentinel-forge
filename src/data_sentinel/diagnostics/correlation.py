@@ -83,8 +83,7 @@ def correlate(parsed: ParsedLog, *, window_seconds: float = 300.0) -> Correlatio
         within_window = (
             event.timestamp is not None
             and current.primary.timestamp is not None
-            and abs((event.timestamp - current.primary.timestamp).total_seconds())
-            <= window_seconds
+            and abs((event.timestamp - current.primary.timestamp).total_seconds()) <= window_seconds
         )
         if _is_cascade(event) or within_window:
             current.secondary.append(event)

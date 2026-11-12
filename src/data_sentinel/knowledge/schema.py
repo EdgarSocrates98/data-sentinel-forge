@@ -26,8 +26,15 @@ _REQUIRED = {
     "owner": str,
     "reviewer": str,
 }
-_MATCH_KEYS = ("service", "engine", "runtime", "table_format", "operation",
-               "catalog", "access_mode")
+_MATCH_KEYS = (
+    "service",
+    "engine",
+    "runtime",
+    "table_format",
+    "operation",
+    "catalog",
+    "access_mode",
+)
 
 
 class RuleValidationError(ValueError):
@@ -68,9 +75,8 @@ class Rule:
 
         Wildcard "*" does not add specificity — it matches everything.
         """
-        return (
-            sum(1 for k in _MATCH_KEYS if getattr(self, k) not in ("", "*"))
-            + len(self.conditions)
+        return sum(1 for k in _MATCH_KEYS if getattr(self, k) not in ("", "*")) + len(
+            self.conditions
         )
 
 

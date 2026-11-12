@@ -43,9 +43,7 @@ def _req(source_type: SourceType) -> DiagnosticRequest:
 
 class TestOrchestrator:
     def test_pipeline_report(self) -> None:
-        out = run_diagnostics(
-            _req(SourceType.LOG), [_inp("glue_oom.log")]
-        )
+        out = run_diagnostics(_req(SourceType.LOG), [_inp("glue_oom.log")])
         assert out.report is not None
         assert out.report.findings
         assert out.analyzers_run
@@ -62,9 +60,7 @@ class TestOrchestrator:
             def analyze(self, request, inputs):
                 raise RuntimeError("kaboom")
 
-        out = run_diagnostics(
-            _req(SourceType.LOG), [_inp("glue_oom.log")], analyzers=[Boom()]
-        )
+        out = run_diagnostics(_req(SourceType.LOG), [_inp("glue_oom.log")], analyzers=[Boom()])
         assert "boom" in out.analyzers_skipped
         assert any("falhou" in lim for lim in out.report.limitations)
 
@@ -88,19 +84,15 @@ class TestOrchestrator:
             execution_context=ExecutionContext(extra={"spark_version": "3.4"}),
         )
         inp = InputFile(
-            path=cfg, text=cfg.read_text(encoding="utf-8"),
-            size_bytes=cfg.stat().st_size)
+            path=cfg, text=cfg.read_text(encoding="utf-8"), size_bytes=cfg.stat().st_size
+        )
         out = run_diagnostics(req, [inp])
         # config advisor puts recs in metadata["recommendations"]
-        assert out.recommendations or any(
-            r.metadata.get("recommendations") for r in out.results
-        )
+        assert out.recommendations or any(r.metadata.get("recommendations") for r in out.results)
 
     def test_duration_ms_present(self) -> None:
         out = run_diagnostics(_req(SourceType.LOG), [_inp("glue_oom.log")])
-        assert out.results and all(
-            r.duration_ms is not None for r in out.results
-        )
+        assert out.results and all(r.duration_ms is not None for r in out.results)
 
 
 class TestReporting:

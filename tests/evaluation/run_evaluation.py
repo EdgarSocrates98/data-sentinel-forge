@@ -56,29 +56,39 @@ WHEN MATCHED THEN UPDATE SET *
 WHEN NOT MATCHED THEN INSERT *
 """
 
-IAM_POLICY = json.dumps({
-    "Version": "2012-10-17",
-    "Statement": [{
-        "Effect": "Allow",
-        "Action": ["s3:GetObject"],
-        "Resource": ["arn:aws:s3:::data-bucket/*"],
-    }],
-})
+IAM_POLICY = json.dumps(
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": ["s3:GetObject"],
+                "Resource": ["arn:aws:s3:::data-bucket/*"],
+            }
+        ],
+    }
+)
 
-ICEBERG_METADATA = json.dumps({
-    "format-version": 2,
-    "table-uuid": "t-1",
-    "location": "s3://lake/db/orders",
-    "last-updated-ms": 1760000000000,
-    "current-snapshot-id": 5,
-    "snapshots": [
-        {"snapshot-id": i, "timestamp-ms": 1760000000000 - i * 1000,
-         "operation": "append", "summary": {"total-data-files": "40000"}}
-        for i in range(1, 6)
-    ],
-    "schema": {"fields": [{"id": 1, "name": "order_id", "type": "long"}]},
-    "partition-spec": [],
-})
+ICEBERG_METADATA = json.dumps(
+    {
+        "format-version": 2,
+        "table-uuid": "t-1",
+        "location": "s3://lake/db/orders",
+        "last-updated-ms": 1760000000000,
+        "current-snapshot-id": 5,
+        "snapshots": [
+            {
+                "snapshot-id": i,
+                "timestamp-ms": 1760000000000 - i * 1000,
+                "operation": "append",
+                "summary": {"total-data-files": "40000"},
+            }
+            for i in range(1, 6)
+        ],
+        "schema": {"fields": [{"id": 1, "name": "order_id", "type": "long"}]},
+        "partition-spec": [],
+    }
+)
 
 SCENARIOS: list[dict[str, Any]] = [
     {
@@ -93,8 +103,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s02-glue-oom",
         "title": "Falha realista de Glue Job (OOM)",
         "project_files": {},
-        "artifact": {"file": "job.log", "content": OOM_LOG,
-                     "source_type": "log", "platform": "aws_glue"},
+        "artifact": {
+            "file": "job.log",
+            "content": OOM_LOG,
+            "source_type": "log",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": ["out_of_memory"]},
         "note": "telemetria de execução é território Sentinel",
     },
@@ -111,8 +125,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s04-lakeformation-perm",
         "title": "Permissão Lake Formation insuficiente",
         "project_files": {},
-        "artifact": {"file": "policy.json", "content": IAM_POLICY,
-                     "source_type": "policy_doc", "platform": "aws_glue"},
+        "artifact": {
+            "file": "policy.json",
+            "content": IAM_POLICY,
+            "source_type": "policy_doc",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": ["permissions"]},
         "note": "avaliação operacional de policy é Sentinel",
     },
@@ -120,8 +138,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s05-cross-account",
         "title": "Cross-account parcialmente configurado",
         "project_files": {},
-        "artifact": {"file": "policy.json", "content": IAM_POLICY,
-                     "source_type": "access_context", "platform": "aws_glue"},
+        "artifact": {
+            "file": "policy.json",
+            "content": IAM_POLICY,
+            "source_type": "access_context",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": []},
         "note": "UNKNOWN honesto é resultado válido",
     },
@@ -129,8 +151,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s06-merge-dups",
         "title": "MERGE com risco de duplicidade",
         "project_files": {"merge.sql": MERGE_SQL},
-        "artifact": {"file": "merge.sql", "content": MERGE_SQL,
-                     "source_type": "sql_query", "platform": "spark"},
+        "artifact": {
+            "file": "merge.sql",
+            "content": MERGE_SQL,
+            "source_type": "sql_query",
+            "platform": "spark",
+        },
         "truth": {"doctor": [], "sentinel": ["sql"]},
         "note": "análise de execução MERGE é Sentinel",
     },
@@ -138,18 +164,25 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s07-shuffle-skew",
         "title": "Spark shuffle/skew",
         "project_files": {},
-        "artifact": {"file": "plan.txt", "content": SPARK_PLAN,
-                     "source_type": "physical_plan", "platform": "spark"},
-        "truth": {"doctor": [], "sentinel": ["cost", "data_skew",
-                                            "sql_antipattern"]},
+        "artifact": {
+            "file": "plan.txt",
+            "content": SPARK_PLAN,
+            "source_type": "physical_plan",
+            "platform": "spark",
+        },
+        "truth": {"doctor": [], "sentinel": ["cost", "data_skew", "sql_antipattern"]},
         "note": "plano de execução é Sentinel",
     },
     {
         "id": "s08-regression",
         "title": "Regressão entre execuções",
         "project_files": {},
-        "artifact": {"file": "job.log", "content": OOM_LOG,
-                     "source_type": "log", "platform": "aws_glue"},
+        "artifact": {
+            "file": "job.log",
+            "content": OOM_LOG,
+            "source_type": "log",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": ["out_of_memory"]},
         "note": "baseline/histórico é Doctor; detecção da falha é Sentinel",
     },
@@ -157,9 +190,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s09-incomplete",
         "title": "Dados incompletos",
         "project_files": {},
-        "artifact": {"file": "trunc.log",
-                     "content": "INFO starting\nWARN ",
-                     "source_type": "log", "platform": "aws_glue"},
+        "artifact": {
+            "file": "trunc.log",
+            "content": "INFO starting\nWARN ",
+            "source_type": "log",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": []},
         "note": "UNKNOWN/nenhum achado correto — sem fabricação",
     },
@@ -167,8 +203,12 @@ SCENARIOS: list[dict[str, Any]] = [
         "id": "s10-conflicting",
         "title": "Findings conflitantes entre fontes",
         "project_files": {"job.py": "df.collect()\n"},
-        "artifact": {"file": "job.log", "content": OOM_LOG,
-                     "source_type": "log", "platform": "aws_glue"},
+        "artifact": {
+            "file": "job.log",
+            "content": OOM_LOG,
+            "source_type": "log",
+            "platform": "aws_glue",
+        },
         "truth": {"doctor": [], "sentinel": ["out_of_memory"]},
         "note": "interop: estático + telemetria coexistem com proveniência",
     },
@@ -185,20 +225,24 @@ def _write(root: Path, files: dict[str, str]) -> None:
 
 def run_doctor(project: Path) -> dict[str, Any]:
     t0 = time.perf_counter()
-    proc = subprocess.run(  # noqa: S603
+    proc = subprocess.run(
         [DOCTOR_BIN, "scan", "--format", "json", str(project)],
-        capture_output=True, text=True, timeout=180,
+        capture_output=True,
+        text=True,
+        timeout=180,
     )
     elapsed = round(time.perf_counter() - t0, 3)
     try:
         data = json.loads(proc.stdout)
     except json.JSONDecodeError:
-        return {"error": proc.stderr[:300], "results": [],
-                "elapsed_s": elapsed}
+        return {"error": proc.stderr[:300], "results": [], "elapsed_s": elapsed}
     results = data.get("results", [])
-    return {"results": results, "elapsed_s": elapsed,
-            "ids": [r.get("check_id", "") for r in results],
-            "calls_external": 0}
+    return {
+        "results": results,
+        "elapsed_s": elapsed,
+        "ids": [r.get("check_id", "") for r in results],
+        "calls_external": 0,
+    }
 
 
 def run_sentinel(scenario: dict[str, Any], workdir: Path) -> dict[str, Any]:
@@ -209,14 +253,17 @@ def run_sentinel(scenario: dict[str, Any], workdir: Path) -> dict[str, Any]:
     n_findings = 0
     if scenario.get("sentinel_call") == "compat":
         from data_sentinel.knowledge.compat import assess_compatibility
+
         a = assess_compatibility(
-            None, runtime="glue-4.0", table_format="iceberg",
-            access_mode="iam", operation="merge",
+            None,
+            runtime="glue-4.0",
+            table_format="iceberg",
+            access_mode="iam",
+            operation="merge",
         )
-        n_findings = len(a.constraints) + (1 if a.support_status.value
-                                           in ("UNSUPPORTED",
-                                               "SUPPORTED_WITH_CONSTRAINTS")
-                                           else 0)
+        n_findings = len(a.constraints) + (
+            1 if a.support_status.value in ("UNSUPPORTED", "SUPPORTED_WITH_CONSTRAINTS") else 0
+        )
         cats = ["compat"] if n_findings else []
     elif art:
         from data_sentinel.core.contracts import (
@@ -236,33 +283,42 @@ def run_sentinel(scenario: dict[str, Any], workdir: Path) -> dict[str, Any]:
             artifact_references=[ArtifactReference(uri=str(af))],
             platform=Platform(art["platform"]),
         )
-        inp = InputFile(path=af, text=art["content"],
-                        size_bytes=len(art["content"].encode()))
+        inp = InputFile(path=af, text=art["content"], size_bytes=len(art["content"].encode()))
         outcome = run_diagnostics(request, [inp])
         findings = outcome.report.findings
         n_findings = len(findings)
         cats = sorted({f.category.value for f in findings})
-    return {"categories": cats, "n_findings": n_findings,
-            "elapsed_s": round(time.perf_counter() - t0, 3),
-            "calls_external": 0}
+    return {
+        "categories": cats,
+        "n_findings": n_findings,
+        "elapsed_s": round(time.perf_counter() - t0, 3),
+        "calls_external": 0,
+    }
 
 
-def run_interop(scenario: dict[str, Any], workdir: Path,
-                doctor_out: dict[str, Any], sent_out: dict[str, Any]) -> dict:
+def run_interop(
+    scenario: dict[str, Any], workdir: Path, doctor_out: dict[str, Any], sent_out: dict[str, Any]
+) -> dict:
     """Doctor bundle → adapter → union with sentinel findings."""
     sys.path.insert(0, str(REPO / "src"))
     from data_sentinel.adapters.doctor import import_doctor_bundle
 
     bundle_path = workdir / "doctor.json"
-    bundle_path.write_text(json.dumps({
-        "contract": "handoff-bundle", "contract_version": 1,
-        "tool": {"name": "forge-doctor-data", "version": "real"},
-        "results": doctor_out.get("results", []),
-        "graph": {"entities": [], "relationships": []},
-        "capabilities": {}, "plans": [],
-        "project": {"root": str(workdir / "project")},
-        "summary": {},
-    }))
+    bundle_path.write_text(
+        json.dumps(
+            {
+                "contract": "handoff-bundle",
+                "contract_version": 1,
+                "tool": {"name": "forge-doctor-data", "version": "real"},
+                "results": doctor_out.get("results", []),
+                "graph": {"entities": [], "relationships": []},
+                "capabilities": {},
+                "plans": [],
+                "project": {"root": str(workdir / "project")},
+                "summary": {},
+            }
+        )
+    )
     imp = import_doctor_bundle(bundle_path)
     imported_text = " ".join(f.explanation for f in imp.findings)
     # duplicates: sentinel findings whose text echoes an imported check_id
@@ -281,11 +337,8 @@ def run_interop(scenario: dict[str, Any], workdir: Path,
 # ---------------------------------------------------------------- driver
 
 
-def expected_hit(expected: list[str], ids: list[str],
-                 cats: list[str]) -> tuple[bool, list[str]]:
-    hits = [e for e in expected
-            if any(i.startswith(e) for i in ids)
-            or any(e in c for c in cats)]
+def expected_hit(expected: list[str], ids: list[str], cats: list[str]) -> tuple[bool, list[str]]:
+    hits = [e for e in expected if any(i.startswith(e) for i in ids) or any(e in c for c in cats)]
     return bool(hits), hits
 
 
@@ -308,23 +361,27 @@ def evaluate() -> dict[str, Any]:
             doc = run_doctor(work / "project")
             sent = run_sentinel(sc, work)
             inter = run_interop(sc, work, doc, sent)
-            d_hit, d_hits = expected_hit(
-                sc["truth"]["doctor"], doc.get("ids", []), [])
-            s_hit, s_hits = expected_hit(
-                sc["truth"]["sentinel"], [], sent.get("categories", []))
+            d_hit, d_hits = expected_hit(sc["truth"]["doctor"], doc.get("ids", []), [])
+            s_hit, s_hits = expected_hit(sc["truth"]["sentinel"], [], sent.get("categories", []))
             rec = {
-                "id": sc["id"], "title": sc["title"], "note": sc["note"],
+                "id": sc["id"],
+                "title": sc["title"],
+                "note": sc["note"],
                 "doctor": {
-                    "detected": d_hit, "hits": d_hits,
+                    "detected": d_hit,
+                    "hits": d_hits,
                     "n_results": len(doc.get("results", [])),
                     "elapsed_s": doc.get("elapsed_s"),
-                } if sc["project_files"] or sc["truth"]["doctor"]
+                }
+                if sc["project_files"] or sc["truth"]["doctor"]
                 else "NOT_SUPPORTED",
                 "sentinel": {
-                    "detected": s_hit, "hits": s_hits,
+                    "detected": s_hit,
+                    "hits": s_hits,
                     "n_findings": sent.get("n_findings", 0),
                     "elapsed_s": sent.get("elapsed_s"),
-                } if sc["artifact"] or sc.get("sentinel_call")
+                }
+                if sc["artifact"] or sc.get("sentinel_call")
                 else "NOT_SUPPORTED",
                 "interop": inter,
             }
@@ -338,15 +395,11 @@ def evaluate() -> dict[str, Any]:
         "doctor_detected": sum(1 for s in ds if s["doctor"]["detected"]),
         "sentinel_applicable": len(ss),
         "sentinel_detected": sum(1 for s in ss if s["sentinel"]["detected"]),
-        "doctor_elapsed_s": round(sum(
-            s["doctor"]["elapsed_s"] for s in ds), 3),
-        "sentinel_elapsed_s": round(sum(
-            s["sentinel"]["elapsed_s"] for s in ss), 3),
+        "doctor_elapsed_s": round(sum(s["doctor"]["elapsed_s"] for s in ds), 3),
+        "sentinel_elapsed_s": round(sum(s["sentinel"]["elapsed_s"] for s in ss), 3),
         "external_calls": 0,
-        "interop_union": sum(
-            s["interop"]["union"] for s in out["scenarios"]),
-        "interop_dup_estimate": sum(
-            s["interop"]["dup_estimate"] for s in out["scenarios"]),
+        "interop_union": sum(s["interop"]["union"] for s in out["scenarios"]),
+        "interop_dup_estimate": sum(s["interop"]["dup_estimate"] for s in out["scenarios"]),
     }
     out["status"] = "VERIFIED"
     return out

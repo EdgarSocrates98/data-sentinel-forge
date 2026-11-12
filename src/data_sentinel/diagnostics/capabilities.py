@@ -42,8 +42,7 @@ def integration_descriptors() -> list[CapabilityDescriptor]:
             capability_id="sentinel.import.doctor-bundle",
             provider=_PROVIDER,
             version=INTEROP_SCHEMA_VERSION,
-            input_types=["handoff-bundle@1", "forge-contracts/1",
-                         "scan-json@3.0"],
+            input_types=["handoff-bundle@1", "forge-contracts/1", "scan-json@3.0"],
             output_types=["external-diagnostic-bundle", "findings"],
             permissions=["filesystem:read"],
             limitations=[

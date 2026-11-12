@@ -67,9 +67,7 @@ def test_drift_stable() -> None:
 
 
 def test_categorical_drift() -> None:
-    r = detect_categorical_drift("status",
-                                 {"ok": 90, "bad": 10},
-                                 {"ok": 30, "bad": 70})
+    r = detect_categorical_drift("status", {"ok": 90, "bad": 10}, {"ok": 30, "bad": 70})
     assert r.level != DriftLevel.NONE
 
 
@@ -77,8 +75,7 @@ def test_drift_findings_only_nonzero() -> None:
     rng = random.Random(3)  # noqa: S311
     base = [rng.gauss(0, 1) for _ in range(300)]
     cur = [rng.gauss(5, 1) for _ in range(300)]
-    res = [detect_drift("amount", base, cur),
-           detect_drift("stable", base, base)]
+    res = [detect_drift("amount", base, cur), detect_drift("stable", base, base)]
     fs, evs = drift_findings(res)
     assert len(fs) == 1
     assert "amount" in fs[0].explanation

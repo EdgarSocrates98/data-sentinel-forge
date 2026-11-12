@@ -50,8 +50,7 @@ def _detect_source(root: Path) -> SourceInfo:
         method = "git" if (root / ".git").is_dir() else "dir"
     elif "site-packages" in pkg.as_posix():
         method = "wheel"
-    return SourceInfo(method=method, version=data_sentinel.__version__,
-                      integrity="asset-manifest")
+    return SourceInfo(method=method, version=data_sentinel.__version__, integrity="asset-manifest")
 
 
 def plan_installation(
@@ -67,8 +66,12 @@ def plan_installation(
     refusals: list[str] = []
     try:
         ctx = service._ctx(
-            scope.value, root, service._hosts(host), profile.value,
-            dry_run=True, components=components,
+            scope.value,
+            root,
+            service._hosts(host),
+            profile.value,
+            dry_run=True,
+            components=components,
             gateway_profile=gateway_profile.value,
         )
         doc = kit.plan(ctx)
@@ -153,9 +156,8 @@ def plan_installation(
         host=host,
         profile=profile,
         gateway_profile=gateway_profile,
-        components=sorted(
-            {c.component for c in changes}, key=lambda c: c.value
-        ) or [ComponentKind.MARKERS],
+        components=sorted({c.component for c in changes}, key=lambda c: c.value)
+        or [ComponentKind.MARKERS],
         target_root=str(ctx.root),
         planned_changes=changes,
         conflicts=conflicts,

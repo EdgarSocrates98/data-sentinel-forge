@@ -35,12 +35,12 @@ def check_version_compat(expected: str, found: str) -> VersionCheck:
     fm, fn, fp = _parse(found)
     if em != fm:
         return VersionCheck(
-            compatible=False,
-            reason=f"MAJOR diverge: esperado {expected}, encontrado {found}")
+            compatible=False, reason=f"MAJOR diverge: esperado {expected}, encontrado {found}"
+        )
     warnings: list[str] = []
     if (fn, fp) > (en, ep):
         warnings.append(
             f"contrato {found} é mais novo que o esperado {expected} — "
-            "campos desconhecidos serão preservados mas não avaliados")
-    return VersionCheck(compatible=True,
-                        reason="compatível", warnings=warnings)
+            "campos desconhecidos serão preservados mas não avaliados"
+        )
+    return VersionCheck(compatible=True, reason="compatível", warnings=warnings)

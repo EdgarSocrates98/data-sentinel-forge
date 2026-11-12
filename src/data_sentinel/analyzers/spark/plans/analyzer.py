@@ -38,21 +38,34 @@ def _classify_empty_parse(text: str) -> tuple[str, str]:
     """
     stripped = text.strip()
     if not stripped:
-        return ("input vazio — nada a parsear",
-                "forneça a saída de EXPLAIN/physical plan ou um event log")
-    markers = ("== Physical Plan", "== Parsed Logical Plan",
-               "== Optimized Logical Plan", "AdaptiveSparkPlan",
-               "spark.sql", "EXPLAIN", "Project", "Filter", "Join",
-               "Exchange", "Scan")
+        return (
+            "input vazio — nada a parsear",
+            "forneça a saída de EXPLAIN/physical plan ou um event log",
+        )
+    markers = (
+        "== Physical Plan",
+        "== Parsed Logical Plan",
+        "== Optimized Logical Plan",
+        "AdaptiveSparkPlan",
+        "spark.sql",
+        "EXPLAIN",
+        "Project",
+        "Filter",
+        "Join",
+        "Exchange",
+        "Scan",
+    )
     if not any(m in stripped for m in markers):
-        return ("formato não reconhecido — o texto não contém marcadores "
-                "de plano Spark",
-                "exporte o physical plan real (EXPLAIN FORMATTED, "
-                "spark.sql.ui ou event log) — logs genéricos não são planos")
-    return ("plano com marcadores reconhecíveis mas sem nós parseáveis — "
-            "provável conteúdo malformado ou truncado",
-            "reexporte o plano completo (o texto parece truncado) ou "
-            "anexe o event log da execução")
+        return (
+            "formato não reconhecido — o texto não contém marcadores de plano Spark",
+            "exporte o physical plan real (EXPLAIN FORMATTED, "
+            "spark.sql.ui ou event log) — logs genéricos não são planos",
+        )
+    return (
+        "plano com marcadores reconhecíveis mas sem nós parseáveis — "
+        "provável conteúdo malformado ou truncado",
+        "reexporte o plano completo (o texto parece truncado) ou anexe o event log da execução",
+    )
 
 
 class SparkPlanAnalyzer(Analyzer):
@@ -83,8 +96,7 @@ class SparkPlanAnalyzer(Analyzer):
         return (
             "Plano estático — sem métricas de execução reais "
             "(bytes lidos, spill, skew) salvo quando o texto as declara",
-            "Presença de Exchange/SortMergeJoin é sinal de investigação, "
-            "não problema por si só",
+            "Presença de Exchange/SortMergeJoin é sinal de investigação, não problema por si só",
             "Estatísticas exibidas são estimativas do otimizador salvo "
             "indicação explícita contrária",
         )
@@ -120,7 +132,8 @@ class SparkPlanAnalyzer(Analyzer):
             # §7.5 (Cycle 08.1): distinguish *why* nothing was parsed —
             # never emit perf diagnostics on zero usable nodes.
             all_unknown = bool(plan.nodes) and all(
-                n.operator.startswith("unknown:") for n in plan.nodes.values())
+                n.operator.startswith("unknown:") for n in plan.nodes.values()
+            )
             if not plan.nodes or all_unknown:
                 reason, needed = _classify_empty_parse(input_file.text)
                 findings.append(
@@ -417,8 +430,7 @@ class SparkPlanAnalyzer(Analyzer):
                     ),
                     evidence_ids=[add_ev(nodes[0], 0.6)],
                     validation_steps=[
-                        "Comparar com plano sem repartition explícito e "
-                        "medir shuffle read/write"
+                        "Comparar com plano sem repartition explícito e medir shuffle read/write"
                     ],
                 )
             )
@@ -438,8 +450,7 @@ class SparkPlanAnalyzer(Analyzer):
                     ),
                     evidence_ids=[],
                     validation_steps=[
-                        "Obter plano final via Spark UI ou event log para "
-                        "comparação"
+                        "Obter plano final via Spark UI ou event log para comparação"
                     ],
                 )
             )

@@ -31,8 +31,8 @@ def test_a_runtime_budget_enforced() -> None:
     task = AgentTask(task_id="t", agent_id="a", kind="investigate")
     ex = rt.run(task, lambda i: False)  # nunca termina
     from data_sentinel.core.contracts.agent import AgentState
-    assert ex.state in {AgentState.PARTIAL,
-                        AgentState.BUDGET_EXCEEDED}
+
+    assert ex.state in {AgentState.PARTIAL, AgentState.BUDGET_EXCEEDED}
 
 
 def test_b_specialists_registered_and_routed() -> None:
@@ -45,9 +45,9 @@ def test_b_specialists_registered_and_routed() -> None:
 def test_c_tools_registry_execute(tmp_path: Path) -> None:
     f = tmp_path / "q.sql"
     f.write_text("SELECT * FROM a", encoding="utf-8")
-    res = execute_tool(ToolInvocation(
-        invocation_id="e2e", tool_id="sentinel.sql.analyze",
-        input={"file": str(f)}))
+    res = execute_tool(
+        ToolInvocation(invocation_id="e2e", tool_id="sentinel.sql.analyze", input={"file": str(f)})
+    )
     assert res.ok
     assert "findings" in res.output or res.output
 
@@ -56,14 +56,15 @@ def test_d_mcp_stdio_roundtrip() -> None:
     pytest.importorskip("mcp")
     # coberto por tests/integration/test_mcp_stdio.py — aqui só importa
     from data_sentinel.mcp_server import create_server
+
     srv = create_server()
     assert srv is not None
 
 
 def test_e_context_layers_and_budget() -> None:
     ctx = build_context(
-        problem="p", evidence=[("ev", "src")],
-        knowledge=[("k" * 90000, "kb")], token_limit=200)
+        problem="p", evidence=[("ev", "src")], knowledge=[("k" * 90000, "kb")], token_limit=200
+    )
     assert ctx.chunks and ctx.budget_notes
 
 
@@ -74,6 +75,7 @@ def test_f_rag_retrieval_and_memory(tmp_path: Path) -> None:
     assert r.chunks and r.chunks[0].provenance
     m = InvestigationMemory(root=tmp_path)
     from data_sentinel.core.contracts.agent import InvestigationState
+
     m.save(InvestigationState(investigation_id="e2e-f"))
     assert m.load("e2e-f") is not None
 
@@ -81,10 +83,14 @@ def test_f_rag_retrieval_and_memory(tmp_path: Path) -> None:
 def test_g_rca_and_validator_pipeline() -> None:
     from data_sentinel.core.contracts.entities import Finding
     from data_sentinel.core.contracts.enums import FindingCategory
-    f = Finding(category=FindingCategory.OUT_OF_MEMORY,
-                severity=Severity.CRITICAL,
-                status=FindingStatus.CONFIRMED,
-                explanation="driver OOM", evidence_ids=["e1"])
+
+    f = Finding(
+        category=FindingCategory.OUT_OF_MEMORY,
+        severity=Severity.CRITICAL,
+        status=FindingStatus.CONFIRMED,
+        explanation="driver OOM",
+        evidence_ids=["e1"],
+    )
     assert EvidenceValidator().validate([f]).ok
     r = RootCauseEngine().analyze([f])
     assert r.primary and r.primary.status == "supported"
@@ -92,8 +98,7 @@ def test_g_rca_and_validator_pipeline() -> None:
 
 def test_h_guardrails_block_unsafe() -> None:
     with pytest.raises(GuardrailError):
-        check_tool_permission("sentinel.sql.analyze",
-                              PermissionClass.DESTRUCTIVE)
+        check_tool_permission("sentinel.sql.analyze", PermissionClass.DESTRUCTIVE)
     out = sanitize_untrusted("AKIAIOSFODNN7EXAMPLE leaked")
     assert "AKIA" not in out
 
@@ -101,16 +106,15 @@ def test_h_guardrails_block_unsafe() -> None:
 def test_i_investigate_cli_end_to_end(tmp_path: Path) -> None:
     f = tmp_path / "q.sql"
     f.write_text("SELECT * FROM t JOIN u ON t.a=u.a", encoding="utf-8")
-    rep = investigate("sql query lenta",
-                      {"sentinel.sql.analyze": str(f)})
+    rep = investigate("sql query lenta", {"sentinel.sql.analyze": str(f)})
     assert rep.tools_used == ["sentinel.sql.analyze"]
     assert "validation" in rep.context
 
 
 def test_j_full_cli_surface() -> None:
     from data_sentinel.cli import app
-    for cmd in (["agents"], ["tools"], ["doctor"],
-                ["capabilities", "--json"]):
+
+    for cmd in (["agents"], ["tools"], ["doctor"], ["capabilities", "--json"]):
         r = runner.invoke(app, cmd)
         assert r.exit_code == 0, cmd
 
@@ -128,8 +132,10 @@ def test_tool_benchmark_smoke(tmp_path: Path) -> None:
     f.write_text("SELECT * FROM a JOIN b ON a.x=b.x", encoding="utf-8")
     t0 = time.perf_counter()
     for _ in range(5):
-        execute_tool(ToolInvocation(
-            invocation_id="b", tool_id="sentinel.sql.analyze",
-            input={"file": str(f)}))
+        execute_tool(
+            ToolInvocation(
+                invocation_id="b", tool_id="sentinel.sql.analyze", input={"file": str(f)}
+            )
+        )
     ms = (time.perf_counter() - t0) / 5 * 1000
     assert ms < 5000  # sanidade, não regressão absurda

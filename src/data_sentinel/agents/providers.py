@@ -38,11 +38,14 @@ class StubProvider:
 
     def complete(self, req: ModelRequest) -> ModelResponse:
         approx = max(1, len(req.prompt) // 4)
-        text = ("[stub] provider determinístico — sem LLM real. "
-                f"prompt_chars={len(req.prompt)}")
-        return ModelResponse(text=text, tokens_in=approx,
-                             tokens_out=len(text) // 4,
-                             model_id="stub", stop_reason="end")
+        text = f"[stub] provider determinístico — sem LLM real. prompt_chars={len(req.prompt)}"
+        return ModelResponse(
+            text=text,
+            tokens_in=approx,
+            tokens_out=len(text) // 4,
+            model_id="stub",
+            stop_reason="end",
+        )
 
 
 class LocalProvider:
@@ -50,8 +53,12 @@ class LocalProvider:
 
     name = "local"
 
-    def __init__(self, base_url: str = "http://localhost:11434",
-                 model: str = "llama3.1", timeout: float = 60.0) -> None:
+    def __init__(
+        self,
+        base_url: str = "http://localhost:11434",
+        model: str = "llama3.1",
+        timeout: float = 60.0,
+    ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout = timeout
@@ -59,7 +66,8 @@ class LocalProvider:
     def available(self) -> bool:
         try:
             with urllib.request.urlopen(  # noqa: S310 — localhost fixo
-                    f"{self.base_url}/api/tags", timeout=3) as r:
+                f"{self.base_url}/api/tags", timeout=3
+            ) as r:
                 return bool(r.status == 200)
         except Exception:
             return False
@@ -69,16 +77,18 @@ class LocalProvider:
             "model": req.model_id or self.model,
             "prompt": f"{req.system}\n\n{req.prompt}".strip(),
             "stream": False,
-            "options": {"temperature": req.temperature,
-                        "num_predict": req.max_tokens},
+            "options": {"temperature": req.temperature, "num_predict": req.max_tokens},
         }
         data = json.dumps(payload).encode()
         try:
             http_req = urllib.request.Request(  # noqa: S310
-                f"{self.base_url}/api/generate", data=data,
-                headers={"Content-Type": "application/json"})
+                f"{self.base_url}/api/generate",
+                data=data,
+                headers={"Content-Type": "application/json"},
+            )
             with urllib.request.urlopen(  # noqa: S310 — localhost only
-                    http_req, timeout=self.timeout) as r:
+                http_req, timeout=self.timeout
+            ) as r:
                 body = json.loads(r.read().decode())
         except Exception as exc:
             raise ProviderError(f"local provider falhou: {exc}") from exc
@@ -87,7 +97,8 @@ class LocalProvider:
             tokens_in=body.get("prompt_eval_count") or 0,
             tokens_out=body.get("eval_count") or 0,
             model_id=req.model_id or self.model,
-            stop_reason="end" if body.get("done") else "length")
+            stop_reason="end" if body.get("done") else "length",
+        )
 
 
 _PROVIDERS: dict[str, type[ModelProvider]] = {

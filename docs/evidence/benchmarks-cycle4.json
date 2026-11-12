@@ -1,17 +1,17 @@
 {
   "adapter_normalize_5k_rows": {
-    "seconds": 0.047680512800025096
+    "seconds": 0.09662720999986049
   },
   "contract_parse_200_rules": {
-    "seconds": 0.034920870950008974
+    "seconds": 0.07585408999984793
   },
   "drift_10k_vs_10k": {
-    "seconds": 0.004532814699996379
+    "seconds": 0.012417979999736418
   },
   "lineage_1k_events_graph": {
-    "seconds": 0.03307465159996355
+    "seconds": 0.046346400000038555
   },
   "profile_column_50k": {
-    "seconds": 0.04341929819993311
+    "seconds": 0.12444294000015362
   }
 }

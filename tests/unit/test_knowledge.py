@@ -133,18 +133,30 @@ class TestPackagedRules:
 
     def test_packaged_rules_cover_runtime_matrix(self):
         rules, _ = load_packaged_rules()
-        ctx = {"service": "aws_glue", "engine": "spark", "runtime": "glue-5.1",
-               "table_format": "iceberg"}
+        ctx = {
+            "service": "aws_glue",
+            "engine": "spark",
+            "runtime": "glue-5.1",
+            "table_format": "iceberg",
+        }
         m = select(rules, ctx)
         assert m.status == SupportStatus.SUPPORTED
 
     def test_v3_never_generalized(self):
         rules, _ = load_packaged_rules()
         # v3 em glue-4.0 → UNSUPPORTED; em glue-5.1 → NOT_VERIFIED (não SUPPORTED)
-        c4 = {"service": "aws_glue", "engine": "spark",
-              "runtime": "glue-4.0", "table_format": "iceberg-v3"}
-        c51 = {"service": "aws_glue", "engine": "spark",
-               "runtime": "glue-5.1", "table_format": "iceberg-v3"}
+        c4 = {
+            "service": "aws_glue",
+            "engine": "spark",
+            "runtime": "glue-4.0",
+            "table_format": "iceberg-v3",
+        }
+        c51 = {
+            "service": "aws_glue",
+            "engine": "spark",
+            "runtime": "glue-5.1",
+            "table_format": "iceberg-v3",
+        }
         assert select(rules, c4).status == SupportStatus.UNSUPPORTED
         assert select(rules, c51).status == SupportStatus.NOT_VERIFIED
 
@@ -162,22 +174,30 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
         dist = tmp_path / "dist"
         dist.mkdir()
         try:
-            subprocess.run(  # noqa: S603 - wheel construído pelo próprio teste
+            subprocess.run(
                 ["uv", "build", "--wheel", "--out-dir", str(dist)],  # noqa: S607
-                cwd=ROOT, check=True, capture_output=True, text=True)
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
         except (subprocess.CalledProcessError, FileNotFoundError):
-            subprocess.run(  # noqa: S603 - fallback pip em ausência de uv
-                [sys.executable, "-m", "pip", "wheel", ".",
-                 "--no-deps", "-w", str(dist)],
-                cwd=ROOT, check=True, capture_output=True, text=True)
+            subprocess.run(
+                [sys.executable, "-m", "pip", "wheel", ".", "--no-deps", "-w", str(dist)],
+                cwd=ROOT,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
         wheel = next(dist.glob("data_sentinel_forge-*.whl"))
     with tempfile.TemporaryDirectory() as td:
         venv.create(td, with_pip=True)
         scripts = "Scripts" if sys.platform == "win32" else "bin"
         pip = Path(td) / scripts / "pip"
-        subprocess.run(  # noqa: S603 - wheel local construído pelo próprio teste
+        subprocess.run(
             [str(pip), "install", "-q", str(wheel.resolve())],
-            check=True, capture_output=True,
+            check=True,
+            capture_output=True,
         )
         code = (
             "from data_sentinel.knowledge import load_packaged_rules;"
@@ -186,8 +206,11 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
             "assert len(rules) >= 7;"
             "print(len(rules))"
         )
-        out = subprocess.run(  # noqa: S603 - python da venv criada pelo teste
+        out = subprocess.run(
             [str(Path(td) / scripts / "python"), "-c", code],
-            check=True, capture_output=True, text=True, cwd=td,
+            check=True,
+            capture_output=True,
+            text=True,
+            cwd=td,
         )
         assert int(out.stdout.strip()) >= 7

@@ -19,14 +19,18 @@ def _report() -> DiagnosticReport:
     return DiagnosticReport(
         request_id="r1",
         created_at=datetime(2026, 10, 20, tzinfo=UTC),
-        findings=[Finding(
-            category=FindingCategory.DATA_QUALITY,
-            severity=Severity.HIGH,
-            status=FindingStatus.CONFIRMED,
-            explanation="drift confirmado em 'amount' (KS p=0.003)",
-            evidence_ids=["drift:amount:ks_pvalue"],
-            recommendations=["comparar baseline"])],
-        limitations=["somente observações exportadas"])
+        findings=[
+            Finding(
+                category=FindingCategory.DATA_QUALITY,
+                severity=Severity.HIGH,
+                status=FindingStatus.CONFIRMED,
+                explanation="drift confirmado em 'amount' (KS p=0.003)",
+                evidence_ids=["drift:amount:ks_pvalue"],
+                recommendations=["comparar baseline"],
+            )
+        ],
+        limitations=["somente observações exportadas"],
+    )
 
 
 def test_export_shape() -> None:
@@ -63,5 +67,4 @@ def test_export_serialization_stable() -> None:
     # integrity hash deterministic for same content
     j1 = json.loads(b1.model_dump_json())
     j2 = json.loads(b2.model_dump_json())
-    assert j1["integrity"]["content_sha256"] == j2["integrity"][
-        "content_sha256"]
+    assert j1["integrity"]["content_sha256"] == j2["integrity"]["content_sha256"]

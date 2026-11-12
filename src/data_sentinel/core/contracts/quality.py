@@ -84,9 +84,7 @@ class FreshnessPolicy(ContractModel):
 
 
 class DataQualityContract(ContractModel):
-    model_config = ConfigDict(
-        extra="forbid", str_strip_whitespace=True, populate_by_name=True
-    )
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True, populate_by_name=True)
 
     contract_id: str = Field(min_length=1)
     version: str = Field(min_length=1)

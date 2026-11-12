@@ -72,9 +72,7 @@ class IncidentTimeline:
         prev: datetime | None = None
         gap_set = {(g.after, g.before) for g in self.gaps}
         for e in self.entries:
-            if prev is not None and any(
-                g[0] == prev and g[1] == e.timestamp for g in gap_set
-            ):
+            if prev is not None and any(g[0] == prev and g[1] == e.timestamp for g in gap_set):
                 delta = (e.timestamp - prev).total_seconds()
                 out.append(f"     — gap de {delta:.0f}s sem eventos observados —")
             ts = e.timestamp.strftime("%H:%M:%S") if hasattr(e.timestamp, "strftime") else "?"
@@ -113,9 +111,7 @@ def build_timeline(
     timeline.undated_lines = len(parsed.events) - len(dated)
     if only_exceptions:
         dated = [e for e in dated if e.exception_class]
-    for event in sorted(dated, key=lambda e: (e.timestamp or e.line_no, e.line_no))[
-        :max_entries
-    ]:
+    for event in sorted(dated, key=lambda e: (e.timestamp or e.line_no, e.line_no))[:max_entries]:
         if event.timestamp is None:
             continue
         summary = event.message[:_MAX_SUMMARY]
@@ -145,7 +141,5 @@ def merge_timelines(*timelines: IncidentTimeline) -> IncidentTimeline:
     merged.entries.sort(key=lambda e: e.timestamp)
     merged.detect_gaps()
     if len(sources) > 1:
-        merged.granularity_notes.append(
-            "fontes múltiplas: " + ", ".join(sorted(sources))
-        )
+        merged.granularity_notes.append("fontes múltiplas: " + ", ".join(sorted(sources)))
     return merged

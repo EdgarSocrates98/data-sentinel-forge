@@ -49,8 +49,7 @@ def _status_counts(findings: Sequence[Finding]) -> str:
     for f in findings:
         counts[f.status.value] = counts.get(f.status.value, 0) + 1
     return (
-        f"{len(findings)} achado(s): "
-        + ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
+        f"{len(findings)} achado(s): " + ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
         if findings
         else "nenhum achado"
     )
@@ -70,15 +69,13 @@ def run_diagnostics(
     limits = limits or AnalysisLimits()
     started = time.monotonic()
 
-    selected = list(analyzers) if analyzers is not None else registry.for_source_type(
-        request.source_type
+    selected = (
+        list(analyzers) if analyzers is not None else registry.for_source_type(request.source_type)
     )
     if not selected:
         raise SentinelError(
             code="orquestrador.sem_analisador",
-            message=(
-                f"nenhum analyzer registrado para '{request.source_type.value}'"
-            ),
+            message=(f"nenhum analyzer registrado para '{request.source_type.value}'"),
             details={"source_type": request.source_type.value},
         )
 
@@ -89,18 +86,14 @@ def run_diagnostics(
     failure_notes: list[str] = []
 
     for analyzer in selected[: limits.max_analyzers]:
-        if limits.cancelled or (
-            time.monotonic() - started
-        ) * 1000 > limits.timeout_ms:
+        if limits.cancelled or (time.monotonic() - started) * 1000 > limits.timeout_ms:
             outcome.analyzers_skipped.append(analyzer.analyzer_id)
             continue
         try:
             t0 = time.monotonic()
             result = analyzer.analyze(request, inputs)
             if result.duration_ms is None:
-                result = replace(
-                    result, duration_ms=int((time.monotonic() - t0) * 1000)
-                )
+                result = replace(result, duration_ms=int((time.monotonic() - t0) * 1000))
         except Exception as exc:  # analyzer fault → limitation, never fabricate
             outcome.analyzers_skipped.append(analyzer.analyzer_id)
             failure_note = f"analyzer '{analyzer.analyzer_id}' falhou: {exc!r}"
@@ -121,9 +114,7 @@ def run_diagnostics(
                 seen_limitations.add(lim)
                 limitations.append(lim)
     if outcome.analyzers_skipped:
-        limitations.append(
-            "analyzers não executados: " + ", ".join(outcome.analyzers_skipped)
-        )
+        limitations.append("analyzers não executados: " + ", ".join(outcome.analyzers_skipped))
 
     for r in outcome.results:
         raw_recs = r.metadata.get("recommendations")

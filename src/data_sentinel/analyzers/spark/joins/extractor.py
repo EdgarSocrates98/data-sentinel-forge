@@ -153,11 +153,7 @@ def extract_from_plan(plan: ExecutionPlan) -> JoinContext:
     for node in plan.nodes.values():
         if node.operator not in _PLAN_JOIN_OPS:
             continue
-            form = (
-                JoinForm.CROSS
-                if node.operator == "CartesianProduct"
-                else JoinForm.OTHER
-            )
+            form = JoinForm.CROSS if node.operator == "CartesianProduct" else JoinForm.OTHER
             ctx.joins.append(
                 JoinSignature(
                     join_id=f"plan-join-{node.node_id}",

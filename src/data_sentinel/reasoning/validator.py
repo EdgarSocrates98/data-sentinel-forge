@@ -50,21 +50,16 @@ class EvidenceValidator:
         seen: set[str] = set()
         for f in findings:
             fid = f.finding_id
-            if (f.status != FindingStatus.UNKNOWN
-                    and not f.evidence_ids):
-                rep.issues.append(ValidationIssue(
-                    fid, "finding não-UNKNOWN sem evidence_ids", "error"))
-            if (f.status == FindingStatus.UNKNOWN
-                    and not f.alternatives):
-                rep.issues.append(ValidationIssue(
-                    fid, "UNKNOWN sem unknowns declarados", "error"))
-            if (f.status == FindingStatus.UNKNOWN
-                    and f.severity in _HIGH):
-                rep.issues.append(ValidationIssue(
-                    fid, "severidade alta com status UNKNOWN"))
+            if f.status != FindingStatus.UNKNOWN and not f.evidence_ids:
+                rep.issues.append(
+                    ValidationIssue(fid, "finding não-UNKNOWN sem evidence_ids", "error")
+                )
+            if f.status == FindingStatus.UNKNOWN and not f.alternatives:
+                rep.issues.append(ValidationIssue(fid, "UNKNOWN sem unknowns declarados", "error"))
+            if f.status == FindingStatus.UNKNOWN and f.severity in _HIGH:
+                rep.issues.append(ValidationIssue(fid, "severidade alta com status UNKNOWN"))
             key = f"{f.category}:{f.explanation[:80]}".lower()
             if key in seen:
-                rep.issues.append(ValidationIssue(
-                    fid, "possível duplicata de claim"))
+                rep.issues.append(ValidationIssue(fid, "possível duplicata de claim"))
             seen.add(key)
         return rep

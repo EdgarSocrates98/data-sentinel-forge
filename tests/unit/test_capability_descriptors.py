@@ -13,9 +13,15 @@ def test_descriptors_cover_analyzers_and_integrations() -> None:
     ids = [d.capability_id for d in ds]
     assert "sentinel.import.doctor-bundle" in ids
     assert "sentinel.incident.graph" in ids
-    assert sum(1 for i in ids if i.startswith("sentinel.")
-               and i not in ("sentinel.import.doctor-bundle",
-                             "sentinel.incident.graph")) == 13
+    assert (
+        sum(
+            1
+            for i in ids
+            if i.startswith("sentinel.")
+            and i not in ("sentinel.import.doctor-bundle", "sentinel.incident.graph")
+        )
+        == 13
+    )
     assert ids == sorted(ids)  # determinístico
 
 
@@ -23,15 +29,25 @@ def test_cli_descriptors_json() -> None:
     r = runner.invoke(app, ["capabilities", "--descriptors"])
     assert r.exit_code == 0
     import json
+
     out = json.loads(r.stdout)
     assert all("capability_id" in d and "provider" in d for d in out)
 
 
 def test_no_forge_imports_in_src() -> None:
     """Independência: src/ nunca importa pacotes forge_*."""
+    import ast
     import pathlib
+
     src = pathlib.Path(__file__).resolve().parents[2] / "src" / "data_sentinel"
     for py in src.rglob("*.py"):
-        for i, line in enumerate(py.read_text(encoding="utf-8").splitlines(), 1):
-            assert "import forge_" not in line and "from forge_" not in line, \
-                f"{py}:{i} importa ecossistema forge"
+        tree = ast.parse(py.read_text(encoding="utf-8"), filename=str(py))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                mods = [a.name for a in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                mods = [node.module] if node.level == 0 and node.module else []
+            else:
+                continue
+            for mod in mods:
+                assert not mod.startswith("forge_"), f"{py}:{node.lineno} importa ecossistema forge"

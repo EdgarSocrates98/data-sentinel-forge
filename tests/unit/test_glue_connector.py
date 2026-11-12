@@ -18,7 +18,7 @@ def stubbed() -> Any:
 
     session = boto3.session.Session(
         aws_access_key_id="test",
-        aws_secret_access_key="test",  # noqa: S106 — fake stub creds
+        aws_secret_access_key="test",
         region_name="us-east-1",
     )
     client = session.client("glue")
@@ -150,9 +150,7 @@ class TestJobRuns:
             {"JobName": "job1", "MaxResults": 50},
         )
         runs = list(
-            _connector(session, client).get_job_runs(
-                "job1", cancelled=lambda: next(calls, True)
-            )
+            _connector(session, client).get_job_runs("job1", cancelled=lambda: next(calls, True))
         )
         assert len(runs) <= 1
 
@@ -208,9 +206,7 @@ class TestErrorTaxonomy:
         assert err.code == "aws.throttling"
 
     def test_expired_token_maps(self) -> None:
-        err = map_client_error(
-            _FakeClientError("ExpiredTokenException", "expired"), context="ctx"
-        )
+        err = map_client_error(_FakeClientError("ExpiredTokenException", "expired"), context="ctx")
         assert err.code == "aws.token_expirado"
 
     def test_no_credentials_maps(self) -> None:

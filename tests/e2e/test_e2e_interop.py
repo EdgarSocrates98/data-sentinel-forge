@@ -25,15 +25,18 @@ FIX = Path(__file__).resolve().parents[2] / "fixtures" / "doctor-data"
 
 def _sentinel_side() -> tuple[list[Finding], list[Evidence]]:
     ev = Evidence(
-        evidence_id="sent-e1", source="cloudwatch:/aws-glue/jobs/output",
+        evidence_id="sent-e1",
+        source="cloudwatch:/aws-glue/jobs/output",
         source_location="/aws-glue/jobs/output",
         captured_at=datetime(2026, 1, 1, tzinfo=UTC),
         content_hash="b" * 64,
         sanitized_excerpt="java.lang.OutOfMemoryError",
-        provenance=EvidenceProvenance.OBSERVED, confidence=0.9,
+        provenance=EvidenceProvenance.OBSERVED,
+        confidence=0.9,
     )
     f = Finding(
-        category=FindingCategory.OUT_OF_MEMORY, severity=Severity.HIGH,
+        category=FindingCategory.OUT_OF_MEMORY,
+        severity=Severity.HIGH,
         status=FindingStatus.CONFIRMED,
         explanation="executor OOM no stage 3",
         evidence_ids=["sent-e1"],
@@ -52,26 +55,25 @@ def test_e2e_import_correlate_report(tmp_path: Path) -> None:
 
     # 3. incident graph correlates both worlds with provenance intact
     ctx = UnifiedExecutionContext(
-        job_name="glue-etl", run_id="jr_1", execution_status="FAILED",
+        job_name="glue-etl",
+        run_id="jr_1",
+        execution_status="FAILED",
     )
     g = build_incident_graph(
-        ctx, sent_f, sent_e,
-        imported_findings=imp.findings, imported_evidence=imp.evidence,
+        ctx,
+        sent_f,
+        sent_e,
+        imported_findings=imp.findings,
+        imported_evidence=imp.evidence,
     )
-    imported_nodes = [
-        n for n in g.nodes.values()
-        if n.attrs.get("imported") is True
-    ]
+    imported_nodes = [n for n in g.nodes.values() if n.attrs.get("imported") is True]
     assert len(imported_nodes) == len(imp.findings)
     assert g.causal_edges() == []  # nada causal sem justificativa forte
-    assert all(
-        e.kind != EdgeKind.POTENTIALLY_CAUSED_BY for e in g.edges
-    )
+    assert all(e.kind != EdgeKind.POTENTIALLY_CAUSED_BY for e in g.edges)
 
     # 4. enriched "report": union keeps provenance classes separate
     all_findings = sent_f + imp.findings
-    confirmed = [f for f in all_findings
-                 if f.status == FindingStatus.CONFIRMED]
+    confirmed = [f for f in all_findings if f.status == FindingStatus.CONFIRMED]
     assert all("importado" not in f.explanation for f in confirmed)
     assert len(all_findings) == 1 + len(imp.findings)
 
@@ -79,13 +81,18 @@ def test_e2e_import_correlate_report(tmp_path: Path) -> None:
 def test_e2e_malicious_bundle_rejected(tmp_path: Path) -> None:
     """Adversarial payloads are data, never code."""
     payloads = [
-        {"contract_version": "forge-contracts/1", "tool": {"name": "x"},
-         "findings": [{"check_id": "X",
-                       "message": "../../etc/passwd",
-                       "file": "../../etc/passwd"}]},
-        {"contract_version": "forge-contracts/1", "tool": {"name": "x"},
-         "findings": [{"check_id": "X",
-                       "message": "<!ENTITY xxe SYSTEM 'file:///etc/passwd'>"}]},
+        {
+            "contract_version": "forge-contracts/1",
+            "tool": {"name": "x"},
+            "findings": [
+                {"check_id": "X", "message": "../../etc/passwd", "file": "../../etc/passwd"}
+            ],
+        },
+        {
+            "contract_version": "forge-contracts/1",
+            "tool": {"name": "x"},
+            "findings": [{"check_id": "X", "message": "<!ENTITY xxe SYSTEM 'file:///etc/passwd'>"}],
+        },
     ]
     for i, p in enumerate(payloads):
         f = tmp_path / f"p{i}.json"

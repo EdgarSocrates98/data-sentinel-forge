@@ -98,9 +98,7 @@ def _predicateless_joins(tree: exp.Expr, _text: str) -> list[SqlHit]:
     return hits
 
 
-_COMMA_FROM_RE = re.compile(
-    r"\bFROM\s+[^\s,()]+\s+(?:AS\s+)?[A-Za-z_]\w*\s*,", re.IGNORECASE
-)
+_COMMA_FROM_RE = re.compile(r"\bFROM\s+[^\s,()]+\s+(?:AS\s+)?[A-Za-z_]\w*\s*,", re.IGNORECASE)
 
 
 def _implicit_joins(tree: exp.Expr, text: str) -> list[SqlHit]:
@@ -177,11 +175,7 @@ def _complex_subqueries(tree: exp.Expr, _text: str) -> list[SqlHit]:
 
 
 def _select_distinct(tree: exp.Expr, _text: str) -> list[SqlHit]:
-    return [
-        s.args["distinct"]
-        for s in tree.find_all(exp.Select)
-        if s.args.get("distinct")
-    ]
+    return [s.args["distinct"] for s in tree.find_all(exp.Select) if s.args.get("distinct")]
 
 
 def _unfiltered_scan(tree: exp.Expr, _text: str) -> list[SqlHit]:
@@ -246,8 +240,7 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         Severity.MEDIUM,
         FindingStatus.POSSIBLE,
         "Join implícito com vírgula",
-        "Sintaxe `FROM a, b` esconde a condição de junção e favorece "
-        "produto cartesiano acidental.",
+        "Sintaxe `FROM a, b` esconde a condição de junção e favorece produto cartesiano acidental.",
         "Reescrever com JOIN ... ON explícito.",
         _implicit_joins,
     ),
@@ -256,8 +249,7 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         Severity.MEDIUM,
         FindingStatus.POSSIBLE,
         "Predicado não-sargable (função envolvendo coluna)",
-        "Função sobre coluna em WHERE impede uso de estatísticas/partição "
-        "pelo otimizador.",
+        "Função sobre coluna em WHERE impede uso de estatísticas/partição pelo otimizador.",
         "Mover a função para o lado literal ou materializar a coluna.",
         _nonsargable_predicates,
     ),
@@ -275,8 +267,7 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         Severity.LOW,
         FindingStatus.POSSIBLE,
         "UNION sem ALL",
-        "UNION sem ALL executa deduplicação custosa; frequentemente o "
-        "intencionado é UNION ALL.",
+        "UNION sem ALL executa deduplicação custosa; frequentemente o intencionado é UNION ALL.",
         "Confirmar necessidade de deduplicar ou usar UNION ALL.",
         _union_without_all,
     ),
@@ -341,8 +332,7 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         "SELECT DISTINCT potencialmente custoso",
         "DISTINCT global força deduplicação completa; em joins com "
         "fan-out pode mascarar multiplicidade errada.",
-        "Verificar se a duplicata vem de join many-to-many; considerar "
-        "GROUP BY nas chaves reais.",
+        "Verificar se a duplicata vem de join many-to-many; considerar GROUP BY nas chaves reais.",
         _select_distinct,
     ),
     SqlCheck(
@@ -363,15 +353,14 @@ SQL_CHECKS: tuple[SqlCheck, ...] = (
         "Chave de join reutilizada em múltiplos joins",
         "Mesma coluna em ≥2 predicados de join pode indicar fan-out "
         "multiplicativo quando joins intermediários são many-to-many.",
-        "Medir multiplicidade por chave nos lados antes de assumir "
-        "cardinalidade.",
+        "Medir multiplicidade por chave nos lados antes de assumir cardinalidade.",
         _reused_join_keys,
     ),
 )
 
 
 def _dialect_for(request: DiagnosticRequest) -> str:
-    extra = (request.execution_context.extra if request.execution_context else {})
+    extra = request.execution_context.extra if request.execution_context else {}
     return extra.get("sql_dialect") or PLATFORM_DIALECTS.get(request.platform, "spark")
 
 
@@ -405,8 +394,7 @@ def _query_structure(tree: exp.Expr, dialect: str) -> dict[str, object]:
             {
                 "kind": str(j.args.get("kind") or "INNER").upper(),
                 "side": str(j.args.get("side") or "").upper() or None,
-                "table": getattr(j.this, "name", None)
-                or getattr(j.this, "alias_or_name", None),
+                "table": getattr(j.this, "name", None) or getattr(j.this, "alias_or_name", None),
                 "predicate": on.sql(dialect=dialect)[:200] if on is not None else None,
                 "equality_keys": [
                     f"{eq.left.sql(dialect=dialect)}={eq.right.sql(dialect=dialect)}"
@@ -414,12 +402,8 @@ def _query_structure(tree: exp.Expr, dialect: str) -> dict[str, object]:
                 ][:8],
             }
         )
-    predicates = [
-        w.sql(dialect=dialect)[:200] for w in tree.find_all(exp.Where)
-    ]
-    aggregations = sorted(
-        {a.sql(dialect=dialect)[:60] for a in tree.find_all(exp.AggFunc)}
-    )
+    predicates = [w.sql(dialect=dialect)[:200] for w in tree.find_all(exp.Where)]
+    aggregations = sorted({a.sql(dialect=dialect)[:60] for a in tree.find_all(exp.AggFunc)})
     max_depth = 0
     for sub in tree.find_all(exp.Subquery):
         depth = 1
@@ -537,8 +521,7 @@ class SqlStaticAnalyzer(Analyzer):
         findings: list[Finding] = []
         evidence: list[Evidence] = []
         limitations: list[str] = [
-            "Análise estática: não observa execução física (plano, métricas, "
-            "estatísticas).",
+            "Análise estática: não observa execução física (plano, métricas, estatísticas).",
         ]
         queries_meta: list[dict[str, object]] = []
         stats_meta: dict[str, object] = {}
@@ -553,9 +536,7 @@ class SqlStaticAnalyzer(Analyzer):
                     "tables_with_stats": sorted(tables),
                     "source": "declared (descritor JSON)",
                 }
-                limitations.extend(
-                    f"{input_file.path}: {w}" for w in warns
-                )
+                limitations.extend(f"{input_file.path}: {w}" for w in warns)
             else:
                 sql_inputs.append(input_file)
 
@@ -564,9 +545,7 @@ class SqlStaticAnalyzer(Analyzer):
             try:
                 tree = sqlglot.parse_one(input_file.text, read=dialect)
             except sqlglot.errors.ParseError as exc:
-                limitations.append(
-                    f"SQL não pôde ser analisado ({input_file.path}): {exc}"
-                )
+                limitations.append(f"SQL não pôde ser analisado ({input_file.path}): {exc}")
                 findings.append(
                     Finding(
                         category=FindingCategory.UNKNOWN,
@@ -594,8 +573,13 @@ class SqlStaticAnalyzer(Analyzer):
 
             if declared_stats:
                 self._check_selectivity(
-                    tree, input_file, digest, captured, declared_stats,
-                    findings, evidence,
+                    tree,
+                    input_file,
+                    digest,
+                    captured,
+                    declared_stats,
+                    findings,
+                    evidence,
                 )
             for check in SQL_CHECKS:
                 hits = check.detect(tree, input_file.text)
@@ -603,11 +587,7 @@ class SqlStaticAnalyzer(Analyzer):
                     continue
                 ids: list[str] = []
                 for hit in hits[:3]:
-                    fragment = (
-                        hit[:300]
-                        if isinstance(hit, str)
-                        else hit.sql(dialect=dialect)[:300]
-                    )
+                    fragment = hit[:300] if isinstance(hit, str) else hit.sql(dialect=dialect)[:300]
                     ev = Evidence(
                         source="sql",
                         source_location=(
@@ -640,9 +620,7 @@ class SqlStaticAnalyzer(Analyzer):
                     )
                 )
 
-        engine = (
-            "athena/trino" if dialect == "trino" else "spark"
-        )
+        engine = "athena/trino" if dialect == "trino" else "spark"
         if dialect == "trino":
             limitations.append(
                 "Engine assumido: Athena/Trino — conector-based, sem AQE/"

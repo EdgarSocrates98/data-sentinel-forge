@@ -27,49 +27,50 @@ def test_benchmarks_cycle4() -> None:
     results: dict[str, dict[str, float]] = {}
 
     # contract parse: 200 rules
-    rules = "\n".join(
-        f" - {{id: r{i}, type: completeness, column: c{i}}}"
-        for i in range(200))
-    contract = f'dataset: a.b\nrules:\n{rules}'
+    rules = "\n".join(f" - {{id: r{i}, type: completeness, column: c{i}}}" for i in range(200))
+    contract = f"dataset: a.b\nrules:\n{rules}"
     results["contract_parse_200_rules"] = {
-        "seconds": _bench("c", lambda: parse_contract_text(contract),
-                          reps=20)}
+        "seconds": _bench("c", lambda: parse_contract_text(contract), reps=20)
+    }
 
     # adapter normalize: 5k rows
-    rows = [{"rule_id": f"r{i}", "value": i, "expected": 0,
-             "status": "PASS"} for i in range(5000)]
+    rows = [{"rule_id": f"r{i}", "value": i, "expected": 0, "status": "PASS"} for i in range(5000)]
     payload = json.dumps({"results": rows})
     results["adapter_normalize_5k_rows"] = {
-        "seconds": _bench("a", lambda: normalize(payload,
-                                               adapter="sql_results"),
-                          reps=10)}
+        "seconds": _bench("a", lambda: normalize(payload, adapter="sql_results"), reps=10)
+    }
 
     # profiling: 50k values
     vals = [rng.gauss(100, 15) for _ in range(50_000)]
     results["profile_column_50k"] = {
-        "seconds": _bench("p", lambda: profile_column("v", vals), reps=5)}
+        "seconds": _bench("p", lambda: profile_column("v", vals), reps=5)
+    }
 
     # drift: 2x 10k samples
     base = [rng.gauss(0, 1) for _ in range(10_000)]
     cur = [rng.gauss(0.3, 1) for _ in range(10_000)]
     results["drift_10k_vs_10k"] = {
-        "seconds": _bench("d", lambda: detect_drift("x", base, cur),
-                          reps=10)}
+        "seconds": _bench("d", lambda: detect_drift("x", base, cur), reps=10)
+    }
 
     # lineage: 1k events -> graph
     evs = "\n".join(
-        json.dumps({"eventType": "COMPLETE",
-                    "run": {"runId": f"r{i}"},
-                    "job": {"name": f"job{i % 100}"},
-                    "inputs": [{"namespace": "ns",
-                                "name": f"ds{i % 50}"}],
-                    "outputs": [{"namespace": "ns",
-                                 "name": f"ds{(i + 1) % 50}"}]})
-        for i in range(1000))
+        json.dumps(
+            {
+                "eventType": "COMPLETE",
+                "run": {"runId": f"r{i}"},
+                "job": {"name": f"job{i % 100}"},
+                "inputs": [{"namespace": "ns", "name": f"ds{i % 50}"}],
+                "outputs": [{"namespace": "ns", "name": f"ds{(i + 1) % 50}"}],
+            }
+        )
+        for i in range(1000)
+    )
+
     def _lineage() -> None:
         build_graph(parse_openlineage_events(evs).events)
-    results["lineage_1k_events_graph"] = {
-        "seconds": _bench("l", _lineage, reps=5)}
+
+    results["lineage_1k_events_graph"] = {"seconds": _bench("l", _lineage, reps=5)}
 
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     out = EVIDENCE / "benchmarks-cycle4.json"

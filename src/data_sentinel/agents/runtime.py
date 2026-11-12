@@ -48,8 +48,9 @@ class AgentRuntime:
     injected via ``_clock`` for testability.
     """
 
-    def __init__(self, budget: InvestigationBudget | None = None,
-                 *, clock: Callable[[], float] | None = None) -> None:
+    def __init__(
+        self, budget: InvestigationBudget | None = None, *, clock: Callable[[], float] | None = None
+    ) -> None:
         self.budget = budget or InvestigationBudget()
         self._clock = clock
         self._deadline: float | None = None
@@ -61,14 +62,17 @@ class AgentRuntime:
     def transition(self, ex: AgentExecution, to: AgentState) -> None:
         allowed = AGENT_TRANSITIONS.get(ex.state, set())
         if to not in allowed:
-            raise InvalidTransitionError(
-                f"{ex.state.value} -> {to.value} não é transição válida")
+            raise InvalidTransitionError(f"{ex.state.value} -> {to.value} não é transição válida")
         ex.state = to
         if to in (AgentState.RUNNING,) and ex.started_at is None:
             ex.started_at = _now()
-        if to in (AgentState.COMPLETED, AgentState.PARTIAL,
-                  AgentState.FAILED, AgentState.CANCELLED,
-                  AgentState.BUDGET_EXCEEDED):
+        if to in (
+            AgentState.COMPLETED,
+            AgentState.PARTIAL,
+            AgentState.FAILED,
+            AgentState.CANCELLED,
+            AgentState.BUDGET_EXCEEDED,
+        ):
             ex.finished_at = _now()
 
     def begin(self, ex: AgentExecution) -> None:
@@ -86,16 +90,18 @@ class AgentRuntime:
             self.transition(ex, AgentState.BUDGET_EXCEEDED)
             raise BudgetExceededError("timeout excedido")
         b = self.budget
-        if (ex.iterations > b.max_iterations
-                or ex.tool_calls > b.max_tool_calls
-                or b.spent_tokens > b.max_tokens
-                or (b.max_cost_usd > 0
-                    and b.spent_cost_usd > b.max_cost_usd)):
+        if (
+            ex.iterations > b.max_iterations
+            or ex.tool_calls > b.max_tool_calls
+            or b.spent_tokens > b.max_tokens
+            or (b.max_cost_usd > 0 and b.spent_cost_usd > b.max_cost_usd)
+        ):
             self.transition(ex, AgentState.BUDGET_EXCEEDED)
             raise BudgetExceededError(
                 f"budget excedido: iters={ex.iterations}/"
                 f"{b.max_iterations} tools={ex.tool_calls}/"
-                f"{b.max_tool_calls}")
+                f"{b.max_tool_calls}"
+            )
 
     def iterate(self, ex: AgentExecution) -> bool:
         """Returns False when the iteration cap is reached (terminal)."""
@@ -114,20 +120,19 @@ class AgentRuntime:
     def record_tokens(self, n_in: int, n_out: int) -> None:
         self.budget.spent_tokens += n_in + n_out
 
-    def run(self, task: AgentTask, step: Callable[[int], bool],
-            *, max_steps: int | None = None
-            ) -> AgentExecution:
+    def run(
+        self, task: AgentTask, step: Callable[[int], bool], *, max_steps: int | None = None
+    ) -> AgentExecution:
         """Drive ``step(iteration)->bool`` until done/capped.
 
         step returns True when the task finished its work, False to
         continue iterating.
         """
         ex = AgentExecution(
-            execution_id=new_id("exec"), task_id=task.task_id,
-            agent_id=task.agent_id)
+            execution_id=new_id("exec"), task_id=task.task_id, agent_id=task.agent_id
+        )
         self.begin(ex)
-        limit = max_steps if max_steps is not None else \
-            self.budget.max_iterations
+        limit = max_steps if max_steps is not None else self.budget.max_iterations
         try:
             for _ in range(limit):
                 if not self.iterate(ex):
@@ -138,8 +143,7 @@ class AgentRuntime:
             if ex.state == AgentState.RUNNING:
                 # hit cap without finishing -> honest PARTIAL
                 self.transition(ex, AgentState.PARTIAL)
-        except (BudgetExceededError, CancelledError,
-                InvalidTransitionError):
+        except (BudgetExceededError, CancelledError, InvalidTransitionError):
             raise
         except Exception:
             self.transition(ex, AgentState.FAILED)

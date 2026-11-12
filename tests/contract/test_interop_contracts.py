@@ -112,14 +112,19 @@ def test_capability_descriptor_strict() -> None:
     )
     assert d.capability_id.startswith("sentinel.")
     with pytest.raises(ValidationError):
-        CapabilityDescriptor(
-            capability_id="x", provider="p", version="1", rogue_field=1
-        )
+        CapabilityDescriptor(capability_id="x", provider="p", version="1", rogue_field=1)
 
 
 def test_all_item_fixtures_round_trip() -> None:
-    for name in ("finding", "evidence", "entity", "relationship",
-                 "capability", "unknown-fact", "remediation-plan"):
+    for name in (
+        "finding",
+        "evidence",
+        "entity",
+        "relationship",
+        "capability",
+        "unknown-fact",
+        "remediation-plan",
+    ):
         raw = _load(DDATA / f"{name}.json")
         model = {
             "finding": InteropFinding,

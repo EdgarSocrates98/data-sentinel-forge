@@ -106,7 +106,9 @@ def _main(
     version_flag: Annotated[
         bool,
         typer.Option(
-            "--version", help="Mostra a versão e sai.", is_eager=True,
+            "--version",
+            help="Mostra a versão e sai.",
+            is_eager=True,
             callback=_version_cb,
         ),
     ] = False,
@@ -139,9 +141,8 @@ def _build_report(
     counts: dict[str, int] = {}
     for f in findings:
         counts[f.status.value] = counts.get(f.status.value, 0) + 1
-    summary = (
-        f"{len(findings)} achado(s): "
-        + ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
+    summary = f"{len(findings)} achado(s): " + ", ".join(
+        f"{k}={v}" for k, v in sorted(counts.items())
     )
     report = DiagnosticReport(
         request_id=request.request_id,
@@ -187,9 +188,7 @@ def _analyze(
                 ExecutionContext(extra={"sql_dialect": dialect}) if dialect else None
             ),
         )
-        outcome = run_diagnostics(
-            request, inputs, limits=AnalysisLimits()
-        )
+        outcome = run_diagnostics(request, inputs, limits=AnalysisLimits())
         report, evidence = outcome.report, outcome.evidence
     except SentinelError as err:
         _fail(err)
@@ -208,8 +207,8 @@ def _analyze(
     if output is not None:
         if output.suffix in (".md", ".markdown"):
             output.write_text(
-                render_markdown(report, evidence, mode_label=mode_label) + "\n",
-                encoding="utf-8")
+                render_markdown(report, evidence, mode_label=mode_label) + "\n", encoding="utf-8"
+            )
         else:
             output.write_text(report.to_json() + "\n", encoding="utf-8")
 
@@ -283,9 +282,7 @@ def analyze(
 
 @config_app.command("show")
 def config_show(
-    json_mode: Annotated[
-        bool, typer.Option("--json", help="Saída em JSON (já redigida).")
-    ] = False,
+    json_mode: Annotated[bool, typer.Option("--json", help="Saída em JSON (já redigida).")] = False,
 ) -> None:
     """Mostra a configuração resolvida e as fontes aplicadas."""
     try:
@@ -308,19 +305,19 @@ def config_show(
 
 @app.command()
 def capabilities(
-    json_mode: Annotated[
-        bool, typer.Option("--json", help="Saída em JSON.")
-    ] = False,
+    json_mode: Annotated[bool, typer.Option("--json", help="Saída em JSON.")] = False,
     descriptors: Annotated[
         bool,
-        typer.Option("--descriptors",
-                     help="Emite CapabilityDescriptor (interop §5) "
-                          "para descoberta por orquestradores."),
+        typer.Option(
+            "--descriptors",
+            help="Emite CapabilityDescriptor (interop §5) para descoberta por orquestradores.",
+        ),
     ] = False,
 ) -> None:
     """Lista as capacidades declaradas dos analyzers registrados."""
     if descriptors:
         from data_sentinel.diagnostics.capabilities import all_descriptors
+
         _emit_json([d.model_dump(mode="json") for d in all_descriptors()])
         return
     manifests = [a.capabilities() for a in registry.all()]
@@ -342,9 +339,7 @@ def _check(label: str, ok: bool, hint: str, warn: bool = False) -> bool:
 
 @app.command()
 def doctor(
-    json_mode: Annotated[
-        bool, typer.Option("--json", help="Saída em JSON.")
-    ] = False,
+    json_mode: Annotated[bool, typer.Option("--json", help="Saída em JSON.")] = False,
 ) -> None:
     """Verifica a saúde da instalação e do ambiente local."""
     results: list[dict[str, Any]] = []
@@ -420,9 +415,7 @@ app.add_typer(install_app, name="install")
 _COMMON_JSON = Annotated[bool, typer.Option("--json", help="Saída em JSON.")]
 _QUIET = Annotated[bool, typer.Option("--quiet", "-q", help="Somente resumo.")]
 _NO_PERSIST = Annotated[bool, typer.Option("--no-persist", help="Não persiste.")]
-_FORMAT = Annotated[
-    str, typer.Option("--format", help="terminal|markdown|json")
-]
+_FORMAT = Annotated[str, typer.Option("--format", help="terminal|markdown|json")]
 
 
 def _aws_glue_connector(profile: str | None, region: str | None) -> Any:
@@ -543,8 +536,7 @@ def glue_diagnose(
         logs = CloudWatchLogsConnector(session)
         events = logs.get_log_events(group=group, stream=f"{job}/{run.run_id}")
         text = "\n".join(e.message for e in events) or (
-            f"Glue job run {run.run_id} status={run.status} "
-            f"error={run.error_message or 'none'}"
+            f"Glue job run {run.run_id} status={run.status} error={run.error_message or 'none'}"
         )
         inputs = [
             InputFile(
@@ -555,9 +547,7 @@ def glue_diagnose(
         ]
         request = DiagnosticRequest(
             source_type=SourceType.CLOUDWATCH_LOG,
-            artifact_references=[
-                ArtifactReference(uri=f"glue://{job}/{run.run_id}")
-            ],
+            artifact_references=[ArtifactReference(uri=f"glue://{job}/{run.run_id}")],
             platform=Platform.AWS_GLUE,
         )
         outcome = run_diagnostics(request, inputs)
@@ -578,9 +568,7 @@ def glue_diagnose(
 
     if output is not None:
         if output.suffix in (".md", ".markdown"):
-            output.write_text(
-                render_markdown(report, evidence, mode_label="cloud (aws)") + "\n"
-            )
+            output.write_text(render_markdown(report, evidence, mode_label="cloud (aws)") + "\n")
         else:
             output.write_text(report.to_json() + "\n", encoding="utf-8")
 
@@ -619,9 +607,7 @@ def spark_explain(
 @spark_app.command("optimize")
 def spark_optimize(
     sql: Annotated[Path, typer.Option("--sql", help="Arquivo SQL a analisar.")],
-    dialect: Annotated[
-        str, typer.Option("--dialect", help="Dialeto SQL (spark|trino).")
-    ] = "spark",
+    dialect: Annotated[str, typer.Option("--dialect", help="Dialeto SQL (spark|trino).")] = "spark",
     config: Annotated[
         Path | None, typer.Option("--config", help="Arquivo de configs spark/glue.")
     ] = None,
@@ -652,9 +638,7 @@ def spark_optimize(
 @sql_app.command("analyze")
 def sql_analyze(
     file: Annotated[Path, typer.Option("--file", "-f", help="Arquivo SQL.")],
-    dialect: Annotated[
-        str | None, typer.Option("--dialect", help="spark|trino")
-    ] = None,
+    dialect: Annotated[str | None, typer.Option("--dialect", help="spark|trino")] = None,
     platform: Annotated[Platform, typer.Option("--platform", "-p")] = Platform.GENERIC,
     no_persist: _NO_PERSIST = False,
     json_mode: _COMMON_JSON = False,
@@ -678,9 +662,7 @@ def sql_analyze(
     )
 
 
-def _render_report_source(
-    source: str, report_format: str, json_mode: bool
-) -> None:
+def _render_report_source(source: str, report_format: str, json_mode: bool) -> None:
     """Load report from file path or store id and render it."""
     report_: DiagnosticReport | None = None
     evidence: list[Evidence] = []
@@ -757,9 +739,7 @@ def report_show(
 
 
 _LAKEHOUSE_FILE = Annotated[Path, typer.Option("--file", "-f", help="Arquivo de entrada.")]
-_LAKEHOUSE_PLATFORM = Annotated[
-    Platform, typer.Option("--platform", "-p")
-]
+_LAKEHOUSE_PLATFORM = Annotated[Platform, typer.Option("--platform", "-p")]
 
 
 def _lakehouse_analyze(
@@ -802,9 +782,14 @@ def lakehouse_metadata(
     """Analisa metadata.json Iceberg exportado (não segue URLs)."""
     _lakehouse_analyze(
         source_type=SourceType.ICEBERG_METADATA,
-        file=file, platform=platform, no_persist=no_persist,
-        json_mode=json_mode, quiet=quiet, report_format=report_format,
-        output=output, label="iceberg-metadata",
+        file=file,
+        platform=platform,
+        no_persist=no_persist,
+        json_mode=json_mode,
+        quiet=quiet,
+        report_format=report_format,
+        output=output,
+        label="iceberg-metadata",
     )
 
 
@@ -821,9 +806,14 @@ def lakehouse_access(
     """Diagnóstico de contexto de acesso/cross-account (JSON AccessContext)."""
     _lakehouse_analyze(
         source_type=SourceType.ACCESS_CONTEXT,
-        file=file, platform=platform, no_persist=no_persist,
-        json_mode=json_mode, quiet=quiet, report_format=report_format,
-        output=output, label="access-context",
+        file=file,
+        platform=platform,
+        no_persist=no_persist,
+        json_mode=json_mode,
+        quiet=quiet,
+        report_format=report_format,
+        output=output,
+        label="access-context",
     )
 
 
@@ -840,9 +830,14 @@ def lakehouse_policy(
     """Analisa documentos de policy IAM/S3/KMS offline."""
     _lakehouse_analyze(
         source_type=SourceType.POLICY_DOC,
-        file=file, platform=platform, no_persist=no_persist,
-        json_mode=json_mode, quiet=quiet, report_format=report_format,
-        output=output, label="policy-doc",
+        file=file,
+        platform=platform,
+        no_persist=no_persist,
+        json_mode=json_mode,
+        quiet=quiet,
+        report_format=report_format,
+        output=output,
+        label="policy-doc",
     )
 
 
@@ -859,9 +854,14 @@ def lakehouse_operation(
     """Analisa MERGE/APPEND/DDL lakehouse (SQL nunca é executado)."""
     _lakehouse_analyze(
         source_type=SourceType.SQL_QUERY,
-        file=file, platform=platform, no_persist=no_persist,
-        json_mode=json_mode, quiet=quiet, report_format=report_format,
-        output=output, label="lakehouse-operation",
+        file=file,
+        platform=platform,
+        no_persist=no_persist,
+        json_mode=json_mode,
+        quiet=quiet,
+        report_format=report_format,
+        output=output,
+        label="lakehouse-operation",
     )
 
 
@@ -870,8 +870,9 @@ def lakehouse_compat(
     runtime: Annotated[str, typer.Option("--runtime", help="ex.: glue-5.1")],
     operation: Annotated[str, typer.Option("--operation", help="ex.: merge")],
     table_format: Annotated[str, typer.Option("--table-format")] = "iceberg",
-    access_mode: Annotated[str, typer.Option("--access-mode",
-                                             help="iam|fgac|fta|legacy|unknown")] = "unknown",
+    access_mode: Annotated[
+        str, typer.Option("--access-mode", help="iam|fgac|fta|legacy|unknown")
+    ] = "unknown",
     catalog: Annotated[str, typer.Option("--catalog")] = "",
     spark_version: Annotated[str, typer.Option("--spark-version")] = "",
     iceberg_version: Annotated[str, typer.Option("--iceberg-version")] = "",
@@ -917,23 +918,25 @@ def _load_sentinel_findings(file: Path) -> tuple[list[Finding], list[Evidence]]:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise DoctorBundleError(f"relatório sentinel ilegível: {exc}") from exc
     if not isinstance(raw, dict) or "findings" not in raw:
-        raise DoctorBundleError(
-            "relatório sentinel: objeto JSON com 'findings' esperado"
-        )
+        raise DoctorBundleError("relatório sentinel: objeto JSON com 'findings' esperado")
     findings = [Finding.model_validate(item) for item in raw.get("findings") or []]
-    evidence = [
-        Evidence.model_validate(item) for item in raw.get("evidence") or []
-    ]
+    evidence = [Evidence.model_validate(item) for item in raw.get("evidence") or []]
     return findings, evidence
 
 
 @import_app.command("doctor-bundle")
 def import_doctor_bundle_cmd(
-    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
-                                       help="Bundle JSON produzido pelo Forge Doctor.")],
-    correlate: Annotated[Path | None, typer.Option(
-        "--correlate",
-        help="Relatório sentinel (findings+evidence JSON) para correlação determinística.")] = None,
+    file: Annotated[
+        Path,
+        typer.Option("--file", "-f", exists=True, help="Bundle JSON produzido pelo Forge Doctor."),
+    ],
+    correlate: Annotated[
+        Path | None,
+        typer.Option(
+            "--correlate",
+            help="Relatório sentinel (findings+evidence JSON) para correlação determinística.",
+        ),
+    ] = None,
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Importa findings de um bundle Forge Doctor (offline, opcional).
@@ -984,13 +987,10 @@ def import_doctor_bundle_cmd(
         _echo_correlation(correlation)
 
 
-def _correlate(imported: Any, s_findings: list[Finding],
-               s_evidence: list[Evidence]) -> Any:
+def _correlate(imported: Any, s_findings: list[Finding], s_evidence: list[Evidence]) -> Any:
     from data_sentinel.diagnostics.cross_correlation import correlate_findings
 
-    return correlate_findings(
-        imported.findings, imported.evidence, s_findings, s_evidence
-    )
+    return correlate_findings(imported.findings, imported.evidence, s_findings, s_evidence)
 
 
 def _echo_correlation(report: Any) -> None:
@@ -1014,12 +1014,20 @@ def _echo_correlation(report: Any) -> None:
 
 @import_app.command("correlate")
 def import_correlate_cmd(
-    doctor: Annotated[Path, typer.Option(
-        "--doctor", exists=True,
-        help="Bundle JSON produzido pelo Forge Doctor (estático).")],
-    sentinel: Annotated[Path, typer.Option(
-        "--sentinel", exists=True,
-        help="Relatório sentinel (findings+evidence JSON) produzido em runtime.")],
+    doctor: Annotated[
+        Path,
+        typer.Option(
+            "--doctor", exists=True, help="Bundle JSON produzido pelo Forge Doctor (estático)."
+        ),
+    ],
+    sentinel: Annotated[
+        Path,
+        typer.Option(
+            "--sentinel",
+            exists=True,
+            help="Relatório sentinel (findings+evidence JSON) produzido em runtime.",
+        ),
+    ],
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Correlação determinística doctor(estático) x sentinel(runtime).
@@ -1053,8 +1061,9 @@ app.add_typer(lineage_app, name="lineage")
 
 @quality_app.command("validate")
 def quality_validate(
-    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
-                                       help="Contrato YAML/JSON §3.2.")],
+    file: Annotated[
+        Path, typer.Option("--file", "-f", exists=True, help="Contrato YAML/JSON §3.2.")
+    ],
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Valida um contrato declarativo de qualidade (offline, estático)."""
@@ -1066,17 +1075,23 @@ def quality_validate(
         typer.echo(f"erro: {exc}", err=True)
         raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
     v = validate_contract(contract)
-    issues = [{"field": i.field, "message": i.message,
-               "severity": i.severity} for i in v.issues]
+    issues = [{"field": i.field, "message": i.message, "severity": i.severity} for i in v.issues]
     if json_mode:
-        _emit_json({"ok": v.ok, "contract_id": contract.contract_id,
-                    "version": contract.version,
-                    "rules": len(contract.quality_rules),
-                    "issues": issues})
+        _emit_json(
+            {
+                "ok": v.ok,
+                "contract_id": contract.contract_id,
+                "version": contract.version,
+                "rules": len(contract.quality_rules),
+                "issues": issues,
+            }
+        )
     else:
-        typer.echo(f"contrato {contract.contract_id} v{contract.version}: "
-                   f"{len(contract.quality_rules)} regras — "
-                   f"{'OK' if v.ok else 'INVÁLIDO'}")
+        typer.echo(
+            f"contrato {contract.contract_id} v{contract.version}: "
+            f"{len(contract.quality_rules)} regras — "
+            f"{'OK' if v.ok else 'INVÁLIDO'}"
+        )
         for i in v.issues:
             typer.echo(f"  [{i.severity}] {i.field}: {i.message}")
     if not v.ok:
@@ -1085,57 +1100,62 @@ def quality_validate(
 
 @quality_app.command("import")
 def quality_import(
-    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
-                                       help="Resultado exportado (JSON).")],
-    adapter: Annotated[str, typer.Option(
-        "--adapter", help="auto|pydeequ|deequ_checks|great_expectations|"
-                          "sql_results|dataframe_export")] = "auto",
+    file: Annotated[
+        Path, typer.Option("--file", "-f", exists=True, help="Resultado exportado (JSON).")
+    ],
+    adapter: Annotated[
+        str,
+        typer.Option(
+            "--adapter",
+            help="auto|pydeequ|deequ_checks|great_expectations|sql_results|dataframe_export",
+        ),
+    ] = "auto",
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Normaliza resultados exportados em observações (nunca executa engines)."""
     from data_sentinel.quality import normalize
 
     try:
-        obs = normalize(file.read_text(encoding="utf-8"),
-                        adapter=adapter, provenance=str(file))
+        obs = normalize(file.read_text(encoding="utf-8"), adapter=adapter, provenance=str(file))
     except SentinelError as exc:
         _fail(exc)
         raise AssertionError from exc
     payload = [o.model_dump(mode="json") for o in obs]
     if json_mode:
-        _emit_json({"adapter": adapter, "count": len(obs),
-                    "observations": payload})
+        _emit_json({"adapter": adapter, "count": len(obs), "observations": payload})
     else:
         typer.echo(f"{len(obs)} observações (adapter={adapter})")
         for o in obs[:50]:
-            typer.echo(f"  [{o.status.value}] {o.metric_name or o.rule_id}: "
-                       f"{o.observed_value}")
+            typer.echo(f"  [{o.status.value}] {o.metric_name or o.rule_id}: {o.observed_value}")
         if len(obs) > 50:
             typer.echo(f"  ... +{len(obs) - 50} observações")
 
 
 @lineage_app.command("ingest")
 def lineage_ingest(
-    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
-                                       help="OpenLineage JSONL/batch.")],
+    file: Annotated[
+        Path, typer.Option("--file", "-f", exists=True, help="OpenLineage JSONL/batch.")
+    ],
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Ingere eventos OpenLineage e mostra o grafo resultante (offline)."""
     from data_sentinel.lineage import parse_openlineage_events
     from data_sentinel.lineage.graph import build_graph
 
-    ing = parse_openlineage_events(file.read_text(encoding="utf-8"),
-                                   provenance=str(file))
+    ing = parse_openlineage_events(file.read_text(encoding="utf-8"), provenance=str(file))
     g = build_graph(ing.events)
     if json_mode:
-        _emit_json({"events": len(ing.events), "kind": ing.kind.value,
-                    "rejected": ing.rejected,
-                    "downstream": {k: sorted(v) for k, v in
-                                   g.downstream.items()},
-                    "limitations": ing.limitations + g.limitations})
+        _emit_json(
+            {
+                "events": len(ing.events),
+                "kind": ing.kind.value,
+                "rejected": ing.rejected,
+                "downstream": {k: sorted(v) for k, v in g.downstream.items()},
+                "limitations": ing.limitations + g.limitations,
+            }
+        )
     else:
-        typer.echo(f"{len(ing.events)} eventos ({ing.kind.value}); "
-                   f"{ing.rejected} rejeitados")
+        typer.echo(f"{len(ing.events)} eventos ({ing.kind.value}); {ing.rejected} rejeitados")
         for src, dsts in sorted(g.downstream.items()):
             for d in sorted(dsts):
                 typer.echo(f"  {src} -> {d}")
@@ -1146,8 +1166,9 @@ def lineage_ingest(
 @lineage_app.command("impact")
 def lineage_impact(
     file: Annotated[Path, typer.Option("--file", "-f", exists=True)],
-    target: Annotated[str, typer.Option(
-        "--target", "-t", help="namespace/name ou name do dataset.")],
+    target: Annotated[
+        str, typer.Option("--target", "-t", help="namespace/name ou name do dataset.")
+    ],
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Análise de impacto POTENCIAL (alcançabilidade no grafo)."""
@@ -1155,8 +1176,7 @@ def lineage_impact(
     from data_sentinel.lineage import parse_openlineage_events
     from data_sentinel.lineage.graph import build_graph, impact
 
-    ing = parse_openlineage_events(file.read_text(encoding="utf-8"),
-                                   provenance=str(file))
+    ing = parse_openlineage_events(file.read_text(encoding="utf-8"), provenance=str(file))
     g = build_graph(ing.events)
     ns, _, name = target.rpartition("/")
     imp = impact(g, DatasetReference(namespace=ns, name=name or target))
@@ -1176,8 +1196,9 @@ def lineage_impact(
 
 @report_app.command("export")
 def report_export(
-    file: Annotated[Path, typer.Option("--file", "-f", exists=True,
-                                       help="Report JSON do Sentinel.")],
+    file: Annotated[
+        Path, typer.Option("--file", "-f", exists=True, help="Report JSON do Sentinel.")
+    ],
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
 ) -> None:
     """Exporta um DiagnosticReport como bundle Doctor (forge-contracts/1)."""
@@ -1185,8 +1206,7 @@ def report_export(
     from data_sentinel.core.contracts import DiagnosticReport
 
     try:
-        report = DiagnosticReport.model_validate_json(
-            file.read_text(encoding="utf-8"))
+        report = DiagnosticReport.model_validate_json(file.read_text(encoding="utf-8"))
     except Exception as exc:
         typer.echo(f"erro: report inválido: {exc}", err=True)
         raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
@@ -1209,10 +1229,11 @@ def mcp_serve() -> None:
         from data_sentinel.mcp_server import serve
     except ImportError as exc:
         typer.echo(
-            "erro: extra `mcp` não instalado — "
-            "uv pip install 'data-sentinel[mcp]'", err=True)
+            "erro: extra `mcp` não instalado — uv pip install 'data-sentinel[mcp]'", err=True
+        )
         raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
     serve()
+
 
 investigate_app = typer.Typer(help="Investigação agêntica determinística.")
 app.add_typer(investigate_app, name="investigate")
@@ -1220,29 +1241,27 @@ app.add_typer(investigate_app, name="investigate")
 
 @investigate_app.command("run")
 def investigate_run(
-    problem: Annotated[str, typer.Option(
-        "--problem", "-p", help="Descrição do problema.")],
-    files: Annotated[list[str], typer.Option(
-        "--file", "-f",
-        help="Par tool_id:caminho (repetível).")] = [],  # noqa: B006 — typer precisa
+    problem: Annotated[str, typer.Option("--problem", "-p", help="Descrição do problema.")],
+    files: Annotated[
+        list[str], typer.Option("--file", "-f", help="Par tool_id:caminho (repetível).")
+    ] = [],  # noqa: B006 — typer precisa
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Investiga: roteia especialistas, executa tools, valida, RCA."""
     from data_sentinel.agents.investigator import investigate
+
     file_map: dict[str, str] = {}
     for spec in files:
         tool, _, path = spec.partition(":")
         if not path:
-            typer.echo(f"erro: --file '{spec}' precisa ser tool:caminho",
-                       err=True)
+            typer.echo(f"erro: --file '{spec}' precisa ser tool:caminho", err=True)
             raise typer.Exit(code=EXIT_USAGE)
         file_map[tool] = path
     rep = investigate(problem, file_map)
     if json_mode:
         _emit_json(rep.model_dump(mode="json"))
         return
-    typer.echo(f"investigação: {len(rep.findings)} finding(s), "
-               f"{len(rep.tools_used)} tool call(s)")
+    typer.echo(f"investigação: {len(rep.findings)} finding(s), {len(rep.tools_used)} tool call(s)")
     for c in rep.conclusions:
         typer.echo(f"  {c}")
     for lim in rep.limitations:
@@ -1253,6 +1272,7 @@ def investigate_run(
 def agents_list() -> None:
     """Lista os especialistas registrados."""
     from data_sentinel.agents.specialists import specialist_descriptors
+
     for d in specialist_descriptors():
         typer.echo(f"{d.agent_id:24} {d.name} — {d.responsibility}")
 
@@ -1261,33 +1281,45 @@ def agents_list() -> None:
 def tools_list() -> None:
     """Lista as tools registradas."""
     from data_sentinel.tools.registry import build_default_registry
+
     for t in build_default_registry().list_tools():
         typer.echo(f"{t.tool_id:36} {t.name}")
+
 
 emr_app = typer.Typer(help="Diagnósticos Amazon EMR (EC2/Serverless/EKS).")
 app.add_typer(emr_app, name="emr")
 
+from data_sentinel._forge_obsidian.cli import obsidian_app as _obsidian_app  # noqa: E402
+
+app.add_typer(_obsidian_app("data-sentinel-forge"), name="obsidian")
+
 
 @emr_app.command("analyze")
 def emr_analyze(
-    file: Annotated[Path, typer.Option(
-        "--file", "-f", help="Artefatos EMR exportados (JSON/YAML).")],
-    platform: Annotated[str, typer.Option(
-        "--platform", help="ec2|serverless|eks — escolhe o analyzer.")] = "ec2",
+    file: Annotated[
+        Path, typer.Option("--file", "-f", help="Artefatos EMR exportados (JSON/YAML).")
+    ],
+    platform: Annotated[
+        str, typer.Option("--platform", help="ec2|serverless|eks — escolhe o analyzer.")
+    ] = "ec2",
     json_mode: _COMMON_JSON = False,
 ) -> None:
     """Analisa artefatos EMR exportados (offline, read-only)."""
     from data_sentinel.tools.registry import execute_tool
-    tool = {"ec2": "sentinel.emr.analyze_ec2",
-            "serverless": "sentinel.emr.analyze_serverless",
-            "eks": "sentinel.emr.analyze_eks"}.get(platform)
+
+    tool = {
+        "ec2": "sentinel.emr.analyze_ec2",
+        "serverless": "sentinel.emr.analyze_serverless",
+        "eks": "sentinel.emr.analyze_eks",
+    }.get(platform)
     if not tool:
         typer.echo(f"erro: plataforma '{platform}' inválida", err=True)
         raise typer.Exit(code=EXIT_USAGE)
     from data_sentinel.core.contracts.agent import ToolInvocation
-    res = execute_tool(ToolInvocation(
-        invocation_id="cli-emr", tool_id=tool,
-        input={"file": str(file)}))
+
+    res = execute_tool(
+        ToolInvocation(invocation_id="cli-emr", tool_id=tool, input={"file": str(file)})
+    )
     if not res.ok:
         typer.echo(f"erro: {res.error}", err=True)
         raise typer.Exit(code=EXIT_DOMAIN_ERROR)
@@ -1298,7 +1330,7 @@ def emr_analyze(
     findings = out.get("findings", [])
     typer.echo(f"{tool}: {len(findings)} finding(s)")
     for f in findings:
-        typer.echo(f"  [{f.get('status','?')}] {f.get('explanation','')[:120]}")
+        typer.echo(f"  [{f.get('status', '?')}] {f.get('explanation', '')[:120]}")
     for lim in out.get("limitations", []):
         typer.echo(f"  [limitação] {lim}")
 
@@ -1314,17 +1346,20 @@ def emr_compare(
 
     from data_sentinel.analyzers.emr.compare import compare
     from data_sentinel.core.contracts.emr import EMRExecutionContext, EMRResourceObservation
+
     try:
         b = _j.loads(baseline.read_text(encoding="utf-8"))
         c = _j.loads(current.read_text(encoding="utf-8"))
     except Exception as exc:
         typer.echo(f"erro: {exc}", err=True)
         raise typer.Exit(code=EXIT_DOMAIN_ERROR) from exc
+
     def _ctx(d: dict[str, Any]) -> EMRExecutionContext:
         return EMRExecutionContext.model_validate(d.get("context", d))
+
     def _obs(d: dict[str, Any]) -> EMRResourceObservation:
-        return EMRResourceObservation.model_validate(
-            d.get("observation", {"metrics": []}))
+        return EMRResourceObservation.model_validate(d.get("observation", {"metrics": []}))
+
     res = compare([_ctx(b), _ctx(c)], [_obs(b), _obs(c)])
     if json_mode:
         _emit_json(res.to_dict())
@@ -1348,11 +1383,12 @@ def emr_cost(
 ) -> None:
     """Estima custo EMR declarado (tabela estática; nunca billing)."""
     from data_sentinel.analyzers.emr.cost import estimate_ec2, estimate_eks, estimate_serverless
-    fn = {"serverless": lambda: estimate_serverless(
-              vcpu_hours, mem_gb_hours),
-          "ec2": lambda: estimate_ec2(instance_type, count, hours),
-          "eks": lambda: estimate_eks(vcpu_hours, mem_gb_hours,
-                                    hours)}.get(platform)
+
+    fn = {
+        "serverless": lambda: estimate_serverless(vcpu_hours, mem_gb_hours),
+        "ec2": lambda: estimate_ec2(instance_type, count, hours),
+        "eks": lambda: estimate_eks(vcpu_hours, mem_gb_hours, hours),
+    }.get(platform)
     if not fn:
         typer.echo(f"erro: plataforma '{platform}' inválida", err=True)
         raise typer.Exit(code=EXIT_USAGE)
@@ -1363,8 +1399,7 @@ def emr_cost(
     if est.amount is None:
         typer.echo(f"UNKNOWN — {est.exclusions}")
         return
-    typer.echo(f"~US${est.amount:.2f} ({est.platform}, estimado — "
-               "não é billing real)")
+    typer.echo(f"~US${est.amount:.2f} ({est.platform}, estimado — não é billing real)")
     for k, v in est.components.items():
         typer.echo(f"  {k}: US${v:.4f}")
 
@@ -1373,21 +1408,23 @@ def emr_cost(
 def serve(
     host: Annotated[str, typer.Option(help="Bind host")] = "127.0.0.1",
     port: Annotated[int, typer.Option(help="Bind port")] = 8790,
-    root: Annotated[list[str] | None, typer.Option(
-        "--root", help="Allowed file root (repeatable)")] = None,
+    root: Annotated[
+        list[str] | None, typer.Option("--root", help="Allowed file root (repeatable)")
+    ] = None,
 ) -> None:
     """Start the Control Center API (uvicorn, local bind by default)."""
     try:
         import uvicorn
     except ImportError:
-        typer.echo("erro: instale o extra `api` — pip install "
-                   "'data-sentinel[api]'", err=True)
+        typer.echo("erro: instale o extra `api` — pip install 'data-sentinel[api]'", err=True)
         raise typer.Exit(code=EXIT_USAGE) from None
     from data_sentinel.api import create_app
 
     if host not in ("127.0.0.1", "localhost"):
-        typer.echo("aviso: bind não-local — a API expõe arquivos locais; "
-                   "use apenas em rede confiável", err=True)
+        typer.echo(
+            "aviso: bind não-local — a API expõe arquivos locais; use apenas em rede confiável",
+            err=True,
+        )
     app_obj = create_app(allowed_roots=root)
     token = app_obj.state.auth.token
     typer.echo(f"Control Center API: http://{host}:{port}/api/v1")

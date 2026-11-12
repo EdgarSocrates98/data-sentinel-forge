@@ -71,10 +71,8 @@ class SparkConfigAdvisor(Analyzer):
     @property
     def limitations(self) -> tuple[str, ...]:
         return (
-            "Recomendações são hipóteses rotuladas — benefício esperado "
-            "não é medido",
-            "Sem métricas de workload, severidade de configs inadequadas "
-            "permanece POSSIBLE",
+            "Recomendações são hipóteses rotuladas — benefício esperado não é medido",
+            "Sem métricas de workload, severidade de configs inadequadas permanece POSSIBLE",
             "Aumentos de recurso sempre indicam implicação de custo/quota",
         )
 
@@ -113,9 +111,7 @@ class SparkConfigAdvisor(Analyzer):
         findings: list[Finding] = []
         evidence: list[Evidence] = []
         recommendations: list[OptimizationRecommendation] = []
-        digest = hashlib.sha256(
-            "\n".join(i.text for i in inputs).encode()
-        ).hexdigest()
+        digest = hashlib.sha256("\n".join(i.text for i in inputs).encode()).hexdigest()
 
         def ev(location: str, excerpt: str, conf: float) -> str:
             e = Evidence(
@@ -152,8 +148,7 @@ class SparkConfigAdvisor(Analyzer):
                         ),
                         evidence_ids=[ev_id],
                         recommendations=[
-                            "Remover ou substituir pela config equivalente "
-                            "do runtime declarado",
+                            "Remover ou substituir pela config equivalente do runtime declarado",
                             "Checklist: validar comportamento do job sem a "
                             "config antes de aplicar substituto",
                         ],
@@ -195,8 +190,7 @@ class SparkConfigAdvisor(Analyzer):
             metadata={
                 "runtime": {"spark": spark_v, "glue": glue_v},
                 "configs": {
-                    k: {"value": e.value, "provenance": e.provenance}
-                    for k, e in configs.items()
+                    k: {"value": e.value, "provenance": e.provenance} for k, e in configs.items()
                 },
                 "compat": compat_report,
                 "recommendations": [r.model_dump(mode="json") for r in recommendations],
@@ -256,9 +250,9 @@ class SparkConfigAdvisor(Analyzer):
         findings: list[Finding],
         recommendations: list[OptimizationRecommendation],
     ) -> None:
-        runtime_desc = (
-            f"Spark {spark_v}" if spark_v else "runtime não declarado"
-        ) + (f" / Glue {glue_v}" if glue_v else "")
+        runtime_desc = (f"Spark {spark_v}" if spark_v else "runtime não declarado") + (
+            f" / Glue {glue_v}" if glue_v else ""
+        )
 
         aqe = configs.get("spark.sql.adaptive.enabled")
         aqe_on = aqe is None or aqe.value.lower() == "true"
@@ -282,8 +276,7 @@ class SparkConfigAdvisor(Analyzer):
                         ),
                         evidence_ids=[ev_id],
                         validation_steps=[
-                            "Executar job de teste com AQE ativo e comparar "
-                            "métricas de stage"
+                            "Executar job de teste com AQE ativo e comparar métricas de stage"
                         ],
                     )
                 )
@@ -294,13 +287,11 @@ class SparkConfigAdvisor(Analyzer):
                         aqe.value,
                         "Habilitar AQE em runtime que o suporta.",
                         "Rodar job representativo com adaptive.enabled=true",
-                        "coalescência de partições e join adaptativo podem "
-                        "reduzir shuffle",
+                        "coalescência de partições e join adaptativo podem reduzir shuffle",
                         "mudança de plano pode alterar cardinalidade "
                         "intermediária; validar em ambiente não-produtivo",
                         "Comparar shuffle bytes e duração por stage antes/depois",
-                        "Reverter a flag para false — mudança puramente "
-                        "configuracional",
+                        "Reverter a flag para false — mudança puramente configuracional",
                         [ev_id],
                     )
                 )
@@ -361,8 +352,7 @@ class SparkConfigAdvisor(Analyzer):
                         ),
                         evidence_ids=[ev_id],
                         validation_steps=[
-                            "Medir tamanho real das tabelas broadcastadas "
-                            "e picos de memória"
+                            "Medir tamanho real das tabelas broadcastadas e picos de memória"
                         ],
                     )
                 )
@@ -414,8 +404,7 @@ class SparkConfigAdvisor(Analyzer):
                     ),
                     evidence_ids=[ev_id],
                     validation_steps=[
-                        "Verificar DESCRIBE EXTENDED / ANALYZE TABLE nos "
-                        "principais objetos"
+                        "Verificar DESCRIBE EXTENDED / ANALYZE TABLE nos principais objetos"
                     ],
                 )
             )

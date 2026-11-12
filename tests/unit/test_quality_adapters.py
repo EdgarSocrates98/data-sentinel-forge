@@ -64,8 +64,7 @@ def test_detect_ge() -> None:
 
 
 def test_missing_value_never_pass() -> None:
-    obs = parse_pydeequ({"metrics": [
-        {"instance": "x", "name": "Completeness"}]})
+    obs = parse_pydeequ({"metrics": [{"instance": "x", "name": "Completeness"}]})
     assert obs[0].status == ObservationStatus.UNKNOWN
     assert obs[0].observed_value is None
 
@@ -73,8 +72,13 @@ def test_missing_value_never_pass() -> None:
 def test_adapter_descriptors() -> None:
     descs = list_adapters()
     names = {d.name for d in descs}
-    assert {"pydeequ", "great_expectations", "sql_results",
-            "dataframe_export", "deequ_checks"} <= names
+    assert {
+        "pydeequ",
+        "great_expectations",
+        "sql_results",
+        "dataframe_export",
+        "deequ_checks",
+    } <= names
     for d in descs:
         assert d.version and d.input_format and d.limitations
 

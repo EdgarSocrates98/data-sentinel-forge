@@ -33,14 +33,12 @@ from data_sentinel.core.contracts.enums import (
 from data_sentinel.core.security import InputFile
 from data_sentinel.core.security.sanitize import sanitize_evidence_excerpt
 
-_SLOW_START_SECONDS = 300      # >5min pending before running
-_RETRY_FLAG = 1                # >1 attempt
+_SLOW_START_SECONDS = 300  # >5min pending before running
+_RETRY_FLAG = 1  # >1 attempt
 
 
 def _jobs(raw: dict[str, Any]) -> list[dict[str, Any]]:
-    return [j for j in (raw.get("jobRuns")
-                        or raw.get("JobRuns") or [])
-            if isinstance(j, dict)]
+    return [j for j in (raw.get("jobRuns") or raw.get("JobRuns") or []) if isinstance(j, dict)]
 
 
 class EmrServerlessAnalyzer(Analyzer):
@@ -63,8 +61,7 @@ class EmrServerlessAnalyzer(Analyzer):
     @property
     def limitations(self) -> tuple[str, ...]:
         return (
-            "GetApplication/GetJobRun exportados — sem acesso à API "
-            "emr-serverless",
+            "GetApplication/GetJobRun exportados — sem acesso à API emr-serverless",
             "Utilização de recursos só quando totalResourceUtilization "
             "fornecido — advisor vira hipótese sem elas",
             "Custos são ESTIMADOS a partir de uso declarado x tabela "
@@ -83,8 +80,7 @@ class EmrServerlessAnalyzer(Analyzer):
             limitations=list(self.limitations),
         )
 
-    def analyze(self, request: DiagnosticRequest,
-                inputs: Sequence[InputFile]) -> AnalysisResult:
+    def analyze(self, request: DiagnosticRequest, inputs: Sequence[InputFile]) -> AnalysisResult:
         started = time.monotonic()
         captured = datetime.now(UTC)
         self.validate_input(request, inputs)
@@ -100,25 +96,25 @@ class EmrServerlessAnalyzer(Analyzer):
                 limitations.append(f"{inp.path}: JSON inválido ({exc})")
                 continue
             calls = raw.get("calls", raw) if isinstance(raw, dict) else {}
-            app = calls.get("application") or calls.get(
-                "Application") or {}
+            app = calls.get("application") or calls.get("Application") or {}
             jobs = _jobs(calls)
             if isinstance(calls.get("jobRun"), dict):
                 jobs.append(calls["jobRun"])
             elif isinstance(calls.get("JobRun"), dict):
                 jobs.append(calls["JobRun"])
 
-            def _ev(s: str, conf: float = 0.8, _d: str = digest,
-                    _p: str = str(inp.path)) -> Evidence:
-                e = Evidence(source="emr_serverless",
-                             source_location=_p,
-                             captured_at=captured,
-                             content_hash=_d,
-                             sanitized_excerpt=
-                                 sanitize_evidence_excerpt(
-                                     s, max_chars=500),
-                             provenance=EvidenceProvenance.DECLARED,
-                             confidence=conf)
+            def _ev(
+                s: str, conf: float = 0.8, _d: str = digest, _p: str = str(inp.path)
+            ) -> Evidence:
+                e = Evidence(
+                    source="emr_serverless",
+                    source_location=_p,
+                    captured_at=captured,
+                    content_hash=_d,
+                    sanitized_excerpt=sanitize_evidence_excerpt(s, max_chars=500),
+                    provenance=EvidenceProvenance.DECLARED,
+                    confidence=conf,
+                )
                 evidence.append(e)
                 return e
 
@@ -127,53 +123,60 @@ class EmrServerlessAnalyzer(Analyzer):
                 self._job_run(j, _ev, findings, limitations)
 
         if not findings:
-            findings.append(Finding(
-                category=FindingCategory.UNKNOWN,
-                severity=Severity.INFO,
-                status=FindingStatus.UNKNOWN,
-                explanation="Sem achados EMR Serverless — não prova "
-                            "saúde: utilização/logs não fornecidos",
-                alternatives=["exportar GetJobRun com "
-                              "totalResourceUtilization"]))
+            findings.append(
+                Finding(
+                    category=FindingCategory.UNKNOWN,
+                    severity=Severity.INFO,
+                    status=FindingStatus.UNKNOWN,
+                    explanation="Sem achados EMR Serverless — não prova "
+                    "saúde: utilização/logs não fornecidos",
+                    alternatives=["exportar GetJobRun com totalResourceUtilization"],
+                )
+            )
         return AnalysisResult(
             analyzer_id=self.analyzer_id,
             analyzer_version=self.version,
             request_id=request.request_id,
-            findings=findings, evidence=evidence,
+            findings=findings,
+            evidence=evidence,
             limitations=limitations,
-            duration_ms=int((time.monotonic() - started) * 1000))
+            duration_ms=int((time.monotonic() - started) * 1000),
+        )
 
-    def _application(self, app: dict[str, Any], _ev: Any,
-                     findings: list[Finding]) -> None:
+    def _application(self, app: dict[str, Any], _ev: Any, findings: list[Finding]) -> None:
         if not app:
             return
         state = app.get("state") or app.get("State", "")
         name = app.get("name") or app.get("applicationId", "?")
         if state in ("TERMINATED", "STOPPED"):
-            auto = (app.get("autoStopConfiguration") or {})
+            auto = app.get("autoStopConfiguration") or {}
             ev = _ev(f"app {name} state={state} autoStop={auto}", 0.8)
-            findings.append(Finding(
-                category=FindingCategory.CONFIGURATION,
-                severity=Severity.LOW,
-                status=FindingStatus.PROBABLE,
-                explanation=f"Aplicação {name} está {state} — jobs não "
-                            "serão aceitos até STARTED (§4.2)",
-                evidence_ids=[ev.evidence_id],
-                validation_steps=["verificar autoStartConfiguration "
-                                  "e último start"]))
+            findings.append(
+                Finding(
+                    category=FindingCategory.CONFIGURATION,
+                    severity=Severity.LOW,
+                    status=FindingStatus.PROBABLE,
+                    explanation=f"Aplicação {name} está {state} — jobs não "
+                    "serão aceitos até STARTED (§4.2)",
+                    evidence_ids=[ev.evidence_id],
+                    validation_steps=["verificar autoStartConfiguration e último start"],
+                )
+            )
         elif state in ("CREATING",):
             ev = _ev(f"app {name} ainda {state}", 0.7)
-            findings.append(Finding(
-                category=FindingCategory.DEPENDENCY,
-                severity=Severity.LOW,
-                status=FindingStatus.POSSIBLE,
-                explanation=f"Aplicação {name} ainda em {state} — "
-                            "submissões podem falhar",
-                evidence_ids=[ev.evidence_id]))
+            findings.append(
+                Finding(
+                    category=FindingCategory.DEPENDENCY,
+                    severity=Severity.LOW,
+                    status=FindingStatus.POSSIBLE,
+                    explanation=f"Aplicação {name} ainda em {state} — submissões podem falhar",
+                    evidence_ids=[ev.evidence_id],
+                )
+            )
 
-    def _job_run(self, j: dict[str, Any], _ev: Any,
-                 findings: list[Finding], limitations: list[str]
-                 ) -> None:
+    def _job_run(
+        self, j: dict[str, Any], _ev: Any, findings: list[Finding], limitations: list[str]
+    ) -> None:
         jid = j.get("jobRunId") or j.get("id", "?")
         state = j.get("state", "")
         details = j.get("stateDetails", "")
@@ -183,77 +186,84 @@ class EmrServerlessAnalyzer(Analyzer):
 
         if attempt > _RETRY_FLAG:
             ev = _ev(f"job {jid} attempt={attempt}", 0.9)
-            findings.append(Finding(
-                category=FindingCategory.TIMEOUT,
-                severity=Severity.MEDIUM,
-                status=FindingStatus.CONFIRMED,
-                explanation=f"Job {jid} na tentativa {attempt} — "
-                            "retry overhead (§4.6)",
-                evidence_ids=[ev.evidence_id],
-                validation_steps=["inspecionar falha da tentativa "
-                                  "anterior"]))
-
-        if isinstance(created, (int, float)) and isinstance(
-                started_at, (int, float)):
-            delay = started_at - created
-            if delay > _SLOW_START_SECONDS:
-                ev = _ev(f"job {jid} startup {delay:.0f}s", 0.8)
-                findings.append(Finding(
+            findings.append(
+                Finding(
                     category=FindingCategory.TIMEOUT,
                     severity=Severity.MEDIUM,
                     status=FindingStatus.CONFIRMED,
-                    explanation=f"Job {jid} levou {delay:.0f}s para "
-                                "iniciar — slow startup (§4.6); "
-                                "checar initialCapacity",
+                    explanation=f"Job {jid} na tentativa {attempt} — retry overhead (§4.6)",
                     evidence_ids=[ev.evidence_id],
-                    recommendations=[
-                        "aumentar initialCapacity para warm pools",
-                        "revisar maximumCapacity"]))
+                    validation_steps=["inspecionar falha da tentativa anterior"],
+                )
+            )
+
+        if isinstance(created, (int, float)) and isinstance(started_at, (int, float)):
+            delay = started_at - created
+            if delay > _SLOW_START_SECONDS:
+                ev = _ev(f"job {jid} startup {delay:.0f}s", 0.8)
+                findings.append(
+                    Finding(
+                        category=FindingCategory.TIMEOUT,
+                        severity=Severity.MEDIUM,
+                        status=FindingStatus.CONFIRMED,
+                        explanation=f"Job {jid} levou {delay:.0f}s para "
+                        "iniciar — slow startup (§4.6); "
+                        "checar initialCapacity",
+                        evidence_ids=[ev.evidence_id],
+                        recommendations=[
+                            "aumentar initialCapacity para warm pools",
+                            "revisar maximumCapacity",
+                        ],
+                    )
+                )
 
         if state == "FAILED":
             blob = details.lower()
             cat = FindingCategory.UNKNOWN
-            if "outofmemory" in blob or "oom" in blob or \
-                    "memory" in blob:
+            if "outofmemory" in blob or "oom" in blob or "memory" in blob:
                 cat = FindingCategory.OUT_OF_MEMORY
             elif "capacity" in blob:
                 cat = FindingCategory.CONFIGURATION
             elif "role" in blob or "access" in blob:
                 cat = FindingCategory.PERMISSIONS
             ev = _ev(f"job {jid} FAILED: {details[:160]}", 0.9)
-            findings.append(Finding(
-                category=cat, severity=Severity.HIGH,
-                status=(FindingStatus.CONFIRMED
+            findings.append(
+                Finding(
+                    category=cat,
+                    severity=Severity.HIGH,
+                    status=(
+                        FindingStatus.CONFIRMED
                         if cat != FindingCategory.UNKNOWN
-                        else FindingStatus.PROBABLE),
-                explanation=f"Job {jid} falhou: "
-                            f"{details[:160] or 'sem stateDetails'}",
-                evidence_ids=[ev.evidence_id],
-                validation_steps=[
-                    "coletar driver/executor logs via "
-                    "monitoringConfiguration"],
-                alternatives=[] if cat != FindingCategory.UNKNOWN
-                else ["stateDetails não classificável — revisar "
-                      "manualmente"]))
+                        else FindingStatus.PROBABLE
+                    ),
+                    explanation=f"Job {jid} falhou: {details[:160] or 'sem stateDetails'}",
+                    evidence_ids=[ev.evidence_id],
+                    validation_steps=["coletar driver/executor logs via monitoringConfiguration"],
+                    alternatives=[]
+                    if cat != FindingCategory.UNKNOWN
+                    else ["stateDetails não classificável — revisar manualmente"],
+                )
+            )
             if not j.get("monitoringConfiguration"):
                 limitations.append(
-                    f"job {jid}: monitoringConfiguration ausente — "
-                    "logs podem estar indisponíveis")
+                    f"job {jid}: monitoringConfiguration ausente — logs podem estar indisponíveis"
+                )
 
         util = j.get("totalResourceUtilization") or {}
         vcpu = util.get("vCPUHour")
         if isinstance(vcpu, (int, float)) and vcpu > 0:
             # §4.5 — ESTIMATED, never billing
-            est = vcpu * 0.052624 + float(
-                util.get("memoryGBHour", 0) or 0) * 0.0057785
-            ev = _ev(f"job {jid} uso {vcpu} vCPUh "
-                     f"{util.get('memoryGBHour', 0)} GBh", 0.7)
-            findings.append(Finding(
-                category=FindingCategory.COST,
-                severity=Severity.INFO,
-                status=FindingStatus.PROBABLE,
-                explanation=f"Job {jid}: ~{vcpu:.1f} vCPU-h declarados "
-                            f"→ custo ESTIMADO ~US${est:.2f} "
-                            "(us-east-1; não é billing real)",
-                evidence_ids=[ev.evidence_id],
-                alternatives=["billing real via CUR/Cost Explorer"]))
+            est = vcpu * 0.052624 + float(util.get("memoryGBHour", 0) or 0) * 0.0057785
+            ev = _ev(f"job {jid} uso {vcpu} vCPUh {util.get('memoryGBHour', 0)} GBh", 0.7)
+            findings.append(
+                Finding(
+                    category=FindingCategory.COST,
+                    severity=Severity.INFO,
+                    status=FindingStatus.PROBABLE,
+                    explanation=f"Job {jid}: ~{vcpu:.1f} vCPU-h declarados "
+                    f"→ custo ESTIMADO ~US${est:.2f} "
+                    "(us-east-1; não é billing real)",
+                    evidence_ids=[ev.evidence_id],
+                    alternatives=["billing real via CUR/Cost Explorer"],
+                )
+            )

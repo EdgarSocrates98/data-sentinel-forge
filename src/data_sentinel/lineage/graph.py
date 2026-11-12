@@ -82,19 +82,19 @@ def impact(graph: LineageGraph, target: DatasetReference) -> ImpactAssessment:
         if ref is not None:
             return ref
         return DatasetReference(
-            namespace=k.rsplit("/", 1)[0] if "/" in k else "",
-            name=k.rsplit("/", 1)[-1])
+            namespace=k.rsplit("/", 1)[0] if "/" in k else "", name=k.rsplit("/", 1)[-1]
+        )
 
     return ImpactAssessment(
         target=target,
         upstream=[_ref(k) for k in sorted(up)],
         downstream=[_ref(k) for k in sorted(down)],
-        affected_entities=sorted(
-            {j for ds in down | up for j in graph.jobs.get(ds, [])}),
+        affected_entities=sorted({j for ds in down | up for j in graph.jobs.get(ds, [])}),
         confidence=1.0 if down else 0.0,
         graph_paths=[[t, *sorted(down)]],
         limitations=[
-            "impacto = alcançabilidade no grafo (potencial), não prova "
-            "de quebra real",
+            "impacto = alcançabilidade no grafo (potencial), não prova de quebra real",
             "linhagem de coluna/filtros pode reduzir o conjunto real",
-            *graph.limitations])
+            *graph.limitations,
+        ],
+    )

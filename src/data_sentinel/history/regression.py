@@ -12,10 +12,20 @@ from statistics import median
 from data_sentinel.core.contracts.snapshot import ExecutionSnapshot
 
 SIGNALS = (
-    "duration_s", "failure_rate", "retry_count", "cpu_utilization",
-    "memory_utilization", "shuffle_spill_bytes", "throughput",
-    "input_bytes", "output_bytes", "data_freshness_s", "freshness_s",
-    "quality_score", "dq_pass_rate", "iceberg_file_count",
+    "duration_s",
+    "failure_rate",
+    "retry_count",
+    "cpu_utilization",
+    "memory_utilization",
+    "shuffle_spill_bytes",
+    "throughput",
+    "input_bytes",
+    "output_bytes",
+    "data_freshness_s",
+    "freshness_s",
+    "quality_score",
+    "dq_pass_rate",
+    "iceberg_file_count",
     "estimated_cost",
 )
 
@@ -56,9 +66,7 @@ def detect_regressions(
     findings: list[dict[str, object]] = []
     hist = sorted(history, key=lambda s: s.started_at or "")
     for signal in SIGNALS:
-        vals: list[float] = [
-            v for s in hist
-            if (v := _metric(s, signal)) is not None]
+        vals: list[float] = [v for s in hist if (v := _metric(s, signal)) is not None]
         cur = _metric(current, signal)
         if cur is None or not vals:
             continue
@@ -73,48 +81,66 @@ def detect_regressions(
         if abs_thresholds and signal in abs_thresholds:
             lim = abs_thresholds[signal]
             if (cur - lim) * dir_ > 0:
-                findings.append(_finding(
-                    signal, med, cur, "absolute_threshold",
-                    f"valor {cur} {'acima' if dir_ > 0 else 'abaixo'} "
-                    f"do limite {lim}"))
+                findings.append(
+                    _finding(
+                        signal,
+                        med,
+                        cur,
+                        "absolute_threshold",
+                        f"valor {cur} {'acima' if dir_ > 0 else 'abaixo'} do limite {lim}",
+                    )
+                )
 
         # relative threshold (duration & volumes mainly)
         if med > 0:
             pct = ((cur - med) / med) * 100.0
             if signal in DECREASE_IS_BAD:
                 if pct < -rel_threshold_pct:
-                    findings.append(_finding(
-                        signal, med, cur, "relative_threshold",
-                        f"{pct:.1f}% vs mediana histórica (queda)"))
+                    findings.append(
+                        _finding(
+                            signal,
+                            med,
+                            cur,
+                            "relative_threshold",
+                            f"{pct:.1f}% vs mediana histórica (queda)",
+                        )
+                    )
             elif pct > rel_threshold_pct:
-                findings.append(_finding(
-                    signal, med, cur, "relative_threshold",
-                    f"+{pct:.1f}% vs mediana histórica"))
+                findings.append(
+                    _finding(
+                        signal, med, cur, "relative_threshold", f"+{pct:.1f}% vs mediana histórica"
+                    )
+                )
 
         # robust z-score via MAD (needs >=5 points)
         if len(vals) >= 5 and mad > 0:
             z = 0.6745 * (cur - med) / mad
             if z * dir_ > z_threshold:
-                findings.append(_finding(
-                    signal, med, cur, "robust_zscore",
-                    f"z={z:.2f} (limiar {z_threshold})", z))
+                findings.append(
+                    _finding(
+                        signal, med, cur, "robust_zscore", f"z={z:.2f} (limiar {z_threshold})", z
+                    )
+                )
 
         # simple trend: last 3 medians monotonic in the BAD direction
         if len(vals) >= 6:
-            thirds = [vals[len(vals) // 3 * i:len(vals) // 3 * (i + 1)]
-                      for i in range(3)]
+            thirds = [vals[len(vals) // 3 * i : len(vals) // 3 * (i + 1)] for i in range(3)]
             meds = [median(t) for t in thirds if t]
             if len(meds) == 3:
                 rising = meds[0] < meds[1] < meds[2] and cur > meds[2]
                 falling = meds[0] > meds[1] > meds[2] and cur < meds[2]
                 if rising if dir_ > 0 else falling:
-                    findings.append(_finding(
-                        signal, med, cur, "trend",
-                        "tendência monotônica "
-                        f"{'crescente' if dir_ > 0 else 'decrescente'} "
-                        "nos últimos terços"))
-
-
+                    findings.append(
+                        _finding(
+                            signal,
+                            med,
+                            cur,
+                            "trend",
+                            "tendência monotônica "
+                            f"{'crescente' if dir_ > 0 else 'decrescente'} "
+                            "nos últimos terços",
+                        )
+                    )
 
     for f in findings:
         lims = f.get("limitations", [])
@@ -126,9 +152,14 @@ def detect_regressions(
     return link_changes(findings, current, hist)
 
 
-def _finding(metric: str, baseline: float, current: float,
-             method: str, rationale: str,
-             z: float | None = None) -> dict[str, object]:
+def _finding(
+    metric: str,
+    baseline: float,
+    current: float,
+    method: str,
+    rationale: str,
+    z: float | None = None,
+) -> dict[str, object]:
     mag = current - baseline
     pct = (mag / baseline * 100.0) if baseline else None
     return {
@@ -143,8 +174,7 @@ def _finding(metric: str, baseline: float, current: float,
         "provenance": "computed_from_snapshots",
         "limitations": [],
         "related_changes": [],
-        "investigation_recommendation":
-            f"investigar {metric}: {rationale}",
+        "investigation_recommendation": f"investigar {metric}: {rationale}",
     }
 
 
@@ -164,11 +194,13 @@ def link_changes(
     changes: list[str] = []
     if prev.runtime != current.runtime:
         changes.append(f"runtime: {prev.runtime} -> {current.runtime}")
-    if (prev.config_fingerprint != current.config_fingerprint
-            and prev.config_fingerprint and current.config_fingerprint):
+    if (
+        prev.config_fingerprint != current.config_fingerprint
+        and prev.config_fingerprint
+        and current.config_fingerprint
+    ):
         changes.append("config fingerprint mudou")
-    if (prev.input_bytes and current.input_bytes
-            and prev.input_bytes > 0):
+    if prev.input_bytes and current.input_bytes and prev.input_bytes > 0:
         ratio = current.input_bytes / prev.input_bytes
         if ratio > 1.5 or ratio < 0.66:
             changes.append(f"volume de entrada {ratio:.1f}x")
@@ -178,7 +210,8 @@ def link_changes(
             lims = f.get("limitations", [])
             if not isinstance(lims, list):
                 lims = []
-            f["limitations"] = [*lims,
-                "mudanças correlatas observadas — causalidade não "
-                "afirmada por simultaneidade"]
+            f["limitations"] = [
+                *lims,
+                "mudanças correlatas observadas — causalidade não afirmada por simultaneidade",
+            ]
     return findings

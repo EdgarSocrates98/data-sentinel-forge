@@ -114,9 +114,7 @@ def _redact_mapping(mapping: dict[str, Any]) -> dict[str, Any]:
         elif isinstance(value, dict):
             out[key] = _redact_mapping(value)
         elif isinstance(value, list):
-            out[key] = [
-                _redact_mapping(v) if isinstance(v, dict) else v for v in value
-            ]
+            out[key] = [_redact_mapping(v) if isinstance(v, dict) else v for v in value]
         else:
             out[key] = value
     return out

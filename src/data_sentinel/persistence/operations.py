@@ -7,6 +7,7 @@ Migrations via PRAGMA user_version — monotonic, append-only DDL,
 never destructive. Same rules as investigations: parameterized SQL,
 no ORM, no network, no raw file contents.
 """
+
 from __future__ import annotations
 
 import json
@@ -120,7 +121,8 @@ def _migrate(conn: sqlite3.Connection) -> None:
     if v > SCHEMA_VERSION:
         raise RuntimeError(
             f"schema v{v} mais novo que o suportado "
-            f"(v{SCHEMA_VERSION}) — upgrade do Sentinel necessário")
+            f"(v{SCHEMA_VERSION}) — upgrade do Sentinel necessário"
+        )
     for ver in range(v + 1, SCHEMA_VERSION + 1):
         conn.executescript(_MIGRATIONS[ver])
         conn.execute(f"PRAGMA user_version={ver}")
@@ -133,8 +135,7 @@ class OpsStore:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
-        self._conn = sqlite3.connect(
-            str(self.db_path), check_same_thread=False)
+        self._conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
         self._conn.execute("PRAGMA busy_timeout=5000")
@@ -149,20 +150,26 @@ class OpsStore:
                 "INSERT OR REPLACE INTO snapshots"
                 " (snapshot_id, platform, job_id, run_id, started_at,"
                 "  payload_json, created_ts) VALUES (?,?,?,?,?,?,?)",
-                (snap.snapshot_id, snap.platform, snap.job_id,
-                 snap.run_id, snap.started_at,
-                 snap.model_dump_json(), time.time()))
+                (
+                    snap.snapshot_id,
+                    snap.platform,
+                    snap.job_id,
+                    snap.run_id,
+                    snap.started_at,
+                    snap.model_dump_json(),
+                    time.time(),
+                ),
+            )
 
     def get_snapshot(self, sid: str) -> ExecutionSnapshot | None:
         row = self._conn.execute(
-            "SELECT payload_json FROM snapshots WHERE snapshot_id=?",
-            (sid,)).fetchone()
-        return (ExecutionSnapshot.model_validate_json(
-            row["payload_json"]) if row else None)
+            "SELECT payload_json FROM snapshots WHERE snapshot_id=?", (sid,)
+        ).fetchone()
+        return ExecutionSnapshot.model_validate_json(row["payload_json"]) if row else None
 
-    def list_snapshots(self, *, platform: str | None = None,
-                       job_id: str | None = None
-                       ) -> list[ExecutionSnapshot]:
+    def list_snapshots(
+        self, *, platform: str | None = None, job_id: str | None = None
+    ) -> list[ExecutionSnapshot]:
         sql = "SELECT payload_json FROM snapshots WHERE 1=1"
         args: list[Any] = []
         if platform is not None:
@@ -173,13 +180,11 @@ class OpsStore:
             args.append(job_id)
         sql += " ORDER BY started_at"
         rows = self._conn.execute(sql, args).fetchall()
-        return [ExecutionSnapshot.model_validate_json(r["payload_json"])
-                for r in rows]
+        return [ExecutionSnapshot.model_validate_json(r["payload_json"]) for r in rows]
 
     def delete_snapshot(self, sid: str) -> bool:
         with self._lock, self._conn:
-            cur = self._conn.execute(
-                "DELETE FROM snapshots WHERE snapshot_id=?", (sid,))
+            cur = self._conn.execute("DELETE FROM snapshots WHERE snapshot_id=?", (sid,))
             return cur.rowcount > 0
 
     # ---- watches ----
@@ -192,78 +197,91 @@ class OpsStore:
                 "  updated_ts)"
                 " VALUES (?,?,?,COALESCE((SELECT created_ts FROM"
                 " watches WHERE watch_id=?),?),?)",
-                (w.watch_id, json.dumps(asdict(w)),
-                 1 if w.enabled else 0, w.watch_id,
-                 time.time(), time.time()))
+                (
+                    w.watch_id,
+                    json.dumps(asdict(w)),
+                    1 if w.enabled else 0,
+                    w.watch_id,
+                    time.time(),
+                    time.time(),
+                ),
+            )
 
     def get_watch(self, wid: str) -> WatchDefinition | None:
         row = self._conn.execute(
-            "SELECT payload_json FROM watches WHERE watch_id=?",
-            (wid,)).fetchone()
+            "SELECT payload_json FROM watches WHERE watch_id=?", (wid,)
+        ).fetchone()
         if not row:
             return None
         d = json.loads(row["payload_json"])
         return WatchDefinition(**d)
 
     def list_watches(self) -> list[WatchDefinition]:
-        rows = self._conn.execute(
-            "SELECT payload_json FROM watches ORDER BY watch_id"
-        ).fetchall()
-        return [WatchDefinition(**json.loads(r["payload_json"]))
-                for r in rows]
+        rows = self._conn.execute("SELECT payload_json FROM watches ORDER BY watch_id").fetchall()
+        return [WatchDefinition(**json.loads(r["payload_json"])) for r in rows]
 
     def delete_watch(self, wid: str) -> bool:
         with self._lock, self._conn:
-            cur = self._conn.execute(
-                "DELETE FROM watches WHERE watch_id=?", (wid,))
+            cur = self._conn.execute("DELETE FROM watches WHERE watch_id=?", (wid,))
             return cur.rowcount > 0
 
     # ---- watch executions & alerts ----
 
-    def save_watch_execution(self, watch_id: str,
-                             alerts: list[Alert],
-                             result: str = "ok") -> None:
+    def save_watch_execution(self, watch_id: str, alerts: list[Alert], result: str = "ok") -> None:
         with self._lock, self._conn:
             self._conn.execute(
-                "INSERT INTO watch_executions"
-                " (watch_id, ts, alerts_json, result) VALUES (?,?,?,?)",
-                (watch_id, time.time(),
-                 json.dumps([asdict(a) for a in alerts]), result))
+                "INSERT INTO watch_executions (watch_id, ts, alerts_json, result) VALUES (?,?,?,?)",
+                (watch_id, time.time(), json.dumps([asdict(a) for a in alerts]), result),
+            )
             for a in alerts:
                 self._conn.execute(
                     "INSERT OR REPLACE INTO alerts"
                     " (alert_id, watch_id, kind, severity, message, ts,"
                     "  recovered, findings_json)"
                     " VALUES (?,?,?,?,?,?,?,?)",
-                    (a.alert_id, a.watch_id, a.kind, a.severity,
-                     a.message, a.ts, 1 if a.recovered else 0,
-                     json.dumps(a.findings)))
+                    (
+                        a.alert_id,
+                        a.watch_id,
+                        a.kind,
+                        a.severity,
+                        a.message,
+                        a.ts,
+                        1 if a.recovered else 0,
+                        json.dumps(a.findings),
+                    ),
+                )
 
-    def list_watch_executions(self, watch_id: str,
-                              *, limit: int = 100
-                              ) -> list[dict[str, Any]]:
+    def list_watch_executions(self, watch_id: str, *, limit: int = 100) -> list[dict[str, Any]]:
         rows = self._conn.execute(
             "SELECT exec_id, ts, alerts_json, result FROM"
             " watch_executions WHERE watch_id=? ORDER BY ts DESC"
-            " LIMIT ?", (watch_id, limit)).fetchall()
-        return [{"exec_id": r["exec_id"], "ts": r["ts"],
-                 "alerts": json.loads(r["alerts_json"]),
-                 "result": r["result"]} for r in rows]
+            " LIMIT ?",
+            (watch_id, limit),
+        ).fetchall()
+        return [
+            {
+                "exec_id": r["exec_id"],
+                "ts": r["ts"],
+                "alerts": json.loads(r["alerts_json"]),
+                "result": r["result"],
+            }
+            for r in rows
+        ]
 
-    def list_alerts(self, *, watch_id: str | None = None,
-                    limit: int = 500) -> list[dict[str, Any]]:
+    def list_alerts(self, *, watch_id: str | None = None, limit: int = 500) -> list[dict[str, Any]]:
         if watch_id:
             rows = self._conn.execute(
-                "SELECT * FROM alerts WHERE watch_id=?"
-                " ORDER BY ts DESC LIMIT ?",
-                (watch_id, limit)).fetchall()
+                "SELECT * FROM alerts WHERE watch_id=? ORDER BY ts DESC LIMIT ?", (watch_id, limit)
+            ).fetchall()
         else:
             rows = self._conn.execute(
-                "SELECT * FROM alerts ORDER BY ts DESC LIMIT ?",
-                (limit,)).fetchall()
-        return [dict(r) | {"recovered": bool(r["recovered"]),
-                           "findings": json.loads(r["findings_json"])}
-                for r in rows]
+                "SELECT * FROM alerts ORDER BY ts DESC LIMIT ?", (limit,)
+            ).fetchall()
+        return [
+            dict(r)
+            | {"recovered": bool(r["recovered"]), "findings": json.loads(r["findings_json"])}
+            for r in rows
+        ]
 
     # ---- remediation plans & approvals ----
 
@@ -275,119 +293,119 @@ class OpsStore:
                 "  updated_ts)"
                 " VALUES (?,?,?,COALESCE((SELECT created_ts FROM"
                 " remediation_plans WHERE plan_id=?),?),?)",
-                (plan.plan_id, str(plan.state),
-                 plan.model_dump_json(), plan.plan_id,
-                 time.time(), time.time()))
+                (
+                    plan.plan_id,
+                    str(plan.state),
+                    plan.model_dump_json(),
+                    plan.plan_id,
+                    time.time(),
+                    time.time(),
+                ),
+            )
 
     def get_plan(self, pid: str) -> RemediationPlan | None:
         row = self._conn.execute(
-            "SELECT payload_json FROM remediation_plans"
-            " WHERE plan_id=?", (pid,)).fetchone()
-        return (RemediationPlan.model_validate_json(
-            row["payload_json"]) if row else None)
+            "SELECT payload_json FROM remediation_plans WHERE plan_id=?", (pid,)
+        ).fetchone()
+        return RemediationPlan.model_validate_json(row["payload_json"]) if row else None
 
     def list_plans(self) -> list[RemediationPlan]:
         rows = self._conn.execute(
-            "SELECT payload_json FROM remediation_plans"
-            " ORDER BY created_ts").fetchall()
-        return [RemediationPlan.model_validate_json(r["payload_json"])
-                for r in rows]
+            "SELECT payload_json FROM remediation_plans ORDER BY created_ts"
+        ).fetchall()
+        return [RemediationPlan.model_validate_json(r["payload_json"]) for r in rows]
 
-    def save_approval(self, plan_id: str, approver: str,
-                      decision: str, reason: str | None) -> None:
+    def save_approval(self, plan_id: str, approver: str, decision: str, reason: str | None) -> None:
         with self._lock, self._conn:
             self._conn.execute(
                 "INSERT INTO approvals"
                 " (plan_id, approver, decision, reason, ts)"
                 " VALUES (?,?,?,?,?)",
-                (plan_id, approver, decision, reason, time.time()))
+                (plan_id, approver, decision, reason, time.time()),
+            )
 
     def list_approvals(self, plan_id: str) -> list[dict[str, Any]]:
         rows = self._conn.execute(
-            "SELECT * FROM approvals WHERE plan_id=? ORDER BY ts",
-            (plan_id,)).fetchall()
+            "SELECT * FROM approvals WHERE plan_id=? ORDER BY ts", (plan_id,)
+        ).fetchall()
         return [dict(r) for r in rows]
 
     # ---- audit & links ----
 
-    def audit(self, actor: str, action: str,
-              detail: dict[str, Any] | None = None) -> None:
+    def audit(self, actor: str, action: str, detail: dict[str, Any] | None = None) -> None:
         with self._lock, self._conn:
             self._conn.execute(
-                "INSERT INTO operational_audit"
-                " (actor, action, detail_json, ts) VALUES (?,?,?,?)",
-                (actor, action, json.dumps(detail or {}),
-                 time.time()))
+                "INSERT INTO operational_audit (actor, action, detail_json, ts) VALUES (?,?,?,?)",
+                (actor, action, json.dumps(detail or {}), time.time()),
+            )
 
     def list_audit(self, *, limit: int = 500) -> list[dict[str, Any]]:
         rows = self._conn.execute(
-            "SELECT * FROM operational_audit ORDER BY audit_id DESC"
-            " LIMIT ?", (limit,)).fetchall()
-        return [dict(r) | {"detail": json.loads(r["detail_json"])}
-                for r in rows]
+            "SELECT * FROM operational_audit ORDER BY audit_id DESC LIMIT ?", (limit,)
+        ).fetchall()
+        return [dict(r) | {"detail": json.loads(r["detail_json"])} for r in rows]
 
-    def link(self, investigation_id: str, entity_kind: str,
-             entity_id: str) -> None:
+    def link(self, investigation_id: str, entity_kind: str, entity_id: str) -> None:
         with self._lock, self._conn:
             self._conn.execute(
                 "INSERT OR IGNORE INTO investigation_links"
                 " (investigation_id, entity_kind, entity_id,"
                 "  created_ts) VALUES (?,?,?,?)",
-                (investigation_id, entity_kind, entity_id,
-                 time.time()))
+                (investigation_id, entity_kind, entity_id, time.time()),
+            )
 
-    def links_for(self, investigation_id: str
-                  ) -> list[dict[str, Any]]:
+    def links_for(self, investigation_id: str) -> list[dict[str, Any]]:
         rows = self._conn.execute(
-            "SELECT entity_kind, entity_id FROM investigation_links"
-            " WHERE investigation_id=?",
-            (investigation_id,)).fetchall()
+            "SELECT entity_kind, entity_id FROM investigation_links WHERE investigation_id=?",
+            (investigation_id,),
+        ).fetchall()
         return [dict(r) for r in rows]
 
     # ---- ingestion checkpoints (schema v2, Cycle 09) ----
 
-    def save_checkpoint(self, source_id: str,
-                        checkpoint: dict[str, Any]) -> None:
+    def save_checkpoint(self, source_id: str, checkpoint: dict[str, Any]) -> None:
         """Upsert a resumable ingestion cursor for one source."""
         with self._lock, self._conn:
             self._conn.execute(
                 "INSERT OR REPLACE INTO ingestion_checkpoints"
                 " (source_id, checkpoint_json, updated_ts)"
                 " VALUES (?,?,?)",
-                (source_id, json.dumps(checkpoint), time.time()))
+                (source_id, json.dumps(checkpoint), time.time()),
+            )
 
     def get_checkpoint(self, source_id: str) -> dict[str, Any] | None:
         row = self._conn.execute(
-            "SELECT checkpoint_json FROM ingestion_checkpoints"
-            " WHERE source_id=?", (source_id,)).fetchone()
+            "SELECT checkpoint_json FROM ingestion_checkpoints WHERE source_id=?", (source_id,)
+        ).fetchone()
         return json.loads(row["checkpoint_json"]) if row else None
 
     def delete_checkpoint(self, source_id: str) -> bool:
         with self._lock, self._conn:
             cur = self._conn.execute(
-                "DELETE FROM ingestion_checkpoints WHERE source_id=?",
-                (source_id,))
+                "DELETE FROM ingestion_checkpoints WHERE source_id=?", (source_id,)
+            )
             return cur.rowcount > 0
 
     # ---- retention ----
 
-    def prune(self, *, snapshots_older_than_s: float | None = None,
-              alerts_older_than_s: float | None = None
-              ) -> dict[str, int]:
+    def prune(
+        self,
+        *,
+        snapshots_older_than_s: float | None = None,
+        alerts_older_than_s: float | None = None,
+    ) -> dict[str, int]:
         """Retention autorizada e auditável (§10.2)."""
         removed: dict[str, int] = {}
         now = time.time()
         with self._lock, self._conn:
             if snapshots_older_than_s is not None:
                 cutoff = _iso_cutoff(snapshots_older_than_s)
-                cur = self._conn.execute(
-                    "DELETE FROM snapshots WHERE started_at < ?",
-                    (cutoff,))
+                cur = self._conn.execute("DELETE FROM snapshots WHERE started_at < ?", (cutoff,))
                 removed["snapshots"] = cur.rowcount
             if alerts_older_than_s is not None:
                 cur = self._conn.execute(
-                    "DELETE FROM alerts WHERE ts < ?",
-                    (now - alerts_older_than_s,))
+                    "DELETE FROM alerts WHERE ts < ?", (now - alerts_older_than_s,)
+                )
                 removed["alerts"] = cur.rowcount
         return removed
 
@@ -397,5 +415,5 @@ class OpsStore:
 
 def _iso_cutoff(older_s: float) -> str:
     from datetime import UTC, datetime, timedelta
-    return (datetime.now(UTC)
-            - timedelta(seconds=older_s)).isoformat()
+
+    return (datetime.now(UTC) - timedelta(seconds=older_s)).isoformat()

@@ -4,6 +4,7 @@ Cada fixture declara inputs/expected/forbidden/evidence/limitations/
 ground_truth. Runners executam os engines reais onde aplicável —
 nenhum cenário é "conferido" sem executar de verdade.
 """
+
 from __future__ import annotations
 
 import json
@@ -17,12 +18,28 @@ from data_sentinel.watch.engine import AlertEngine, WatchDefinition
 
 ROOT = Path(__file__).resolve().parents[2]
 SCEN = sorted((ROOT / "fixtures/evals/cycle7").glob("*.json"))
-REQUIRED = {"scenario_id", "title", "runner", "inputs", "expected",
-            "forbidden", "evidence", "limitations", "ground_truth"}
+REQUIRED = {
+    "scenario_id",
+    "title",
+    "runner",
+    "inputs",
+    "expected",
+    "forbidden",
+    "evidence",
+    "limitations",
+    "ground_truth",
+}
 
 
-_TOP_FIELDS = ("duration_s", "input_bytes", "output_bytes",
-               "failure", "config_fingerprint", "job_id", "runtime")
+_TOP_FIELDS = (
+    "duration_s",
+    "input_bytes",
+    "output_bytes",
+    "failure",
+    "config_fingerprint",
+    "job_id",
+    "runtime",
+)
 
 
 def _top_fields(d: dict) -> dict:
@@ -50,14 +67,17 @@ def _snap(d: dict) -> ExecutionSnapshot:
         resource_metrics=d.get("resource_metrics", {}),
         failure=d.get("failure"),
         config_fingerprint=d.get("config_fingerprint"),
-        provenance="golden-dataset")
+        provenance="golden-dataset",
+    )
 
 
 def _hist(vals: list[float]) -> list[ExecutionSnapshot]:
-    return [_snap({"snapshot_id": f"h{i}",
-                   "started_at": f"2026-01-0{i + 1}T00:00:00Z",
-                   "duration_s": v})
-            for i, v in enumerate(vals)]
+    return [
+        _snap(
+            {"snapshot_id": f"h{i}", "started_at": f"2026-01-0{i + 1}T00:00:00Z", "duration_s": v}
+        )
+        for i, v in enumerate(vals)
+    ]
 
 
 def run_scenario(s: dict) -> dict:
@@ -66,29 +86,35 @@ def run_scenario(s: dict) -> dict:
     if kind == "regression":
         cur = inp.get("current")
         if isinstance(inp.get("baseline"), dict):
-            snaps = [_snap({"snapshot_id": "h0",
-                            **_top_fields(inp["baseline"]),
-                            "resource_metrics":
-                                _metrics_of(inp["baseline"])})]
+            snaps = [
+                _snap(
+                    {
+                        "snapshot_id": "h0",
+                        **_top_fields(inp["baseline"]),
+                        "resource_metrics": _metrics_of(inp["baseline"]),
+                    }
+                )
+            ]
         else:
             snaps = _hist(inp.get("baseline", []))
         if isinstance(cur, dict):
-            cur_s = _snap({"snapshot_id": "cur",
-                           "started_at": "2026-02-01T00:00:00Z",
-                           **_top_fields(cur),
-                           "resource_metrics":
-                               _metrics_of(cur)})
+            cur_s = _snap(
+                {
+                    "snapshot_id": "cur",
+                    "started_at": "2026-02-01T00:00:00Z",
+                    **_top_fields(cur),
+                    "resource_metrics": _metrics_of(cur),
+                }
+            )
         else:
-            cur_s = _snap({"snapshot_id": "cur",
-                           "started_at": "2026-02-01T00:00:00Z",
-                           "duration_s": cur})
+            cur_s = _snap(
+                {"snapshot_id": "cur", "started_at": "2026-02-01T00:00:00Z", "duration_s": cur}
+            )
         findings = detect_regressions(snaps, cur_s)
         return {"findings": findings, "finding": bool(findings)}
     if kind == "watch":
-        eng = AlertEngine(cooldown_s=0.0 if not inp.get(
-            "same_condition") else 900.0)
-        w = WatchDefinition(watch_id="w", workload="j",
-                            platform="glue", source="local")
+        eng = AlertEngine(cooldown_s=0.0 if not inp.get("same_condition") else 900.0)
+        w = WatchDefinition(watch_id="w", workload="j", platform="glue", source="local")
         snaps = [_snap(d) for d in inp.get("snapshots", [])]
         runs = inp.get("repeat_eval", 1)
         out = []
@@ -99,38 +125,40 @@ def run_scenario(s: dict) -> dict:
                 out = eng.evaluate(w, snaps[:i], cur)
         else:
             for _ in range(runs):
-                out = eng.evaluate(w, snaps[:-1],
-                                   snaps[-1]) if snaps else []
-        return {"alerts": [{"kind": a.kind, "recovered": a.recovered}
-                           for a in out],
-                "history_len": len(eng.history),
-                "auto_started": False,
-                "created_enabled": False}
+                out = eng.evaluate(w, snaps[:-1], snaps[-1]) if snaps else []
+        return {
+            "alerts": [{"kind": a.kind, "recovered": a.recovered} for a in out],
+            "history_len": len(eng.history),
+            "auto_started": False,
+            "created_enabled": False,
+        }
     if kind == "cost":
         from data_sentinel.analyzers.emr.cost import estimate_glue
-        e = estimate_glue(inp.get("worker_type"),
-                          inp.get("workers"), inp.get("duration_s"))
-        return {"amount": e.amount, "confidence": e.confidence,
-                "exclusions": e.exclusions}
+
+        e = estimate_glue(inp.get("worker_type"), inp.get("workers"), inp.get("duration_s"))
+        return {"amount": e.amount, "confidence": e.confidence, "exclusions": e.exclusions}
     if kind == "compare":
-        return {"comparable": False,
+        return (
+            {
+                "comparable": False,
                 "limitations": ["nenhum baseline elegível"],
-                "incomparability_reasons":
-                    ["nenhum baseline elegível"]} \
-            if inp.get("snapshots", 0) <= 1 else {}
+                "incomparability_reasons": ["nenhum baseline elegível"],
+            }
+            if inp.get("snapshots", 0) <= 1
+            else {}
+        )
     if kind == "remediation":
         from data_sentinel.remediation import LOCAL_ACTION_ALLOWLIST
+
         act = inp.get("local_action", "")
-        return {"status": "BLOCKED"
-                if act not in LOCAL_ACTION_ALLOWLIST else "OK"}
+        return {"status": "BLOCKED" if act not in LOCAL_ACTION_ALLOWLIST else "OK"}
     if kind == "runtime":
         from data_sentinel.agents.runtime import AgentRuntime
         from data_sentinel.core.contracts.agent import AgentExecution, InvestigationBudget
-        b = InvestigationBudget(
-            max_tokens=inp.get("budget", {}).get("max_tokens", 10))
+
+        b = InvestigationBudget(max_tokens=inp.get("budget", {}).get("max_tokens", 10))
         rt = AgentRuntime(budget=b)
-        ex = AgentExecution(execution_id="golden",
-                            task_id="t", agent_id="g")
+        ex = AgentExecution(execution_id="golden", task_id="t", agent_id="g")
         rt.begin(ex)
         rt.record_tokens(100, 100)
         try:
@@ -141,19 +169,26 @@ def run_scenario(s: dict) -> dict:
     if kind == "analyzer":
         from data_sentinel.core.contracts.agent import ToolInvocation
         from data_sentinel.tools.registry import execute_tool
-        res = execute_tool(ToolInvocation(
-            invocation_id="golden", tool_id=inp["analyzer"],
-            input={"file": str(ROOT / inp["file"])}))
+
+        res = execute_tool(
+            ToolInvocation(
+                invocation_id="golden",
+                tool_id=inp["analyzer"],
+                input={"file": str(ROOT / inp["file"])},
+            )
+        )
         out = res.output if isinstance(res.output, dict) else {}
-        return {"ok": res.ok,
-                "findings": out.get("findings", []),
-                "limitations": out.get("limitations", []),
-                "evidence": out.get("evidence", [])}
+        return {
+            "ok": res.ok,
+            "findings": out.get("findings", []),
+            "limitations": out.get("limitations", []),
+            "evidence": out.get("evidence", []),
+        }
     if kind == "interop":
         from data_sentinel.adapters.doctor import import_doctor_bundle
+
         imp = import_doctor_bundle(ROOT / inp["fixture"])
-        return {"format": imp.format,
-                "findings": len(imp.findings)}
+        return {"format": imp.format, "findings": len(imp.findings)}
     # persistence/sse/concurrency/auth: cobertos por E2E dedicado
     return {"covered_by_e2e": True}
 
@@ -170,23 +205,26 @@ def test_golden_scenario(path: Path) -> None:
     if kind == "regression":
         if exp.get("finding") is False:
             assert not res["findings"] or all(
-                f.get("confidence") != "CONFIRMED"
-                for f in res["findings"])
+                f.get("confidence") != "CONFIRMED" for f in res["findings"]
+            )
         elif exp.get("unknown"):
             assert not res["findings"]
         elif exp.get("volume_change_flagged") is not None:
             flagged = any(
                 "volume" in str(c).lower()
                 for f in res["findings"]
-                for c in f.get("related_changes", []))
+                for c in f.get("related_changes", [])
+            )
             assert flagged == bool(exp["volume_change_flagged"])
         elif exp.get("finding"):
             assert res["findings"]
             for f in res["findings"]:
                 # nenhum finding pode afirmar causa confirmada
                 blob = json.dumps(f).lower()
-                assert "confirmed" not in blob or "confirm" not in str(
-                    f.get("causal_label", "")).lower()
+                assert (
+                    "confirmed" not in blob
+                    or "confirm" not in str(f.get("causal_label", "")).lower()
+                )
     elif kind == "watch":
         if "alert_kind" in exp:
             kinds = {a["kind"] for a in res["alerts"]}

@@ -19,16 +19,14 @@ class InvestigationMemory:
     _states: dict[str, InvestigationState] = field(default_factory=dict)
 
     def _file(self, iid: str) -> Path:
-        safe = "".join(c if c.isalnum() or c in "-_" else "_"
-                       for c in iid)[:80]
+        safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in iid)[:80]
         return self.root / f"{safe}.jsonl"
 
     def save(self, state: InvestigationState) -> Path:
         self.root.mkdir(parents=True, exist_ok=True)
         f = self._file(state.investigation_id)
         with f.open("a", encoding="utf-8") as fh:
-            fh.write(json.dumps(state.model_dump(mode="json"),
-                                default=str) + "\n")
+            fh.write(json.dumps(state.model_dump(mode="json"), default=str) + "\n")
         self._states[state.investigation_id] = state
         return f
 
@@ -47,5 +45,6 @@ class InvestigationMemory:
         f = self._file(iid)
         if not f.exists():
             return []
-        return [json.loads(line) for line in
-                f.read_text(encoding="utf-8").splitlines() if line.strip()]
+        return [
+            json.loads(line) for line in f.read_text(encoding="utf-8").splitlines() if line.strip()
+        ]

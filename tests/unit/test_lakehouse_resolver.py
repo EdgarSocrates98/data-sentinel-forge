@@ -36,17 +36,19 @@ def _res(analyzer: str, st: SourceType, path: str):
 
 
 def test_resolver_merges_domains():
-    ice = _res("iceberg.metadata", SourceType.ICEBERG_METADATA,
-               "fixtures/iceberg/v2_evolved.json")
-    acc = _res("lakehouse.cross_account", SourceType.ACCESS_CONTEXT,
-               "fixtures/access/cross_write.json")
-    ops = _res("lakehouse.operation", SourceType.SQL_QUERY,
-               "fixtures/operations/merge_dups.json")
+    ice = _res("iceberg.metadata", SourceType.ICEBERG_METADATA, "fixtures/iceberg/v2_evolved.json")
+    acc = _res(
+        "lakehouse.cross_account", SourceType.ACCESS_CONTEXT, "fixtures/access/cross_write.json"
+    )
+    ops = _res("lakehouse.operation", SourceType.SQL_QUERY, "fixtures/operations/merge_dups.json")
     assessment = assess_compatibility(
-        None, runtime="glue-5.1", operation="merge",
-        access_mode="fgac", table_format="iceberg")
-    ctx = resolve([ice, acc, ops], assessments=[assessment],
-                  access=AccessContext(source_account="1", destination_account="2"))
+        None, runtime="glue-5.1", operation="merge", access_mode="fgac", table_format="iceberg"
+    )
+    ctx = resolve(
+        [ice, acc, ops],
+        assessments=[assessment],
+        access=AccessContext(source_account="1", destination_account="2"),
+    )
     assert ctx.iceberg_tables and ctx.graphs and ctx.operations
     assert ctx.assessments[0].support_status == SupportStatus.SUPPORTED_WITH_CONSTRAINTS
     assert ctx.worst_status == SupportStatus.SUPPORTED_WITH_CONSTRAINTS
@@ -63,7 +65,6 @@ def test_resolver_empty_is_not_verified():
 
 
 def test_resolver_propagates_limitations():
-    bad = _res("iceberg.metadata", SourceType.ICEBERG_METADATA,
-               "fixtures/iceberg/malformed.json")
+    bad = _res("iceberg.metadata", SourceType.ICEBERG_METADATA, "fixtures/iceberg/malformed.json")
     ctx = resolve([bad])
     assert any("JSON" in lim for lim in ctx.limitations)

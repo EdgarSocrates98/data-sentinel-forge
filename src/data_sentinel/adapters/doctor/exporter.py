@@ -33,13 +33,12 @@ def _sha(text: str) -> str:
 
 def _evidence_for(evid: str, source: str) -> InteropEvidence:
     kind, _, ref = evid.partition(":")
-    return InteropEvidence(kind=kind or "diagnostic",
-                           ref=ref or evid, source=source)
+    return InteropEvidence(kind=kind or "diagnostic", ref=ref or evid, source=source)
 
 
-def export_report(report: DiagnosticReport, *, source_ref: str = "",
-                  producer_version: str = "0.4.0"
-                  ) -> ExternalDiagnosticBundle:
+def export_report(
+    report: DiagnosticReport, *, source_ref: str = "", producer_version: str = "0.4.0"
+) -> ExternalDiagnosticBundle:
     findings: list[InteropFinding] = []
     evidences: list[InteropEvidence] = []
     for i, f in enumerate(report.findings):
@@ -47,28 +46,35 @@ def export_report(report: DiagnosticReport, *, source_ref: str = "",
         ev_ids = []
         for j, ev in enumerate(f.evidence_ids):
             evid = f"{fid}-ev{j}"
-            evidences.append(InteropEvidence(
-                kind="observed", ref=ev,
-                source="data-sentinel",
-                detail=f"status={f.status.value}"))
+            evidences.append(
+                InteropEvidence(
+                    kind="observed",
+                    ref=ev,
+                    source="data-sentinel",
+                    detail=f"status={f.status.value}",
+                )
+            )
             ev_ids.append(evid)
-        findings.append(InteropFinding(
-            check_id=fid,
-            id=fid,
-            title=f"{f.category.value}:{f.severity.value}",
-            message=f.explanation,
-            severity=f.severity.value,
-            confidence=f.status.value,  # verbatim CONFIRMED/PROBABLE/...
-            category=f.category.value,
-            evidence=[InteropEvidence(kind="observed", ref=r,
-                                      source="data-sentinel")
-                      for r in f.evidence_ids],
-            recommendation="; ".join(f.recommendations),
-            source="data-sentinel",
-            tags=["sentinel", "observed", f.category.value],
-            fingerprint=_sha(fid + f.explanation)[:16],
-            unknowns=[{"fact": a} for a in f.alternatives],
-        ))
+        findings.append(
+            InteropFinding(
+                check_id=fid,
+                id=fid,
+                title=f"{f.category.value}:{f.severity.value}",
+                message=f.explanation,
+                severity=f.severity.value,
+                confidence=f.status.value,  # verbatim CONFIRMED/PROBABLE/...
+                category=f.category.value,
+                evidence=[
+                    InteropEvidence(kind="observed", ref=r, source="data-sentinel")
+                    for r in f.evidence_ids
+                ],
+                recommendation="; ".join(f.recommendations),
+                source="data-sentinel",
+                tags=["sentinel", "observed", f.category.value],
+                fingerprint=_sha(fid + f.explanation)[:16],
+                unknowns=[{"fact": a} for a in f.alternatives],
+            )
+        )
 
     bundle = ExternalDiagnosticBundle(
         contract_version=CONTRACT_TAG,
@@ -83,14 +89,13 @@ def export_report(report: DiagnosticReport, *, source_ref: str = "",
         limitations=[
             *(getattr(report, "limitations", []) or []),
             "export only — Sentinel não executa nada no consumidor",
-            "confidence = status observado; Doctor deve manter "
-            "proveniência"],
+            "confidence = status observado; Doctor deve manter proveniência",
+        ],
     )
-    payload = json.dumps(bundle.model_dump(exclude={"integrity"},
-                                         mode="json"),
-                         sort_keys=True)
+    payload = json.dumps(bundle.model_dump(exclude={"integrity"}, mode="json"), sort_keys=True)
     bundle.integrity = IntegrityMetadata(
-        content_sha256=_sha(payload), byte_size=len(payload.encode()))
+        content_sha256=_sha(payload), byte_size=len(payload.encode())
+    )
     return bundle
 
 

@@ -10,23 +10,25 @@ FIX = Path(__file__).parent.parent / "fixtures" / "lineage"
 
 
 def _graph():
-    ing = parse_openlineage_events(
-        (FIX / "marquez-real.jsonl").read_text(encoding="utf-8"))
+    ing = parse_openlineage_events((FIX / "marquez-real.jsonl").read_text(encoding="utf-8"))
     return build_graph(ing.events)
 
 
 def test_graph_edges() -> None:
     g = _graph()
-    assert "s3://lakehouse-curated/analytics/customer_events" in g.downstream[
-        "s3://lakehouse-raw/raw/events"]
-    assert "s3://lakehouse-curated/analytics/customer_events" in g.upstream[
-        "s3://lakehouse-marts/marts/daily_revenue"]
+    assert (
+        "s3://lakehouse-curated/analytics/customer_events"
+        in g.downstream["s3://lakehouse-raw/raw/events"]
+    )
+    assert (
+        "s3://lakehouse-curated/analytics/customer_events"
+        in g.upstream["s3://lakehouse-marts/marts/daily_revenue"]
+    )
 
 
 def test_upstream_downstream_walk() -> None:
     g = _graph()
-    imp = impact(g, DatasetReference(
-        namespace="s3://lakehouse-raw", name="raw/events"))
+    imp = impact(g, DatasetReference(namespace="s3://lakehouse-raw", name="raw/events"))
     down_names = {d.name for d in imp.downstream}
     assert "analytics/customer_events" in down_names
     assert "marts/daily_revenue" in down_names  # transitivo
@@ -34,8 +36,7 @@ def test_upstream_downstream_walk() -> None:
 
 def test_upstream_of_sink() -> None:
     g = _graph()
-    imp = impact(g, DatasetReference(
-        namespace="s3://lakehouse-marts", name="marts/daily_revenue"))
+    imp = impact(g, DatasetReference(namespace="s3://lakehouse-marts", name="marts/daily_revenue"))
     up = {d.name for d in imp.upstream}
     assert "analytics/customer_events" in up
     assert "raw/events" in up
@@ -62,7 +63,7 @@ def test_empty_graph() -> None:
 
 def test_jobs_tracked() -> None:
     g = _graph()
-    imp = impact(g, DatasetReference(
-        namespace="s3://lakehouse-curated",
-        name="analytics/customer_events"))
+    imp = impact(
+        g, DatasetReference(namespace="s3://lakehouse-curated", name="analytics/customer_events")
+    )
     assert "spark.agg.daily_revenue" in imp.affected_entities

@@ -7,6 +7,7 @@ Regras duras:
   prometida (§7.5);
 - executor local restrito a LOCAL_ACTION_ALLOWLIST.
 """
+
 from __future__ import annotations
 
 import uuid
@@ -41,14 +42,13 @@ class RemediationType(StrEnum):
 
 
 _ALLOWED: dict[PlanState, frozenset[PlanState]] = {
-    PlanState.DRAFT: frozenset({PlanState.VALIDATED,
-                               PlanState.REJECTED}),
-    PlanState.VALIDATED: frozenset({PlanState.AWAITING_APPROVAL,
-                                   PlanState.DRAFT,
-                                   PlanState.REJECTED}),
-    PlanState.AWAITING_APPROVAL: frozenset({PlanState.APPROVED,
-                                           PlanState.REJECTED,
-                                           PlanState.EXPIRED}),
+    PlanState.DRAFT: frozenset({PlanState.VALIDATED, PlanState.REJECTED}),
+    PlanState.VALIDATED: frozenset(
+        {PlanState.AWAITING_APPROVAL, PlanState.DRAFT, PlanState.REJECTED}
+    ),
+    PlanState.AWAITING_APPROVAL: frozenset(
+        {PlanState.APPROVED, PlanState.REJECTED, PlanState.EXPIRED}
+    ),
     PlanState.APPROVED: frozenset({PlanState.EXPIRED}),
     PlanState.REJECTED: frozenset({PlanState.DRAFT}),
     PlanState.EXPIRED: frozenset({PlanState.DRAFT}),
@@ -56,18 +56,20 @@ _ALLOWED: dict[PlanState, frozenset[PlanState]] = {
 
 # §7 — ações que o executor local pode aplicar neste ciclo.
 # Nenhuma toca AWS/cloud; tudo é estado local do Sentinel.
-LOCAL_ACTION_ALLOWLIST: frozenset[str] = frozenset({
-    "update_watch_threshold",      # ajustar thresholds de watch local
-    "suppress_alert",              # suprimir alerta por janela
-    "escalate_notification",       # elevar severidade de notificação
-})
+LOCAL_ACTION_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "update_watch_threshold",  # ajustar thresholds de watch local
+        "suppress_alert",  # suprimir alerta por janela
+        "escalate_notification",  # elevar severidade de notificação
+    }
+)
 
 
 class ProposedChange(ContractModel):
     target: str = Field(min_length=1)
     change: str = Field(min_length=1)
     params: dict[str, Any] = Field(default_factory=dict)
-    local_action: str | None = None   # só executável se no allowlist
+    local_action: str | None = None  # só executável se no allowlist
 
 
 class RemediationPlan(ContractModel):
@@ -87,21 +89,19 @@ class RemediationPlan(ContractModel):
     approval_required: bool = True
     state: PlanState = PlanState.DRAFT
     state_history: list[dict[str, str]] = Field(default_factory=list)
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     approved_by: str | None = None
 
 
-def _transition(plan: RemediationPlan, to: PlanState,
-                note: str = "") -> RemediationPlan:
+def _transition(plan: RemediationPlan, to: PlanState, note: str = "") -> RemediationPlan:
     if to not in _ALLOWED[plan.state]:
         raise ValueError(
-            f"transição inválida {plan.state}→{to}; permitidas: "
-            f"{sorted(_ALLOWED[plan.state])}")
-    plan.state_history.append({"from": str(plan.state),
-                               "to": str(to), "note": note,
-                               "at": datetime.now(UTC).isoformat()})
+            f"transição inválida {plan.state}→{to}; permitidas: {sorted(_ALLOWED[plan.state])}"
+        )
+    plan.state_history.append(
+        {"from": str(plan.state), "to": str(to), "note": note, "at": datetime.now(UTC).isoformat()}
+    )
     plan.state = to
     return plan
 
@@ -131,11 +131,9 @@ def submit_for_approval(plan: RemediationPlan) -> RemediationPlan:
 
 def approve(plan: RemediationPlan, approver: str) -> RemediationPlan:
     if not approver:
-        raise ValueError("approver obrigatório — aprovação nunca "
-                         "anônima")
+        raise ValueError("approver obrigatório — aprovação nunca anônima")
     plan.approved_by = approver
-    return _transition(plan, PlanState.APPROVED,
-                       note=f"aprovado por {approver}")
+    return _transition(plan, PlanState.APPROVED, note=f"aprovado por {approver}")
 
 
 def reject(plan: RemediationPlan, reason: str) -> RemediationPlan:
@@ -148,15 +146,17 @@ def dry_run(plan: RemediationPlan) -> dict[str, Any]:
         "plan_id": plan.plan_id,
         "state": str(plan.state),
         "would_change": [
-            {"target": c.target, "change": c.change,
-             "params": c.params,
-             "executable_locally": bool(
-                 c.local_action and c.local_action
-                 in LOCAL_ACTION_ALLOWLIST),
-             "requires": "cloud/manual execution"
-             if not c.local_action
-             else c.local_action}
-            for c in plan.proposed_changes],
+            {
+                "target": c.target,
+                "change": c.change,
+                "params": c.params,
+                "executable_locally": bool(
+                    c.local_action and c.local_action in LOCAL_ACTION_ALLOWLIST
+                ),
+                "requires": "cloud/manual execution" if not c.local_action else c.local_action,
+            }
+            for c in plan.proposed_changes
+        ],
         "preconditions": list(plan.preconditions),
         "risks": list(plan.risks),
         "rollback": plan.rollback_proposal,
@@ -164,44 +164,55 @@ def dry_run(plan: RemediationPlan) -> dict[str, Any]:
     }
 
 
-def execute_local(plan: RemediationPlan,
-                  apply_fn: dict[str, Any] | None = None
-                  ) -> dict[str, Any]:
+def execute_local(plan: RemediationPlan, apply_fn: dict[str, Any] | None = None) -> dict[str, Any]:
     """Executor local — só ações no allowlist, plano APPROVED.
 
     `apply_fn` maps local_action -> callable(params)->result.
     Ações cloud/destrutivas não existem aqui por design.
     """
     if plan.state != PlanState.APPROVED:
-        raise ValueError(f"execução requer APPROVED; estado "
-                         f"atual {plan.state}")
+        raise ValueError(f"execução requer APPROVED; estado atual {plan.state}")
     results: list[dict[str, Any]] = []
     applied = apply_fn or {}
     for c in plan.proposed_changes:
         if c.local_action is None:
-            results.append({"target": c.target, "status": "SKIPPED",
-                            "reason": "execução manual/cloud — fora do "
-                                      "executor local"})
+            results.append(
+                {
+                    "target": c.target,
+                    "status": "SKIPPED",
+                    "reason": "execução manual/cloud — fora do executor local",
+                }
+            )
             continue
         if c.local_action not in LOCAL_ACTION_ALLOWLIST:
-            results.append({"target": c.target, "status": "BLOCKED",
-                            "reason": f"ação '{c.local_action}' fora "
-                                      "do allowlist"})
+            results.append(
+                {
+                    "target": c.target,
+                    "status": "BLOCKED",
+                    "reason": f"ação '{c.local_action}' fora do allowlist",
+                }
+            )
             continue
         fn = applied.get(c.local_action)
         if fn is None:
-            results.append({"target": c.target,
-                            "action": c.local_action,
-                            "status": "PENDING",
-                            "reason": "sem apply_fn registrada — "
-                                      "registrado para aplicação"})
+            results.append(
+                {
+                    "target": c.target,
+                    "action": c.local_action,
+                    "status": "PENDING",
+                    "reason": "sem apply_fn registrada — registrado para aplicação",
+                }
+            )
             continue
-        results.append({"target": c.target,
-                        "action": c.local_action,
-                        "status": "APPLIED",
-                        "result": fn(c.params)})
-    return {"plan_id": plan.plan_id, "results": results,
-            "note": "nenhuma chamada cloud foi feita"}
+        results.append(
+            {
+                "target": c.target,
+                "action": c.local_action,
+                "status": "APPLIED",
+                "result": fn(c.params),
+            }
+        )
+    return {"plan_id": plan.plan_id, "results": results, "note": "nenhuma chamada cloud foi feita"}
 
 
 def export_plan(plan: RemediationPlan) -> dict[str, Any]:
@@ -216,14 +227,16 @@ def export_plan(plan: RemediationPlan) -> dict[str, Any]:
         "finding_ids": plan.finding_ids,
         "evidence_ids": plan.evidence_ids,
         "proposed_changes": [
-            {"target": c.target, "change": c.change,
-             "params": c.params}
-            for c in plan.proposed_changes],
+            {"target": c.target, "change": c.change, "params": c.params}
+            for c in plan.proposed_changes
+        ],
         "validation_procedure": plan.validation_procedure,
         "rollback_proposal": plan.rollback_proposal,
-        "limitations": ["plano supervisionado — implementação é "
-                        "responsabilidade do consumidor; aprovação "
-                        "não transfere autoridade de execução"],
+        "limitations": [
+            "plano supervisionado — implementação é "
+            "responsabilidade do consumidor; aprovação "
+            "não transfere autoridade de execução"
+        ],
     }
 
 
@@ -243,38 +256,37 @@ _CATEGORY_MAP: dict[FindingCategory, RemediationType] = {
 }
 
 
-def plan_for_finding(finding: Finding, *,
-                     title: str | None = None) -> RemediationPlan:
+def plan_for_finding(finding: Finding, *, title: str | None = None) -> RemediationPlan:
     """Gera plano DRAFT a partir de um Finding — supervisionado."""
-    rtype = _CATEGORY_MAP.get(finding.category,
-                              RemediationType.SPARK_CONFIG_TUNING)
+    rtype = _CATEGORY_MAP.get(finding.category, RemediationType.SPARK_CONFIG_TUNING)
     plan = RemediationPlan(
         title=title or f"Remediar: {finding.explanation[:80]}",
         remediation_type=rtype,
         finding_ids=[finding.finding_id],
         evidence_ids=list(finding.evidence_ids),
         proposed_changes=[
-            ProposedChange(target=finding.category.value,
-                           change=r,
-                           params={})
-            for r in finding.recommendations] or
-        [ProposedChange(target="manual",
-                        change="investigação manual necessária")],
-        preconditions=["validar baseline antes de aplicar",
-                       "confirmar janela de mudança"],
-        risks=["mudança de configuração pode degradar desempenho "
-               "se premissas não se confirmarem"],
+            ProposedChange(target=finding.category.value, change=r, params={})
+            for r in finding.recommendations
+        ]
+        or [ProposedChange(target="manual", change="investigação manual necessária")],
+        preconditions=["validar baseline antes de aplicar", "confirmar janela de mudança"],
+        risks=["mudança de configuração pode degradar desempenho se premissas não se confirmarem"],
         expected_effects=list(finding.recommendations),
-        validation_procedure=list(finding.validation_steps) or
-        ["reexecutar workload e comparar métricas com baseline"],
-        rollback_proposal="reverter configuração para valores "
-                          "anteriores registrados",
-        rollback_limitations=["reversão de efeitos de dados não é "
-                              "garantida — apenas de configuração"],
+        validation_procedure=list(finding.validation_steps)
+        or ["reexecutar workload e comparar métricas com baseline"],
+        rollback_proposal="reverter configuração para valores anteriores registrados",
+        rollback_limitations=[
+            "reversão de efeitos de dados não é garantida — apenas de configuração"
+        ],
         required_permissions=["sentinel.local.apply"],
-        expires_at=None)
-    plan.state_history.append({
-        "from": "", "to": "DRAFT",
-        "note": "plano gerado a partir de finding",
-        "at": plan.created_at.isoformat()})
+        expires_at=None,
+    )
+    plan.state_history.append(
+        {
+            "from": "",
+            "to": "DRAFT",
+            "note": "plano gerado a partir de finding",
+            "at": plan.created_at.isoformat(),
+        }
+    )
     return plan

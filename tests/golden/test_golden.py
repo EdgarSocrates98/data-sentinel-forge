@@ -24,9 +24,9 @@ def _run(manifest: dict):
     files = []
     for rel in inp["files"]:
         p = ROOT / rel
-        files.append(InputFile(
-            path=p, text=p.read_text(encoding="utf-8"),
-            size_bytes=p.stat().st_size))
+        files.append(
+            InputFile(path=p, text=p.read_text(encoding="utf-8"), size_bytes=p.stat().st_size)
+        )
     req = DiagnosticRequest(
         source_type=SourceType(inp["source_type"]),
         artifact_references=[ArtifactReference(uri=f"golden://{manifest['id']}")],
@@ -48,9 +48,7 @@ def test_golden(manifest_path: Path) -> None:
             f"{manifest['id']}: finding esperado ausente: {wanted!r}\n{all_text}"
         )
     for banned in exp["findings_prohibited"]:
-        assert banned not in all_text, (
-            f"{manifest['id']}: finding PROIBIDO presente: {banned!r}"
-        )
+        assert banned not in all_text, f"{manifest['id']}: finding PROIBIDO presente: {banned!r}"
         # prohibited text must also never appear in evidence excerpts
         for ev in out.evidence:
             assert banned not in ev.sanitized_excerpt, (

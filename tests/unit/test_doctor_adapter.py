@@ -36,7 +36,9 @@ def test_import_real_scan_json() -> None:
 
 def test_import_canonical_forge_contracts() -> None:
     r = import_doctor_bundle(
-        Path(__file__).resolve().parents[2] / "fixtures" / "doctor-api"
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "doctor-api"
         / "forge-contracts-1-handoff.json"
     )
     assert r.format == "forge-contracts/1"
@@ -69,6 +71,7 @@ def test_reject_non_dict(tmp_path: Path) -> None:
 
 def test_reject_oversized(tmp_path: Path) -> None:
     from data_sentinel.adapters.doctor import adapter
+
     p = tmp_path / "big.json"
     p.write_bytes(b'{"results": ["' + b"A" * (adapter.MAX_BUNDLE_BYTES) + b'"]}')
     with pytest.raises(DoctorBundleError, match="exceeds"):
@@ -82,20 +85,30 @@ def test_missing_file() -> None:
 
 def test_secrets_redacted(tmp_path: Path) -> None:
     p = tmp_path / "sec.json"
-    p.write_text(json.dumps({
-        "contract": "handoff-bundle",
-        "contract_version": 1,
-        "tool": {"name": "forge-doctor-data", "version": "1.0.3"},
-        "results": [{
-            "check_id": "X1",
-            "message": "aws_secret_access_key=AKIAIOSFODNN7EXAMPLE exposto",
-            "severity": "error", "confidence": "high",
-            "file": "cfg.py",
-        }],
-        "graph": {"entities": [], "relationships": []},
-        "capabilities": {}, "plans": [],
-        "project": {}, "summary": {},
-    }), encoding="utf-8")
+    p.write_text(
+        json.dumps(
+            {
+                "contract": "handoff-bundle",
+                "contract_version": 1,
+                "tool": {"name": "forge-doctor-data", "version": "1.0.3"},
+                "results": [
+                    {
+                        "check_id": "X1",
+                        "message": "aws_secret_access_key=AKIAIOSFODNN7EXAMPLE exposto",
+                        "severity": "error",
+                        "confidence": "high",
+                        "file": "cfg.py",
+                    }
+                ],
+                "graph": {"entities": [], "relationships": []},
+                "capabilities": {},
+                "plans": [],
+                "project": {},
+                "summary": {},
+            }
+        ),
+        encoding="utf-8",
+    )
     r = import_doctor_bundle(p)
     blob = r.findings[0].explanation + r.evidence[0].sanitized_excerpt
     assert "AKIAIOSFODNN7EXAMPLE" not in blob
@@ -103,28 +116,36 @@ def test_secrets_redacted(tmp_path: Path) -> None:
 
 def test_unknown_confidence_maps_to_unknown_status(tmp_path: Path) -> None:
     p = tmp_path / "u.json"
-    p.write_text(json.dumps({
-        "contract_version": "forge-contracts/1",
-        "tool": {"name": "forge-doctor-api", "version": "0.2.3"},
-        "findings": [{
-            "id": "OAS001", "description": "spec ambígua",
-            "severity": "HIGH", "confidence": "UNKNOWN",
-            "unknowns": [{"subject": "s", "missing": "m"}],
-        }],
-    }), encoding="utf-8")
+    p.write_text(
+        json.dumps(
+            {
+                "contract_version": "forge-contracts/1",
+                "tool": {"name": "forge-doctor-api", "version": "0.2.3"},
+                "findings": [
+                    {
+                        "id": "OAS001",
+                        "description": "spec ambígua",
+                        "severity": "HIGH",
+                        "confidence": "UNKNOWN",
+                        "unknowns": [{"subject": "s", "missing": "m"}],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
     r = import_doctor_bundle(p)
     assert r.findings[0].status == FindingStatus.UNKNOWN
     assert "desconhecidos: 1" in r.findings[0].explanation
 
 
 def test_detect_all_formats() -> None:
-    assert detect_bundle_format(
-        {"contract": "handoff-bundle", "results": []}) == "handoff-bundle@1"
-    assert detect_bundle_format(
-        {"contract_version": "forge-contracts/1", "findings": []}
-    ) == "forge-contracts/1"
-    assert detect_bundle_format(
-        {"schema_version": "3.0", "results": []}) == "scan-json@3.0"
+    assert detect_bundle_format({"contract": "handoff-bundle", "results": []}) == "handoff-bundle@1"
+    assert (
+        detect_bundle_format({"contract_version": "forge-contracts/1", "findings": []})
+        == "forge-contracts/1"
+    )
+    assert detect_bundle_format({"schema_version": "3.0", "results": []}) == "scan-json@3.0"
 
 
 def test_empty_bundle_file_rejected(tmp_path: Path) -> None:
@@ -137,15 +158,22 @@ def test_empty_bundle_file_rejected(tmp_path: Path) -> None:
 def test_bundle_content_never_executed(tmp_path: Path) -> None:
     """A finding containing code-shaped text must import as text only."""
     p = tmp_path / "code.json"
-    p.write_text(json.dumps({
-        "contract_version": "forge-contracts/1",
-        "tool": {"name": "forge-doctor-data"},
-        "findings": [{
-            "check_id": "EVIL1",
-            "message": "__import__('os').system('touch /tmp/pwned-marker')",
-            "severity": "info", "confidence": "low",
-        }],
-    }))
+    p.write_text(
+        json.dumps(
+            {
+                "contract_version": "forge-contracts/1",
+                "tool": {"name": "forge-doctor-data"},
+                "findings": [
+                    {
+                        "check_id": "EVIL1",
+                        "message": "__import__('os').system('touch /tmp/pwned-marker')",
+                        "severity": "info",
+                        "confidence": "low",
+                    }
+                ],
+            }
+        )
+    )
     r = import_doctor_bundle(p)
     assert len(r.findings) == 1
     assert not Path("/tmp/pwned-marker").exists()  # noqa: S108 - marcador de não-execução

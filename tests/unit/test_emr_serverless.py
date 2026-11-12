@@ -14,9 +14,9 @@ def _run():
     req = DiagnosticRequest(
         source_type=SourceType.OTHER,
         artifact_references=[ArtifactReference(uri=str(FX))],
-        platform=Platform.SPARK)
-    inp = InputFile(path=FX, text=FX.read_text(encoding="utf-8"),
-                    size_bytes=FX.stat().st_size)
+        platform=Platform.SPARK,
+    )
+    inp = InputFile(path=FX, text=FX.read_text(encoding="utf-8"), size_bytes=FX.stat().st_size)
     return EmrServerlessAnalyzer().analyze(req, [inp])
 
 

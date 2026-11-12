@@ -37,8 +37,7 @@ def render_terminal(
         key=lambda f: (_STATUS_ORDER.index(f.status.value), f.severity.value),
     ):
         lines.append(
-            f"\n[{finding.severity.value}/{finding.status.value}] "
-            f"{finding.category.value}"
+            f"\n[{finding.severity.value}/{finding.status.value}] {finding.category.value}"
         )
         lines.append(f"  {finding.explanation}")
         for ev_id in finding.evidence_ids:
@@ -53,10 +52,7 @@ def render_terminal(
     if report.recommendations:
         lines.append("\nrecomendações estruturadas:")
         for rec in report.recommendations:
-            lines.append(
-                f"  [{rec.recommendation_id}] {rec.target}: "
-                f"{rec.proposed_change}"
-            )
+            lines.append(f"  [{rec.recommendation_id}] {rec.target}: {rec.proposed_change}")
     if report.limitations:
         lines.append("\nlimitações:")
         for lim in report.limitations:
@@ -97,8 +93,7 @@ def render_markdown(
     )
     for i, finding in enumerate(ordered, start=1):
         md.append(
-            f"### {i}. {finding.category.value} — "
-            f"{finding.severity.value} / {finding.status.value}"
+            f"### {i}. {finding.category.value} — {finding.severity.value} / {finding.status.value}"
         )
         md.append("")
         md.append(finding.explanation)

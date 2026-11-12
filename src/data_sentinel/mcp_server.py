@@ -41,25 +41,37 @@ def create_server(registry: Any = None) -> Any:
     server = MCPServer("data-sentinel")
 
     def _make(tool_id: str) -> Any:
-        async def _handler(file: str = "", adapter: str = "",
-                           target: str = "", baseline_file: str = "",
-                           current_file: str = "") -> str:
-            inp = {k: v for k, v in {
-                "file": file, "adapter": adapter, "target": target,
-                "baseline_file": baseline_file,
-                "current_file": current_file}.items() if v}
+        async def _handler(
+            file: str = "",
+            adapter: str = "",
+            target: str = "",
+            baseline_file: str = "",
+            current_file: str = "",
+        ) -> str:
+            inp = {
+                k: v
+                for k, v in {
+                    "file": file,
+                    "adapter": adapter,
+                    "target": target,
+                    "baseline_file": baseline_file,
+                    "current_file": current_file,
+                }.items()
+                if v
+            }
             res = execute_tool(
-                ToolInvocation(invocation_id=f"mcp-{tool_id}",
-                               tool_id=tool_id, input=inp),
-                allowed_roots=roots)
+                ToolInvocation(invocation_id=f"mcp-{tool_id}", tool_id=tool_id, input=inp),
+                allowed_roots=roots,
+            )
             payload = res.output if res.ok else {"error": res.error}
             return json.dumps(payload, ensure_ascii=False, default=str)
+
         return _handler
 
     for desc in reg.list_tools():
         server.add_tool(
-            _make(desc.tool_id), name=desc.tool_id,
-            description=desc.description or desc.name)
+            _make(desc.tool_id), name=desc.tool_id, description=desc.description or desc.name
+        )
 
     return server
 

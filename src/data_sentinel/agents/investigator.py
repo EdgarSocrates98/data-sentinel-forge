@@ -26,13 +26,10 @@ def _tool_for_file(agent_id: str, file_kind: str) -> str | None:
     return spec.allowed_tools[0] if spec.allowed_tools else None
 
 
-def investigate(problem: str, files: dict[str, str]
-                ) -> InvestigationReport:
+def investigate(problem: str, files: dict[str, str]) -> InvestigationReport:
     """files: {tool_id: path} — explicit, no silent tool guessing."""
     problem = sanitize_untrusted(problem, max_chars=4_000)
-    rep = InvestigationReport(
-        report_id="inv:local", investigation_id="inv:local",
-        problem=problem)
+    rep = InvestigationReport(report_id="inv:local", investigation_id="inv:local", problem=problem)
     rep.agents_used = route(problem)
 
     findings: list[Finding] = []
@@ -45,12 +42,12 @@ def investigate(problem: str, files: dict[str, str]
             rep.limitations.append(str(exc))
             continue
         inv = ToolInvocation(
-            invocation_id=f"inv-{len(rep.tools_used)}",
-            tool_id=tool_id, input={"file": path})
+            invocation_id=f"inv-{len(rep.tools_used)}", tool_id=tool_id, input={"file": path}
+        )
         res = execute_tool(inv)
-        rep.context.setdefault("tool_calls", []).append({
-            "tool_id": tool_id, "ok": res.ok,
-            "duration_ms": res.duration_ms})
+        rep.context.setdefault("tool_calls", []).append(
+            {"tool_id": tool_id, "ok": res.ok, "duration_ms": res.duration_ms}
+        )
         rep.tools_used.append(tool_id)
         if not res.ok:
             rep.limitations.append(f"{tool_id}: {res.error}")
@@ -60,8 +57,7 @@ def investigate(problem: str, files: dict[str, str]
             try:
                 findings.append(Finding.model_validate(f))
             except Exception:
-                rep.limitations.append(
-                    f"{tool_id}: finding malformado ignorado")
+                rep.limitations.append(f"{tool_id}: finding malformado ignorado")
         for ev in out.get("evidence", []):
             try:
                 parsed = Evidence.model_validate(ev)
@@ -69,8 +65,7 @@ def investigate(problem: str, files: dict[str, str]
                     seen_evidence.add(parsed.evidence_id)
                     evidence.append(parsed)
             except Exception:
-                rep.limitations.append(
-                    f"{tool_id}: evidence malformada ignorada")
+                rep.limitations.append(f"{tool_id}: evidence malformada ignorada")
         for lim in out.get("limitations", []):
             rep.limitations.append(f"{tool_id}: {lim}")
 
@@ -82,21 +77,18 @@ def investigate(problem: str, files: dict[str, str]
     rep.context["validation"] = {
         "checked": vrep.checked,
         "errors": [i.issue for i in vrep.errors],
-        "warnings": [i.issue for i in vrep.issues
-                     if i.severity == "warning"],
+        "warnings": [i.issue for i in vrep.issues if i.severity == "warning"],
     }
     if not vrep.ok:
-        rep.limitations.append(
-            "validador independente encontrou erros — veja context")
+        rep.limitations.append("validador independente encontrou erros — veja context")
 
     # root cause (§8.1)
     rca = RootCauseEngine().analyze(findings)
-    rep.hypotheses_supported = [
-        h for h in rca.hypotheses if h.status == "supported"]
+    rep.hypotheses_supported = [h for h in rca.hypotheses if h.status == "supported"]
     rep.context["rca_scores"] = rca.scores
     if rca.primary:
         rep.conclusions.append(
-            f"causa-raiz provável: {rca.primary.statement} "
-            f"(confiança {rca.primary.confidence})")
+            f"causa-raiz provável: {rca.primary.statement} (confiança {rca.primary.confidence})"
+        )
     rep.limitations.extend(rca.limitations)
     return rep

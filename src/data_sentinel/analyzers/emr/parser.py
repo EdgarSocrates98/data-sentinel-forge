@@ -23,9 +23,17 @@ class EmrClusterDoc:
     warnings: list[str] = field(default_factory=list)
 
 
-_KNOWN = {"Cluster", "Steps", "InstanceGroups", "InstanceFleets",
-          "BootstrapActions", "calls", "NextToken", "Marker",
-          "ResponseMetadata"}
+_KNOWN = {
+    "Cluster",
+    "Steps",
+    "InstanceGroups",
+    "InstanceFleets",
+    "BootstrapActions",
+    "calls",
+    "NextToken",
+    "Marker",
+    "ResponseMetadata",
+}
 
 
 def parse_cluster(text: str, *, source: str = "") -> EmrClusterDoc:
@@ -52,8 +60,7 @@ def parse_cluster(text: str, *, source: str = "") -> EmrClusterDoc:
     else:
         doc.warnings.append("payload sem objeto de calls reconhecível")
     if not doc.cluster and not doc.steps:
-        doc.warnings.append(
-            "sem Cluster nem Steps — análise será limitada")
+        doc.warnings.append("sem Cluster nem Steps — análise será limitada")
     return doc
 
 
@@ -70,8 +77,7 @@ def parse_instance_groups(text: str) -> list[dict[str, Any]]:
         raw = json.loads(text)
     except json.JSONDecodeError:
         return []
-    return _as_list(
-        raw.get("InstanceGroups") if isinstance(raw, dict) else raw)
+    return _as_list(raw.get("InstanceGroups") if isinstance(raw, dict) else raw)
 
 
 def _as_list(v: Any) -> list[dict[str, Any]]:

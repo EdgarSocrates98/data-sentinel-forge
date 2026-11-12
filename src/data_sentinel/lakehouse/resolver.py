@@ -34,10 +34,13 @@ class LakehouseContext:
     @property
     def worst_status(self) -> SupportStatus:
         """Most conservative status across assessments."""
-        order = [SupportStatus.UNSUPPORTED, SupportStatus.UNKNOWN,
-                 SupportStatus.NOT_VERIFIED,
-                 SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
-                 SupportStatus.SUPPORTED]
+        order = [
+            SupportStatus.UNSUPPORTED,
+            SupportStatus.UNKNOWN,
+            SupportStatus.NOT_VERIFIED,
+            SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
+            SupportStatus.SUPPORTED,
+        ]
         if not self.assessments:
             return SupportStatus.NOT_VERIFIED
         return min((a.support_status for a in self.assessments), key=order.index)

@@ -35,6 +35,7 @@ class IngestedLineage:
 
 def _ts(raw: Any) -> UTCDateTime | None:
     from datetime import datetime
+
     if not raw:
         return None
     try:
@@ -53,26 +54,24 @@ def _dataset(raw: Any) -> DatasetReference | None:
     return DatasetReference(namespace=str(ns or ""), name=str(name))
 
 
-def _event(raw: dict[str, Any], idx: int, provenance: str
-           ) -> LineageEvent | None:
+def _event(raw: dict[str, Any], idx: int, provenance: str) -> LineageEvent | None:
     etype = str(raw.get("eventType") or "")
     if not etype:
         return None
-    inputs = [d for d in (_dataset(i) for i in raw.get("inputs") or [])
-              if d]
-    outputs = [d for d in (_dataset(o) for o in raw.get("outputs") or [])
-               if d]
+    inputs = [d for d in (_dataset(i) for i in raw.get("inputs") or []) if d]
+    outputs = [d for d in (_dataset(o) for o in raw.get("outputs") or []) if d]
     run = raw.get("run") or {}
     job = raw.get("job") or {}
     return LineageEvent(
         event_id=str(run.get("runId") or f"event-{idx}"),
         event_type=etype,
         event_time=_ts(raw.get("eventTime")),
-        run={"runId": str(run.get("runId") or ""),
-             "facets": run.get("facets") or {}},
-        job={"namespace": str(job.get("namespace") or ""),
-             "name": str(job.get("name") or ""),
-             "facets": job.get("facets") or {}},
+        run={"runId": str(run.get("runId") or ""), "facets": run.get("facets") or {}},
+        job={
+            "namespace": str(job.get("namespace") or ""),
+            "name": str(job.get("name") or ""),
+            "facets": job.get("facets") or {},
+        },
         inputs=inputs,
         outputs=outputs,
         facets={
@@ -83,9 +82,9 @@ def _event(raw: dict[str, Any], idx: int, provenance: str
     )
 
 
-def parse_openlineage_events(text: str, *, provenance: str = "",
-                             declared: bool = False
-                             ) -> IngestedLineage:
+def parse_openlineage_events(
+    text: str, *, provenance: str = "", declared: bool = False
+) -> IngestedLineage:
     """Parse JSONL/batch/single OpenLineage payload."""
     events: list[LineageEvent] = []
     rejected = 0
@@ -129,8 +128,7 @@ def parse_openlineage_events(text: str, *, provenance: str = "",
             events.append(ev)
 
     kinds = {e.event_type for e in events}
-    kind = (LineageKind.STATIC if declared
-            or not kinds & _RUNTIME_TYPES else LineageKind.OBSERVED)
+    kind = LineageKind.STATIC if declared or not kinds & _RUNTIME_TYPES else LineageKind.OBSERVED
     limits: list[str] = []
     if rejected:
         limits.append(f"{rejected} eventos rejeitados (malformados)")
@@ -138,5 +136,4 @@ def parse_openlineage_events(text: str, *, provenance: str = "",
         limits.append("nenhum evento válido — linhagem indisponível")
     if len(raws) > MAX_EVENTS:
         limits.append(f"entrada truncada em {MAX_EVENTS} eventos")
-    return IngestedLineage(events=events, kind=kind,
-                           limitations=limits, rejected=rejected)
+    return IngestedLineage(events=events, kind=kind, limitations=limits, rejected=rejected)

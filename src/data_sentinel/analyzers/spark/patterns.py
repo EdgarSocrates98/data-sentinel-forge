@@ -80,9 +80,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Aumentar spark.executor.memoryOverhead",
             "Reduzir spark.executor.cores para aliviar pressão de memória",
         ),
-        validation_steps=(
-            "Verificar memoryOverhead e métricas de container no ResourceManager",
-        ),
+        validation_steps=("Verificar memoryOverhead e métricas de container no ResourceManager",),
         source="YARN ResourceManager diagnostics",
     ),
     LogPattern(
@@ -106,9 +104,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Verificar causa da perda (OOM, preempção, rede) nos logs do executor",
             "Aumentar spark.task.maxFailures se falhas forem transitórias",
         ),
-        validation_steps=(
-            "Correlacionar timestamp com eventos de autoscaling/spot",
-        ),
+        validation_steps=("Correlacionar timestamp com eventos de autoscaling/spot",),
         source="Spark scheduler/YARN",
     ),
     LogPattern(
@@ -127,9 +123,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Aumentar disco local dos workers (ou instâncias com instance store)",
             "Reduzir shuffle/partições ou habilitar shuffle external service",
         ),
-        validation_steps=(
-            "Verificar uso de disco nos nós durante o stage de shuffle",
-        ),
+        validation_steps=("Verificar uso de disco nos nós durante o stage de shuffle",),
         source="OS/filesystem",
     ),
     LogPattern(
@@ -152,9 +146,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Checar distribuição de chaves (skew) nas agregações/joins",
             "Considerar salting ou aumento de memória por task",
         ),
-        validation_steps=(
-            "Comparar input size por task na Spark UI",
-        ),
+        validation_steps=("Comparar input size por task na Spark UI",),
         source="Spark shuffle/spill metrics",
     ),
     LogPattern(
@@ -205,9 +197,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Localizar a primeira exceção interna (Caused by) no log",
             "Enviar event log do Spark para análise de stage/tarefa",
         ),
-        validation_steps=(
-            "Identificar o stage falho na Spark UI e a task raiz",
-        ),
+        validation_steps=("Identificar o stage falho na Spark UI e a task raiz",),
         source="Spark scheduler",
     ),
     LogPattern(
@@ -231,9 +221,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Verificar nome fully-qualified (catalog.db.table)",
             "Conferir configuração do catalog Iceberg no Glue/Spark",
         ),
-        validation_steps=(
-            "Listar tabelas do catalog e comparar com o nome referenciado",
-        ),
+        validation_steps=("Listar tabelas do catalog e comparar com o nome referenciado",),
         source="Apache Iceberg exceptions",
     ),
     LogPattern(
@@ -257,9 +245,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Verificar stages pendentes e estrangulamento de rede/IO",
             "Ajustar timeouts (spark.network.timeout, job timeout do Glue)",
         ),
-        validation_steps=(
-            "Comparar duração histórica do job com o timeout configurado",
-        ),
+        validation_steps=("Comparar duração histórica do job com o timeout configurado",),
         source="Spark/Glue timeout messages",
     ),
     LogPattern(
@@ -283,9 +269,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Capturar exceção interna do Python (Caused by / traceback)",
             "Aumentar memória do executor se UDF processa muitos dados",
         ),
-        validation_steps=(
-            "Executar a UDF localmente com a mesma partição de dados",
-        ),
+        validation_steps=("Executar a UDF localmente com a mesma partição de dados",),
         source="PySpark daemon",
     ),
     LogPattern(
@@ -309,9 +293,7 @@ LOG_PATTERNS: tuple[LogPattern, ...] = (
             "Incluir o jar/módulo ausente (extra-jars, --additional-python-modules)",
             "Conferir versões de dependência compatíveis com o runtime",
         ),
-        validation_steps=(
-            "Reproduzir import localmente com o mesmo ambiente do job",
-        ),
+        validation_steps=("Reproduzir import localmente com o mesmo ambiente do job",),
         source="JVM/Python import errors",
     ),
 )

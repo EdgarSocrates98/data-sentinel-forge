@@ -104,9 +104,12 @@ class CrossAccountAnalyzer(Analyzer):
                 limitations.append(f"{input_file.path}: {err}")
                 continue
 
-            def _ev(snippet: str, conf: float = 0.75,
-                    _path: str = str(input_file.path),
-                    _digest: str = digest) -> Evidence:
+            def _ev(
+                snippet: str,
+                conf: float = 0.75,
+                _path: str = str(input_file.path),
+                _digest: str = digest,
+            ) -> Evidence:
                 ev = Evidence(
                     source="access_context",
                     source_location=_path,
@@ -182,35 +185,66 @@ class CrossAccountAnalyzer(Analyzer):
         link = f"resource_link:{ctx.resource_link}" if ctx.resource_link else ""
 
         for nid, kind in [
-            (src_acct, "account"), (dst_acct, "account"),
-            (principal, "principal"), (catalog, "catalog"),
-            (table, "table"), (link, "resource_link"),
+            (src_acct, "account"),
+            (dst_acct, "account"),
+            (principal, "principal"),
+            (catalog, "catalog"),
+            (table, "table"),
+            (link, "resource_link"),
         ]:
             if nid:
                 g.add_node(nid, kind)
 
         if principal and src_acct:
-            g.add_edge(principal, src_acct, EdgeType.ASSUMES_ROLE,
-                       EdgeProvenance.DECLARED, "principal declarado na conta origem")
+            g.add_edge(
+                principal,
+                src_acct,
+                EdgeType.ASSUMES_ROLE,
+                EdgeProvenance.DECLARED,
+                "principal declarado na conta origem",
+            )
         if link and table:
-            g.add_edge(link, table, EdgeType.REFERENCES,
-                       EdgeProvenance.DECLARED, "resource link aponta para tabela alvo")
+            g.add_edge(
+                link,
+                table,
+                EdgeType.REFERENCES,
+                EdgeProvenance.DECLARED,
+                "resource link aponta para tabela alvo",
+            )
         if link and catalog:
-            g.add_edge(link, catalog, EdgeType.REFERENCES,
-                       EdgeProvenance.INFERRED, "link resolve via catálogo de destino")
+            g.add_edge(
+                link,
+                catalog,
+                EdgeType.REFERENCES,
+                EdgeProvenance.INFERRED,
+                "link resolve via catálogo de destino",
+            )
         if src_acct and dst_acct and src_acct != dst_acct:
-            g.add_edge(dst_acct, src_acct, EdgeType.SHARES_WITH,
-                       EdgeProvenance.UNVERIFIED,
-                       "compartilhamento cross-account não confirmado — "
-                       "grants LF não visíveis")
+            g.add_edge(
+                dst_acct,
+                src_acct,
+                EdgeType.SHARES_WITH,
+                EdgeProvenance.UNVERIFIED,
+                "compartilhamento cross-account não confirmado — grants LF não visíveis",
+            )
         for perm in ctx.observed_permissions:
             if principal and table:
-                g.add_edge(principal, table, EdgeType.GRANTED_ON,
-                           EdgeProvenance.OBSERVED, f"permissão observada: {perm}")
+                g.add_edge(
+                    principal,
+                    table,
+                    EdgeType.GRANTED_ON,
+                    EdgeProvenance.OBSERVED,
+                    f"permissão observada: {perm}",
+                )
         for perm in ctx.unknown_permissions:
             if principal and table:
-                g.add_edge(principal, table, EdgeType.GRANTED_ON,
-                           EdgeProvenance.UNVERIFIED, f"permissão não visível: {perm}")
+                g.add_edge(
+                    principal,
+                    table,
+                    EdgeType.GRANTED_ON,
+                    EdgeProvenance.UNVERIFIED,
+                    f"permissão não visível: {perm}",
+                )
         return g
 
     @staticmethod
@@ -235,8 +269,10 @@ class CrossAccountAnalyzer(Analyzer):
                 "via link não avaliável (não é evidência de falta)."
             )
             return
-        _ev(f"resource link '{ctx.resource_link}' → "
-            f"{ctx.database}.{ctx.table} na região {ctx.region or 'desconhecida'}")
+        _ev(
+            f"resource link '{ctx.resource_link}' → "
+            f"{ctx.database}.{ctx.table} na região {ctx.region or 'desconhecida'}"
+        )
         if not ctx.region:
             findings.append(
                 Finding(
@@ -317,8 +353,17 @@ class CrossAccountAnalyzer(Analyzer):
             f"desconhecidas={len(ctx.unknown_permissions)}"
         )
         read_like = op in ("select", "describe", "metadata", "read", "")
-        write_like = op in ("insert", "append", "update", "delete", "merge",
-                            "create", "alter", "drop", "write")
+        write_like = op in (
+            "insert",
+            "append",
+            "update",
+            "delete",
+            "merge",
+            "create",
+            "alter",
+            "drop",
+            "write",
+        )
         if read_like and not ctx.observed_permissions and ctx.unknown_permissions:
             findings.append(
                 Finding(

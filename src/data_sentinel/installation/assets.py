@@ -58,8 +58,7 @@ def verify_integrity(src: Path) -> None:
 
     manifest_path = src / _MANIFEST_NAME
     if not manifest_path.is_file():
-        raise InstallError(
-            E_VERIFY, f"asset integrity manifest missing: {_MANIFEST_NAME}")
+        raise InstallError(E_VERIFY, f"asset integrity manifest missing: {_MANIFEST_NAME}")
     expected = json.loads(manifest_path.read_text(encoding="utf-8"))
     actual = {
         p.relative_to(src).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -67,9 +66,11 @@ def verify_integrity(src: Path) -> None:
         if p.is_file() and p.name != _MANIFEST_NAME
     }
     if expected != actual:
-        diff = sorted(set(expected.items()) ^ set(actual.items())
-                      | {k for k in expected if k not in actual}
-                      | {k for k in actual if k not in expected})
+        diff = sorted(
+            set(expected.items()) ^ set(actual.items())
+            | {k for k in expected if k not in actual}
+            | {k for k in actual if k not in expected}
+        )
         raise InstallError(
             E_VERIFY,
             f"asset integrity mismatch — catalog refused: {diff[:5]}",
@@ -91,8 +92,7 @@ def load_catalog(source: Path | None = None) -> Any:
     overlays: dict[str, dict[str, bytes]] = {}
     manifest: dict[str, bytes] = {}
     if src is None or not src.is_dir():
-        return AssetCatalog(skills=skills, agents=agents,
-                            overlays=overlays, manifest=manifest)
+        return AssetCatalog(skills=skills, agents=agents, overlays=overlays, manifest=manifest)
     verify_integrity(src)
     for path in sorted(src.rglob("*")):
         if not path.is_file():
@@ -107,8 +107,7 @@ def load_catalog(source: Path | None = None) -> Any:
             overlays.setdefault(parts[1], {})["/".join(parts[2:])] = path.read_bytes()
         elif parts[0] == "manifest" and len(parts) == 2:
             manifest[parts[1]] = path.read_bytes()
-    return AssetCatalog(skills=skills, agents=agents,
-                        overlays=overlays, manifest=manifest)
+    return AssetCatalog(skills=skills, agents=agents, overlays=overlays, manifest=manifest)
 
 
 def render_for_hosts(ctx: Any) -> dict[str, bytes]:

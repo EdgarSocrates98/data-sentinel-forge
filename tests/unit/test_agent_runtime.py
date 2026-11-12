@@ -75,8 +75,7 @@ def test_tool_call_budget() -> None:
 
 def test_timeout_via_injected_clock() -> None:
     t = [0.0]
-    rt = AgentRuntime(InvestigationBudget(timeout_seconds=10),
-                      clock=lambda: t[0])
+    rt = AgentRuntime(InvestigationBudget(timeout_seconds=10), clock=lambda: t[0])
     ex = _ex()
     rt.begin(ex)
     t[0] = 11.0

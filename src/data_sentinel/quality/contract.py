@@ -55,15 +55,12 @@ class ContractValidation:
 
     @property
     def ok(self) -> bool:
-        return self.contract is not None and not any(
-            i.severity == "error" for i in self.issues
-        )
+        return self.contract is not None and not any(i.severity == "error" for i in self.issues)
 
 
 def _load_envelope(text: str) -> dict[str, Any]:
     if len(text.encode()) > MAX_CONTRACT_BYTES:
-        raise ContractFormatError(
-            f"contract exceeds {MAX_CONTRACT_BYTES} bytes")
+        raise ContractFormatError(f"contract exceeds {MAX_CONTRACT_BYTES} bytes")
     try:
         raw = yaml.safe_load(text)
     except yaml.YAMLError as exc:
@@ -77,8 +74,7 @@ def _parse_dataset(raw: Any) -> DatasetReference:
     if isinstance(raw, str):
         parts = raw.split(".")
         if len(parts) >= 2:
-            return DatasetReference(namespace=".".join(parts[:-1]),
-                                    name=parts[-1])
+            return DatasetReference(namespace=".".join(parts[:-1]), name=parts[-1])
         return DatasetReference(namespace="", name=raw)
     if isinstance(raw, dict):
         return DatasetReference.model_validate(raw)
@@ -95,16 +91,34 @@ def _parse_rule(raw: Any, idx: int) -> QualityRule:
     except ValueError as exc:
         raise ContractFormatError(
             f"regra '{rid}': type desconhecido '{rtype_raw}' "
-            f"(válidos: {sorted(r.value for r in RuleType)})") from exc
+            f"(válidos: {sorted(r.value for r in RuleType)})"
+        ) from exc
     cols = raw.get("columns")
     target = raw.get("column") or (
-        "+".join(str(c) for c in cols) if isinstance(cols, list) and cols
-        else str(cols) if cols else raw.get("target") or "dataset"
+        "+".join(str(c) for c in cols)
+        if isinstance(cols, list) and cols
+        else str(cols)
+        if cols
+        else raw.get("target") or "dataset"
     )
-    params = {k: v for k, v in raw.items()
-              if k not in {"id", "rule_id", "type", "rule_type", "column",
-                           "columns", "target", "expected", "severity",
-                           "tolerance", "parameters"}}
+    params = {
+        k: v
+        for k, v in raw.items()
+        if k
+        not in {
+            "id",
+            "rule_id",
+            "type",
+            "rule_type",
+            "column",
+            "columns",
+            "target",
+            "expected",
+            "severity",
+            "tolerance",
+            "parameters",
+        }
+    }
     params.update(raw.get("parameters") or {})
     return QualityRule(
         rule_id=str(rid),
@@ -131,17 +145,14 @@ def parse_contract_text(text: str, *, provenance: str = "") -> DataQualityContra
     fp = None
     if isinstance(freshness, dict):
         fp = FreshnessPolicy(
-            max_age_seconds=freshness.get("max_age_seconds")
-            or freshness.get("max_age"),
+            max_age_seconds=freshness.get("max_age_seconds") or freshness.get("max_age"),
             reference_field=str(freshness.get("reference_field") or ""),
         )
 
     try:
         return DataQualityContract(
-            contract_id=str(raw.get("contract_id")
-                            or raw.get("id") or "contract"),
-            version=str(raw.get("contract_version")
-                        or raw.get("version") or "1.0"),
+            contract_id=str(raw.get("contract_id") or raw.get("id") or "contract"),
+            version=str(raw.get("contract_version") or raw.get("version") or "1.0"),
             dataset=_parse_dataset(raw.get("dataset")),
             schema_fields=raw.get("schema") or {},
             constraints=raw.get("constraints") or [],
@@ -158,10 +169,8 @@ def load_contract(path: Path) -> DataQualityContract:
     if not path.is_file():
         raise ContractFormatError(f"não é arquivo: {path}")
     if path.stat().st_size > MAX_CONTRACT_BYTES:
-        raise ContractFormatError(
-            f"contrato excede {MAX_CONTRACT_BYTES} bytes")
-    return parse_contract_text(
-        path.read_text(encoding="utf-8"), provenance=str(path))
+        raise ContractFormatError(f"contrato excede {MAX_CONTRACT_BYTES} bytes")
+    return parse_contract_text(path.read_text(encoding="utf-8"), provenance=str(path))
 
 
 def validate_contract(contract: DataQualityContract) -> ContractValidation:
@@ -170,37 +179,46 @@ def validate_contract(contract: DataQualityContract) -> ContractValidation:
     seen: set[str] = set()
     for r in contract.quality_rules:
         if r.rule_id in seen:
-            issues.append(ContractIssue(
-                field=f"rules.{r.rule_id}",
-                message="rule_id duplicado"))
+            issues.append(ContractIssue(field=f"rules.{r.rule_id}", message="rule_id duplicado"))
         seen.add(r.rule_id)
         if r.severity.lower() not in _SEVERITIES:
-            issues.append(ContractIssue(
-                field=f"rules.{r.rule_id}.severity",
-                message=f"severidade inválida '{r.severity}'"))
-        if r.rule_type in (RuleType.COMPLETENESS, RuleType.UNIQUENESS,
-                           RuleType.UNIQUENESS_RATIO):
-            if r.expected is not None and not isinstance(
-                    r.expected, int | float):
-                issues.append(ContractIssue(
-                    field=f"rules.{r.rule_id}.expected",
-                    message="expected deve ser numérico (razão 0-1)"))
-            elif isinstance(r.expected, int | float) and not (
-                    0 <= float(r.expected) <= 1):
-                issues.append(ContractIssue(
-                    field=f"rules.{r.rule_id}.expected",
-                    message="razão esperada fora de [0,1]",
-                    severity="warning"))
-        if (contract.schema_fields and r.target not in ("dataset",)
-                and "+" not in r.target
-                and r.target not in contract.schema_fields):
-            issues.append(ContractIssue(
-                field=f"rules.{r.rule_id}.target",
-                message=f"coluna '{r.target}' não está no schema do "
-                        "contrato",
-                severity="warning"))
+            issues.append(
+                ContractIssue(
+                    field=f"rules.{r.rule_id}.severity",
+                    message=f"severidade inválida '{r.severity}'",
+                )
+            )
+        if r.rule_type in (RuleType.COMPLETENESS, RuleType.UNIQUENESS, RuleType.UNIQUENESS_RATIO):
+            if r.expected is not None and not isinstance(r.expected, int | float):
+                issues.append(
+                    ContractIssue(
+                        field=f"rules.{r.rule_id}.expected",
+                        message="expected deve ser numérico (razão 0-1)",
+                    )
+                )
+            elif isinstance(r.expected, int | float) and not (0 <= float(r.expected) <= 1):
+                issues.append(
+                    ContractIssue(
+                        field=f"rules.{r.rule_id}.expected",
+                        message="razão esperada fora de [0,1]",
+                        severity="warning",
+                    )
+                )
+        if (
+            contract.schema_fields
+            and r.target not in ("dataset",)
+            and "+" not in r.target
+            and r.target not in contract.schema_fields
+        ):
+            issues.append(
+                ContractIssue(
+                    field=f"rules.{r.rule_id}.target",
+                    message=f"coluna '{r.target}' não está no schema do contrato",
+                    severity="warning",
+                )
+            )
     if not contract.quality_rules:
-        issues.append(ContractIssue(
-            field="rules", message="contrato sem regras",
-            severity="warning"))
+        issues.append(
+            ContractIssue(field="rules", message="contrato sem regras", severity="warning")
+        )
     return ContractValidation(contract=contract, issues=issues)

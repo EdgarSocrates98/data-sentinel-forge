@@ -14,10 +14,7 @@ import pytest
 
 from data_sentinel.installation import service
 
-GOLDEN = (
-    Path(__file__).resolve().parents[2]
-    / "tests/fixtures/installation/plan-matrix.json"
-)
+GOLDEN = Path(__file__).resolve().parents[2] / "tests/fixtures/installation/plan-matrix.json"
 
 SCOPES = ("project", "workspace")
 HOSTS = ("claude", "devin", "codex", "copilot", "cursor")

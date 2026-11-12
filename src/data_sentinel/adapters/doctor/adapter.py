@@ -161,16 +161,16 @@ def _normalize(raw: dict[str, Any], fmt: str) -> ExternalDiagnosticBundle:
                 {"id": f"{dom}.{cap}", "domain": dom, "status": st}
                 for dom, entries in caps.items()
                 for cap, st in (entries or {}).items()
-            ] if isinstance(caps, dict) else caps,
+            ]
+            if isinstance(caps, dict)
+            else caps,
             plans=raw.get("plans") or [],
             project=project,
             summary=raw.get("summary") or {},
         )
     if len(bundle.findings) > MAX_FINDINGS:
         bundle.findings = bundle.findings[:MAX_FINDINGS]
-        bundle.limitations.append(
-            f"bundle truncated at {MAX_FINDINGS} findings"
-        )
+        bundle.limitations.append(f"bundle truncated at {MAX_FINDINGS} findings")
     return bundle
 
 

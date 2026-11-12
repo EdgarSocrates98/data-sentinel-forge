@@ -58,8 +58,8 @@ class TestE2E_A_Glue51FgacMerge:
 
     def test_assessment_and_operation(self):
         a = assess_compatibility(
-            None, runtime="glue-5.1", operation="merge",
-            access_mode="fgac", table_format="iceberg")
+            None, runtime="glue-5.1", operation="merge", access_mode="fgac", table_format="iceberg"
+        )
         assert a.support_status == SupportStatus.SUPPORTED_WITH_CONSTRAINTS
         assert a.documentation_references  # fonte registrada
 
@@ -80,18 +80,21 @@ class TestE2E_B_CrossAccountRead:
         out = _run(SourceType.ACCESS_CONTEXT, "fixtures/access/cross_read.json")
         texts = "\n".join(f.explanation for f in out.report.findings)
         assert "cross-account" in texts
-        assert not any(f.status == FindingStatus.CONFIRMED and "denied" in
-                       f.explanation.lower() for f in out.report.findings)
+        assert not any(
+            f.status == FindingStatus.CONFIRMED and "denied" in f.explanation.lower()
+            for f in out.report.findings
+        )
 
 
 class TestE2E_C_CrossAccountWrite:
     def test_full_chain_possible(self):
-        acc = _analyze("lakehouse.cross_account", SourceType.ACCESS_CONTEXT,
-                       "fixtures/access/cross_write.json")
-        pol = _analyze("iam.policy", SourceType.POLICY_DOC,
-                       "fixtures/policies/cross_kms.json")
-        ops = _analyze("lakehouse.operation", SourceType.SQL_QUERY,
-                       "fixtures/operations/merge_dups.json")
+        acc = _analyze(
+            "lakehouse.cross_account", SourceType.ACCESS_CONTEXT, "fixtures/access/cross_write.json"
+        )
+        pol = _analyze("iam.policy", SourceType.POLICY_DOC, "fixtures/policies/cross_kms.json")
+        ops = _analyze(
+            "lakehouse.operation", SourceType.SQL_QUERY, "fixtures/operations/merge_dups.json"
+        )
         ctx = resolve([acc, pol, ops])
         texts = "\n".join(f.explanation for f in ctx.findings)
         # cada elo da cadeia aparece
@@ -99,15 +102,13 @@ class TestE2E_C_CrossAccountWrite:
         assert "KMS" in texts or "chaves" in texts
         assert "duplicadas" in texts
         # nada confirmado como autorizado
-        assert not any("autorizado" in f.explanation.lower()
-                       for f in ctx.findings)
+        assert not any("autorizado" in f.explanation.lower() for f in ctx.findings)
 
 
 class TestE2E_D_MergeDuplicates:
     def test_declared_dups_confirmed(self):
         out = _run(SourceType.SQL_QUERY, "fixtures/operations/merge_dups.json")
-        f = next(f for f in out.report.findings
-                 if "duplicadas" in f.explanation)
+        f = next(f for f in out.report.findings if "duplicadas" in f.explanation)
         assert f.status == FindingStatus.CONFIRMED
         assert f.evidence_ids  # evidência citada
         assert any("FONTE" in r or "fonte" in r for r in f.recommendations)
@@ -115,8 +116,7 @@ class TestE2E_D_MergeDuplicates:
 
 class TestE2E_E_RichMetadata:
     def test_evolution_and_maintenance(self):
-        out = _run(SourceType.ICEBERG_METADATA,
-                   "fixtures/iceberg/v2_evolved.json")
+        out = _run(SourceType.ICEBERG_METADATA, "fixtures/iceberg/v2_evolved.json")
         texts = "\n".join(f.explanation for f in out.report.findings)
         assert "Evolução de schema" in texts
         assert "void" in texts
@@ -126,14 +126,12 @@ class TestE2E_E_RichMetadata:
 
 class TestE2E_F_InsufficientEvidence:
     def test_no_fabricated_root_cause(self):
-        out = _run(SourceType.ICEBERG_METADATA,
-                   "fixtures/iceberg/malformed.json")
+        out = _run(SourceType.ICEBERG_METADATA, "fixtures/iceberg/malformed.json")
         assert out.report.findings
         assert out.report.findings[0].status == FindingStatus.UNKNOWN
         assert any("JSON" in lim for lim in out.report.limitations)
         # nenhuma causa-raiz afirmada
-        assert not any(f.status == FindingStatus.CONFIRMED
-                       for f in out.report.findings)
+        assert not any(f.status == FindingStatus.CONFIRMED for f in out.report.findings)
 
 
 @pytest.mark.skipif(

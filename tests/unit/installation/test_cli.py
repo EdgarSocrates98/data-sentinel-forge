@@ -12,17 +12,14 @@ runner = CliRunner()
 
 def _installed(tmp: Path) -> None:
     result = runner.invoke(
-        app, ["install", "--scope", "project", "--root", str(tmp),
-              "--host", "claude", "--yes"]
+        app, ["install", "--scope", "project", "--root", str(tmp), "--host", "claude", "--yes"]
     )
     assert result.exit_code == 0, result.output
 
 
 def test_install_requires_approval(tmp_path: Path) -> None:
     """Non-TTY without --yes → usage error, nothing written."""
-    result = runner.invoke(
-        app, ["install", "--scope", "project", "--root", str(tmp_path)]
-    )
+    result = runner.invoke(app, ["install", "--scope", "project", "--root", str(tmp_path)])
     assert result.exit_code == 2
     assert "--yes" in result.output or "não-interativo" in result.output
     assert list(tmp_path.rglob("*")) == []
@@ -30,8 +27,8 @@ def test_install_requires_approval(tmp_path: Path) -> None:
 
 def test_dry_run_writes_nothing(tmp_path: Path) -> None:
     result = runner.invoke(
-        app, ["install", "--scope", "project", "--root", str(tmp_path),
-              "--host", "claude", "--dry-run"]
+        app,
+        ["install", "--scope", "project", "--root", str(tmp_path), "--host", "claude", "--dry-run"],
     )
     assert result.exit_code == 0
     assert "planned" in result.output
@@ -41,7 +38,15 @@ def test_dry_run_writes_nothing(tmp_path: Path) -> None:
 def test_install_yes_creates_assets(tmp_path: Path) -> None:
     _installed(tmp_path)
     assert (tmp_path / "AGENTS.md").is_file()
-    assert "data-sentinel-forge:managed" in (tmp_path / "AGENTS.md").read_text()
+    # Consumer docs sao da camada forge_context: blocos `forge:*` +
+    # registry `.forge/context/` — nao markers `data-sentinel-forge:managed`.
+    text = (tmp_path / "AGENTS.md").read_text()
+    assert "forge:data-sentinel-forge:begin" in text
+    assert "forge:ecosystem:begin" in text
+    registry = json.loads((tmp_path / ".forge/context/registry.json").read_text())
+    assert registry["schema"] == "forge/context-registry/v1"
+    entry = next(f for f in registry["forges"] if f["forge_id"] == "data-sentinel-forge")
+    assert entry["kind"] == "diagnostic-provider"
     mcp = json.loads((tmp_path / ".mcp.json").read_text())
     entry = mcp["mcpServers"]["data-sentinel"]
     # §7.1 — absolute console script preferred, bare name is the fallback
@@ -51,8 +56,18 @@ def test_install_yes_creates_assets(tmp_path: Path) -> None:
 
 def test_install_json_output(tmp_path: Path) -> None:
     result = runner.invoke(
-        app, ["install", "--scope", "project", "--root", str(tmp_path),
-              "--host", "claude", "--yes", "--json"]
+        app,
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--host",
+            "claude",
+            "--yes",
+            "--json",
+        ],
     )
     assert result.exit_code == 0
     doc = json.loads(result.output)
@@ -62,8 +77,7 @@ def test_install_json_output(tmp_path: Path) -> None:
 
 def test_unknown_host_fails(tmp_path: Path) -> None:
     result = runner.invoke(
-        app, ["install", "--scope", "project", "--root", str(tmp_path),
-              "--host", "emacs", "--yes"]
+        app, ["install", "--scope", "project", "--root", str(tmp_path), "--host", "emacs", "--yes"]
     )
     assert result.exit_code == 1
     assert "host" in result.output
@@ -74,9 +88,7 @@ def test_status_and_doctor(tmp_path: Path) -> None:
     status = runner.invoke(app, ["install", "status", "--root", str(tmp_path)])
     assert status.exit_code == 0, status.output
     assert "healthy" in status.output or "managed" in status.output
-    doctor = runner.invoke(
-        app, ["install", "doctor", "--root", str(tmp_path), "--json"]
-    )
+    doctor = runner.invoke(app, ["install", "doctor", "--root", str(tmp_path), "--json"])
     assert doctor.exit_code in (0, 1)  # mcp-handshake may be UNVERIFIED
     doc = json.loads(doctor.output)
     assert doc["schema"] == "forge/InstallationHealth/v1"
@@ -85,9 +97,7 @@ def test_status_and_doctor(tmp_path: Path) -> None:
 def test_uninstall_clean(tmp_path: Path) -> None:
     _installed(tmp_path)
     (tmp_path / "user.txt").write_text("mine", encoding="utf-8")
-    result = runner.invoke(
-        app, ["install", "uninstall", "--root", str(tmp_path), "--yes"]
-    )
+    result = runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path), "--yes"])
     assert result.exit_code == 0, result.output
     assert (tmp_path / "user.txt").is_file()
     assert not (tmp_path / "AGENTS.md").exists()
@@ -98,9 +108,7 @@ def test_idempotent_reinstall(tmp_path: Path) -> None:
     _installed(tmp_path)
     assert (tmp_path / "AGENTS.md").is_file()
     # ledger stable — no duplicate entries
-    second = json.loads(
-        (tmp_path / ".data-sentinel/install/install-ledger.json").read_text()
-    )
+    second = json.loads((tmp_path / ".data-sentinel/install/install-ledger.json").read_text())
     assert isinstance(second["entries"], dict)
 
 
@@ -119,9 +127,7 @@ def test_manifest_static_matches_programmatic(tmp_path: Path) -> None:
 
 
 def test_env_report(tmp_path: Path) -> None:
-    result = runner.invoke(
-        app, ["install", "env", "--root", str(tmp_path), "--json"]
-    )
+    result = runner.invoke(app, ["install", "env", "--root", str(tmp_path), "--json"])
     assert result.exit_code == 0, result.output
     doc = json.loads(result.output)
     assert doc["schema"] == "data-sentinel/EnvironmentReport/v1"
@@ -136,13 +142,9 @@ def test_drift_detect_and_repair_restores(tmp_path: Path) -> None:
     skill = tmp_path / ".claude/skills/data-sentinel-report/SKILL.md"
     original = skill.read_bytes()
     skill.write_text("corrupted", encoding="utf-8")
-    status = runner.invoke(
-        app, ["install", "status", "--root", str(tmp_path), "--json"]
-    )
+    status = runner.invoke(app, ["install", "status", "--root", str(tmp_path), "--json"])
     assert "drift" in status.output or skill.name in status.output
-    result = runner.invoke(
-        app, ["install", "repair", "--root", str(tmp_path), "--yes"]
-    )
+    result = runner.invoke(app, ["install", "repair", "--root", str(tmp_path), "--yes"])
     assert result.exit_code == 0, result.output
     assert skill.read_bytes() == original
 
@@ -152,9 +154,7 @@ def test_repair_refuses_foreign_file(tmp_path: Path) -> None:
     foreign = tmp_path / ".claude/skills/data-sentinel-report/SKILL.md"
     foreign.write_text("user edit", encoding="utf-8")
     # repair on a file never owned by the ledger is a refused/skip, not a clobber
-    result = runner.invoke(
-        app, ["install", "repair", "--root", str(tmp_path), "--yes"]
-    )
+    result = runner.invoke(app, ["install", "repair", "--root", str(tmp_path), "--yes"])
     assert result.exit_code in (0, 1), result.output
 
 
@@ -162,11 +162,13 @@ def test_uninstall_human_lists_removed(tmp_path: Path) -> None:
     """Non-JSON uninstall must name the files it removed/kept."""
     _installed(tmp_path)
     (tmp_path / "user.txt").write_text("mine", encoding="utf-8")
-    result = runner.invoke(
-        app, ["install", "uninstall", "--root", str(tmp_path), "--yes"]
-    )
+    result = runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path), "--yes"])
     assert result.exit_code == 0, result.output
-    assert "removed" in result.output and "AGENTS.md" in result.output
+    # Doc removal now surfaces via the forge_context checks (the kit
+    # `removed` list holds ledger paths only).
+    assert "removed" in result.output and "consumer-docs" in result.output
+    registry = json.loads((tmp_path / ".forge/context/registry.json").read_text())
+    assert all(f["forge_id"] != "data-sentinel-forge" for f in registry["forges"])
 
 
 def test_render_receipt_shows_notes_and_verb_lists(capsys) -> None:
@@ -174,18 +176,23 @@ def test_render_receipt_shows_notes_and_verb_lists(capsys) -> None:
     previously they only existed in JSON mode."""
     from data_sentinel.cli.install import _render_receipt
 
-    _render_receipt({
-        "operation": "repair",
-        "status": "completed",
-        "managed_files": [
-            {"path": "AGENTS.md", "action": "unchanged",
-             "note": "user-owned, not managed — skipped"},
-        ],
-        "repaired": [".claude/skills/x/SKILL.md"],
-        "kept": ["custom.txt"],
-        "skipped": ["foreign.md"],
-        "checks": [{"id": "repair", "status": "FAIL", "detail": "1 restored"}],
-    })
+    _render_receipt(
+        {
+            "operation": "repair",
+            "status": "completed",
+            "managed_files": [
+                {
+                    "path": "AGENTS.md",
+                    "action": "unchanged",
+                    "note": "user-owned, not managed — skipped",
+                },
+            ],
+            "repaired": [".claude/skills/x/SKILL.md"],
+            "kept": ["custom.txt"],
+            "skipped": ["foreign.md"],
+            "checks": [{"id": "repair", "status": "FAIL", "detail": "1 restored"}],
+        }
+    )
     out = capsys.readouterr().out
     assert "user-owned, not managed — skipped" in out
     assert "repaired" in out and ".claude/skills/x/SKILL.md" in out
