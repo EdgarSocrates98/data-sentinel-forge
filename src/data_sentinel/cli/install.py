@@ -257,6 +257,39 @@ def mcp_verify_cmd(json_mode: _JSON = False) -> None:
         raise typer.Exit(code=1)
 
 
+def _packaged_resources() -> list[dict[str, Any]]:
+    """Typed resource catalog shipped as a packaged asset (Onda 03).
+
+    Source of truth is the checkout scan (``gen_resource_catalog.py`` in
+    the-forge) mirrored into ``installation/assets/manifest/resources.json``
+    so the emitted manifest matches the committed ``forge.agentic.json``
+    inside wheels too.
+    """
+    from importlib.resources import files
+
+    candidates = [
+        Path(__file__).resolve().parent.parent
+        / "installation" / "assets" / "manifest" / "resources.json",
+        Path(__file__).resolve().parents[3] / "forge.agentic.json",
+    ]
+    for cand in candidates:
+        try:
+            data = json.loads(cand.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        out = data if isinstance(data, list) else data.get("resources", [])
+        if isinstance(out, list):
+            return out
+    try:
+        data = json.loads(
+            (files("data_sentinel") / "installation/assets/manifest/resources.json")
+            .read_text(encoding="utf-8")
+        )
+        return data if isinstance(data, list) else []
+    except (OSError, json.JSONDecodeError, FileNotFoundError, ModuleNotFoundError):
+        return []
+
+
 @install_app.command("manifest")
 def manifest_cmd(
     agentic: Annotated[
@@ -323,6 +356,7 @@ def manifest_cmd(
             "read_only_default": True,
             "requires_aws_credentials": False,
             "requires_llm": False,
+            "resources": _packaged_resources(),
         }
     typer.echo(json.dumps(doc, ensure_ascii=False, indent=2))
 
