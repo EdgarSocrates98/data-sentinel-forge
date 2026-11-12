@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Any
-
 from types import ModuleType
+from typing import Any
 
 np: ModuleType | None
 try:
@@ -86,7 +85,7 @@ def profile_column(column: str, values: list[Any], *, top_k: int = 10) -> Column
     p.top_values = dict(sorted(distinct.items(), key=lambda kv: kv[1], reverse=True)[:top_k])
 
     if dtype == "numeric" and nums:
-        if _HAS_NUMPY:
+        if _HAS_NUMPY and np is not None:
             arr = np.asarray(nums)
             p.min_value = float(np.min(arr))
             p.max_value = float(np.max(arr))
