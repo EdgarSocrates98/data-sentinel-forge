@@ -65,10 +65,7 @@ def parse_policy(text: str, *, name: str = "policy") -> PolicyDoc:
             continue
         principals = _listify(st.get("Principal"))
         if isinstance(st.get("Principal"), dict):
-            principals = [
-                str(v) for vals in st["Principal"].values()
-                for v in _listify(vals)
-            ]
+            principals = [str(v) for vals in st["Principal"].values() for v in _listify(vals)]
         stmts.append(
             Statement(
                 effect=effect,
@@ -120,9 +117,7 @@ def evaluate(policies: list[PolicyDoc], action: str, resource: str) -> EvalResul
                 continue
             if st.effect == "Deny":
                 denies += 1
-                reasons.append(
-                    f"{pol.name}: DENY explícito cobre {action} em {resource[:60]}"
-                )
+                reasons.append(f"{pol.name}: DENY explícito cobre {action} em {resource[:60]}")
             else:
                 if st.conditions:
                     reasons.append(

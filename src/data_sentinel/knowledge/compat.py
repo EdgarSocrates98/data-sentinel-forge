@@ -22,13 +22,24 @@ from data_sentinel.knowledge.schema import Rule, load_packaged_rules
 
 KNOWN_ACCESS_MODES = ("iam", "fgac", "fta", "legacy", "unknown")
 SUPPORTED_OPERATIONS = (
-    "select", "insert", "append", "update", "delete", "merge",
-    "create", "alter", "drop", "describe", "metadata", "maintenance",
+    "select",
+    "insert",
+    "append",
+    "update",
+    "delete",
+    "merge",
+    "create",
+    "alter",
+    "drop",
+    "describe",
+    "metadata",
+    "maintenance",
 )
 
 
-def _ctx(runtime: str, table_format: str, access_mode: str, operation: str,
-         catalog: str) -> dict[str, str]:
+def _ctx(
+    runtime: str, table_format: str, access_mode: str, operation: str, catalog: str
+) -> dict[str, str]:
     return {
         "service": "aws_glue",
         "engine": "spark",
@@ -47,8 +58,7 @@ def _evidence(rule: Rule, captured: datetime) -> Evidence:
         captured_at=captured,
         content_hash=f"rule:{rule.rule_id}:{rule.version}",
         sanitized_excerpt=(
-            f"regra {rule.rule_id} v{rule.version} → {rule.status.value}; "
-            f"{rule.constraints[:180]}"
+            f"regra {rule.rule_id} v{rule.version} → {rule.status.value}; {rule.constraints[:180]}"
         ),
         provenance=EvidenceProvenance.DECLARED,
         confidence=0.7,
@@ -108,10 +118,13 @@ def assess_compatibility(
             if mode_match.rule.constraints:
                 constraints.append(mode_match.rule.constraints.strip())
             # most restrictive of matrix+mode wins
-            order = [SupportStatus.UNSUPPORTED, SupportStatus.UNKNOWN,
-                     SupportStatus.NOT_VERIFIED,
-                     SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
-                     SupportStatus.SUPPORTED]
+            order = [
+                SupportStatus.UNSUPPORTED,
+                SupportStatus.UNKNOWN,
+                SupportStatus.NOT_VERIFIED,
+                SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
+                SupportStatus.SUPPORTED,
+            ]
             base_status = min(base_status, mode_match.rule.status, key=order.index)
     else:
         constraints.append(
@@ -128,10 +141,13 @@ def assess_compatibility(
         refs.extend(op_match.rule.references)
         if op_match.rule.constraints:
             constraints.append(op_match.rule.constraints.strip())
-        order = [SupportStatus.UNSUPPORTED, SupportStatus.UNKNOWN,
-                 SupportStatus.NOT_VERIFIED,
-                 SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
-                 SupportStatus.SUPPORTED]
+        order = [
+            SupportStatus.UNSUPPORTED,
+            SupportStatus.UNKNOWN,
+            SupportStatus.NOT_VERIFIED,
+            SupportStatus.SUPPORTED_WITH_CONSTRAINTS,
+            SupportStatus.SUPPORTED,
+        ]
         base_status = min(base_status, op_match.rule.status, key=order.index)
 
     # 4) conflicts from the engine (ties) — surfaced, never hidden

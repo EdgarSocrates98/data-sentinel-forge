@@ -35,20 +35,29 @@ class AgentState(StrEnum):
 
 # valid transitions: source -> allowed targets
 AGENT_TRANSITIONS: dict[AgentState, set[AgentState]] = {
-    AgentState.CREATED: {AgentState.PLANNED, AgentState.CANCELLED,
-                       AgentState.FAILED},
-    AgentState.PLANNED: {AgentState.RUNNING, AgentState.CANCELLED,
-                         AgentState.FAILED},
-    AgentState.RUNNING: {AgentState.WAITING_FOR_EVIDENCE,
-                         AgentState.VALIDATING, AgentState.COMPLETED,
-                         AgentState.PARTIAL, AgentState.FAILED,
-                         AgentState.CANCELLED, AgentState.BUDGET_EXCEEDED},
-    AgentState.WAITING_FOR_EVIDENCE: {AgentState.RUNNING,
-                                      AgentState.CANCELLED,
-                                      AgentState.BUDGET_EXCEEDED,
-                                      AgentState.FAILED},
-    AgentState.VALIDATING: {AgentState.COMPLETED, AgentState.PARTIAL,
-                            AgentState.FAILED, AgentState.RUNNING},
+    AgentState.CREATED: {AgentState.PLANNED, AgentState.CANCELLED, AgentState.FAILED},
+    AgentState.PLANNED: {AgentState.RUNNING, AgentState.CANCELLED, AgentState.FAILED},
+    AgentState.RUNNING: {
+        AgentState.WAITING_FOR_EVIDENCE,
+        AgentState.VALIDATING,
+        AgentState.COMPLETED,
+        AgentState.PARTIAL,
+        AgentState.FAILED,
+        AgentState.CANCELLED,
+        AgentState.BUDGET_EXCEEDED,
+    },
+    AgentState.WAITING_FOR_EVIDENCE: {
+        AgentState.RUNNING,
+        AgentState.CANCELLED,
+        AgentState.BUDGET_EXCEEDED,
+        AgentState.FAILED,
+    },
+    AgentState.VALIDATING: {
+        AgentState.COMPLETED,
+        AgentState.PARTIAL,
+        AgentState.FAILED,
+        AgentState.RUNNING,
+    },
     AgentState.COMPLETED: set(),
     AgentState.PARTIAL: set(),
     AgentState.FAILED: set(),
@@ -61,13 +70,12 @@ class ToolPermission(StrEnum):
     LOCAL_READ = "local_read"
     CLOUD_READ = "cloud_read"
     NETWORK_RETRIEVAL = "network_retrieval"
-    FILE_WRITE = "file_write"          # report artifacts only, explicit
-    CLOUD_WRITE = "cloud_write"        # unavailable this cycle
-    DESTRUCTIVE = "destructive"        # unavailable this cycle
+    FILE_WRITE = "file_write"  # report artifacts only, explicit
+    CLOUD_WRITE = "cloud_write"  # unavailable this cycle
+    DESTRUCTIVE = "destructive"  # unavailable this cycle
 
 
-BLOCKED_PERMISSIONS = {ToolPermission.CLOUD_WRITE,
-                       ToolPermission.DESTRUCTIVE}
+BLOCKED_PERMISSIONS = {ToolPermission.CLOUD_WRITE, ToolPermission.DESTRUCTIVE}
 
 
 class ModelProfile(StrEnum):
@@ -79,8 +87,9 @@ class ModelProfile(StrEnum):
 
 # --- tools -----------------------------------------------------------
 
+
 class ToolDescriptor(ContractModel):
-    tool_id: str = Field(min_length=1)       # sentinel.spark.analyze_plan
+    tool_id: str = Field(min_length=1)  # sentinel.spark.analyze_plan
     name: str = ""
     description: str = ""
     input_schema: dict[str, Any] = Field(default_factory=dict)
@@ -88,7 +97,7 @@ class ToolDescriptor(ContractModel):
     permissions: list[ToolPermission] = Field(default_factory=list)
     side_effects: list[str] = Field(default_factory=list)
     network_required: bool = False
-    estimated_cost: str = "low"              # low|medium|high
+    estimated_cost: str = "low"  # low|medium|high
     timeout_seconds: float = 30.0
     output_limitations: list[str] = Field(default_factory=list)
     version: str = "1.0.0"
@@ -125,6 +134,7 @@ class ToolExecutionContext(ContractModel):
 
 # --- agents ----------------------------------------------------------
 
+
 class AgentCapability(ContractModel):
     capability_id: str = Field(min_length=1)
     description: str = ""
@@ -150,7 +160,7 @@ class AgentDescriptor(ContractModel):
 class AgentTask(ContractModel):
     task_id: str = Field(min_length=1)
     agent_id: str = Field(min_length=1)
-    kind: str = Field(min_length=1)          # investigate|validate|synthesize
+    kind: str = Field(min_length=1)  # investigate|validate|synthesize
     input: dict[str, Any] = Field(default_factory=dict)
     priority: int = 0
     depends_on: list[str] = Field(default_factory=list)
@@ -173,7 +183,7 @@ class AgentExecution(ContractModel):
 class AgentDecision(ContractModel):
     decision_id: str = Field(min_length=1)
     execution_id: str = ""
-    kind: str = Field(min_length=1)          # select_tool|delegate|conclude
+    kind: str = Field(min_length=1)  # select_tool|delegate|conclude
     rationale: str = ""
     alternatives: list[str] = Field(default_factory=list)
     evidence_ids: list[str] = Field(default_factory=list)
@@ -193,7 +203,7 @@ class InvestigationBudget(ContractModel):
     max_depth: int = 3
     max_agents: int = 6
     max_tokens: int = 200_000
-    max_cost_usd: float = 0.0    # 0 = unlimited tracking only
+    max_cost_usd: float = 0.0  # 0 = unlimited tracking only
     timeout_seconds: float = 600.0
     spent_iterations: int = 0
     spent_tool_calls: int = 0
@@ -205,8 +215,7 @@ class InvestigationPlan(ContractModel):
     plan_id: str = Field(min_length=1)
     objective: str = Field(min_length=1)
     tasks: list[AgentTask] = Field(default_factory=list)
-    budget: InvestigationBudget = Field(
-        default_factory=InvestigationBudget)
+    budget: InvestigationBudget = Field(default_factory=InvestigationBudget)
     assumptions: list[str] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
 
@@ -250,8 +259,7 @@ class InvestigationReport(ContractModel):
     hypotheses_supported: list[Hypothesis] = Field(default_factory=list)
     hypotheses_refuted: list[Hypothesis] = Field(default_factory=list)
     conclusions: list[str] = Field(default_factory=list)
-    recommendations: list[OptimizationRecommendation] = Field(
-        default_factory=list)
+    recommendations: list[OptimizationRecommendation] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
     tokens_used: int = 0
@@ -281,7 +289,7 @@ class KnowledgeChunk(ContractModel):
     chunk_id: str = Field(min_length=1)
     source: str = Field(min_length=1)
     text: str = Field(min_length=1)
-    kind: str = "doc"               # doc|evidence|rule|fixture
+    kind: str = "doc"  # doc|evidence|rule|fixture
     provenance: str = ""
     tokens: int = 0
     metadata: dict[str, str] = Field(default_factory=dict)

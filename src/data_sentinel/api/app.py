@@ -30,8 +30,7 @@ try:
     from pydantic import BaseModel, Field
 except ImportError as exc:  # pragma: no cover
     raise ImportError(
-        "Control Center API requires the `api` extra: "
-        "pip install 'data-sentinel[api]'"
+        "Control Center API requires the `api` extra: pip install 'data-sentinel[api]'"
     ) from exc
 
 from data_sentinel.agents.memory import remember
@@ -73,8 +72,18 @@ from data_sentinel.watch.engine import (
 )
 
 MAX_PAYLOAD = 10 * 1024 * 1024  # 10 MB
-ALLOWED_FILE_EXTS = {".json", ".log", ".txt", ".sql", ".yaml", ".yml", ".plan",
-                     ".xml", ".csv", ".jsonl"}
+ALLOWED_FILE_EXTS = {
+    ".json",
+    ".log",
+    ".txt",
+    ".sql",
+    ".yaml",
+    ".yml",
+    ".plan",
+    ".xml",
+    ".csv",
+    ".jsonl",
+}
 
 # Input keys in POST /api/v1/analyze bodies that resolve as file paths.
 _FILE_INPUT_KEY = re.compile(r"(^file$|_file$|_path$|_bundle$|_report$)")
@@ -111,8 +120,7 @@ class SessionAuth:
         try:
             # Stale file must not gain a fresh TTL window on restart —
             # if mtime is older than the TTL, regenerate (ds-0103).
-            if (time.time() - _TOKEN_FILE.stat().st_mtime
-                    > _TOKEN_TTL_S):
+            if time.time() - _TOKEN_FILE.stat().st_mtime > _TOKEN_TTL_S:
                 return None
             return _TOKEN_FILE.read_text(encoding="utf-8").strip() or None
         except OSError:
@@ -173,8 +181,7 @@ class SessionAuth:
 
 def _audit(client: str, path: str, status: int) -> None:
     """Append-only audit trail — deque rotates oldest out."""
-    _AUDIT_LOG.append({"client": client, "path": path,
-                       "status": status, "ts": time.time()})
+    _AUDIT_LOG.append({"client": client, "path": path, "status": status, "ts": time.time()})
 
 
 def _safe_path(raw: str, roots: list[Path]) -> Path:
@@ -189,8 +196,7 @@ def _safe_path(raw: str, roots: list[Path]) -> Path:
     raise HTTPException(403, f"path outside allowed roots: {raw}")
 
 
-def _safe_error(exc: Exception,
-                extra_paths: Iterable[str] = ()) -> str:
+def _safe_error(exc: Exception, extra_paths: Iterable[str] = ()) -> str:
     """Error string for the event stream — strips absolute paths and
     home-dir prefixes so internal layout never leaks (ds-0103)."""
     msg = f"{type(exc).__name__}: {exc}"
@@ -206,8 +212,7 @@ _T = TypeVar("_T")
 def _redact(obj: _T) -> _T:
     """Best-effort secret redaction on outgoing payloads."""
     if isinstance(obj, dict):
-        return cast(_T, {k: ("***" if _secretish(k) else _redact(v))
-                         for k, v in obj.items()})
+        return cast(_T, {k: ("***" if _secretish(k) else _redact(v)) for k, v in obj.items()})
     if isinstance(obj, list):
         return cast(_T, [_redact(v) for v in obj])
     return obj
@@ -215,18 +220,40 @@ def _redact(obj: _T) -> _T:
 
 # Credential fields — always masked (§1.5, schema-classified).
 _CREDENTIAL_KEYS = {
-    "password", "passwd", "secret", "access_key", "secret_key",
-    "aws_secret_access_key", "aws_access_key_id", "private_key",
-    "credential", "credentials", "token", "access_token", "refresh_token",
-    "id_token", "session_token", "api_key", "apikey", "auth_token",
-    "bearer_token", "client_secret",
+    "password",
+    "passwd",
+    "secret",
+    "access_key",
+    "secret_key",
+    "aws_secret_access_key",
+    "aws_access_key_id",
+    "private_key",
+    "credential",
+    "credentials",
+    "token",
+    "access_token",
+    "refresh_token",
+    "id_token",
+    "session_token",
+    "api_key",
+    "apikey",
+    "auth_token",
+    "bearer_token",
+    "client_secret",
 }
 
 # Usage/metric fields containing "token" that are NOT secrets.
 _SAFE_TOKEN_KEYS = {
-    "tokens_used", "token_usage", "input_tokens", "output_tokens",
-    "token_budget", "tokens_per_second", "token_count", "max_tokens",
-    "context_tokens", "total_tokens",
+    "tokens_used",
+    "token_usage",
+    "input_tokens",
+    "output_tokens",
+    "token_budget",
+    "tokens_per_second",
+    "token_count",
+    "max_tokens",
+    "context_tokens",
+    "total_tokens",
 }
 
 
@@ -238,8 +265,7 @@ def _secretish(key: str) -> bool:
         return True
     # substring fallback for unknown compound credential fields, e.g.
     # "db_password_hash" — but never bare "token*" metric suffixes.
-    return any(s in k for s in ("password", "secret", "credential",
-                                "private_key", "access_key"))
+    return any(s in k for s in ("password", "secret", "credential", "private_key", "access_key"))
 
 
 class InvestigationCreate(BaseModel):
@@ -249,6 +275,7 @@ class InvestigationCreate(BaseModel):
     # source_refs[], payload{}}. Quando presente, o problema é
     # derivado do trigger (problem vira contexto adicional).
     trigger: dict[str, Any] | None = None
+
 
 class CompareBody(BaseModel):
     snapshot_id: str
@@ -285,7 +312,6 @@ class TokenOut(BaseModel):
     note: str
 
 
-
 class InvestigationState:
     """Persistent investigation state (§2) — SQLite-backed, with a
     fan-out of per-subscriber queues (ds-0103: every SSE client must
@@ -300,8 +326,7 @@ class InvestigationState:
         self.queues.setdefault(inv_id, set()).add(q)
         return q
 
-    def unsubscribe(self, inv_id: str,
-                    q: asyncio.Queue[dict[str, Any]]) -> None:
+    def unsubscribe(self, inv_id: str, q: asyncio.Queue[dict[str, Any]]) -> None:
         subs = self.queues.get(inv_id)
         if subs is not None:
             subs.discard(q)
@@ -312,8 +337,7 @@ class InvestigationState:
         redacted = _redact(data)
         seq = self.store.emit(inv_id, event, redacted)
         for q in self.queues.get(inv_id, ()):
-            q.put_nowait({"seq": seq, "event": event,
-                          "data": redacted, "ts": time.time()})
+            q.put_nowait({"seq": seq, "event": event, "data": redacted, "ts": time.time()})
 
     @property
     def reports(self) -> dict[str, Any]:
@@ -324,23 +348,26 @@ class InvestigationState:
         return self.queues
 
 
-def create_app(allowed_roots: list[str] | None = None,
-               *, require_auth: bool = True,
-               db_path: Path | str | None = None,
-               store: InvestigationStore | None = None) -> FastAPI:
-    roots = [Path(r) for r in (allowed_roots or
-                               [str(Path.cwd()), str(Path.home() / ".cache")])]
-    db = (db_path or os.environ.get("DATA_SENTINEL_DB")
-          or DEFAULT_DB)
-    state = InvestigationState(
-        store=store or InvestigationStore(db))
+def create_app(
+    allowed_roots: list[str] | None = None,
+    *,
+    require_auth: bool = True,
+    db_path: Path | str | None = None,
+    store: InvestigationStore | None = None,
+) -> FastAPI:
+    roots = [Path(r) for r in (allowed_roots or [str(Path.cwd()), str(Path.home() / ".cache")])]
+    db = db_path or os.environ.get("DATA_SENTINEL_DB") or DEFAULT_DB
+    state = InvestigationState(store=store or InvestigationStore(db))
     auth = SessionAuth()
-    _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient",
-                    "testserver"}
+    _LOCAL_HOSTS = {"localhost", "127.0.0.1", "[::1]", "testclient", "testserver"}
     auth_failures: dict[str, list[float]] = {}
     rate_buckets: dict[str, list[float]] = {}  # app-scoped (ds-0103)
-    app = FastAPI(title="Sentinel Control Center API", version=API_VERSION,
-                  docs_url="/api/docs", openapi_url="/api/openapi.json")
+    app = FastAPI(
+        title="Sentinel Control Center API",
+        version=API_VERSION,
+        docs_url="/api/docs",
+        openapi_url="/api/openapi.json",
+    )
 
     # ---- error taxonomy + trace IDs (Cycle 09 §G-05) ----
     # Every error response carries `detail` (v1 compat), `request_id`
@@ -359,31 +386,27 @@ def create_app(allowed_roots: list[str] | None = None,
     )
 
     @app.exception_handler(SentinelError)
-    async def sentinel_error_handler(
-            request: Request, exc: SentinelError) -> JSONResponse:
-        status = next(
-            (s for t, s in _SENTINEL_STATUS if isinstance(exc, t)), 500)
+    async def sentinel_error_handler(request: Request, exc: SentinelError) -> JSONResponse:
+        status = next((s for t, s in _SENTINEL_STATUS if isinstance(exc, t)), 500)
         rid = getattr(request.state, "request_id", "")
         _audit("?", request.url.path, status)
         return JSONResponse(
-            {"detail": exc.message, "code": exc.code,
-             "details": exc.details, "request_id": rid}, status)
+            {"detail": exc.message, "code": exc.code, "details": exc.details, "request_id": rid},
+            status,
+        )
 
     @app.exception_handler(HTTPException)
-    async def http_error_handler(
-            request: Request, exc: HTTPException) -> JSONResponse:
+    async def http_error_handler(request: Request, exc: HTTPException) -> JSONResponse:
         rid = getattr(request.state, "request_id", "")
         return JSONResponse(
-            {"detail": exc.detail, "request_id": rid},
-            exc.status_code, headers=exc.headers)
+            {"detail": exc.detail, "request_id": rid}, exc.status_code, headers=exc.headers
+        )
 
     @app.exception_handler(Exception)
-    async def unhandled_error_handler(
-            request: Request, exc: Exception) -> JSONResponse:
+    async def unhandled_error_handler(request: Request, exc: Exception) -> JSONResponse:
         rid = getattr(request.state, "request_id", "")
         _audit("?", request.url.path, 500)
-        return JSONResponse(
-            {"detail": "internal error", "request_id": rid}, 500)
+        return JSONResponse({"detail": "internal error", "request_id": rid}, 500)
 
     @app.middleware("http")
     async def local_guard(request: Request, call_next):  # type: ignore[no-untyped-def]
@@ -398,45 +421,44 @@ def create_app(allowed_roots: list[str] | None = None,
                 o_host = origin.split("//")[-1].split(":")[0].lower()
                 if o_host not in _LOCAL_HOSTS:
                     _audit("?", request.url.path, 403)
-                    return JSONResponse(
-                        {"detail": "cross-origin mutation rejected"}, 403)
+                    return JSONResponse({"detail": "cross-origin mutation rejected"}, 403)
         return await call_next(request)
 
     @app.middleware("http")
     async def bearer_auth(request: Request, call_next):  # type: ignore[no-untyped-def]
         """Bearer session auth on /api/v1/* except health/docs (§1.2)."""
         path = request.url.path
-        open_paths = {"/api/v1/health", "/api/docs",
-                      "/api/openapi.json", "/api/docs/oauth2-redirect"}
-        if (require_auth and path.startswith("/api/v1")
-                and path not in open_paths):
-            client = (request.client.host
-                      if request.client else "unknown")
+        open_paths = {
+            "/api/v1/health",
+            "/api/docs",
+            "/api/openapi.json",
+            "/api/docs/oauth2-redirect",
+        }
+        if require_auth and path.startswith("/api/v1") and path not in open_paths:
+            client = request.client.host if request.client else "unknown"
             # §2.4 — lockout temporário após falhas repetidas (anti
             # brute-force local); janela deslizante por cliente.
             # Bounded like rate_buckets — many distinct client keys
             # cannot grow the map without limit (review).
             if len(auth_failures) >= _MAX_RATE_CLIENTS:
                 auth_failures.clear()
-            fails = [t for t in auth_failures.get(client, [])
-                     if time.time() - t < _AUTH_LOCKOUT_S]
+            fails = [t for t in auth_failures.get(client, []) if time.time() - t < _AUTH_LOCKOUT_S]
             auth_failures[client] = fails
             if len(fails) >= _AUTH_MAX_FAILURES:
                 _audit(client, path, 429)
                 return JSONResponse(
-                    {"detail": "muitas falhas de autenticação — "
-                               "tente em instantes"}, 429)
+                    {"detail": "muitas falhas de autenticação — tente em instantes"}, 429
+                )
             header = request.headers.get("authorization", "")
             # RFC 7235: scheme is case-insensitive; require the space so
             # "bearerXYZ" is not treated as a Bearer credential.
-            presented = (header[7:].strip()
-                         if header[:7].lower() == "bearer " else None)
+            presented = header[7:].strip() if header[:7].lower() == "bearer " else None
             if not auth.check(presented):
                 fails.append(time.time())
                 _audit(client, path, 401)
                 return JSONResponse(
-                    {"detail": "unauthorized"}, 401,
-                    headers={"WWW-Authenticate": "Bearer"})
+                    {"detail": "unauthorized"}, 401, headers={"WWW-Authenticate": "Bearer"}
+                )
             auth_failures.pop(client, None)
         return await call_next(request)
 
@@ -446,11 +468,9 @@ def create_app(allowed_roots: list[str] | None = None,
         if length:
             try:
                 if int(length) > MAX_PAYLOAD:
-                    return JSONResponse(
-                        {"detail": "payload too large"}, 413)
+                    return JSONResponse({"detail": "payload too large"}, 413)
             except ValueError:
-                return JSONResponse(
-                    {"detail": "malformed content-length"}, 400)
+                return JSONResponse({"detail": "malformed content-length"}, 400)
         return await call_next(request)
 
     @app.middleware("http")
@@ -487,30 +507,37 @@ def create_app(allowed_roots: list[str] | None = None,
     # bare 401 from bearer_auth (which would lack Access-Control-*
     # headers and make every authenticated browser call fail).
     app.add_middleware(
-        CORSMiddleware, allow_origins=[
-            "http://localhost:4200", "http://127.0.0.1:4200"],
-        allow_methods=["GET", "POST"], allow_headers=["*"], max_age=600)
+        CORSMiddleware,
+        allow_origins=["http://localhost:4200", "http://127.0.0.1:4200"],
+        allow_methods=["GET", "POST"],
+        allow_headers=["*"],
+        max_age=600,
+    )
 
     # ---- health / capabilities ----
 
     @app.get("/api/v1/health")
     def health() -> dict[str, Any]:
         from data_sentinel import __version__
+
         return {"status": "ok", "version": __version__, "api": API_VERSION}
 
     @app.get("/api/v1/capabilities")
     def capabilities() -> list[dict[str, Any]]:
         from data_sentinel.diagnostics.capabilities import all_descriptors
+
         return [c.model_dump(mode="json") for c in all_descriptors()]
 
     @app.get("/api/v1/tools")
     def tools() -> list[dict[str, Any]]:
         from data_sentinel.tools.registry import build_default_registry
+
         return build_default_registry().to_mcp_manifest()
 
     @app.get("/api/v1/agents")
     def agents() -> list[dict[str, Any]]:
         from data_sentinel.agents.specialists import specialist_descriptors
+
         return [d.model_dump(mode="json") for d in specialist_descriptors()]
 
     # ---- investigations ----
@@ -524,8 +551,7 @@ def create_app(allowed_roots: list[str] | None = None,
         for tool_id, raw in body.files.items():
             p = _safe_path(raw, roots)
             if p.suffix.lower() not in ALLOWED_FILE_EXTS:
-                raise HTTPException(
-                    400, f"file type not allowed: {p.suffix}")
+                raise HTTPException(400, f"file type not allowed: {p.suffix}")
             if not p.is_file():
                 raise HTTPException(404, f"file not found: {raw}")
             files[tool_id] = str(p)
@@ -534,28 +560,22 @@ def create_app(allowed_roots: list[str] | None = None,
         state.store.transition(inv_id, InvState.QUEUED)
 
         async def _run() -> None:
-            state.emit(inv_id, "INVESTIGATION_STARTED",
-                       {"investigation_id": inv_id})
+            state.emit(inv_id, "INVESTIGATION_STARTED", {"investigation_id": inv_id})
             try:
                 state.store.transition(inv_id, InvState.RUNNING)
                 if body.trigger is not None:
                     trig = OperationalTrigger(
-                        kind=TriggerKind(
-                            str(body.trigger.get("kind", "alert"))),
-                        summary=str(body.trigger.get("summary",
-                                                     body.problem)),
-                        source_refs=[str(r) for r in body.trigger.get(
-                            "source_refs", [])][:50],
-                        payload=dict(body.trigger.get("payload", {})))
-                    rep = await asyncio.to_thread(
-                        trigger_investigation, trig, files)
+                        kind=TriggerKind(str(body.trigger.get("kind", "alert"))),
+                        summary=str(body.trigger.get("summary", body.problem)),
+                        source_refs=[str(r) for r in body.trigger.get("source_refs", [])][:50],
+                        payload=dict(body.trigger.get("payload", {})),
+                    )
+                    rep = await asyncio.to_thread(trigger_investigation, trig, files)
                 else:
-                    rep = await asyncio.to_thread(
-                        investigate, body.problem, files)
+                    rep = await asyncio.to_thread(investigate, body.problem, files)
                 rep.investigation_id = inv_id
                 rep.report_id = inv_id
-                state.store.save_report(
-                    inv_id, rep.model_dump(mode="json"))
+                state.store.save_report(inv_id, rep.model_dump(mode="json"))
                 with contextlib.suppress(Exception):
                     # §9.5 — resumo sanitizado na memória; nunca falha
                     # a investigação por causa da memória
@@ -563,35 +583,39 @@ def create_app(allowed_roots: list[str] | None = None,
                 for t in rep.tools_used:
                     state.emit(inv_id, "TOOL_COMPLETED", {"tool": t})
                 for h in rep.hypotheses_supported:
-                    state.emit(inv_id, "HYPOTHESIS_CREATED",
-                               h.model_dump(mode="json"))
+                    state.emit(inv_id, "HYPOTHESIS_CREATED", h.model_dump(mode="json"))
                 # emit BEFORE transition: a terminal state must imply
                 # the terminal event is already in the store — stream
                 # readers use the state check to decide to stop.
-                state.emit(inv_id, "INVESTIGATION_COMPLETED",
-                           {"findings": len(rep.findings)})
+                state.emit(inv_id, "INVESTIGATION_COMPLETED", {"findings": len(rep.findings)})
                 state.store.transition(inv_id, InvState.COMPLETED)
             except Exception as exc:
-                state.emit(inv_id, "INVESTIGATION_FAILED",
-                           {"error": _safe_error(
-                               exc, (str(r) for r in roots))})
+                state.emit(
+                    inv_id,
+                    "INVESTIGATION_FAILED",
+                    {"error": _safe_error(exc, (str(r) for r in roots))},
+                )
                 with contextlib.suppress(ValueError):
                     state.store.transition(inv_id, InvState.FAILED)
             finally:
                 for q in list(state.queues.get(inv_id, ())):
-                    q.put_nowait({"event": "__end__", "data": {},
-                                  "ts": 0.0})
+                    q.put_nowait({"event": "__end__", "data": {}, "ts": 0.0})
 
         asyncio.get_running_loop().create_task(_run())
         return {"investigation_id": inv_id, "status": "running"}
 
     @app.get("/api/v1/investigations")
     def list_investigations() -> list[dict[str, Any]]:
-        return [{"investigation_id": r.investigation_id,
-                 "status": r.state.value.lower(),
-                 "created": r.created_at, "updated": r.updated_at,
-                 "problem": r.problem}
-                for r in state.store.list_all()]
+        return [
+            {
+                "investigation_id": r.investigation_id,
+                "status": r.state.value.lower(),
+                "created": r.created_at,
+                "updated": r.updated_at,
+                "problem": r.problem,
+            }
+            for r in state.store.list_all()
+        ]
 
     @app.get("/api/v1/investigations/{inv_id}")
     def get_investigation(inv_id: str) -> dict[str, Any]:
@@ -599,8 +623,7 @@ def create_app(allowed_roots: list[str] | None = None,
         if rec is None:
             raise HTTPException(404, "investigation not found")
         if rec.report is None:
-            return {"investigation_id": inv_id,
-                    "status": rec.state.value.lower()}
+            return {"investigation_id": inv_id, "status": rec.state.value.lower()}
         report = dict(rec.report)
         report["status"] = rec.state.value.lower()
         return _redact(report)
@@ -619,21 +642,25 @@ def create_app(allowed_roots: list[str] | None = None,
             last = after
             try:
                 for e in state.store.events(inv_id, after_seq=after):
-                    yield (f"id: {e['seq']}\nevent: {e['event']}\n"
-                           f"data: {json.dumps(e['data'])}\n\n")
+                    yield (
+                        f"id: {e['seq']}\nevent: {e['event']}\ndata: {json.dumps(e['data'])}\n\n"
+                    )
                     last = e["seq"]
                 rec = state.store.get(inv_id)
                 if rec is not None and rec.state in {
-                        InvState.COMPLETED, InvState.FAILED,
-                        InvState.CANCELLED}:
+                    InvState.COMPLETED,
+                    InvState.FAILED,
+                    InvState.CANCELLED,
+                }:
                     # Terminal state ⇒ terminal event already committed
                     # (emit-before-transition in _run). Drain the store
                     # once — events between the replay snapshot and the
                     # state check must not be dropped (review).
-                    for e in state.store.events(
-                            inv_id, after_seq=last):
-                        yield (f"id: {e['seq']}\nevent: {e['event']}\n"
-                               f"data: {json.dumps(e['data'])}\n\n")
+                    for e in state.store.events(inv_id, after_seq=last):
+                        yield (
+                            f"id: {e['seq']}\nevent: {e['event']}\n"
+                            f"data: {json.dumps(e['data'])}\n\n"
+                        )
                     return
                 while True:
                     item = await q.get()
@@ -641,8 +668,10 @@ def create_app(allowed_roots: list[str] | None = None,
                         break
                     if item["seq"] <= last:
                         continue  # already replayed from the store
-                    yield (f"id: {item['seq']}\nevent: {item['event']}\n"
-                           f"data: {json.dumps(item['data'])}\n\n")
+                    yield (
+                        f"id: {item['seq']}\nevent: {item['event']}\n"
+                        f"data: {json.dumps(item['data'])}\n\n"
+                    )
             finally:
                 state.unsubscribe(inv_id, q)
 
@@ -655,6 +684,7 @@ def create_app(allowed_roots: list[str] | None = None,
 
         from data_sentinel.core.contracts.agent import InvestigationReport
         from data_sentinel.diagnostics.incident import build_incident_graph, context_from_hints
+
         rec = state.store.get(inv_id)
         if rec is None or rec.report is None:
             raise HTTPException(404, "investigation not found")
@@ -670,18 +700,20 @@ def create_app(allowed_roots: list[str] | None = None,
 
     # ---- analyzer-backed read endpoints (thin delegation) ----
 
-    def _validate_tool_input(
-            schema: dict[str, Any], body: dict[str, Any]) -> None:
+    def _validate_tool_input(schema: dict[str, Any], body: dict[str, Any]) -> None:
         """Minimal JSON-schema check against the tool's input_schema."""
         required = schema.get("required") or []
         missing = [k for k in required if k not in body]
         if missing:
-            raise HTTPException(
-                400, f"missing required inputs: {missing}")
+            raise HTTPException(400, f"missing required inputs: {missing}")
         props = schema.get("properties") or {}
         py_types: dict[str, type | tuple[type, ...]] = {
-            "string": str, "number": (int, float), "integer": int,
-            "boolean": bool, "array": list, "object": dict,
+            "string": str,
+            "number": (int, float),
+            "integer": int,
+            "boolean": bool,
+            "array": list,
+            "object": dict,
         }
         for key, spec in props.items():
             if key not in body or "type" not in spec:
@@ -693,8 +725,7 @@ def create_app(allowed_roots: list[str] | None = None,
             # bool is a subclass of int — reject it for numeric types
             bad = isinstance(val, bool) and spec["type"] != "boolean"
             if bad or not isinstance(val, want):
-                raise HTTPException(
-                    422, f"input '{key}': expected {spec['type']}")
+                raise HTTPException(422, f"input '{key}': expected {spec['type']}")
 
     @app.post("/api/v1/analyze/{analyzer_id}")
     def analyze(analyzer_id: str, body: dict[str, Any]) -> dict[str, Any]:
@@ -714,6 +745,7 @@ def create_app(allowed_roots: list[str] | None = None,
             build_default_registry,
             execute_tool,
         )
+
         tool_id = f"sentinel.{analyzer_id}"
         reg = build_default_registry()
         try:
@@ -728,15 +760,16 @@ def create_app(allowed_roots: list[str] | None = None,
             if isinstance(val, str) and _FILE_INPUT_KEY.search(key):
                 p = _safe_path(val, roots)
                 if p.suffix.lower() not in ALLOWED_FILE_EXTS:
-                    raise HTTPException(
-                        400, f"file type not allowed: {p.suffix}")
+                    raise HTTPException(400, f"file type not allowed: {p.suffix}")
                 if not p.is_file():
-                    raise HTTPException(
-                        404, f"file not found for input '{key}'")
+                    raise HTTPException(404, f"file not found for input '{key}'")
                 inputs[key] = str(p)
-        res = execute_tool(ToolInvocation(
-            invocation_id=f"api-{secrets.token_hex(4)}",
-            tool_id=tool_id, input=inputs), allowed_roots=roots)
+        res = execute_tool(
+            ToolInvocation(
+                invocation_id=f"api-{secrets.token_hex(4)}", tool_id=tool_id, input=inputs
+            ),
+            allowed_roots=roots,
+        )
         if not res.ok:
             raise HTTPException(422, res.error or "analysis failed")
         out = res.output if isinstance(res.output, dict) else {}
@@ -751,18 +784,19 @@ def create_app(allowed_roots: list[str] | None = None,
         """§2.4 — rotação explícita: invalida o bearer atual."""
         new = auth.rotate()
         _audit("api", "auth.rotate", 200)
-        return TokenOut(token=new,
-                       note="token anterior revogado — atualize o "
-                            "cliente imediatamente")
+        return TokenOut(
+            token=new, note="token anterior revogado — atualize o cliente imediatamente"
+        )
 
     @app.post("/api/v1/auth/revoke")
     def revoke_token() -> dict[str, str]:
         """§2.4 — revoga a sessão atual."""
         auth.revoke()
         _audit("api", "auth.revoke", 200)
-        return {"status": "revoked",
-                "note": "sessão encerrada — novo token gerado no "
-                        "servidor (arquivo removido)"}
+        return {
+            "status": "revoked",
+            "note": "sessão encerrada — novo token gerado no servidor (arquivo removido)",
+        }
 
     # ---- operational endpoints (Cycle 07 §3-§7 + 08 §2.1) ----
     # Persistidos em SQLite — sobrevivem a restart. Snapshots são
@@ -775,32 +809,31 @@ def create_app(allowed_roots: list[str] | None = None,
         if not body.provenance:
             raise HTTPException(400, "provenance required")
         ops.save_snapshot(body)
-        return {"snapshot_id": body.snapshot_id,
-                "provenance": body.provenance}
+        return {"snapshot_id": body.snapshot_id, "provenance": body.provenance}
 
     @app.get("/api/v1/snapshots")
-    def list_snapshots(platform: str | None = None,
-                       job_id: str | None = None
-                       ) -> list[dict[str, Any]]:
-        return [s.model_dump() for s in ops.list_snapshots(
-            platform=platform, job_id=job_id)]
+    def list_snapshots(
+        platform: str | None = None, job_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        return [s.model_dump() for s in ops.list_snapshots(platform=platform, job_id=job_id)]
 
     @app.post("/api/v1/history/compare")
     def history_compare(body: CompareBody) -> dict[str, Any]:
         cur = ops.get_snapshot(body.snapshot_id)
         if cur is None:
             raise HTTPException(404, "snapshot not found")
-        peers = [s for s in ops.list_snapshots(job_id=cur.job_id)
-                 if s.snapshot_id != cur.snapshot_id]
+        peers = [
+            s for s in ops.list_snapshots(job_id=cur.job_id) if s.snapshot_id != cur.snapshot_id
+        ]
         base = select_baseline(
-            peers, BaselineKind(kind=body.baseline,
-                                reference_run_id=body.reference_id))
+            peers, BaselineKind(kind=body.baseline, reference_run_id=body.reference_id)
+        )
         if not base:
-            return {"comparable": False,
-                    "incomparability_reasons":
-                        ["nenhum baseline elegível"],
-                    "limitations": ["histórico insuficiente — "
-                                    "comparação não fabricada"]}
+            return {
+                "comparable": False,
+                "incomparability_reasons": ["nenhum baseline elegível"],
+                "limitations": ["histórico insuficiente — comparação não fabricada"],
+            }
         res = compare_snapshots(cur, base)
         findings = detect_regressions(base, cur)
         out = res.model_dump()
@@ -809,13 +842,11 @@ def create_app(allowed_roots: list[str] | None = None,
         return out
 
     @app.get("/api/v1/history/regressions")
-    def history_regressions(job_id: str,
-                            current_id: str) -> list[dict[str, Any]]:
+    def history_regressions(job_id: str, current_id: str) -> list[dict[str, Any]]:
         cur = ops.get_snapshot(current_id)
         if cur is None:
             raise HTTPException(404, "snapshot not found")
-        hist = [s for s in ops.list_snapshots(job_id=job_id)
-                if s.snapshot_id != current_id]
+        hist = [s for s in ops.list_snapshots(job_id=job_id) if s.snapshot_id != current_id]
         return detect_regressions(hist, cur)
 
     @app.post("/api/v1/watches", status_code=201)
@@ -824,27 +855,40 @@ def create_app(allowed_roots: list[str] | None = None,
             raise HTTPException(409, "watch_id já existe")
         if body.source == "aws":
             raise HTTPException(
-                400, "source=aws requer opt-in explícito via CLI com "
-                     "profile/region declarados — não via API")
+                400,
+                "source=aws requer opt-in explícito via CLI com "
+                "profile/region declarados — não via API",
+            )
         if body.interval_s < MIN_INTERVAL_S:
-            raise HTTPException(
-                400, f"interval abaixo do mínimo {MIN_INTERVAL_S}s")
+            raise HTTPException(400, f"interval abaixo do mínimo {MIN_INTERVAL_S}s")
         w = WatchDefinition(
-            watch_id=body.watch_id, workload=body.workload,
-            platform=body.platform, source=body.source,
-            metrics=body.metrics, rule=body.rule,
-            interval_s=body.interval_s, severity=body.severity,
-            enabled=False)  # §8.5: nunca inicia sem ação explícita
+            watch_id=body.watch_id,
+            workload=body.workload,
+            platform=body.platform,
+            source=body.source,
+            metrics=body.metrics,
+            rule=body.rule,
+            interval_s=body.interval_s,
+            severity=body.severity,
+            enabled=False,
+        )  # §8.5: nunca inicia sem ação explícita
         ops.save_watch(w)
         return {"watch_id": w.watch_id, "enabled": w.enabled}
 
     @app.get("/api/v1/watches")
     def list_watches() -> list[dict[str, Any]]:
-        return [{"watch_id": w.watch_id, "workload": w.workload,
-                 "platform": w.platform, "rule": w.rule,
-                 "interval_s": w.interval_s, "enabled": w.enabled,
-                 "severity": w.severity}
-                for w in ops.list_watches()]
+        return [
+            {
+                "watch_id": w.watch_id,
+                "workload": w.workload,
+                "platform": w.platform,
+                "rule": w.rule,
+                "interval_s": w.interval_s,
+                "enabled": w.enabled,
+                "severity": w.severity,
+            }
+            for w in ops.list_watches()
+        ]
 
     @app.post("/api/v1/watches/{wid}/run")
     def run_watch(wid: str) -> list[dict[str, Any]]:
@@ -858,10 +902,17 @@ def create_app(allowed_roots: list[str] | None = None,
             return []
         alerts = alert_engine.evaluate(w, snaps[:-1], snaps[-1])
         ops.save_watch_execution(wid, alerts)
-        return [{"alert_id": a.alert_id, "kind": a.kind,
-                 "severity": a.severity, "message": a.message,
-                 "recovered": a.recovered,
-                 "findings": a.findings} for a in alerts]
+        return [
+            {
+                "alert_id": a.alert_id,
+                "kind": a.kind,
+                "severity": a.severity,
+                "message": a.message,
+                "recovered": a.recovered,
+                "findings": a.findings,
+            }
+            for a in alerts
+        ]
 
     @app.post("/api/v1/watches/{wid}/pause")
     def pause_watch(wid: str) -> dict[str, Any]:
@@ -879,9 +930,11 @@ def create_app(allowed_roots: list[str] | None = None,
             raise HTTPException(404, "watch not found")
         w.enabled = True  # still manual: só roda via /run
         ops.save_watch(w)
-        return {"watch_id": wid, "enabled": True,
-                "note": "avaliação manual via POST /run — sem loop "
-                        "automático na API"}
+        return {
+            "watch_id": wid,
+            "enabled": True,
+            "note": "avaliação manual via POST /run — sem loop automático na API",
+        }
 
     @app.post("/api/v1/watches/{wid}/delete")
     def delete_watch(wid: str) -> dict[str, Any]:
@@ -891,15 +944,23 @@ def create_app(allowed_roots: list[str] | None = None,
 
     @app.get("/api/v1/alerts")
     def list_alerts() -> list[dict[str, Any]]:
-        return [{"alert_id": a["alert_id"],
-                 "watch_id": a["watch_id"], "kind": a["kind"],
-                 "severity": a["severity"], "message": a["message"],
-                 "ts": a["ts"], "recovered": a["recovered"]}
-                for a in ops.list_alerts()]
+        return [
+            {
+                "alert_id": a["alert_id"],
+                "watch_id": a["watch_id"],
+                "kind": a["kind"],
+                "severity": a["severity"],
+                "message": a["message"],
+                "ts": a["ts"],
+                "recovered": a["recovered"],
+            }
+            for a in ops.list_alerts()
+        ]
 
     @app.post("/api/v1/remediation/plans", status_code=201)
     def create_plan(body: PlanBody) -> dict[str, Any]:
         from data_sentinel.core.contracts.entities import Finding
+
         finding: Finding | None = None
         if body.finding is not None:
             finding = Finding.model_validate(body.finding)
@@ -914,20 +975,23 @@ def create_app(allowed_roots: list[str] | None = None,
             if finding is None:
                 raise HTTPException(404, "finding not found")
         else:
-            raise HTTPException(
-                400, "forneça finding embutido ou "
-                     "investigation_id+finding_id")
+            raise HTTPException(400, "forneça finding embutido ou investigation_id+finding_id")
         plan = plan_for_finding(finding, title=body.title)
         ops.save_plan(plan)
         return {"plan_id": plan.plan_id, "state": str(plan.state)}
 
     @app.get("/api/v1/remediation/plans")
     def list_plans() -> list[dict[str, Any]]:
-        return [{"plan_id": p.plan_id, "title": p.title,
-                 "type": str(p.remediation_type),
-                 "state": str(p.state),
-                 "finding_ids": p.finding_ids}
-                for p in ops.list_plans()]
+        return [
+            {
+                "plan_id": p.plan_id,
+                "title": p.title,
+                "type": str(p.remediation_type),
+                "state": str(p.state),
+                "finding_ids": p.finding_ids,
+            }
+            for p in ops.list_plans()
+        ]
 
     @app.get("/api/v1/remediation/plans/{pid}")
     def get_plan(pid: str) -> dict[str, Any]:
@@ -961,14 +1025,14 @@ def create_app(allowed_roots: list[str] | None = None,
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
         ops.save_plan(p)
-        ops.save_approval(pid, body.approver, "APPROVED",
-                          body.reason)
-        ops.audit("api", "remediation.approve",
-                  {"plan_id": pid, "approver": body.approver})
+        ops.save_approval(pid, body.approver, "APPROVED", body.reason)
+        ops.audit("api", "remediation.approve", {"plan_id": pid, "approver": body.approver})
         _audit("api", f"remediation.approve:{pid}:{body.approver}", 200)
-        return {"plan_id": pid, "state": str(p.state),
-                "note": "aprovação NÃO executa nada — ver "
-                        "POST .../execute-local para ações locais"}
+        return {
+            "plan_id": pid,
+            "state": str(p.state),
+            "note": "aprovação NÃO executa nada — ver POST .../execute-local para ações locais",
+        }
 
     @app.post("/api/v1/remediation/plans/{pid}/reject")
     def reject_plan(pid: str, body: ApprovalBody) -> dict[str, Any]:
@@ -980,8 +1044,7 @@ def create_app(allowed_roots: list[str] | None = None,
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
         ops.save_plan(p)
-        ops.save_approval(pid, body.approver or "api",
-                          "REJECTED", body.reason)
+        ops.save_approval(pid, body.approver or "api", "REJECTED", body.reason)
         ops.audit("api", "remediation.reject", {"plan_id": pid})
         return {"plan_id": pid, "state": str(p.state)}
 
@@ -1001,10 +1064,11 @@ def create_app(allowed_roots: list[str] | None = None,
             res = execute_local(p)
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
-        ops.audit("api", "remediation.execute-local",
-                  {"plan_id": pid,
-                   "statuses": [r["status"]
-                                for r in res["results"]]})
+        ops.audit(
+            "api",
+            "remediation.execute-local",
+            {"plan_id": pid, "statuses": [r["status"] for r in res["results"]]},
+        )
         _audit("api", f"remediation.execute-local:{pid}", 200)
         return res
 

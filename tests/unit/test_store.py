@@ -156,8 +156,9 @@ class TestMigrations:
 
 
 class TestErrors:
-    @pytest.mark.skipif(sys.platform == "win32",
-                        reason="chmod não impede escrita em diretório no Windows")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="chmod não impede escrita em diretório no Windows"
+    )
     def test_readonly_dir_raises_domain_error(self, tmp_path: Path) -> None:
         ro = tmp_path / "ro"
         ro.mkdir()
@@ -178,9 +179,8 @@ class TestErrors:
     def test_all_sql_parameterized(self) -> None:
         """No f-string/format in SQL statements in store.py (grep guard)."""
         src = (
-            Path(__file__).resolve().parents[2]
-            / "src/data_sentinel/persistence/store.py"
+            Path(__file__).resolve().parents[2] / "src/data_sentinel/persistence/store.py"
         ).read_text(encoding="utf-8")
         for line in src.splitlines():
-            if "execute(" in line and ("f\"" in line or "f'" in line):
+            if "execute(" in line and ('f"' in line or "f'" in line):
                 assert "FROM analyses" in line or "schema_migrations" in line

@@ -49,9 +49,22 @@ class TestParser:
             parse_policy((FX / "malformed.json").read_text(encoding="utf-8"))
 
     def test_principal_dict_flattened(self):
-        d = parse_policy(json.dumps({"Statement": [{
-            "Effect": "Allow", "Action": "sts:AssumeRole",
-            "Principal": {"AWS": "arn:aws:iam::1:root", "Service": "glue.amazonaws.com"}}]}))
+        d = parse_policy(
+            json.dumps(
+                {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "sts:AssumeRole",
+                            "Principal": {
+                                "AWS": "arn:aws:iam::1:root",
+                                "Service": "glue.amazonaws.com",
+                            },
+                        }
+                    ]
+                }
+            )
+        )
         assert "arn:aws:iam::1:root" in d.statements[0].principals
         assert "glue.amazonaws.com" in d.statements[0].principals
 
@@ -59,8 +72,7 @@ class TestParser:
 class TestEvaluate:
     def test_deny_wins_over_allow(self):
         env = json.loads((FX / "deny_wins.json").read_text(encoding="utf-8"))
-        docs = [parse_policy(json.dumps(v), name=k)
-                for k, v in env["policies"].items()]
+        docs = [parse_policy(json.dumps(v), name=k) for k, v in env["policies"].items()]
         r = evaluate(docs, "s3:GetObject", "arn:aws:s3:::b/file")
         assert r.verdict == "denied"
 
@@ -97,8 +109,7 @@ class TestAnalyzer:
 
     def test_cross_kms_two_keys_possible(self):
         r = _run("cross_kms.json")
-        f = next(f for f in r.findings if "duas chaves" in f.explanation
-                 or "KMS" in f.explanation)
+        f = next(f for f in r.findings if "duas chaves" in f.explanation or "KMS" in f.explanation)
         assert f.status == FindingStatus.POSSIBLE
 
     def test_cross_bucket_unknown(self):

@@ -37,7 +37,6 @@ declara intervalos >120s sem eventos. `merge_timelines()` funde fontes
 declarando granularidades em `granularity_notes`.
 
 ```python
-from data_sentinel.diagnostics.incident import (
-    UnifiedExecutionContext, build_incident_graph)
+from data_sentinel.diagnostics.incident import UnifiedExecutionContext, build_incident_graph
 from data_sentinel.diagnostics.timeline import build_timeline, merge_timelines
 ```

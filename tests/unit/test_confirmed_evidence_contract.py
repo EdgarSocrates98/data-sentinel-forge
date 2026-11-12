@@ -31,26 +31,19 @@ FIXTURES = ROOT / "fixtures"
 
 def _is_finding_call(node: ast.Call) -> bool:
     func = node.func
-    return (
-        (isinstance(func, ast.Name) and func.id == "Finding")
-        or (isinstance(func, ast.Attribute) and func.attr == "Finding")
+    return (isinstance(func, ast.Name) and func.id == "Finding") or (
+        isinstance(func, ast.Attribute) and func.attr == "Finding"
     )
 
 
 def _references_confirmed(call: ast.Call) -> bool:
-    return any(
-        isinstance(n, ast.Attribute) and n.attr == "CONFIRMED"
-        for n in ast.walk(call)
-    )
+    return any(isinstance(n, ast.Attribute) and n.attr == "CONFIRMED" for n in ast.walk(call))
 
 
 def _has_evidence_kwarg(call: ast.Call) -> bool:
     for kw in call.keywords:
         if kw.arg == "evidence_ids":
-            return not (
-                isinstance(kw.value, (ast.List, ast.Tuple))
-                and not kw.value.elts
-            )
+            return not (isinstance(kw.value, (ast.List, ast.Tuple)) and not kw.value.elts)
     return False
 
 
@@ -63,9 +56,7 @@ class TestStaticContract:
     def test_no_confirmed_finding_without_evidence_ids(self) -> None:
         violations: list[str] = []
         for path in sorted(SRC.rglob("*.py")):
-            tree = ast.parse(
-                path.read_text(encoding="utf-8"), filename=str(path)
-            )
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
             for node in ast.walk(tree):
                 if (
                     isinstance(node, ast.Call)
@@ -73,20 +64,15 @@ class TestStaticContract:
                     and _references_confirmed(node)
                     and not _has_evidence_kwarg(node)
                 ):
-                    violations.append(
-                        f"{path.relative_to(ROOT)}:{node.lineno}"
-                    )
+                    violations.append(f"{path.relative_to(ROOT)}:{node.lineno}")
         assert violations == []
 
 
 class TestRuntimeContract:
-    def _run(self, analyzer, source_type: SourceType, platform: Platform,
-             paths: list[Path]):
+    def _run(self, analyzer, source_type: SourceType, platform: Platform, paths: list[Path]):
         request = DiagnosticRequest(
             source_type=source_type,
-            artifact_references=[
-                ArtifactReference(uri=f"file://{p.name}") for p in paths
-            ],
+            artifact_references=[ArtifactReference(uri=f"file://{p.name}") for p in paths],
             platform=platform,
         )
         return analyzer.analyze(request, [_inp(p) for p in paths])

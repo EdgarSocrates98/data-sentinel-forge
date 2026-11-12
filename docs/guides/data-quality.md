@@ -55,7 +55,7 @@ from data_sentinel.quality.profile import profile_table, profile_column
 from data_sentinel.quality.drift import detect_drift, drift_findings
 
 prof = profile_column("amount", valores_observados)
-res  = detect_drift("amount", baseline_samples, current_samples)
+res = detect_drift("amount", baseline_samples, current_samples)
 # res.level: none|low|medium|high|unknown; res.engine: scipy|heuristic
 ```
 

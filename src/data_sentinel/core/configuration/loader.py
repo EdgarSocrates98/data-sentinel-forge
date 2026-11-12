@@ -101,9 +101,7 @@ def load_config(
     user_path = _user_config_path(env_map)
     if user_path.is_file():
         merged = _merge(merged, _load_toml(user_path, "user"))
-        sources.append(
-            ConfigSource(layer="user", path=str(user_path), found=True, applied=True)
-        )
+        sources.append(ConfigSource(layer="user", path=str(user_path), found=True, applied=True))
     else:
         sources.append(ConfigSource(layer="user", path=str(user_path), found=False))
 
@@ -111,9 +109,7 @@ def load_config(
     if project_path is not None:
         merged = _merge(merged, _load_toml(project_path, "project"))
         sources.append(
-            ConfigSource(
-                layer="project", path=str(project_path), found=True, applied=True
-            )
+            ConfigSource(layer="project", path=str(project_path), found=True, applied=True)
         )
     else:
         sources.append(ConfigSource(layer="project", found=False))
@@ -136,7 +132,8 @@ def load_config(
     except ValidationError as exc:
         raise ConfigurationError(
             code="config.invalido",
-            message="configuração inválida: " + "; ".join(
+            message="configuração inválida: "
+            + "; ".join(
                 f"campo '{'.'.join(str(p) for p in e['loc'])}' {e['msg']}"
                 for e in exc.errors(include_url=False)
             ),

@@ -31,7 +31,8 @@ class TokenBudget:
         self.dropped_tokens += tokens
         self.notes.append(
             f"chunk '{label}' excluído por budget "
-            f"({tokens} tok; restante {self.limit - self.spent})")
+            f"({tokens} tok; restante {self.limit - self.spent})"
+        )
         return False
 
     @property

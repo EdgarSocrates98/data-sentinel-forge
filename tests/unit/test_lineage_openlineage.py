@@ -41,22 +41,25 @@ def test_single_event_object() -> None:
 
 
 def test_batch_envelope() -> None:
-    evs = [json.loads(ln) for ln in
-           (FIX / "marquez-real.jsonl").read_text(encoding="utf-8").splitlines()[:2]]
+    evs = [
+        json.loads(ln)
+        for ln in (FIX / "marquez-real.jsonl").read_text(encoding="utf-8").splitlines()[:2]
+    ]
     ing = parse_openlineage_events(json.dumps({"events": evs}))
     assert len(ing.events) == 2
 
 
 def test_declared_kind() -> None:
     ing = parse_openlineage_events(
-        '{"eventType":"OTHER","job":{"name":"j"},"run":{"runId":"r"}}',
-        declared=True)
+        '{"eventType":"OTHER","job":{"name":"j"},"run":{"runId":"r"}}', declared=True
+    )
     assert ing.kind == LineageKind.STATIC
 
 
 def test_malformed_lines_rejected() -> None:
     ing = parse_openlineage_events(
-        '{"eventType":"START","run":{"runId":"a"}}\n{bad json}\n{"no_type":1}')
+        '{"eventType":"START","run":{"runId":"a"}}\n{bad json}\n{"no_type":1}'
+    )
     assert len(ing.events) == 1
     assert ing.rejected == 2
     assert any("rejeitados" in ln for ln in ing.limitations)

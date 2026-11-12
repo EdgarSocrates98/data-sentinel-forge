@@ -25,8 +25,7 @@ ALL_HOSTS = ("claude", "devin", "codex", "copilot", "cursor")
 def _install(root: Path, *args: str) -> dict:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(root), "--yes",
-         "--json", *args],
+        ["install", "--scope", "project", "--root", str(root), "--yes", "--json", *args],
     )
     assert result.exit_code == 0, result.output
     return json.loads(result.output)
@@ -42,6 +41,7 @@ def _lifecycle(root: Path, verb: str, *args: str) -> dict:
 
 
 # --- scopes (F/G/H) ------------------------------------------------------
+
 
 def test_matrix_project_scope(tmp_path: Path) -> None:
     doc = _install(tmp_path, "--host", "claude")
@@ -73,6 +73,7 @@ def test_matrix_workspace_scope(tmp_path: Path) -> None:
 
 # --- profiles (I/J/K) + gateway (L/M/N) ---------------------------------
 
+
 @pytest.mark.parametrize("profile", ["minimal", "recommended", "full"])
 def test_matrix_profiles(tmp_path: Path, profile: str) -> None:
     doc = _install(tmp_path, "--host", "claude", "--profile", profile)
@@ -83,8 +84,19 @@ def test_matrix_profiles(tmp_path: Path, profile: str) -> None:
 def test_matrix_gateway_profiles(tmp_path: Path, gw: str) -> None:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
-         "--host", "claude", "--gateway", gw, "--json"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--yes",
+            "--host",
+            "claude",
+            "--gateway",
+            gw,
+            "--json",
+        ],
     )
     assert result.exit_code == 0, result.output
 
@@ -93,8 +105,19 @@ def test_matrix_gateway_off_refused(tmp_path: Path) -> None:
     """§3.4 — only economy/balanced/deep exist; `off` must refuse honestly."""
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
-         "--host", "claude", "--gateway", "off", "--json"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--yes",
+            "--host",
+            "claude",
+            "--gateway",
+            "off",
+            "--json",
+        ],
     )
     assert result.exit_code == 1
     assert "PROFILE-UNKNOWN" in result.output
@@ -102,6 +125,7 @@ def test_matrix_gateway_off_refused(tmp_path: Path) -> None:
 
 
 # --- hosts (O/P/Q/R + cursor honest limit) -------------------------------
+
 
 @pytest.mark.parametrize("host", ALL_HOSTS)
 def test_matrix_each_host(tmp_path: Path, host: str) -> None:
@@ -120,6 +144,7 @@ def test_matrix_cursor_no_catalog_adapter(tmp_path: Path) -> None:
 
 
 # --- components (S/T/U/V) -------------------------------------------------
+
 
 def test_matrix_skills_only(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude", "--components", "skills")
@@ -141,6 +166,7 @@ def test_matrix_full_install(tmp_path: Path) -> None:
 
 
 # --- pre-existing state (W/X/Y) + AO -------------------------------------
+
 
 def test_matrix_existing_env_untouched(tmp_path: Path) -> None:
     env = tmp_path / ".env"
@@ -176,6 +202,7 @@ def test_matrix_uninstall_preserves_user_files(tmp_path: Path) -> None:
 
 # --- lifecycle (Z): reinstall idempotent + update -------------------------
 
+
 def test_matrix_reinstall_idempotent(tmp_path: Path) -> None:
     first = _install(tmp_path, "--host", "claude")
     second = _install(tmp_path, "--host", "claude")
@@ -195,11 +222,11 @@ def test_matrix_status_doctor_after_install(tmp_path: Path) -> None:
 
 # --- refusal paths (AL rollback / unknown host) ---------------------------
 
+
 def test_matrix_unknown_host_refused_no_writes(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
-         "--host", "emacs"],
+        ["install", "--scope", "project", "--root", str(tmp_path), "--yes", "--host", "emacs"],
     )
     assert result.exit_code != 0
     assert list(tmp_path.rglob("*")) == []
@@ -208,8 +235,7 @@ def test_matrix_unknown_host_refused_no_writes(tmp_path: Path) -> None:
 def test_matrix_dry_run_then_real_install(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path),
-         "--host", "claude", "--dry-run"],
+        ["install", "--scope", "project", "--root", str(tmp_path), "--host", "claude", "--dry-run"],
     )
     assert result.exit_code == 0
     assert list(tmp_path.rglob("*")) == []
@@ -218,6 +244,7 @@ def test_matrix_dry_run_then_real_install(tmp_path: Path) -> None:
 
 
 # --- MCP (AJ): config entry + honest codex note ---------------------------
+
 
 def test_matrix_mcp_config_and_handshake_entry(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude")
@@ -237,24 +264,22 @@ def test_matrix_no_secrets_in_receipt_or_ledger(tmp_path: Path) -> None:
     state = tmp_path / ".data-sentinel/install"
     for f in state.rglob("*"):
         if f.is_file():
-            assert not _SECRET_RE.search(
-                f.read_text(encoding="utf-8", errors="replace")
-            ), f
+            assert not _SECRET_RE.search(f.read_text(encoding="utf-8", errors="replace")), f
 
 
 # --- Forge CLI discovery (AA) ---------------------------------------------
 
+
 def test_matrix_forge_manifests_present_and_valid() -> None:
     root = Path(__file__).resolve().parents[2]
     plain = json.loads((root / "forge.json").read_text(encoding="utf-8"))
-    agentic = json.loads(
-        (root / "forge.agentic.json").read_text(encoding="utf-8")
-    )
+    agentic = json.loads((root / "forge.agentic.json").read_text(encoding="utf-8"))
     assert plain.get("forge_id") == "data-sentinel-forge" or plain.get("id")
     assert agentic["schema"] == "forge/SpecialistAgenticManifest/v1"
 
 
 # --- environment (AH) -----------------------------------------------------
+
 
 def test_matrix_env_report_no_tty(tmp_path: Path) -> None:
     doc = _lifecycle(tmp_path, "env")
@@ -265,9 +290,8 @@ def test_matrix_env_report_no_tty(tmp_path: Path) -> None:
 
 # --- security gates §14 P0 ------------------------------------------------
 
-def test_p0_traversal_asset_path_refused(
-    tmp_path: Path, monkeypatch
-) -> None:
+
+def test_p0_traversal_asset_path_refused(tmp_path: Path, monkeypatch) -> None:
     """A rendered path escaping the scope root must refuse, never write."""
     import data_sentinel.installation.assets as assets_mod
 
@@ -281,8 +305,11 @@ def test_p0_traversal_asset_path_refused(
     )
     with pytest.raises(service.kit.InstallError, match="VERIFY"):
         service.install(
-            host="claude", scope="project", root=tmp_path,
-            profile="recommended", yes=True,
+            host="claude",
+            scope="project",
+            root=tmp_path,
+            profile="recommended",
+            yes=True,
         )
     assert not (tmp_path / "escape.txt").exists()
     assert not (tmp_path.parent / "escape.txt").exists()
@@ -292,17 +319,26 @@ def test_p0_dry_run_creates_no_state(tmp_path: Path) -> None:
     """Dry-run must not create state dir, locks, receipts or any file."""
     runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path),
-         "--host", "all", "--profile", "full", "--dry-run"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--host",
+            "all",
+            "--profile",
+            "full",
+            "--dry-run",
+        ],
     )
     assert list(tmp_path.rglob("*")) == []
 
 
 # --- review findings (ds-0118 independent review) ---------------------------
 
-def test_h1_user_purge_preserves_runtime_state(
-    tmp_path: Path, monkeypatch
-) -> None:
+
+def test_h1_user_purge_preserves_runtime_state(tmp_path: Path, monkeypatch) -> None:
     """--scope user --purge must never delete ~/.data-sentinel/sentinel.db."""
     fake_home = tmp_path / "home"
     fake_home.mkdir()
@@ -316,9 +352,7 @@ def test_h1_user_purge_preserves_runtime_state(
     runtime = fake_home / ".data-sentinel"
     (runtime / "sentinel.db").write_text("db", encoding="utf-8")
     (runtime / "session-token").write_text("tok", encoding="utf-8")
-    out = runner.invoke(
-        app, ["install", "uninstall", "--scope", "user", "--yes", "--purge"]
-    )
+    out = runner.invoke(app, ["install", "uninstall", "--scope", "user", "--yes", "--purge"])
     assert out.exit_code == 0, out.output
     assert (runtime / "sentinel.db").read_text() == "db"
     assert (runtime / "session-token").read_text() == "tok"
@@ -326,9 +360,7 @@ def test_h1_user_purge_preserves_runtime_state(
 
 def test_m9_uninstall_needs_yes_non_tty(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude")
-    result = runner.invoke(
-        app, ["install", "uninstall", "--root", str(tmp_path)]
-    )
+    result = runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path)])
     assert result.exit_code == 2
     assert "--yes" in result.output
 
@@ -337,8 +369,7 @@ def test_m9_uninstall_dry_run_lists_owned_paths(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude")
     result = runner.invoke(
         app,
-        ["install", "uninstall", "--root", str(tmp_path),
-         "--dry-run", "--json"],
+        ["install", "uninstall", "--root", str(tmp_path), "--dry-run", "--json"],
     )
     assert result.exit_code == 0
     doc = json.loads(result.output)
@@ -351,8 +382,17 @@ def test_m5_malformed_mcp_json_fails_install(tmp_path: Path) -> None:
     (tmp_path / ".mcp.json").write_text("{not json", encoding="utf-8")
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
-         "--host", "claude", "--json"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--yes",
+            "--host",
+            "claude",
+            "--json",
+        ],
     )
     assert result.exit_code == 1
     doc = json.loads(result.output)
@@ -362,16 +402,23 @@ def test_m5_malformed_mcp_json_fails_install(tmp_path: Path) -> None:
 def test_m4_dry_run_shows_mcp_merge(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path),
-         "--host", "claude", "--dry-run", "--json"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--host",
+            "claude",
+            "--dry-run",
+            "--json",
+        ],
     )
     doc = json.loads(result.output)
     assert doc["planned_mcp"]["server"] == "data-sentinel"
 
 
-def test_m3_uninstall_deregisters_forge_registry(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_m3_uninstall_deregisters_forge_registry(tmp_path: Path, monkeypatch) -> None:
     fake_home = tmp_path / "forge-home"
     monkeypatch.setenv("FORGE_HOME_OVERRIDE", str(fake_home))
     reg = fake_home / ".forge/installations/data-sentinel-forge.json"
@@ -384,8 +431,17 @@ def test_m3_uninstall_deregisters_forge_registry(
 def test_host_none_installs_markers_only(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--scope", "project", "--root", str(tmp_path), "--yes",
-         "--host", "none", "--json"],
+        [
+            "install",
+            "--scope",
+            "project",
+            "--root",
+            str(tmp_path),
+            "--yes",
+            "--host",
+            "none",
+            "--json",
+        ],
     )
     assert result.exit_code == 0
     assert not list(tmp_path.rglob("SKILL.md"))
@@ -409,9 +465,7 @@ def test_env_report_hosts_signals_well_formed(tmp_path: Path) -> None:
     assert set(hosts) == {"claude", "devin", "codex", "copilot", "cursor"}
     for signals in hosts.values():
         assert isinstance(signals, list)
-        assert all(
-            s.startswith("dir:") or s.startswith("bin:") for s in signals
-        )
+        assert all(s.startswith("dir:") or s.startswith("bin:") for s in signals)
     assert "dir:.claude" in hosts["claude"]
     assert "dir:.agents" in hosts["devin"]
     assert "dir:.agents" in hosts["codex"]
@@ -429,12 +483,11 @@ def test_interactive_components_real_names(monkeypatch, capsys) -> None:
     from data_sentinel.cli import install as install_cli
 
     monkeypatch.setattr(
-        _sys, "stdin",
+        _sys,
+        "stdin",
         _Tty("project\nclaude\nrecommended\nbalanced\nskills\n"),
     )
-    *_, components = install_cli._interactive_flow(
-        None, None, None, None, None
-    )
+    *_, components = install_cli._interactive_flow(None, None, None, None, None)
     assert components == "skills"
     out = capsys.readouterr().out
     assert "host-config" not in out and "tui" in out

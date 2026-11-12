@@ -65,9 +65,7 @@ class TestStructuredMetadata:
 
     def test_costly_candidates_listed(self) -> None:
         result = _analyze("unfiltered.sql")
-        assert "unfiltered-scan" in (
-            result.metadata["queries"][0]["costly_operation_candidates"]
-        )
+        assert "unfiltered-scan" in (result.metadata["queries"][0]["costly_operation_candidates"])
 
 
 class TestNewChecks:
@@ -89,9 +87,7 @@ class TestNewChecks:
 
     def test_reused_key_fanout_hint(self) -> None:
         result = _analyze("multi_join.sql")
-        assert any(
-            "reutilizada" in f.explanation for f in result.findings
-        )
+        assert any("reutilizada" in f.explanation for f in result.findings)
 
     def test_select_star_suppressed_in_exists(self) -> None:
         result = _analyze("legit_exists_star.sql")
@@ -111,11 +107,7 @@ class TestSemanticSafety:
         result = _analyze("multi_join.sql")
         flagged = [f for f in result.findings if f.recommendations]
         assert flagged
-        assert any(
-            SEMANTIC_CHECKLIST in r
-            for f in flagged
-            for r in f.recommendations
-        )
+        assert any(SEMANTIC_CHECKLIST in r for f in flagged for r in f.recommendations)
 
 
 class TestDialectEngine:
@@ -154,6 +146,4 @@ class TestSelectivity:
             result = _analyze("_tmp_sel.sql", "stats_selectivity.json")
         finally:
             f.unlink()
-        assert any(
-            "pouco seletivo" in x.explanation for x in result.findings
-        )
+        assert any("pouco seletivo" in x.explanation for x in result.findings)

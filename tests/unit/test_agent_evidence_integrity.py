@@ -17,10 +17,22 @@ FIXTURES = ROOT / "fixtures"
 SRC = ROOT / "src" / "data_sentinel"
 
 _LLM_IMPORTS = {
-    "openai", "anthropic", "litellm", "langchain", "langchain_core",
-    "langchain_community", "ollama", "cohere", "mistralai",
-    "google.generativeai", "vertexai", "bedrock", "transformers",
-    "sentence_transformers", "instructor", "guidance",
+    "openai",
+    "anthropic",
+    "litellm",
+    "langchain",
+    "langchain_core",
+    "langchain_community",
+    "ollama",
+    "cohere",
+    "mistralai",
+    "google.generativeai",
+    "vertexai",
+    "bedrock",
+    "transformers",
+    "sentence_transformers",
+    "instructor",
+    "guidance",
 }
 
 
@@ -29,39 +41,40 @@ def test_investigation_evidence_refs_resolve() -> None:
     a real Evidence in rep.evidence — never a dangling pointer."""
     rep = investigate(
         "analise o plano spark e a query",
-        {"sentinel.spark.analyze_plan":
-         str(FIXTURES / "plans/sort_merge_join.txt"),
-         "sentinel.sql.analyze":
-         str(FIXTURES / "sql/implicit_join.sql")})
+        {
+            "sentinel.spark.analyze_plan": str(FIXTURES / "plans/sort_merge_join.txt"),
+            "sentinel.sql.analyze": str(FIXTURES / "sql/implicit_join.sql"),
+        },
+    )
     known = {e.evidence_id for e in rep.evidence}
     dangling: list[str] = []
     for f in rep.findings:
-        dangling.extend(
-            f"{f.finding_id}:{eid}" for eid in f.evidence_ids
-            if eid not in known)
+        dangling.extend(f"{f.finding_id}:{eid}" for eid in f.evidence_ids if eid not in known)
     for h in rep.hypotheses_supported + rep.hypotheses_refuted:
         dangling.extend(
-            f"{h.hypothesis_id}:{eid}" for eid in h.supporting_evidence
-            if eid not in known)
+            f"{h.hypothesis_id}:{eid}" for eid in h.supporting_evidence if eid not in known
+        )
         dangling.extend(
-            f"{h.hypothesis_id}:{eid}" for eid in h.contradicting_evidence
-            if eid not in known)
+            f"{h.hypothesis_id}:{eid}" for eid in h.contradicting_evidence if eid not in known
+        )
     assert not dangling, f"evidence refs não resolvidas: {dangling}"
 
 
 def test_confirmed_findings_have_resolvable_evidence() -> None:
     """CONFIRMED sem evidência resolvível é proibido (§4)."""
     from data_sentinel.core.contracts.enums import FindingStatus
+
     rep = investigate(
         "analise o plano",
-        {"sentinel.spark.analyze_plan":
-         str(FIXTURES / "plans/sort_merge_join.txt")})
+        {"sentinel.spark.analyze_plan": str(FIXTURES / "plans/sort_merge_join.txt")},
+    )
     known = {e.evidence_id for e in rep.evidence}
     bad = [
-        f.finding_id for f in rep.findings
+        f.finding_id
+        for f in rep.findings
         if f.status == FindingStatus.CONFIRMED
-        and (not f.evidence_ids
-             or any(e not in known for e in f.evidence_ids))]
+        and (not f.evidence_ids or any(e not in known for e in f.evidence_ids))
+    ]
     assert not bad, f"CONFIRMED sem evidência resolvível: {bad}"
 
 

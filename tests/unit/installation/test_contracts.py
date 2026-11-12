@@ -79,8 +79,7 @@ def test_foreign_file_refused_in_plan(tmp_path: Path) -> None:
 
 def test_dry_run_writes_nothing(tmp_path: Path) -> None:
     before = {p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*")}
-    receipt = service.install(host="claude", scope="project", root=tmp_path,
-                              dry_run=True)
+    receipt = service.install(host="claude", scope="project", root=tmp_path, dry_run=True)
     after = {p.relative_to(tmp_path).as_posix() for p in tmp_path.rglob("*")}
     assert before == after
     assert receipt["status"] == "planned"
@@ -103,10 +102,8 @@ def test_install_creates_managed_files_and_ledger(tmp_path: Path) -> None:
     ledger = load_ledger(tmp_path)
     # Consumer docs are forge_context-owned — never ledger entries.
     assert not ledger.is_managed(Path("AGENTS.md"), tmp_path)
-    registry = json.loads(
-        (tmp_path / ".forge/context/registry.json").read_text())
-    assert any(
-        f["forge_id"] == "data-sentinel-forge" for f in registry["forges"])
+    registry = json.loads((tmp_path / ".forge/context/registry.json").read_text())
+    assert any(f["forge_id"] == "data-sentinel-forge" for f in registry["forges"])
     # receipt written under state dir
     assert list((tmp_path / ".data-sentinel/install").glob("receipts/*.json"))
 
@@ -138,9 +135,14 @@ def test_corrupt_ledger_errors(tmp_path: Path) -> None:
 
 def test_receipt_rejects_secrets() -> None:
     receipt = InstallReceipt(
-        installation_id="i1", plan_id="p" * 16, timestamp=datetime.now(UTC),
-        version="0.1.0", source_method="git", scope=InstallScope.PROJECT,
-        host="claude", profile=InstallProfile.MINIMAL,
+        installation_id="i1",
+        plan_id="p" * 16,
+        timestamp=datetime.now(UTC),
+        version="0.1.0",
+        source_method="git",
+        scope=InstallScope.PROJECT,
+        host="claude",
+        profile=InstallProfile.MINIMAL,
         validation=["token=sk-abc"],
     )
     with pytest.raises(SentinelError, match="secret"):

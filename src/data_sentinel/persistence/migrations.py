@@ -13,9 +13,7 @@ _MIGRATION_NAME = re.compile(r"^\d{4}_.+\.sql$")
 
 def _migration_files() -> list[Path]:
     return sorted(
-        p
-        for p in MIGRATIONS_DIR.iterdir()
-        if p.is_file() and _MIGRATION_NAME.match(p.name)
+        p for p in MIGRATIONS_DIR.iterdir() if p.is_file() and _MIGRATION_NAME.match(p.name)
     )
 
 
@@ -26,8 +24,7 @@ def apply_migrations(conn: sqlite3.Connection) -> list[str]:
         "version TEXT PRIMARY KEY, applied_at TEXT NOT NULL)"
     )
     applied: set[str] = {
-        row[0]
-        for row in conn.execute("SELECT version FROM schema_migrations").fetchall()
+        row[0] for row in conn.execute("SELECT version FROM schema_migrations").fetchall()
     }
     new_versions: list[str] = []
     for path in _migration_files():

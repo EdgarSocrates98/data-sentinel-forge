@@ -49,9 +49,7 @@ class CloudWatchLogAnalyzer(SparkGlueLogAnalyzer):
             "timestamps só entram na timeline quando observados no texto",
         )
 
-    def analyze(
-        self, request: DiagnosticRequest, inputs: Sequence[InputFile]
-    ) -> AnalysisResult:
+    def analyze(self, request: DiagnosticRequest, inputs: Sequence[InputFile]) -> AnalysisResult:
         started = time.monotonic()
         result = super().analyze(request, inputs)
         text = "\n".join(i.text for i in inputs)
@@ -60,9 +58,7 @@ class CloudWatchLogAnalyzer(SparkGlueLogAnalyzer):
         correlation = correlate(parsed)
         timeline = build_timeline(parsed, only_exceptions=False)
 
-        secondary_lines = {
-            e.line_no for inc in correlation.incidents for e in inc.secondary
-        }
+        secondary_lines = {e.line_no for inc in correlation.incidents for e in inc.secondary}
         evidence_line_by_id = {
             ev.evidence_id: _evidence_line(ev.source_location) for ev in result.evidence
         }

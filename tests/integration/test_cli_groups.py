@@ -34,16 +34,21 @@ class TestSparkExplain:
     def test_explain_markdown(self) -> None:
         r = runner.invoke(
             app,
-            ["spark", "explain", "--file", str(PLANS / "cartesian.txt"), "--no-persist",
-             "--format", "markdown"],
+            [
+                "spark",
+                "explain",
+                "--file",
+                str(PLANS / "cartesian.txt"),
+                "--no-persist",
+                "--format",
+                "markdown",
+            ],
         )
         assert r.exit_code == 0
         assert "## Sumário executivo" in r.stdout
 
     def test_explain_bad_file(self) -> None:
-        r = runner.invoke(
-            app, ["spark", "explain", "--file", "/nonexistent/plan.txt"]
-        )
+        r = runner.invoke(app, ["spark", "explain", "--file", "/nonexistent/plan.txt"])
         assert r.exit_code == 1
 
 
@@ -59,8 +64,16 @@ class TestSqlAnalyze:
     def test_sql_dialect(self) -> None:
         r = runner.invoke(
             app,
-            ["sql", "analyze", "--file", str(SQL / "athena_query.sql"),
-             "--dialect", "trino", "--no-persist", "--json"],
+            [
+                "sql",
+                "analyze",
+                "--file",
+                str(SQL / "athena_query.sql"),
+                "--dialect",
+                "trino",
+                "--no-persist",
+                "--json",
+            ],
         )
         assert r.exit_code == 0
         assert json.loads(r.stdout)["findings"] is not None
@@ -71,9 +84,12 @@ class TestSparkOptimize:
         r = runner.invoke(
             app,
             [
-                "spark", "optimize",
-                "--sql", str(ROOT / "fixtures" / "joins" / "high_volume_4tables.sql"),
-                "--stats", str(ROOT / "fixtures" / "joins" / "stats_4tables_unique.json"),
+                "spark",
+                "optimize",
+                "--sql",
+                str(ROOT / "fixtures" / "joins" / "high_volume_4tables.sql"),
+                "--stats",
+                str(ROOT / "fixtures" / "joins" / "stats_4tables_unique.json"),
                 "--no-persist",
             ],
         )
@@ -86,8 +102,15 @@ class TestReportShow:
         out = tmp_path / "r.json"
         runner.invoke(
             app,
-            ["spark", "explain", "--file", str(PLANS / "cartesian.txt"),
-             "--output", str(out), "--no-persist"],
+            [
+                "spark",
+                "explain",
+                "--file",
+                str(PLANS / "cartesian.txt"),
+                "--output",
+                str(out),
+                "--no-persist",
+            ],
         )
         r = runner.invoke(app, ["report", "show", "--file", str(out)])
         assert r.exit_code == 0 and "relatório" in r.stdout
@@ -96,8 +119,15 @@ class TestReportShow:
         out = tmp_path / "r.json"
         runner.invoke(
             app,
-            ["spark", "explain", "--file", str(PLANS / "cartesian.txt"),
-             "--output", str(out), "--no-persist"],
+            [
+                "spark",
+                "explain",
+                "--file",
+                str(PLANS / "cartesian.txt"),
+                "--output",
+                str(out),
+                "--no-persist",
+            ],
         )
         r = runner.invoke(app, ["report", "show", "--file", str(out), "--format", "markdown"])
         assert "## Achados" in r.stdout
@@ -106,8 +136,15 @@ class TestReportShow:
         out = tmp_path / "r.json"
         runner.invoke(
             app,
-            ["spark", "explain", "--file", str(PLANS / "cartesian.txt"),
-             "--output", str(out), "--no-persist"],
+            [
+                "spark",
+                "explain",
+                "--file",
+                str(PLANS / "cartesian.txt"),
+                "--output",
+                str(out),
+                "--no-persist",
+            ],
         )
         r = runner.invoke(app, ["report", "--input", str(out)])
         assert r.exit_code == 0 and "relatório" in r.stdout
@@ -115,9 +152,7 @@ class TestReportShow:
 
 class TestGlueOfflineBehavior:
     def test_diagnose_dry_run(self) -> None:
-        r = runner.invoke(
-            app, ["glue", "diagnose", "--job", "demo", "--dry-run"]
-        )
+        r = runner.invoke(app, ["glue", "diagnose", "--job", "demo", "--dry-run"])
         assert r.exit_code == 0
         assert "dry-run" in r.stdout
         assert "read-only" in r.stdout

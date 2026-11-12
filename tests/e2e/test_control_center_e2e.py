@@ -37,23 +37,28 @@ AUTH = {"Authorization": f"Bearer {TEST_TOKEN}"}
 @pytest.fixture(scope="module")
 def server(tmp_path_factory: pytest.TempPathFactory) -> str:
     import os
+
     db = tmp_path_factory.mktemp("db") / "e2e.db"
     port = _free_port()
     env = dict(os.environ, DATA_SENTINEL_TOKEN=TEST_TOKEN)
     proc = subprocess.Popen(  # noqa: S603 - local test server
-        [sys.executable, "-c",
-         "import uvicorn; from data_sentinel.api import create_app;"
-         f"uvicorn.run(create_app("
-         f"allowed_roots=['{FIXTURES.as_posix()}'],"
-         f" db_path='{db.as_posix()}'),"
-         f" host='127.0.0.1', port={port}, log_level='error')"],
-        cwd=ROOT, env=env)
+        [
+            sys.executable,
+            "-c",
+            "import uvicorn; from data_sentinel.api import create_app;"
+            f"uvicorn.run(create_app("
+            f"allowed_roots=['{FIXTURES.as_posix()}'],"
+            f" db_path='{db.as_posix()}'),"
+            f" host='127.0.0.1', port={port}, log_level='error')",
+        ],
+        cwd=ROOT,
+        env=env,
+    )
     base = f"http://127.0.0.1:{port}"
     try:
         for _ in range(100):
             try:
-                if httpx.get(f"{base}/api/v1/health",
-                             timeout=0.5).status_code == 200:
+                if httpx.get(f"{base}/api/v1/health", timeout=0.5).status_code == 200:
                     break
             except httpx.TransportError:
                 time.sleep(0.1)
@@ -75,9 +80,11 @@ def test_e2e_real_server_investigation_flow(server: str) -> None:
     assert any(c["capability_id"] == "sentinel.emr.ec2" for c in caps)
     # B: create investigation referencing a real fixture via a real tool
     sql = FIXTURES / "sql" / "cycle2" / "cast_keys.sql"
-    r = httpx.post(f"{base}/investigations", headers=AUTH, json={
-        "problem": "SQL join explosion risk",
-        "files": {"sentinel.sql.analyze": str(sql)}})
+    r = httpx.post(
+        f"{base}/investigations",
+        headers=AUTH,
+        json={"problem": "SQL join explosion risk", "files": {"sentinel.sql.analyze": str(sql)}},
+    )
     assert r.status_code == 201
     inv_id = r.json()["investigation_id"]
     for _ in range(100):
@@ -98,7 +105,6 @@ def test_e2e_real_server_investigation_flow(server: str) -> None:
 
 def test_e2e_real_server_analyze(server: str) -> None:
     sql = FIXTURES / "sql" / "cycle2" / "cast_keys.sql"
-    r = httpx.post(f"{server}/api/v1/analyze/sql.analyze",
-                   headers=AUTH, json={"file": str(sql)})
+    r = httpx.post(f"{server}/api/v1/analyze/sql.analyze", headers=AUTH, json={"file": str(sql)})
     assert r.status_code == 200
     assert r.json()["findings"]

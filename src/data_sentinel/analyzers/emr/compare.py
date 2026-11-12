@@ -12,8 +12,7 @@ from dataclasses import dataclass, field
 
 from data_sentinel.core.contracts.emr import EMRExecutionContext, EMRResourceObservation
 
-_COMPARABLE = {"duration_ms", "vcpu_hours", "memory_gb_hours",
-               "shuffle_gb", "spill_gb", "gc_ms"}
+_COMPARABLE = {"duration_ms", "vcpu_hours", "memory_gb_hours", "shuffle_gb", "spill_gb", "gc_ms"}
 
 
 @dataclass
@@ -31,20 +30,22 @@ class SparkComparison:
     verdict: str = ""
 
     def to_dict(self) -> dict[str, object]:
-        return {"notes": [n.__dict__ for n in self.notes],
-                "limitations": self.limitations,
-                "verdict": self.verdict}
+        return {
+            "notes": [n.__dict__ for n in self.notes],
+            "limitations": self.limitations,
+            "verdict": self.verdict,
+        }
 
 
-def compare(contexts: list[EMRExecutionContext],
-            observations: list[EMRResourceObservation]
-            ) -> SparkComparison:
+def compare(
+    contexts: list[EMRExecutionContext], observations: list[EMRResourceObservation]
+) -> SparkComparison:
     """Pair contexts[i] with observations[i]; compare honest metrics."""
     res = SparkComparison()
     if len(contexts) != len(observations):
         res.limitations.append(
-            "contextos e observações não pareados — comparação "
-            "recusada em vez de inventar")
+            "contextos e observações não pareados — comparação recusada em vez de inventar"
+        )
         return res
     if len(contexts) < 2:
         res.limitations.append("menos de 2 execuções — nada a comparar")
@@ -68,20 +69,29 @@ def compare(contexts: list[EMRExecutionContext],
         if len(per) < 2:
             continue
         comparable = len(units) <= 1
-        res.notes.append(ComparisonNote(
-            metric=name, per_platform=per, comparable=comparable,
-            caveat=("" if comparable else
-                    f"unidades divergentes {sorted(units)} — não "
-                    "comparar diretamente")))
+        res.notes.append(
+            ComparisonNote(
+                metric=name,
+                per_platform=per,
+                comparable=comparable,
+                caveat=(
+                    ""
+                    if comparable
+                    else f"unidades divergentes {sorted(units)} — não comparar diretamente"
+                ),
+            )
+        )
 
     diff_spark = len(set(versions)) > 1
     if diff_spark:
         res.limitations.append(
             f"versões Spark divergentes {sorted(set(versions))} — "
-            "diferenças podem ser da versão, não da modalidade")
+            "diferenças podem ser da versão, não da modalidade"
+        )
     res.verdict = (
         "comparação parcial — workload, versão e recursos não "
         "controlados; NÃO concluir superioridade de modalidade"
-        if res.notes else
-        "sem métricas comparáveis — nenhuma conclusão")
+        if res.notes
+        else "sem métricas comparáveis — nenhuma conclusão"
+    )
     return res

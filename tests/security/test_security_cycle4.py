@@ -13,8 +13,7 @@ from data_sentinel.quality import ContractFormatError, normalize, parse_contract
 def test_yaml_python_object_payload_blocked(tmp_path: Path) -> None:
     """unsafe YAML tags must never construct objects / run code."""
     marker = tmp_path / "pwned"
-    payload = ("dataset: !!python/object/apply:os.system "
-               "['touch " + str(marker) + "']")
+    payload = "dataset: !!python/object/apply:os.system ['touch " + str(marker) + "']"
     with pytest.raises(ContractFormatError):
         parse_contract_text(payload)
     assert not marker.exists()
@@ -26,8 +25,7 @@ def test_oversized_contract_rejected() -> None:
 
 
 def test_rule_count_bounded() -> None:
-    rules = "\n".join(f" - {{id: r{i}, type: completeness, column: c}}"
-                      for i in range(6_000))
+    rules = "\n".join(f" - {{id: r{i}, type: completeness, column: c}}" for i in range(6_000))
     with pytest.raises(ContractFormatError, match="regras"):
         parse_contract_text(f"dataset: a.b\nrules:\n{rules}")
 
@@ -35,16 +33,17 @@ def test_rule_count_bounded() -> None:
 def test_no_eval_in_params() -> None:
     """arbitrary params are stored as data, never evaluated."""
     c = parse_contract_text(
-        'dataset: a.b\nrules:\n - {id: r, type: custom, '
-        'expression: "__import__(chr(111)+chr(115)).system()"}\n')
-    assert c.quality_rules[0].parameters["expression"].startswith(
-        "__import__")
+        "dataset: a.b\nrules:\n - {id: r, type: custom, "
+        'expression: "__import__(chr(111)+chr(115)).system()"}\n'
+    )
+    assert c.quality_rules[0].parameters["expression"].startswith("__import__")
     # survived as inert string — no code path evaluates it
 
 
 def test_adapter_input_bounded() -> None:
-    obs = normalize("[" + ",".join('{"rule_id":"r"}' for _ in range(0)) +
-                    "]", adapter="sql_results")
+    obs = normalize(
+        "[" + ",".join('{"rule_id":"r"}' for _ in range(0)) + "]", adapter="sql_results"
+    )
     assert obs == []
 
 
@@ -64,8 +63,12 @@ def test_no_network_calls_in_quality_import() -> None:
         "from data_sentinel.quality import normalize\n"
         "obs = normalize(json.dumps({'results':[{'rule_id':'r',"
         "'value':1,'status':'PASS'}]}), adapter='sql_results')\n"
-        "assert len(obs) == 1\n")
-    out = subprocess.run([sys.executable, "-c", code],  # noqa: S603
-                         capture_output=True, text=True,
-                         cwd=Path(__file__).parent.parent.parent)
+        "assert len(obs) == 1\n"
+    )
+    out = subprocess.run(
+        [sys.executable, "-c", code],  # noqa: S603
+        capture_output=True,
+        text=True,
+        cwd=Path(__file__).parent.parent.parent,
+    )
     assert out.returncode == 0, out.stderr

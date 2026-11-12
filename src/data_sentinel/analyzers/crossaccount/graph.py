@@ -53,8 +53,9 @@ class PermissionsGraph:
             self.nodes[node_id] = Node(node_id=node_id, kind=kind)
         return self.nodes.get(node_id) or Node("", kind)
 
-    def add_edge(self, src: str, dst: str, t: EdgeType,
-                 prov: EdgeProvenance, note: str = "") -> None:
+    def add_edge(
+        self, src: str, dst: str, t: EdgeType, prov: EdgeProvenance, note: str = ""
+    ) -> None:
         if src and dst:
             self.edges.append(Edge(src, dst, t, prov, note))
 
@@ -68,8 +69,13 @@ class PermissionsGraph:
         return {
             "nodes": [{"id": n.node_id, "kind": n.kind} for n in self.nodes.values()],
             "edges": [
-                {"src": e.src, "dst": e.dst, "type": e.edge_type.value,
-                 "provenance": e.provenance.value, "note": e.note}
+                {
+                    "src": e.src,
+                    "dst": e.dst,
+                    "type": e.edge_type.value,
+                    "provenance": e.provenance.value,
+                    "note": e.note,
+                }
                 for e in self.edges
             ],
         }

@@ -11,8 +11,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-OUT = (Path(__file__).resolve().parents[2] / "docs" / "evaluations"
-       / "cycle8-results.json")
+OUT = Path(__file__).resolve().parents[2] / "docs" / "evaluations" / "cycle8-results.json"
 
 
 def test_cycle8_eval_measured() -> None:
@@ -31,8 +30,7 @@ def test_cycle8_eval_measured() -> None:
     assert len({r["scenario_id"] for r in result["scenarios"]}) == 31
     # latency really measured for every scenario
     for r in result["scenarios"]:
-        assert r["latency_ms"] >= 0 and r["verdict"] in {
-            "tp", "fp", "fn", "tn", "delegated"}
+        assert r["latency_ms"] >= 0 and r["verdict"] in {"tp", "fp", "fn", "tn", "delegated"}
     assert OUT.exists()
     on_disk = json.loads(OUT.read_text(encoding="utf-8"))
     assert on_disk["totals"] == t

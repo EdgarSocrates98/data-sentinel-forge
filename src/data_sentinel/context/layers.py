@@ -68,7 +68,7 @@ def _preserve(text: str, limit: int = MAX_EVIDENCE_CHARS) -> tuple[str, bool]:
 def build_context(
     *,
     problem: str,
-    evidence: list[tuple[str, str]] | None = None,   # (text, provenance)
+    evidence: list[tuple[str, str]] | None = None,  # (text, provenance)
     knowledge: list[tuple[str, str]] | None = None,
     constraints: list[str] | None = None,
     history: list[str] | None = None,
@@ -83,22 +83,21 @@ def build_context(
     ctx = LayeredContext()
     budget = TokenBudget(limit=token_limit)
 
-    def _add(layer: ContextLayer, text: str, prov: str = "",
-             essential: bool = False) -> None:
+    def _add(layer: ContextLayer, text: str, prov: str = "", essential: bool = False) -> None:
         t = estimate_tokens(text)
         if not budget.try_spend(t, label=prov or layer.name):
             if essential:
                 # shrink to fit instead of dropping
-                shrunk, _ = _preserve(
-                    text, max(200, budget.remaining * 4))
+                shrunk, _ = _preserve(text, max(200, budget.remaining * 4))
                 t2 = estimate_tokens(shrunk)
                 if budget.try_spend(t2, label=prov or layer.name):
-                    ctx.chunks.append(ContextChunk(
-                        layer=layer, text=shrunk, provenance=prov,
-                        truncated=True, tokens=t2))
+                    ctx.chunks.append(
+                        ContextChunk(
+                            layer=layer, text=shrunk, provenance=prov, truncated=True, tokens=t2
+                        )
+                    )
             return
-        ctx.chunks.append(ContextChunk(
-            layer=layer, text=text, provenance=prov, tokens=t))
+        ctx.chunks.append(ContextChunk(layer=layer, text=text, provenance=prov, tokens=t))
 
     _add(ContextLayer.PROBLEM, problem, essential=True)
     for text, prov in evidence or []:

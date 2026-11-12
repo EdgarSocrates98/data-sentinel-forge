@@ -70,8 +70,7 @@ class IamPolicyAnalyzer(Analyzer):
             "padrão; suas limitações (resource policies, SCPs, contexto "
             "de sessão, Lake Formation) estão documentadas — simulação "
             "não é validação real",
-            "Conditions de policy não são avaliadas — Allow condicional "
-            "permanece hipótese",
+            "Conditions de policy não são avaliadas — Allow condicional permanece hipótese",
             "Decrypt nunca é executado como teste",
         )
 
@@ -99,8 +98,9 @@ class IamPolicyAnalyzer(Analyzer):
         for input_file in inputs:
             digest = hashlib.sha256(input_file.text.encode()).hexdigest()
 
-            def _ev(snippet: str, conf: float = 0.7,
-                    _p: str = str(input_file.path), _d: str = digest) -> Evidence:
+            def _ev(
+                snippet: str, conf: float = 0.7, _p: str = str(input_file.path), _d: str = digest
+            ) -> Evidence:
                 ev = Evidence(
                     source="policy_doc",
                     source_location=_p,
@@ -155,7 +155,8 @@ class IamPolicyAnalyzer(Analyzer):
     # ------------------------------------------------------------------
 
     def _load(
-        self, f: InputFile,
+        self,
+        f: InputFile,
     ) -> tuple[list[PolicyDoc], list[dict[str, object]], dict[str, object] | None, str | None]:
         """→ (docs, eval_queries, ctx, error)."""
         try:
@@ -182,21 +183,21 @@ class IamPolicyAnalyzer(Analyzer):
                 docs.append(parse_policy(json.dumps(doc), name=name))
             except PolicyParseError as exc:
                 return [], [], None, str(exc)
-        evals = [q for q in raw.get("evaluate", []) if isinstance(q, dict)
-                 and q.get("action")]
+        evals = [q for q in raw.get("evaluate", []) if isinstance(q, dict) and q.get("action")]
         ctx = raw.get("context") if isinstance(raw.get("context"), dict) else None
         return docs, evals, ctx, None
 
     def _static(
-        self, docs: list[PolicyDoc], _ev: _EvFn,
-        findings: list[Finding], limitations: list[str],
+        self,
+        docs: list[PolicyDoc],
+        _ev: _EvFn,
+        findings: list[Finding],
+        limitations: list[str],
     ) -> None:
         for d in docs:
-            allows_wild = [s for s in d.statements
-                           if s.effect == "Allow" and "*" in s.actions]
+            allows_wild = [s for s in d.statements if s.effect == "Allow" and "*" in s.actions]
             denies = [s for s in d.statements if s.effect == "Deny"]
-            cond_allows = [s for s in d.statements
-                           if s.effect == "Allow" and s.conditions]
+            cond_allows = [s for s in d.statements if s.effect == "Allow" and s.conditions]
             if allows_wild:
                 ev = _ev(f"{d.name}: {len(allows_wild)} Allow(s) com Action='*'")
                 findings.append(
@@ -214,18 +215,22 @@ class IamPolicyAnalyzer(Analyzer):
                     )
                 )
             if cond_allows:
-                _ev(f"{d.name}: {len(cond_allows)} Allow(s) condicionais "
+                _ev(
+                    f"{d.name}: {len(cond_allows)} Allow(s) condicionais "
                     f"({[sorted(s.conditions) for s in cond_allows][:3]})",
-                    conf=0.6)
+                    conf=0.6,
+                )
             if not denies and not allows_wild:
                 limitations.append(
-                    f"{d.name}: sem Deny explícito nem wildcard — cobertura "
-                    "aparentemente mínima"
+                    f"{d.name}: sem Deny explícito nem wildcard — cobertura aparentemente mínima"
                 )
 
     def _context(
-        self, ctx: dict[str, object], _ev: _EvFn,
-        findings: list[Finding], limitations: list[str],
+        self,
+        ctx: dict[str, object],
+        _ev: _EvFn,
+        findings: list[Finding],
+        limitations: list[str],
     ) -> None:
         """S3/KMS declared context — hypotheses only, no calls."""
         bucket = ctx.get("bucket")
@@ -234,29 +239,28 @@ class IamPolicyAnalyzer(Analyzer):
             and bucket.get("cross_account")
             and not bucket.get("policy_visible")
         ):
-                findings.append(
+            findings.append(
                 Finding(
                     category=FindingCategory.PERMISSIONS,
                     severity=Severity.MEDIUM,
                     status=FindingStatus.UNKNOWN,
                     explanation=(
                         f"Bucket cross-account '{bucket.get('name', '?')}' "
-                            "sem bucket policy visível — ownership/policy/"
-                            "Object Ownership não verificáveis."
-                        ),
-                        recommendations=[
-                            "Exportar GetBucketPolicy/GetBucketAcl da conta "
-                            "proprietária para verificar grants."
-                        ],
-                    )
+                        "sem bucket policy visível — ownership/policy/"
+                        "Object Ownership não verificáveis."
+                    ),
+                    recommendations=[
+                        "Exportar GetBucketPolicy/GetBucketAcl da conta "
+                        "proprietária para verificar grants."
+                    ],
                 )
+            )
         kms = ctx.get("kms")
         if isinstance(kms, dict):
             src, dst = kms.get("source_key"), kms.get("dest_key")
             if src and dst and src != dst:
                 ev = _ev(
-                    f"KMS source key {src[:50]} != dest key {dst[:50]} — "
-                    "cenário de duas chaves",
+                    f"KMS source key {src[:50]} != dest key {dst[:50]} — cenário de duas chaves",
                 )
                 findings.append(
                     Finding(
@@ -278,22 +282,26 @@ class IamPolicyAnalyzer(Analyzer):
                 )
             if kms.get("key_policy_visible") is False:
                 limitations.append(
-                    "Key policy KMS não visível — cadeia de autorização "
-                    "incompleta, não negação."
+                    "Key policy KMS não visível — cadeia de autorização incompleta, não negação."
                 )
 
     def _eval_one(
-        self, docs: list[PolicyDoc], q: dict[str, object], _ev: _EvFn,
-        findings: list[Finding], meta: list[dict[str, object]],
+        self,
+        docs: list[PolicyDoc],
+        q: dict[str, object],
+        _ev: _EvFn,
+        findings: list[Finding],
+        meta: list[dict[str, object]],
     ) -> None:
         action = str(q["action"])
         resource = str(q.get("resource", "*"))
         res = evaluate(docs, action, resource)
-        meta.append({"action": action, "resource": resource,
-                     "verdict": res.verdict})
-        ev = _ev(f"eval {action} em {resource[:60]} → {res.verdict}; "
-                 f"allows={res.matched_allows} denies={res.matched_denies}; "
-                 + "; ".join(res.reasons[:2]))
+        meta.append({"action": action, "resource": resource, "verdict": res.verdict})
+        ev = _ev(
+            f"eval {action} em {resource[:60]} → {res.verdict}; "
+            f"allows={res.matched_allows} denies={res.matched_denies}; "
+            + "; ".join(res.reasons[:2])
+        )
         if res.verdict == "denied":
             findings.append(
                 Finding(

@@ -50,16 +50,10 @@ class TestDetection:
             ("missing_dep.log", "missing-dependency", FindingStatus.CONFIRMED),
         ],
     )
-    def test_pattern_detected(
-        self, fixture: str, pattern_id: str, status: FindingStatus
-    ) -> None:
+    def test_pattern_detected(self, fixture: str, pattern_id: str, status: FindingStatus) -> None:
         result = ANALYZER.analyze(request_for(fixture), inputs_for(fixture))
         pattern = next(p for p in LOG_PATTERNS if p.pattern_id == pattern_id)
-        hits = [
-            f
-            for f in result.findings
-            if f.category == pattern.category and f.status == status
-        ]
+        hits = [f for f in result.findings if f.category == pattern.category and f.status == status]
         assert hits, f"{pattern_id} not detected in {fixture}: {result.findings}"
 
     def test_mixed_log_yields_multiple_findings(self) -> None:
@@ -69,9 +63,7 @@ class TestDetection:
         assert len(categories) >= 2
 
     def test_unrecognized_log_is_unknown_not_confirmed(self) -> None:
-        result = ANALYZER.analyze(
-            request_for("unrecognized.log"), inputs_for("unrecognized.log")
-        )
+        result = ANALYZER.analyze(request_for("unrecognized.log"), inputs_for("unrecognized.log"))
         assert len(result.findings) == 1
         finding = result.findings[0]
         assert finding.status is FindingStatus.UNKNOWN
@@ -80,9 +72,7 @@ class TestDetection:
         assert any("insuficiente" in f.explanation.lower() for f in result.findings)
 
     def test_evidence_linked_and_sanitized(self) -> None:
-        result = ANALYZER.analyze(
-            request_for("access_denied.log"), inputs_for("access_denied.log")
-        )
+        result = ANALYZER.analyze(request_for("access_denied.log"), inputs_for("access_denied.log"))
         assert result.evidence
         finding = result.findings[0]
         assert finding.evidence_ids
@@ -94,12 +84,8 @@ class TestDetection:
 
     def test_evidence_is_secret_redacted(self, tmp_path: Path) -> None:
         hostile = tmp_path / "hostile.log"
-        hostile.write_text(
-            "ERROR: OutOfMemoryError password=topsecret123\n"
-        , encoding="utf-8")
-        f = read_input_file(
-            hostile, max_file_bytes=1_000_000, allowed_roots=[tmp_path]
-        )
+        hostile.write_text("ERROR: OutOfMemoryError password=topsecret123\n", encoding="utf-8")
+        f = read_input_file(hostile, max_file_bytes=1_000_000, allowed_roots=[tmp_path])
         result = ANALYZER.analyze(request_for("hostile.log"), [f])
         assert result.evidence
         for ev in result.evidence:
@@ -127,9 +113,7 @@ class TestValidationAndRegistry:
             ANALYZER.analyze(request_for("x"), [])
 
     def test_registry_has_analyzer(self) -> None:
-        assert any(
-            a.analyzer_id == "spark-glue-log-analyzer" for a in registry.all()
-        )
+        assert any(a.analyzer_id == "spark-glue-log-analyzer" for a in registry.all())
 
     def test_registry_lookup_by_source_type(self) -> None:
         found = registry.for_source_type(SourceType.LOG)

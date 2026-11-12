@@ -1,4 +1,5 @@
 """ds-0085 / §6 — cost intelligence: Glue DPU + what-if."""
+
 from __future__ import annotations
 
 from data_sentinel.analyzers.emr.cost import estimate_glue, what_if
@@ -19,12 +20,10 @@ class TestGlueEstimate:
         assert 0.01 < e.amount < 0.02
 
     def test_flex_cheaper_but_not_declared_better(self):
-        std = estimate_glue("G.1X", 10, 3600,
-                            execution_class="STANDARD")
+        std = estimate_glue("G.1X", 10, 3600, execution_class="STANDARD")
         flex = estimate_glue("G.1X", 10, 3600, execution_class="FLEX")
         assert flex.amount < std.amount
-        assert any("não garantida" in a or "SLA" in a
-                   for a in flex.assumptions)
+        assert any("não garantida" in a or "SLA" in a for a in flex.assumptions)
 
     def test_retries_billed(self):
         no = estimate_glue("G.1X", 10, 3600)
@@ -56,16 +55,15 @@ class TestWhatIf:
     def test_never_claims_real_result(self):
         base = estimate_glue("G.1X", 10, 3600)
         w = what_if("h", base, base)
-        assert any("não representa resultado real" in x
-                   for x in w.limitations)
+        assert any("não representa resultado real" in x for x in w.limitations)
 
     def test_cross_platform_caveat(self):
         from data_sentinel.analyzers.emr.cost import estimate_serverless
+
         base = estimate_glue("G.1X", 10, 3600)
         cand = estimate_serverless(2.0)
         w = what_if("migrar", base, cand)
-        assert any("plataformas distintas" in x
-                   for x in w.limitations)
+        assert any("plataformas distintas" in x for x in w.limitations)
 
     def test_unknown_delta(self):
         base = estimate_glue("X.99X", 10, 3600)  # UNKNOWN

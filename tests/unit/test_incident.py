@@ -51,8 +51,7 @@ def _finding(eids: list[str], category: FindingCategory = FindingCategory.OUT_OF
 
 
 def test_context_partial_fields_unknown() -> None:
-    ctx = context_from_hints({"job_name": "j1", "run_id": "r1",
-                              "nonsense_field": "x"})
+    ctx = context_from_hints({"job_name": "j1", "run_id": "r1", "nonsense_field": "x"})
     assert ctx.job_name == "j1" and ctx.runtime == ""
     assert "runtime" in ctx.unknown_fields()
     assert set(ctx.known_fields()) == {"job_name", "run_id"}
@@ -60,16 +59,26 @@ def test_context_partial_fields_unknown() -> None:
 
 def test_graph_builds_with_justified_edges() -> None:
     ctx = UnifiedExecutionContext(
-        job_name="glue-etl", run_id="jr_123", log_stream="ls-1",
-        table="orders", database="sales", catalog="glue",
-        stage_id="7", execution_status="FAILED",
+        job_name="glue-etl",
+        run_id="jr_123",
+        log_stream="ls-1",
+        table="orders",
+        database="sales",
+        catalog="glue",
+        stage_id="7",
+        execution_status="FAILED",
     )
     f = _finding(["e1"])
     g = build_incident_graph(ctx, [f], [_evidence()])
     kinds = {n.kind for n in g.nodes.values()}
-    assert {NodeKind.JOB_RUN, NodeKind.LOG_EVENT, NodeKind.SPARK_STAGE,
-            NodeKind.TABLE, NodeKind.CATALOG,
-            NodeKind.DIAGNOSTIC_FINDING} <= kinds
+    assert {
+        NodeKind.JOB_RUN,
+        NodeKind.LOG_EVENT,
+        NodeKind.SPARK_STAGE,
+        NodeKind.TABLE,
+        NodeKind.CATALOG,
+        NodeKind.DIAGNOSTIC_FINDING,
+    } <= kinds
     for e in g.edges:
         assert e.justification  # toda aresta tem vínculo
     justs = {e.justification.split("=")[0] for e in g.edges}
@@ -105,9 +114,7 @@ def test_imported_findings_never_causal() -> None:
         evidence_ids=["imp-e"],
     )
     imp_ev = _evidence("imp-e")
-    g = build_incident_graph(ctx, [], [],
-                             imported_findings=[imp],
-                             imported_evidence=[imp_ev])
+    g = build_incident_graph(ctx, [], [], imported_findings=[imp], imported_evidence=[imp_ev])
     assert g.causal_edges() == []
     assert all(e.kind != EdgeKind.POTENTIALLY_CAUSED_BY for e in g.edges)
     assert g.nodes["finding:" + imp.finding_id].attrs["imported"] is True
@@ -128,32 +135,36 @@ def _ts(m: int) -> datetime:
 
 
 def test_timeline_gaps_declared() -> None:
-    tl = IncidentTimeline(entries=[
-        TimelineEntry(_ts(0), "início", None, 1, EventKind.EXECUTION_START),
-        TimelineEntry(_ts(10), "falha", "OOM", 2, EventKind.EXCEPTION),
-    ])
+    tl = IncidentTimeline(
+        entries=[
+            TimelineEntry(_ts(0), "início", None, 1, EventKind.EXECUTION_START),
+            TimelineEntry(_ts(10), "falha", "OOM", 2, EventKind.EXCEPTION),
+        ]
+    )
     tl.detect_gaps()
     assert len(tl.gaps) == 1 and tl.gaps[0].seconds == 600
     assert "gap de 600s" in tl.render()
 
 
 def test_merge_timelines_sources_noted() -> None:
-    a = IncidentTimeline(entries=[
-        TimelineEntry(_ts(1), "ev1", None, 1, source="cloudwatch-log")])
-    b = IncidentTimeline(entries=[
-        TimelineEntry(_ts(2), "ev2", None, 1, source="doctor-bundle")])
+    a = IncidentTimeline(entries=[TimelineEntry(_ts(1), "ev1", None, 1, source="cloudwatch-log")])
+    b = IncidentTimeline(entries=[TimelineEntry(_ts(2), "ev2", None, 1, source="doctor-bundle")])
     m = merge_timelines(a, b)
     assert [e.summary for e in m.entries] == ["ev1", "ev2"]
     assert any("fontes múltiplas" in n for n in m.granularity_notes)
 
 
-@pytest.mark.parametrize("msg,exc,expected", [
-    ("java.lang.OutOfMemoryError", "OutOfMemoryError", EventKind.EXCEPTION),
-    ("WARN memory pressure", None, EventKind.WARNING),
-    ("stage 3 failed", None, EventKind.FAILURE),
-    ("stage 3 finished", None, EventKind.STAGE),
-    ("reading input", None, EventKind.GENERIC),
-])
+@pytest.mark.parametrize(
+    "msg,exc,expected",
+    [
+        ("java.lang.OutOfMemoryError", "OutOfMemoryError", EventKind.EXCEPTION),
+        ("WARN memory pressure", None, EventKind.WARNING),
+        ("stage 3 failed", None, EventKind.FAILURE),
+        ("stage 3 finished", None, EventKind.STAGE),
+        ("reading input", None, EventKind.GENERIC),
+    ],
+)
 def test_event_classification(msg: str, exc: str | None, expected: EventKind) -> None:
     from data_sentinel.diagnostics.timeline import _classify
+
     assert _classify(msg, exc) == expected

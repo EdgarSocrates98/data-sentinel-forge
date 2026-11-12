@@ -28,13 +28,17 @@ def test_registry_lists_real_tools() -> None:
 def test_blocked_permissions_never_registered() -> None:
     r = build_default_registry()
     with pytest.raises(ToolUnavailableError):
-        r.register(ToolDescriptor(
-            tool_id="evil.delete", name="x",
-            permissions=[ToolPermission.DESTRUCTIVE]))
+        r.register(
+            ToolDescriptor(
+                tool_id="evil.delete", name="x", permissions=[ToolPermission.DESTRUCTIVE]
+            )
+        )
     with pytest.raises(ToolUnavailableError):
-        r.register(ToolDescriptor(
-            tool_id="evil.cloudwrite", name="x",
-            permissions=[ToolPermission.CLOUD_WRITE]))
+        r.register(
+            ToolDescriptor(
+                tool_id="evil.cloudwrite", name="x", permissions=[ToolPermission.CLOUD_WRITE]
+            )
+        )
 
 
 def test_unknown_tool_fails_cleanly() -> None:
@@ -52,26 +56,33 @@ def test_sql_analyze_tool_real(tmp_path: Path) -> None:
 
 
 def test_lineage_ingest_tool() -> None:
-    res = execute_tool(_inv("sentinel.lineage.ingest",
-                            file=str(FIX / "lineage/marquez-real.jsonl")))
+    res = execute_tool(
+        _inv("sentinel.lineage.ingest", file=str(FIX / "lineage/marquez-real.jsonl"))
+    )
     assert res.ok
     assert res.output["events"] == 4
     assert res.output["downstream"]
 
 
 def test_quality_assess_tool() -> None:
-    res = execute_tool(_inv(
-        "sentinel.quality.assess",
-        file=str(FIX / "quality/pydeequ_metrics.json"),
-        adapter="pydeequ"))
+    res = execute_tool(
+        _inv(
+            "sentinel.quality.assess",
+            file=str(FIX / "quality/pydeequ_metrics.json"),
+            adapter="pydeequ",
+        )
+    )
     assert res.ok and res.output["count"] == 4
 
 
 def test_lineage_impact_tool() -> None:
-    res = execute_tool(_inv(
-        "sentinel.lineage.impact",
-        file=str(FIX / "lineage/marquez-real.jsonl"),
-        target="s3://lakehouse-raw/raw/events"))
+    res = execute_tool(
+        _inv(
+            "sentinel.lineage.impact",
+            file=str(FIX / "lineage/marquez-real.jsonl"),
+            target="s3://lakehouse-raw/raw/events",
+        )
+    )
     assert res.ok
     assert res.output["potential_only"] is True
     assert len(res.output["downstream"]) == 2
@@ -82,18 +93,17 @@ def test_detect_drift_tool(tmp_path: Path) -> None:
     c = tmp_path / "c.json"
     b.write_text(json.dumps([0.0] * 50), encoding="utf-8")
     c.write_text(json.dumps([5.0] * 50), encoding="utf-8")
-    res = execute_tool(_inv("sentinel.quality.detect_drift",
-                            baseline_file=str(b), current_file=str(c)))
+    res = execute_tool(
+        _inv("sentinel.quality.detect_drift", baseline_file=str(b), current_file=str(c))
+    )
     assert res.ok
     assert res.output["drift"]["level"] in ("medium", "high")
 
 
 def test_analyze_plan_returns_typed_tree() -> None:
     """Cycle 09 — the plan tree is a typed tool output, not just findings."""
-    fixture = Path(__file__).parent.parent.parent / (
-        "fixtures/plans/sort_merge_join.txt")
-    res = execute_tool(_inv("sentinel.spark.analyze_plan",
-                            file=str(fixture)))
+    fixture = Path(__file__).parent.parent.parent / ("fixtures/plans/sort_merge_join.txt")
+    res = execute_tool(_inv("sentinel.spark.analyze_plan", file=str(fixture)))
     assert res.ok, res.error
     plan = res.output["plan"]
     assert plan["format"] == "df_explain"
@@ -111,19 +121,22 @@ def test_analyze_plan_returns_typed_tree() -> None:
 
 
 def test_dry_run() -> None:
-    res = execute_tool(_inv("sentinel.sql.analyze", file="/x"),
-                       dry_run=True)
+    res = execute_tool(_inv("sentinel.sql.analyze", file="/x"), dry_run=True)
     assert res.ok and res.output["dry_run"] is True
 
 
 def test_doctor_import_tool(tmp_path: Path) -> None:
     bundle = tmp_path / "b.json"
-    bundle.write_text(json.dumps({
-        "schema_version": "1.0.0",
-        "producer": {"name": "forge-doctor-data", "version": "1.0.3"},
-        "findings": [{"check_id": "c1", "message": "issue",
-                      "severity": "high"}]}), encoding="utf-8")
-    res = execute_tool(_inv("sentinel.doctor.import_bundle",
-                            file=str(bundle)))
+    bundle.write_text(
+        json.dumps(
+            {
+                "schema_version": "1.0.0",
+                "producer": {"name": "forge-doctor-data", "version": "1.0.3"},
+                "findings": [{"check_id": "c1", "message": "issue", "severity": "high"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    res = execute_tool(_inv("sentinel.doctor.import_bundle", file=str(bundle)))
     assert res.ok
     assert len(res.output["findings"]) == 1

@@ -19,8 +19,7 @@ def test_twelve_specialists_with_descriptors() -> None:
 
 def test_allowed_tools_match_registry() -> None:
     d = get_specialist("spark-expert")
-    assert d.allowed_tools == [
-        "sentinel.spark.analyze_plan", "sentinel.spark.optimize"]
+    assert d.allowed_tools == ["sentinel.spark.analyze_plan", "sentinel.spark.optimize"]
 
 
 def test_route_keywords() -> None:
@@ -40,9 +39,14 @@ def test_plan_tasks_depends_on_chain() -> None:
 
 def test_emr_specialists() -> None:
     ids = {d.agent_id for d in specialist_descriptors()}
-    for aid in ["emr-coordinator", "emr-ec2-expert",
-                "emr-serverless-expert", "emr-eks-expert",
-                "emr-cost-expert", "emr-performance-expert"]:
+    for aid in [
+        "emr-coordinator",
+        "emr-ec2-expert",
+        "emr-serverless-expert",
+        "emr-eks-expert",
+        "emr-cost-expert",
+        "emr-performance-expert",
+    ]:
         assert aid in ids
     assert len(specialist_descriptors()) == 18
 

@@ -181,9 +181,7 @@ class TestRoundTrip:
             sample_evidence(),
             sample_finding(),
             sample_report(),
-            OptimizationRecommendation(
-                target="t", proposed_change="c", rationale="r"
-            ),
+            OptimizationRecommendation(target="t", proposed_change="c", rationale="r"),
             ExecutionMetadata(platform=Platform.SPARK),
             CapabilityManifest(capability_id="c", version="1"),
         ],

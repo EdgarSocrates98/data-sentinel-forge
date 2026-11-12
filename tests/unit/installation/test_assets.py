@@ -156,8 +156,7 @@ def test_referenced_cli_verbs_exist() -> None:
             assert first in top, f"{path}: verbo inexistente `data-sentinel {first}`"
             if first in groups and second and not second.startswith("-"):
                 assert second in groups[first], (
-                    f"{path}: subcomando inexistente "
-                    f"`data-sentinel {first} {second}`"
+                    f"{path}: subcomando inexistente `data-sentinel {first} {second}`"
                 )
 
 
@@ -193,9 +192,7 @@ def test_render_devin_native_plus_shared(tmp_path: Path) -> None:
     spark = out[".agents/skills/data-sentinel-spark-plan/SKILL.md"].decode("utf-8")
     assert "subagent: true" in spark
     assert "agent: sentinel-spark-specialist" in spark
-    investigate = out[
-        ".agents/skills/data-sentinel-investigate/SKILL.md"
-    ].decode("utf-8")
+    investigate = out[".agents/skills/data-sentinel-investigate/SKILL.md"].decode("utf-8")
     assert "subagent" not in investigate.split("---")[1]
 
 
@@ -243,9 +240,7 @@ def test_unknown_host_renders_nothing(tmp_path: Path) -> None:
 def test_manifest_and_forge_json_never_rendered(tmp_path: Path) -> None:
     for host in service.HOSTS:
         out = render_for_hosts(_ctx(tmp_path, (host,)))
-        assert not any(
-            "manifest" in p or "forge.json" in p for p in out
-        ), host
+        assert not any("manifest" in p or "forge.json" in p for p in out), host
 
 
 def test_render_is_deterministic_and_sorted(tmp_path: Path) -> None:
@@ -302,8 +297,16 @@ def test_empty_catalog_renders_nothing(tmp_path: Path) -> None:
 def test_install_writes_host_assets(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "claude,codex",
-         "--profile", "full", "--yes"],
+        [
+            "install",
+            "--root",
+            str(tmp_path),
+            "--host",
+            "claude,codex",
+            "--profile",
+            "full",
+            "--yes",
+        ],
     )
     assert result.exit_code == 0, result.output
     skill = tmp_path / ".claude/skills/data-sentinel-investigate/SKILL.md"
@@ -315,8 +318,7 @@ def test_install_writes_host_assets(tmp_path: Path) -> None:
 def test_minimal_profile_installs_no_skills(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "claude",
-         "--profile", "minimal", "--yes"],
+        ["install", "--root", str(tmp_path), "--host", "claude", "--profile", "minimal", "--yes"],
     )
     assert result.exit_code == 0, result.output
     assert not (tmp_path / ".claude").exists()
@@ -325,8 +327,7 @@ def test_minimal_profile_installs_no_skills(tmp_path: Path) -> None:
 def test_cursor_install_writes_no_skill_dirs(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "cursor",
-         "--profile", "full", "--yes"],
+        ["install", "--root", str(tmp_path), "--host", "cursor", "--profile", "full", "--yes"],
     )
     assert result.exit_code == 0, result.output
     assert not (tmp_path / ".cursor").exists()
@@ -337,8 +338,7 @@ def test_cursor_install_writes_no_skill_dirs(tmp_path: Path) -> None:
 def test_uninstall_removes_host_assets(tmp_path: Path) -> None:
     runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "claude",
-         "--profile", "full", "--yes"],
+        ["install", "--root", str(tmp_path), "--host", "claude", "--profile", "full", "--yes"],
     )
     assert (tmp_path / ".claude/skills").is_dir()
     runner.invoke(app, ["install", "uninstall", "--root", str(tmp_path), "--yes"])
@@ -348,8 +348,17 @@ def test_uninstall_removes_host_assets(tmp_path: Path) -> None:
 def test_dry_run_writes_nothing(tmp_path: Path) -> None:
     result = runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "claude",
-         "--profile", "full", "--dry-run", "--json"],
+        [
+            "install",
+            "--root",
+            str(tmp_path),
+            "--host",
+            "claude",
+            "--profile",
+            "full",
+            "--dry-run",
+            "--json",
+        ],
     )
     assert result.exit_code == 0
     plan = json.loads(result.output)
@@ -360,9 +369,7 @@ def test_dry_run_writes_nothing(tmp_path: Path) -> None:
 
 
 def test_unknown_host_refuses(tmp_path: Path) -> None:
-    result = runner.invoke(
-        app, ["install", "--root", str(tmp_path), "--host", "vim", "--yes"]
-    )
+    result = runner.invoke(app, ["install", "--root", str(tmp_path), "--host", "vim", "--yes"])
     assert result.exit_code != 0
     assert "vim" in result.output
 
@@ -384,8 +391,7 @@ def test_asset_manifest_is_current() -> None:
         if p.is_file() and p.name != "MANIFEST.sha256"
     }
     assert expected == actual, (
-        "catalog changed — regenerate MANIFEST.sha256 via "
-        "python scripts or the test helper"
+        "catalog changed — regenerate MANIFEST.sha256 via python scripts or the test helper"
     )
 
 
@@ -433,6 +439,7 @@ def test_source_detection() -> None:
 def test_python_floor_check() -> None:
     service._check_python()  # running interpreter is >= 3.11
     import sys as _sys
+
     real = _sys.version_info
     try:
         _sys.version_info = (3, 9, 0)
@@ -453,14 +460,18 @@ def test_mcp_command_resolution() -> None:
 
 
 def test_mcp_json_preserves_foreign_servers(tmp_path: Path) -> None:
-    (tmp_path / ".mcp.json").write_text(json.dumps({
-        "mcpServers": {"other": {"command": "x", "args": []}},
-        "userKey": True,
-    }), encoding="utf-8")
+    (tmp_path / ".mcp.json").write_text(
+        json.dumps(
+            {
+                "mcpServers": {"other": {"command": "x", "args": []}},
+                "userKey": True,
+            }
+        ),
+        encoding="utf-8",
+    )
     result = runner.invoke(
         app,
-        ["install", "--root", str(tmp_path), "--host", "claude",
-         "--profile", "minimal", "--yes"],
+        ["install", "--root", str(tmp_path), "--host", "claude", "--profile", "minimal", "--yes"],
     )
     assert result.exit_code == 0, result.output
     doc = json.loads((tmp_path / ".mcp.json").read_text())
@@ -476,7 +487,9 @@ def test_bootstrap_python_dash_m() -> None:
 
     out = subprocess.run(
         [_sys.executable, "-m", "data_sentinel", "--version"],
-        capture_output=True, text=True, timeout=30,
+        capture_output=True,
+        text=True,
+        timeout=30,
     )
     assert out.returncode == 0
     assert "data-sentinel" in out.stdout

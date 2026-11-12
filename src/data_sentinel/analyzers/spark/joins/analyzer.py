@@ -135,9 +135,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
                 ctx.joins.extend(sub.joins)
                 ctx.warnings.extend(sub.warnings)
 
-        digest = hashlib.sha256(
-            "\n".join(i.text for i in inputs).encode()
-        ).hexdigest()
+        digest = hashlib.sha256("\n".join(i.text for i in inputs).encode()).hexdigest()
 
         self._attach_stats(ctx)
         assessments = [self._assess(j) for j in ctx.joins]
@@ -212,8 +210,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
                     for a in assessments
                 ],
                 "skew": [
-                    {"kind": str(s.kind), "target": s.target, "detail": s.detail}
-                    for s in skews
+                    {"kind": str(s.kind), "target": s.target, "detail": s.detail} for s in skews
                 ],
             },
             duration_ms=int((time.monotonic() - started) * 1000),
@@ -325,9 +322,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
             stats_to_collect=collect,
         )
 
-    def _skew_signals(
-        self, ctx: JoinContext, runtime: dict[str, object]
-    ) -> list[SkewSignal]:
+    def _skew_signals(self, ctx: JoinContext, runtime: dict[str, object]) -> list[SkewSignal]:
         signals: list[SkewSignal] = []
 
         # suspected — declared top-key concentration
@@ -528,8 +523,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
                             " ou salting como experimento controlado",
                         ],
                         validation_steps=[
-                            "GROUP BY chave com COUNT(*) no input do stage "
-                            "para localizar hot keys"
+                            "GROUP BY chave com COUNT(*) no input do stage para localizar hot keys"
                         ],
                     )
                 )
@@ -541,8 +535,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
                         severity=Severity.LOW,
                         status=FindingStatus.POSSIBLE,
                         explanation=(
-                            "Skew SUSPEITO (inferido de estatísticas "
-                            f"declaradas): {s.detail}"
+                            f"Skew SUSPEITO (inferido de estatísticas declaradas): {s.detail}"
                         ),
                         evidence_ids=[ev_id],
                         recommendations=[
@@ -550,8 +543,7 @@ class JoinIntelligenceAnalyzer(Analyzer):
                             "mitigações (salting muda a semântica das chaves)"
                         ],
                         validation_steps=[
-                            "Executar amostra e medir distribuição de "
-                            "task durations por partição"
+                            "Executar amostra e medir distribuição de task durations por partição"
                         ],
                     )
                 )

@@ -27,9 +27,11 @@ from data_sentinel.diagnostics.orchestrator import run_diagnostics
 from data_sentinel.reporting import render_markdown
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = Path(os.environ.get("DATA_SENTINEL_BENCH_OUT", "")) if os.environ.get(
-    "DATA_SENTINEL_BENCH_OUT"
-) else None
+OUT = (
+    Path(os.environ.get("DATA_SENTINEL_BENCH_OUT", ""))
+    if os.environ.get("DATA_SENTINEL_BENCH_OUT")
+    else None
+)
 
 RESULTS: dict[str, object] = {
     "machine": {
@@ -90,9 +92,7 @@ def test_log_analysis_scaling() -> None:
     analyzer = SparkGlueLogAnalyzer()
     for reps in (1, 2000):
         text = LOG * reps
-        secs = _time(
-            lambda t=text: analyzer.analyze(_req(SourceType.LOG), [_inp(t)]), n=3
-        )
+        secs = _time(lambda t=text: analyzer.analyze(_req(SourceType.LOG), [_inp(t)]), n=3)
         RESULTS["benchmarks"][f"log_analysis_x{reps}"] = {  # type: ignore[index]
             "lines": text.count("\n"),
             "seconds": round(secs, 4),
@@ -103,9 +103,7 @@ def test_log_analysis_scaling() -> None:
 def test_plan_analysis_time() -> None:
     analyzer = SparkPlanAnalyzer()
     text = PLAN * 500
-    secs = _time(
-        lambda: analyzer.analyze(_req(SourceType.SPARK_PLAN), [_inp(text)]), n=3
-    )
+    secs = _time(lambda: analyzer.analyze(_req(SourceType.SPARK_PLAN), [_inp(text)]), n=3)
     RESULTS["benchmarks"]["plan_analysis_x500"] = {"seconds": round(secs, 4)}  # type: ignore[index]
     assert secs < 60
 

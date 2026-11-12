@@ -39,23 +39,36 @@ class TestAccessModes:
         assert any("FGAC nunca é presumido" in c for c in a.constraints)
 
     def test_fgac_select_uses_mode_rule(self):
-        a = _assess(runtime="glue-5.1", operation="select", access_mode="fgac",
-                    table_format="iceberg")
+        a = _assess(
+            runtime="glue-5.1", operation="select", access_mode="fgac", table_format="iceberg"
+        )
         assert a.support_status == SupportStatus.SUPPORTED_WITH_CONSTRAINTS
         assert any("column-level" in c for c in a.constraints)
 
     def test_fgac_merge_dml_covered(self):
-        a = _assess(runtime="glue-5.1", operation="merge", access_mode="fgac",
-                    table_format="iceberg")
+        a = _assess(
+            runtime="glue-5.1", operation="merge", access_mode="fgac", table_format="iceberg"
+        )
         assert a.support_status == SupportStatus.SUPPORTED_WITH_CONSTRAINTS
         assert any("full table access" in c for c in a.constraints)
 
 
 class TestOperations:
     def test_operation_taxonomy_coverage(self):
-        for op in ("select", "insert", "append", "update", "delete", "merge",
-                   "create", "alter", "drop", "describe", "metadata",
-                   "maintenance"):
+        for op in (
+            "select",
+            "insert",
+            "append",
+            "update",
+            "delete",
+            "merge",
+            "create",
+            "alter",
+            "drop",
+            "describe",
+            "metadata",
+            "maintenance",
+        ):
             a = _assess(runtime="glue-5.1", operation=op)
             assert a.operation == op
             assert a.support_status != SupportStatus.NOT_VERIFIED or op
@@ -73,8 +86,9 @@ class TestEvidence:
         assert a.documentation_references
 
     def test_constraints_accumulate_not_hidden(self):
-        a = _assess(runtime="glue-4.0", operation="select", access_mode="fgac",
-                    table_format="iceberg")
+        a = _assess(
+            runtime="glue-4.0", operation="select", access_mode="fgac", table_format="iceberg"
+        )
         assert len(a.constraints) >= 1
 
 

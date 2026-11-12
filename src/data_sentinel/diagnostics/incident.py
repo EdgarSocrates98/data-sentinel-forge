@@ -73,17 +73,23 @@ class EvidenceGraph:
     limitations: list[str] = field(default_factory=list)
 
     def add_node(
-        self, kind: NodeKind, label: str, node_id: str | None = None,
+        self,
+        kind: NodeKind,
+        label: str,
+        node_id: str | None = None,
         **attrs: Any,
     ) -> GraphNode:
         nid = node_id or f"{kind.value}:{label}"
         if nid not in self.nodes:
-            self.nodes[nid] = GraphNode(node_id=nid, kind=kind, label=label,
-                                        attrs=dict(attrs))
+            self.nodes[nid] = GraphNode(node_id=nid, kind=kind, label=label, attrs=dict(attrs))
         return self.nodes[nid]
 
     def add_edge(
-        self, src: str, dst: str, kind: EdgeKind, justification: str,
+        self,
+        src: str,
+        dst: str,
+        kind: EdgeKind,
+        justification: str,
     ) -> GraphEdge | None:
         if src not in self.nodes or dst not in self.nodes:
             self.limitations.append(
@@ -92,9 +98,7 @@ class EvidenceGraph:
             )
             return None
         if not justification:
-            self.limitations.append(
-                f"aresta recusada ({kind.value}): sem vínculo justificável"
-            )
+            self.limitations.append(f"aresta recusada ({kind.value}): sem vínculo justificável")
             return None
         edge = GraphEdge(src=src, dst=dst, kind=kind, justification=justification)
         if edge not in self.edges:
@@ -144,16 +148,22 @@ def _safe_str(v: Any) -> str:
 def context_from_hints(hints: dict[str, Any]) -> UnifiedExecutionContext:
     """Build context from a heterogeneous hints dict (CLI/metadata)."""
     known = set(UnifiedExecutionContext.__dataclass_fields__)
-    return UnifiedExecutionContext(**{
-        k: _safe_str(v) for k, v in hints.items() if k in known
-    })
+    return UnifiedExecutionContext(**{k: _safe_str(v) for k, v in hints.items() if k in known})
 
 
 def _link_keys(ctx: UnifiedExecutionContext) -> dict[str, str]:
     """Shared keys usable as justifiable cross-source links (§4.4)."""
     keys: dict[str, str] = {}
-    for f in ("run_id", "job_name", "table", "database", "catalog",
-              "stage_id", "task_id", "log_stream"):
+    for f in (
+        "run_id",
+        "job_name",
+        "table",
+        "database",
+        "catalog",
+        "stage_id",
+        "task_id",
+        "log_stream",
+    ):
         v = getattr(ctx, f)
         if v:
             keys[f] = v
@@ -179,8 +189,11 @@ def attach_finding(
         else NodeKind.DIAGNOSTIC_FINDING
     )
     node = graph.add_node(
-        kind, finding.explanation[:80], node_id=f"finding:{finding.finding_id}",
-        severity=finding.severity.value, status=finding.status.value,
+        kind,
+        finding.explanation[:80],
+        node_id=f"finding:{finding.finding_id}",
+        severity=finding.severity.value,
+        status=finding.status.value,
         imported=imported,
     )
     ev_by_id = {e.evidence_id: e for e in evidence}
@@ -189,24 +202,25 @@ def attach_finding(
         if ev is None:
             continue
         ev_node = graph.add_node(
-            NodeKind.LOG_EVENT, ev.source_location[:80],
-            node_id=f"evidence:{eid}", provenance=ev.provenance.value,
+            NodeKind.LOG_EVENT,
+            ev.source_location[:80],
+            node_id=f"evidence:{eid}",
+            provenance=ev.provenance.value,
         )
-        graph.add_edge(ev_node.node_id, node.node_id, EdgeKind.SUPPORTED_BY,
-                       justification=f"evidence_id={eid}")
+        graph.add_edge(
+            ev_node.node_id, node.node_id, EdgeKind.SUPPORTED_BY, justification=f"evidence_id={eid}"
+        )
     # justifiable context links only
     for key, val in _link_keys(ctx).items():
         for kind_prefix, nk in (
-            ("table", NodeKind.TABLE), ("catalog", NodeKind.CATALOG),
+            ("table", NodeKind.TABLE),
+            ("catalog", NodeKind.CATALOG),
             ("database", NodeKind.CATALOG),
         ):
             if key == kind_prefix:
                 ref = graph.add_node(nk, val)
-                edge_kind = (
-                    EdgeKind.ASSOCIATED_WITH if imported else EdgeKind.REFERENCED
-                )
-                graph.add_edge(node.node_id, ref.node_id, edge_kind,
-                               justification=f"{key}={val}")
+                edge_kind = EdgeKind.ASSOCIATED_WITH if imported else EdgeKind.REFERENCED
+                graph.add_edge(node.node_id, ref.node_id, edge_kind, justification=f"{key}={val}")
     return node
 
 
@@ -222,34 +236,45 @@ def build_incident_graph(
     graph = EvidenceGraph()
     if ctx.job_name or ctx.run_id:
         job = graph.add_node(
-            NodeKind.JOB_RUN, ctx.job_name or ctx.run_id,
+            NodeKind.JOB_RUN,
+            ctx.job_name or ctx.run_id,
             node_id=f"jobrun:{ctx.job_name}:{ctx.run_id}",
-            run_id=ctx.run_id, status=ctx.execution_status,
+            run_id=ctx.run_id,
+            status=ctx.execution_status,
         )
         if ctx.log_stream:
-            ls = graph.add_node(NodeKind.LOG_EVENT, ctx.log_stream,
-                                node_id=f"logstream:{ctx.log_stream}")
-            graph.add_edge(job.node_id, ls.node_id, EdgeKind.PRODUCED,
-                           justification=f"log_stream={ctx.log_stream}")
+            ls = graph.add_node(
+                NodeKind.LOG_EVENT, ctx.log_stream, node_id=f"logstream:{ctx.log_stream}"
+            )
+            graph.add_edge(
+                job.node_id,
+                ls.node_id,
+                EdgeKind.PRODUCED,
+                justification=f"log_stream={ctx.log_stream}",
+            )
         if ctx.stage_id:
-            st = graph.add_node(NodeKind.SPARK_STAGE, ctx.stage_id,
-                                node_id=f"stage:{ctx.stage_id}")
-            graph.add_edge(st.node_id, job.node_id, EdgeKind.FAILED_AT,
-                           justification=f"stage_id={ctx.stage_id}")
+            st = graph.add_node(NodeKind.SPARK_STAGE, ctx.stage_id, node_id=f"stage:{ctx.stage_id}")
+            graph.add_edge(
+                st.node_id,
+                job.node_id,
+                EdgeKind.FAILED_AT,
+                justification=f"stage_id={ctx.stage_id}",
+            )
         if ctx.catalog:
-            graph.add_node(NodeKind.CATALOG, ctx.catalog,
-                           node_id=f"catalog:{ctx.catalog}")
+            graph.add_node(NodeKind.CATALOG, ctx.catalog, node_id=f"catalog:{ctx.catalog}")
         if ctx.table:
-            t = graph.add_node(NodeKind.TABLE, ctx.table,
-                               node_id=f"table:{ctx.database}.{ctx.table}")
+            t = graph.add_node(
+                NodeKind.TABLE, ctx.table, node_id=f"table:{ctx.database}.{ctx.table}"
+            )
             if ctx.catalog:
-                graph.add_edge(t.node_id, f"catalog:{ctx.catalog}",
-                               EdgeKind.REFERENCED,
-                               justification=f"catalog={ctx.catalog}")
+                graph.add_edge(
+                    t.node_id,
+                    f"catalog:{ctx.catalog}",
+                    EdgeKind.REFERENCED,
+                    justification=f"catalog={ctx.catalog}",
+                )
     else:
-        graph.limitations.append(
-            "contexto sem job_name/run_id: nó JobRun não criado"
-        )
+        graph.limitations.append("contexto sem job_name/run_id: nó JobRun não criado")
     for f in findings:
         attach_finding(graph, f, evidence, ctx)
     for f in imported_findings or []:

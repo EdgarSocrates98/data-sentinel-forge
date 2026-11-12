@@ -61,8 +61,7 @@ class TestFindings:
 
     def test_unknown_permissions_findings(self):
         r = _run("cross_read.json")
-        assert any("parcialmente invisíveis" in f.explanation
-                   for f in r.findings)
+        assert any("parcialmente invisíveis" in f.explanation for f in r.findings)
 
     def test_same_account_noted(self):
         r = _run("same_account.json")
@@ -76,8 +75,7 @@ class TestFindings:
 
 class TestProtocol:
     def test_registered(self):
-        assert registry.get("lakehouse.cross_account").analyzer_id == \
-            "lakehouse.cross_account"
+        assert registry.get("lakehouse.cross_account").analyzer_id == "lakehouse.cross_account"
 
     def test_capabilities(self):
         cap = registry.get("lakehouse.cross_account").capabilities()

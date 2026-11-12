@@ -5,17 +5,23 @@ from data_sentinel.core.contracts.enums import FindingCategory, FindingStatus, S
 from data_sentinel.reasoning import EvidenceValidator, RootCauseEngine
 
 
-def _f(cat: FindingCategory, status: FindingStatus,
-       sev: Severity = Severity.HIGH,
-       ev: list[str] | None = None) -> Finding:
-    return Finding(category=cat, severity=sev, status=status,
-                   explanation=f"achado {cat.value}",
-                   evidence_ids=["ev-1"] if ev is None else ev)
+def _f(
+    cat: FindingCategory,
+    status: FindingStatus,
+    sev: Severity = Severity.HIGH,
+    ev: list[str] | None = None,
+) -> Finding:
+    return Finding(
+        category=cat,
+        severity=sev,
+        status=status,
+        explanation=f"achado {cat.value}",
+        evidence_ids=["ev-1"] if ev is None else ev,
+    )
 
 
 def test_validator_flags_missing_evidence() -> None:
-    bad = _f(FindingCategory.OUT_OF_MEMORY, FindingStatus.CONFIRMED,
-             ev=[])
+    bad = _f(FindingCategory.OUT_OF_MEMORY, FindingStatus.CONFIRMED, ev=[])
     rep = EvidenceValidator().validate([bad])
     assert not rep.ok
     assert "evidence" in rep.issues[0].issue
@@ -38,10 +44,8 @@ def test_validator_duplicate_claim() -> None:
 
 def test_rca_ranks_confirmed_first() -> None:
     fs = [
-        _f(FindingCategory.PERMISSIONS, FindingStatus.POSSIBLE,
-           Severity.LOW),
-        _f(FindingCategory.OUT_OF_MEMORY, FindingStatus.CONFIRMED,
-           Severity.CRITICAL),
+        _f(FindingCategory.PERMISSIONS, FindingStatus.POSSIBLE, Severity.LOW),
+        _f(FindingCategory.OUT_OF_MEMORY, FindingStatus.CONFIRMED, Severity.CRITICAL),
     ]
     r = RootCauseEngine().analyze(fs)
     assert r.primary is not None

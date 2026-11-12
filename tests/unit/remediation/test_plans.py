@@ -1,4 +1,5 @@
 """ds-0086 / §7 — supervised remediation planning."""
+
 from __future__ import annotations
 
 import pytest
@@ -27,9 +28,9 @@ def _finding(**kw):
         status=kw.get("status", FindingStatus.CONFIRMED),
         explanation=kw.get("explanation", "executor OOM"),
         evidence_ids=kw.get("evidence_ids", ["ev-1"]),
-        recommendations=kw.get("recommendations",
-                               ["aumentar spark.executor.memory"]),
-        validation_steps=kw.get("validation_steps", ["reexecutar"]))
+        recommendations=kw.get("recommendations", ["aumentar spark.executor.memory"]),
+        validation_steps=kw.get("validation_steps", ["reexecutar"]),
+    )
 
 
 def _approved():
@@ -45,8 +46,7 @@ class TestWorkflow:
         p = _approved()
         assert p.state == PlanState.APPROVED
         states = [h["to"] for h in p.state_history]
-        assert states[:3] == ["DRAFT", "VALIDATED",
-                              "AWAITING_APPROVAL"]
+        assert states[:3] == ["DRAFT", "VALIDATED", "AWAITING_APPROVAL"]
 
     def test_invalid_transition(self):
         p = plan_for_finding(_finding())
@@ -97,21 +97,26 @@ class TestExecuteLocal:
 
     def test_allowlisted_action_applies(self):
         p = _approved()
-        p.proposed_changes = [ProposedChange(
-            target="watch:w1", change="threshold",
-            params={"k": 1.5}, local_action="update_watch_threshold")]
+        p.proposed_changes = [
+            ProposedChange(
+                target="watch:w1",
+                change="threshold",
+                params={"k": 1.5},
+                local_action="update_watch_threshold",
+            )
+        ]
         calls = []
-        res = execute_local(p, apply_fn={
-            "update_watch_threshold":
-                lambda params: calls.append(params) or "ok"})
+        res = execute_local(
+            p, apply_fn={"update_watch_threshold": lambda params: calls.append(params) or "ok"}
+        )
         assert res["results"][0]["status"] == "APPLIED"
         assert calls == [{"k": 1.5}]
 
     def test_off_allowlist_blocked(self):
         p = _approved()
-        p.proposed_changes = [ProposedChange(
-            target="s3", change="delete",
-            params={}, local_action="delete_s3_bucket")]
+        p.proposed_changes = [
+            ProposedChange(target="s3", change="delete", params={}, local_action="delete_s3_bucket")
+        ]
         res = execute_local(p)
         assert res["results"][0]["status"] == "BLOCKED"
 

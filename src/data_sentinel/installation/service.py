@@ -124,9 +124,7 @@ def _render_assets(ctx: kit.InstallContext) -> dict[str, bytes]:
     for rel in rendered:
         p = Path(rel)
         if p.is_absolute() or ".." in p.parts:
-            raise kit.InstallError(
-                kit.E_VERIFY, f"asset path escapes scope root: {rel!r}"
-            )
+            raise kit.InstallError(kit.E_VERIFY, f"asset path escapes scope root: {rel!r}")
     return rendered
 
 
@@ -168,9 +166,7 @@ def _hosts(host: str) -> tuple[str, ...]:
     names = [h.strip() for h in host.split(",") if h.strip()]
     unknown = [h for h in names if h not in HOSTS]
     if unknown:
-        raise kit.InstallError(
-            kit.E_HOST, f"host {unknown[0]!r}; known: {list(HOSTS)} + all,none"
-        )
+        raise kit.InstallError(kit.E_HOST, f"host {unknown[0]!r}; known: {list(HOSTS)} + all,none")
     return tuple(dict.fromkeys(names))
 
 
@@ -193,8 +189,15 @@ def install(
         raise kit.InstallError(
             kit.E_PROFILE, f"gateway_profile {gateway_profile!r}; {GATEWAY_PROFILES}"
         )
-    ctx = _ctx(scope, root, _hosts(host), profile, dry_run,
-               components=components, gateway_profile=gateway_profile)
+    ctx = _ctx(
+        scope,
+        root,
+        _hosts(host),
+        profile,
+        dry_run,
+        components=components,
+        gateway_profile=gateway_profile,
+    )
     state = ctx.state_dir
     if dry_run:
         # §2.5 — preview must not write, not even the state dir/lock file.
@@ -338,9 +341,7 @@ def uninstall(
     return doc
 
 
-def environment(
-    *, scope: str = "project", root: Path | None = None
-) -> dict[str, Any]:
+def environment(*, scope: str = "project", root: Path | None = None) -> dict[str, Any]:
     """§11.1 — environment discovery, read-only and honest.
 
     Probes the runtime (python/uv/pip/OS/arch), the declared
@@ -364,12 +365,14 @@ def environment(
         for f in sorted(registry.glob("*.json")):
             try:
                 doc = json.loads(f.read_text(encoding="utf-8"))
-                installs.append({
-                    "forge_id": doc.get("forge_id", f.stem),
-                    "version": doc.get("version"),
-                    "installed_at": doc.get("installed_at"),
-                    "scope": doc.get("scope"),
-                })
+                installs.append(
+                    {
+                        "forge_id": doc.get("forge_id", f.stem),
+                        "version": doc.get("version"),
+                        "installed_at": doc.get("installed_at"),
+                        "scope": doc.get("scope"),
+                    }
+                )
             except (OSError, json.JSONDecodeError):
                 installs.append({"forge_id": f.stem, "unreadable": True})
     return {
@@ -426,6 +429,8 @@ _HOST_BINS: dict[str, tuple[str, ...]] = {
     "copilot": ("copilot",),
     "cursor": ("cursor",),
 }
+
+
 def _env_knobs() -> tuple[str, ...]:
     """M6 — every DATA_SENTINEL_* knob the codebase actually reads.
 
@@ -436,14 +441,11 @@ def _env_knobs() -> tuple[str, ...]:
     from data_sentinel.core.configuration.models import SentinelConfig
 
     config_knobs = (
-        f"DATA_SENTINEL_{name.upper()}"
-        for name in SentinelConfig.model_fields
-        if name != "sources"
+        f"DATA_SENTINEL_{name.upper()}" for name in SentinelConfig.model_fields if name != "sources"
     )
     return tuple(
         sorted(
-            (*config_knobs, "DATA_SENTINEL_DB",
-             "DATA_SENTINEL_MCP_ROOTS", "DATA_SENTINEL_TOKEN")
+            (*config_knobs, "DATA_SENTINEL_DB", "DATA_SENTINEL_MCP_ROOTS", "DATA_SENTINEL_TOKEN")
         )
     )
 
@@ -476,9 +478,7 @@ def _receipt(operation: str, checks: list[dict[str, Any]], status: str) -> dict[
         "checks": checks,
         "verification": {
             "status": "PASS"
-            if all(
-                c["status"] in ("PASS", "NOT_APPLICABLE", "UNVERIFIED") for c in checks
-            )
+            if all(c["status"] in ("PASS", "NOT_APPLICABLE", "UNVERIFIED") for c in checks)
             else "FAIL"
         },
         "status": status,
@@ -588,6 +588,7 @@ def _context_manifest(ctx: kit.InstallContext) -> dict[str, Any]:
     """Manifesto forge/context/v1 das fontes reais: `forge.json` (bundled no
     assets manifest ou checkout) + `forge.agentic.json` (checkout) e o
     catalogo de assets que `_render_assets` instala."""
+
     def _bundled_json(name: str) -> dict[str, Any] | None:
         for cand in (
             _ASSETS_DIR / "manifest" / name,
@@ -604,9 +605,7 @@ def _context_manifest(ctx: kit.InstallContext) -> dict[str, Any]:
 
     skills_root = _ASSETS_DIR / "skills"
     skills = (
-        sorted(d.name for d in skills_root.iterdir() if d.is_dir())
-        if skills_root.is_dir()
-        else []
+        sorted(d.name for d in skills_root.iterdir() if d.is_dir()) if skills_root.is_dir() else []
     )
     agents = _mds(_ASSETS_DIR / "agents")
 

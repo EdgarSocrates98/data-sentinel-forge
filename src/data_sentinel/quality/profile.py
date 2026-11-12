@@ -13,6 +13,7 @@ from typing import Any
 
 try:
     import numpy as np
+
     _HAS_NUMPY = True
 except ImportError:  # pragma: no cover
     np = None  # type: ignore[assignment]
@@ -52,15 +53,12 @@ def _numeric(values: list[Any]) -> list[float]:
     return out
 
 
-def profile_column(column: str, values: list[Any],
-                   *, top_k: int = 10) -> ColumnProfile:
+def profile_column(column: str, values: list[Any], *, top_k: int = 10) -> ColumnProfile:
     """Profile a single column from a value sample (capped)."""
     values = values[:MAX_SAMPLE]
     count = len(values)
-    nulls = sum(1 for v in values if v is None or
-                (isinstance(v, float) and math.isnan(v)))
-    non_null = [v for v in values if not (
-        v is None or (isinstance(v, float) and math.isnan(v)))]
+    nulls = sum(1 for v in values if v is None or (isinstance(v, float) and math.isnan(v)))
+    non_null = [v for v in values if not (v is None or (isinstance(v, float) and math.isnan(v)))]
     distinct: dict[str, int] = {}
     for v in non_null:
         k = str(v)
@@ -68,15 +66,21 @@ def profile_column(column: str, values: list[Any],
 
     nums = _numeric(non_null)
     numeric_ratio = len(nums) / len(non_null) if non_null else 0.0
-    dtype = "numeric" if numeric_ratio > 0.9 else (
-        "boolean" if set(distinct) <= {"True", "False"} else "string")
+    dtype = (
+        "numeric"
+        if numeric_ratio > 0.9
+        else ("boolean" if set(distinct) <= {"True", "False"} else "string")
+    )
 
-    p = ColumnProfile(column=column, dtype_inferred=dtype, count=count,
-                      null_count=nulls, distinct_count=len(distinct),
-                      engine="numpy" if _HAS_NUMPY else "stdlib")
-    p.top_values = dict(sorted(distinct.items(),
-                               key=lambda kv: kv[1],
-                               reverse=True)[:top_k])
+    p = ColumnProfile(
+        column=column,
+        dtype_inferred=dtype,
+        count=count,
+        null_count=nulls,
+        distinct_count=len(distinct),
+        engine="numpy" if _HAS_NUMPY else "stdlib",
+    )
+    p.top_values = dict(sorted(distinct.items(), key=lambda kv: kv[1], reverse=True)[:top_k])
 
     if dtype == "numeric" and nums:
         if _HAS_NUMPY:
@@ -94,17 +98,17 @@ def profile_column(column: str, values: list[Any],
             s = sorted(nums)
             p.min_value, p.max_value = s[0], s[-1]
             p.mean = sum(s) / len(s)
-            p.stddev = (math.sqrt(
-                sum((x - p.mean) ** 2 for x in s) / (len(s) - 1))
-                if len(s) > 1 else 0.0)
+            p.stddev = (
+                math.sqrt(sum((x - p.mean) ** 2 for x in s) / (len(s) - 1)) if len(s) > 1 else 0.0
+            )
             p.p50 = s[len(s) // 2]
             p.p95 = s[int(len(s) * 0.95)]
     return p
 
 
-def profile_table(rows: list[dict[str, Any]],
-                  columns: list[str] | None = None
-                  ) -> dict[str, ColumnProfile]:
+def profile_table(
+    rows: list[dict[str, Any]], columns: list[str] | None = None
+) -> dict[str, ColumnProfile]:
     """Profile all (or selected) columns from row dicts."""
     if not rows:
         return {}

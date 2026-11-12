@@ -83,9 +83,7 @@ class TestMatrix:
 class TestAdvisor:
     def test_aqe_disabled_flagged(self) -> None:
         result = _analyze("spark_props.properties", spark_version="3.4")
-        assert any(
-            "AQE desabilitado" in f.explanation for f in result.findings
-        )
+        assert any("AQE desabilitado" in f.explanation for f in result.findings)
 
     def test_incompatible_config_glue3(self) -> None:
         result = _analyze("glue3_incompatible.properties", glue_version="3.0")
@@ -94,9 +92,7 @@ class TestAdvisor:
 
     def test_broadcast_memory_pressure(self) -> None:
         result = _analyze("conf_frag.txt", spark_version="3.4")
-        hit = next(
-            f for f in result.findings if "autoBroadcastJoinThreshold" in f.explanation
-        )
+        hit = next(f for f in result.findings if "autoBroadcastJoinThreshold" in f.explanation)
         assert hit.status == FindingStatus.POSSIBLE
         assert "custo" in hit.explanation or "quota" in hit.explanation
 
@@ -106,9 +102,7 @@ class TestAdvisor:
             spark_version="3.4",
             workload_oom_evidence="true",
         )
-        hit = next(
-            f for f in result.findings if "executor.memory" in f.explanation
-        )
+        hit = next(f for f in result.findings if "executor.memory" in f.explanation)
         assert hit.status == FindingStatus.PROBABLE
         assert "custo" in hit.explanation
 
@@ -125,9 +119,7 @@ class TestAdvisor:
 
     def test_glue_args_provenance(self) -> None:
         result = _analyze("glue_args.json", glue_version="4.0")
-        provs = {
-            v["provenance"] for v in result.metadata["configs"].values()
-        }
+        provs = {v["provenance"] for v in result.metadata["configs"].values()}
         assert "glue_arguments" in provs
 
     def test_recommendation_structure(self) -> None:
@@ -143,8 +135,7 @@ class TestAdvisor:
         # Glue 3.0 (no AQE) + aqe config — no "enable AQE" recommendation
         result = _analyze("glue3_incompatible.properties", glue_version="3.0")
         assert not any(
-            r["recommendation_id"] == "rec-aqe-enable"
-            for r in result.metadata["recommendations"]
+            r["recommendation_id"] == "rec-aqe-enable" for r in result.metadata["recommendations"]
         )
 
     def test_empty_config_unknown(self) -> None:

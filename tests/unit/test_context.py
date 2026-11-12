@@ -27,7 +27,8 @@ def test_context_order_and_digest() -> None:
         evidence=[("erro X na linha 3", "log:glue")],
         knowledge=[("doc relevante", "kb:1")],
         constraints=["budget 8k"],
-        history=["run anterior ok"])
+        history=["run anterior ok"],
+    )
     r = ctx.render()
     assert r.index("[PROBLEM]") < r.index("[EVIDENCE]")
     assert r.index("[EVIDENCE]") < r.index("[KNOWLEDGE]")
@@ -48,7 +49,8 @@ def test_budget_overflow_drops_knowledge_not_evidence() -> None:
         problem="p",
         evidence=[("evidência importante", "ev")],
         knowledge=[("doc enorme " + "y" * 30000, "kb")],
-        token_limit=500)
+        token_limit=500,
+    )
     layers = {c.layer for c in ctx.chunks}
     assert ContextLayer.EVIDENCE in layers
     assert ctx.budget_notes  # drop registrado

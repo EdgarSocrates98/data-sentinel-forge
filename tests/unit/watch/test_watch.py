@@ -1,4 +1,5 @@
 """Tests for Sentinel Watch (ds-0084, §5)."""
+
 from __future__ import annotations
 
 import pytest
@@ -9,14 +10,19 @@ from data_sentinel.watch.engine import MIN_INTERVAL_S
 
 
 def snap(d=100.0, fail=False) -> ExecutionSnapshot:
-    return ExecutionSnapshot(snapshot_id="s", platform="glue",
-                             job_id="j", duration_s=d, failure=fail,
-                             provenance="test")
+    return ExecutionSnapshot(
+        snapshot_id="s", platform="glue", job_id="j", duration_s=d, failure=fail, provenance="test"
+    )
 
 
 def watch(**kw) -> WatchDefinition:
-    base = {"watch_id": "w1", "workload": "job", "platform": "glue",
-            "source": "local", "interval_s": 60}
+    base = {
+        "watch_id": "w1",
+        "workload": "job",
+        "platform": "glue",
+        "source": "local",
+        "interval_s": 60,
+    }
     base.update(kw)
     return WatchDefinition(**base)
 
@@ -41,8 +47,7 @@ def test_cooldown_suppresses_duplicates() -> None:
 def test_missing_data_declared_not_silent() -> None:
     e = AlertEngine()
     alerts = e.evaluate(watch(), [], snap(d=None))
-    assert any(a.kind == "missing_data" and a.severity == "INFO"
-               for a in alerts)
+    assert any(a.kind == "missing_data" and a.severity == "INFO" for a in alerts)
 
 
 def test_register_bounds() -> None:
@@ -62,9 +67,11 @@ def test_min_interval_enforced() -> None:
 def test_run_once_idempotent() -> None:
     rt = WatchRuntime()
     calls = []
+
     def collect() -> tuple:
         calls.append(1)
         return ([snap()], snap(fail=True))
+
     rt.register(watch(), collect)
     a1 = rt.run_once("w1")
     assert a1 and calls
@@ -72,8 +79,7 @@ def test_run_once_idempotent() -> None:
 
 def test_runtime_start_stop() -> None:
     rt = WatchRuntime()
-    rt.register(watch(interval_s=MIN_INTERVAL_S),
-                lambda: ([snap()], snap()))
+    rt.register(watch(interval_s=MIN_INTERVAL_S), lambda: ([snap()], snap()))
     rt.start()
     assert rt._thread and rt._thread.is_alive()
     rt.stop(timeout=3)

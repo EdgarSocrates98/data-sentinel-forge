@@ -75,7 +75,8 @@ def test_interrupted_resume_explicit(store: InvestigationStore) -> None:
     # force row to INTERRUPTED via new store
     store._conn.execute(
         "UPDATE investigations SET state=? WHERE investigation_id=?",
-        (State.INTERRUPTED.value, "i4"))
+        (State.INTERRUPTED.value, "i4"),
+    )
     store._conn.commit()
     # resume is an explicit QUEUED transition — allowed
     store.transition("i4", State.QUEUED)
@@ -122,8 +123,7 @@ def test_concurrent_writes(tmp_path: Path) -> None:
         except Exception as exc:  # pragma: no cover
             errors.append(exc)
 
-    threads = [threading.Thread(target=worker, args=(n,))
-               for n in range(10)]
+    threads = [threading.Thread(target=worker, args=(n,)) for n in range(10)]
     for t in threads:
         t.start()
     for t in threads:
@@ -149,6 +149,5 @@ def test_concurrent_create_and_transition(tmp_path: Path) -> None:
         t.start()
     for t in ts:
         t.join()
-    assert all(store.get(f"inv-{i}").state == State.RUNNING
-               for i in range(20))
+    assert all(store.get(f"inv-{i}").state == State.RUNNING for i in range(20))
     store.close()

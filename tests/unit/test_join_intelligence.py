@@ -37,9 +37,7 @@ def _request() -> DiagnosticRequest:
 
 
 def _analyze(*names: str):
-    return JoinIntelligenceAnalyzer().analyze(
-        _request(), [_load(n) for n in names]
-    )
+    return JoinIntelligenceAnalyzer().analyze(_request(), [_load(n) for n in names])
 
 
 class TestExtraction:
@@ -66,9 +64,7 @@ class TestExtraction:
         assert ctx.joins and ctx.joins[0].form == JoinForm.SEMI
 
     def test_multi_key(self) -> None:
-        ctx = extract_from_sql(
-            "SELECT 1 FROM a JOIN b ON a.x=b.x AND a.y=b.y"
-        )
+        ctx = extract_from_sql("SELECT 1 FROM a JOIN b ON a.x=b.x AND a.y=b.y")
         assert len(ctx.joins[0].equality_keys) == 2
 
     def test_inequality_detected(self) -> None:
@@ -84,9 +80,7 @@ class TestExtraction:
         assert len(ctx.joins) == 4
 
     def test_load_stats(self) -> None:
-        tables, _runtime, warns = load_stats(
-            _load("stats_4tables_unique.json").text
-        )
+        tables, _runtime, warns = load_stats(_load("stats_4tables_unique.json").text)
         assert not warns
         assert tables["orders"].row_count == 230_000_000
         assert tables["products"].keys["product_id"].distinct == 2_500_000
@@ -105,7 +99,8 @@ class TestCardinality:
         # orders⋈customers on customer_id: orders side non-unique (73M distinct
         # in 230M rows), customers unique → N:1, not m2m.
         o2c = next(
-            a for a, j in zip(assessments, result.metadata["joins"], strict=False)
+            a
+            for a, j in zip(assessments, result.metadata["joins"], strict=False)
             if j["right_table"] == "customers"
         )
         assert o2c["many_to_many_risk"] is False
@@ -121,9 +116,7 @@ class TestCardinality:
         assert "produto das multiplicidades" in m2m_findings[0].explanation
         # deduplication warning present, never auto-suggested
         assert any(
-            "NÃO é sugerida automaticamente" in alt
-            for f in m2m_findings
-            for alt in f.alternatives
+            "NÃO é sugerida automaticamente" in alt for f in m2m_findings for alt in f.alternatives
         )
 
     def test_missing_stats_no_cardinality_claim(self) -> None:
@@ -151,9 +144,7 @@ class TestSkew:
         skews = result.metadata["skew"]
         kinds = {s["kind"] for s in skews}
         assert "observed" in kinds and "suspected" in kinds
-        observed_f = [
-            f for f in result.findings if "Skew OBSERVADO" in f.explanation
-        ]
+        observed_f = [f for f in result.findings if "Skew OBSERVADO" in f.explanation]
         assert observed_f and observed_f[0].status == FindingStatus.CONFIRMED
         # stage skew never claims the unbalanced key
         assert "não identifica a chave" in observed_f[0].explanation
@@ -173,18 +164,14 @@ class TestSkew:
             result = _analyze("high_volume_4tables.sql", "_tmp_skew.json")
         finally:
             f.unlink()
-        suspected = [
-            x for x in result.findings if "Skew SUSPEITO" in x.explanation
-        ]
+        suspected = [x for x in result.findings if "Skew SUSPEITO" in x.explanation]
         assert suspected and suspected[0].status == FindingStatus.POSSIBLE
 
 
 class TestGeneral:
     def test_inequality_finding(self) -> None:
         result = _analyze("inequality_join.sql")
-        assert any(
-            "desigualdade" in f.explanation for f in result.findings
-        )
+        assert any("desigualdade" in f.explanation for f in result.findings)
 
     def test_empty_inputs_unknown(self) -> None:
         empty = InputFile(path="empty.sql", text="SELECT 1", size_bytes=8)

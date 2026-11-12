@@ -36,8 +36,8 @@ FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "cloudwatch"
 
 def _input(path: Path) -> InputFile:
     return InputFile(
-        path=path, text=path.read_text(encoding="utf-8"),
-        size_bytes=path.stat().st_size)
+        path=path, text=path.read_text(encoding="utf-8"), size_bytes=path.stat().st_size
+    )
 
 
 def _request() -> DiagnosticRequest:
@@ -155,7 +155,9 @@ class TestLogsConnector:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         conn = CloudWatchLogsConnector(session)
         conn._client = client
@@ -165,7 +167,9 @@ class TestLogsConnector:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         client = session.client("logs")
         stub = Stubber(client)
@@ -215,9 +219,7 @@ class TestLogsConnector:
             },
             {"logGroupName": "g", "limit": 10_000, "filterPattern": "jr_1"},
         )
-        events = list(
-            self._conn(client).filter_log_events(group="g", filter_pattern="jr_1")
-        )
+        events = list(self._conn(client).filter_log_events(group="g", filter_pattern="jr_1"))
         assert events[0].stream == "s1"
 
     def test_volume_cap(self) -> None:
@@ -235,15 +237,15 @@ class TestLogsConnector:
         assert len(events) == 2
 
     def test_allowlist_readonly(self) -> None:
-        assert LOGS_ACTIONS.isdisjoint(
-            {"put_log_events", "delete_log_group", "create_log_stream"}
-        )
+        assert LOGS_ACTIONS.isdisjoint({"put_log_events", "delete_log_group", "create_log_stream"})
 
     def test_offline_blocked(self) -> None:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         from data_sentinel.core.exceptions import SentinelError
 
@@ -256,7 +258,9 @@ class TestMetricsConnector:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         conn = CloudWatchMetricsConnector(session)
         conn._client = client
@@ -266,7 +270,9 @@ class TestMetricsConnector:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         client = session.client("cloudwatch")
         stub = Stubber(client)
@@ -301,7 +307,9 @@ class TestMetricsConnector:
         import boto3
 
         session = boto3.session.Session(
-            aws_access_key_id="t", aws_secret_access_key="t", region_name="us-east-1"  # noqa: S106
+            aws_access_key_id="t",
+            aws_secret_access_key="t",
+            region_name="us-east-1",  # noqa: S106
         )
         client = session.client("cloudwatch")
         stub = Stubber(client)

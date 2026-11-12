@@ -34,9 +34,14 @@ class TestScenarioA:
         r = runner.invoke(
             app,
             [
-                "sql", "analyze",
-                "--file", str(ROOT / "fixtures" / "joins" / "high_volume_4tables.sql"),
-                "--output", str(out), "--no-persist", "--json",
+                "sql",
+                "analyze",
+                "--file",
+                str(ROOT / "fixtures" / "joins" / "high_volume_4tables.sql"),
+                "--output",
+                str(out),
+                "--no-persist",
+                "--json",
             ],
         )
         assert r.exit_code == 0, r.stdout
@@ -67,9 +72,7 @@ class TestScenarioB:
         assert plans[0]["operators"]["Exchange"] >= 3
         assert len(plans[0]["shuffle_points"]) >= 3
         # join + shuffle findings exist as investigation candidates
-        assert any(
-            f.status == FindingStatus.POSSIBLE for f in out.report.findings
-        )
+        assert any(f.status == FindingStatus.POSSIBLE for f in out.report.findings)
 
 
 class TestScenarioC:
@@ -92,9 +95,7 @@ class TestScenarioC:
         out = run_diagnostics(req, [inp])
         assert out.report.findings
         # correlation metadata present in cloudwatch analyzer result
-        cw = next(
-            r for r in out.results if r.analyzer_id == "cloudwatch-log-analyzer"
-        )
+        cw = next(r for r in out.results if r.analyzer_id == "cloudwatch-log-analyzer")
         assert cw.metadata.get("correlation") or cw.metadata.get("incidents") is not None
 
 
@@ -108,24 +109,20 @@ class TestScenarioD:
             platform=Platform.SPARK,
         )
         # SQL without stats descriptor → join analysis can't claim cardinality
-        out = run_diagnostics(
-            req, [_inp("fixtures/joins/high_volume_4tables.sql")]
-        )
+        out = run_diagnostics(req, [_inp("fixtures/joins/high_volume_4tables.sql")])
         unknown = [f for f in out.report.findings if f.status == FindingStatus.UNKNOWN]
         assert unknown
-        assert any(
-            "Faltam" in f.explanation or "insuficiente" in f.explanation
-            for f in unknown
-        )
+        assert any("Faltam" in f.explanation or "insuficiente" in f.explanation for f in unknown)
         # what would help is spelled out
         assert any(f.validation_steps for f in unknown)
         # no fabricated cardinality
         for a in out.results:
             for x in a.metadata.get("assessments", []):
                 if isinstance(x, dict):
-                    assert "unavailable" in str(x.get("estimate_basis", "")) or x[
-                        "estimate_basis"
-                    ] == "unavailable"
+                    assert (
+                        "unavailable" in str(x.get("estimate_basis", ""))
+                        or x["estimate_basis"] == "unavailable"
+                    )
 
 
 class TestScenarioE:
@@ -145,16 +142,12 @@ class TestScenarioE:
             ],
         )
         # many-to-many risk detected
-        assert any(
-            "many-to-many" in f.explanation for f in out.report.findings
-        )
+        assert any("many-to-many" in f.explanation for f in out.report.findings)
         # no unsupported real-cardinality claim
         for f in out.report.findings:
             assert "cardinalidade real" not in f.explanation.lower()
         # controlled-experiment recommendations exist
-        assert any(
-            f.validation_steps or f.recommendations for f in out.report.findings
-        )
+        assert any(f.validation_steps or f.recommendations for f in out.report.findings)
 
 
 class TestAwsGated:

@@ -50,16 +50,12 @@ class TestPrecedence:
     def test_project_config_overrides_user(self, tmp_path: Path) -> None:
         write(tmp_path / ".config/data-sentinel/config.toml", 'profile = "economy"')
         write(tmp_path / "proj/data-sentinel.toml", 'profile = "deep"')
-        cfg = load_config(
-            cwd=tmp_path / "proj/sub/dir", env={"HOME": str(tmp_path)}
-        )
+        cfg = load_config(cwd=tmp_path / "proj/sub/dir", env={"HOME": str(tmp_path)})
         assert cfg.profile is AnalysisMode.DEEP
 
     def test_project_config_discovered_upward(self, tmp_path: Path) -> None:
         write(tmp_path / "proj/data-sentinel.toml", 'log_level = "ERROR"')
-        cfg = load_config(
-            cwd=tmp_path / "proj/a/b/c", env={"HOME": str(tmp_path)}
-        )
+        cfg = load_config(cwd=tmp_path / "proj/a/b/c", env={"HOME": str(tmp_path)})
         assert cfg.log_level == "ERROR"
         project = next(s for s in cfg.sources if s.layer == "project")
         assert project.found and str(tmp_path / "proj") in (project.path or "")
@@ -107,9 +103,7 @@ class TestValidation:
 
     def test_invalid_env_value_rejected(self, tmp_path: Path) -> None:
         with pytest.raises(ConfigurationError):
-            load_config(
-                cwd=tmp_path, env={"DATA_SENTINEL_MAX_FILE_BYTES": "-5"}
-            )
+            load_config(cwd=tmp_path, env={"DATA_SENTINEL_MAX_FILE_BYTES": "-5"})
 
     def test_max_file_bytes_must_be_positive(self, tmp_path: Path) -> None:
         write(tmp_path / "data-sentinel.toml", "max_file_bytes = 0")

@@ -86,9 +86,7 @@ class SparkGlueLogAnalyzer(Analyzer):
             pattern = hits[0][0]
             finding_evidence_ids: list[str] = []
             for _pat, file, lineno, line, digest in hits[:MAX_EVIDENCE_PER_FINDING]:
-                excerpt = sanitize_evidence_excerpt(
-                    line.strip(), max_chars=500
-                )
+                excerpt = sanitize_evidence_excerpt(line.strip(), max_chars=500)
                 ev = Evidence(
                     source="log",
                     source_location=f"{file.path}:{lineno}",
@@ -101,9 +99,7 @@ class SparkGlueLogAnalyzer(Analyzer):
                 evidence.append(ev)
                 finding_evidence_ids.append(ev.evidence_id)
             extra = len(hits) - MAX_EVIDENCE_PER_FINDING
-            explanation = (
-                f"{pattern.rationale} {len(hits)} ocorrência(s) no log analisado."
-            )
+            explanation = f"{pattern.rationale} {len(hits)} ocorrência(s) no log analisado."
             if extra > 0:
                 explanation += f" {extra} ocorrência(s) adicionais não exibidas."
             findings.append(
@@ -154,9 +150,7 @@ class SparkGlueLogAnalyzer(Analyzer):
             request_id=request.request_id,
             findings=sorted(
                 findings,
-                key=lambda f: list(Severity).index(f.severity)
-                if f.severity in Severity
-                else 0,
+                key=lambda f: list(Severity).index(f.severity) if f.severity in Severity else 0,
                 reverse=True,
             ),
             evidence=evidence,

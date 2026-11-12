@@ -50,16 +50,18 @@ def test_parse_valid_yaml() -> None:
 
 def test_parse_json_also_works() -> None:
     import json
-    c = parse_contract_text(json.dumps({
-        "contract_version": "1.0", "dataset": {"namespace": "a", "name": "b"},
-        "rules": []}))
+
+    c = parse_contract_text(
+        json.dumps(
+            {"contract_version": "1.0", "dataset": {"namespace": "a", "name": "b"}, "rules": []}
+        )
+    )
     assert c.dataset.name == "b"
 
 
 def test_unknown_rule_type_rejected() -> None:
     with pytest.raises(ContractFormatError, match="desconhecido"):
-        parse_contract_text(
-            "dataset: a.b\nrules:\n - {id: x, type: telepathy}")
+        parse_contract_text("dataset: a.b\nrules:\n - {id: x, type: telepathy}")
 
 
 def test_malformed_yaml() -> None:
@@ -77,8 +79,7 @@ def test_oversized_rejected() -> None:
 def test_no_eval_or_unsafe_yaml() -> None:
     """!!python/object payloads must fail safe_load."""
     with pytest.raises(ContractFormatError):
-        parse_contract_text(
-            "dataset: !!python/object/apply:os.system ['echo hi']")
+        parse_contract_text("dataset: !!python/object/apply:os.system ['echo hi']")
 
 
 def test_validate_detects_dup_and_bad_severity() -> None:

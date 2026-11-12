@@ -70,9 +70,7 @@ class TestChecks:
         result = ANALYZER.analyze(
             request_for("join_no_predicate.sql"), inputs_for("join_no_predicate.sql")
         )
-        hit = next(
-            f for f in result.findings if "produto cartesiano" in f.explanation
-        )
+        hit = next(f for f in result.findings if "produto cartesiano" in f.explanation)
         assert hit.status is FindingStatus.CONFIRMED
         assert hit.evidence_ids
 
@@ -87,9 +85,7 @@ class TestChecks:
                     ), f.explanation
 
     def test_windowed_cte_does_not_crash(self) -> None:
-        result = ANALYZER.analyze(
-            request_for("windowed_cte.sql"), inputs_for("windowed_cte.sql")
-        )
+        result = ANALYZER.analyze(request_for("windowed_cte.sql"), inputs_for("windowed_cte.sql"))
         queries = result.metadata["queries"]
         assert queries and queries[0]["cte_count"] >= 1
 
@@ -99,9 +95,7 @@ class TestChecks:
         assert all(f.status is FindingStatus.UNKNOWN for f in result.findings)
 
     def test_no_runtime_claims(self) -> None:
-        result = ANALYZER.analyze(
-            request_for("select_star.sql"), inputs_for("select_star.sql")
-        )
+        result = ANALYZER.analyze(request_for("select_star.sql"), inputs_for("select_star.sql"))
         for f in result.findings:
             assert "será lento" not in f.explanation.lower()
         assert any("não observa execução física" in lim for lim in result.limitations)
@@ -124,26 +118,18 @@ class TestDialects:
         assert result.metadata["dialect"] == "trino"
 
     def test_dialects_not_treated_as_equivalent(self, tmp_path: Path) -> None:
-        spark_only = _write(
-            "SELECT TRANSFORM(x) USING 'cat' FROM t;", tmp_path, "spark_only.sql"
-        )
-        f = read_input_file(
-            spark_only, max_file_bytes=10000, allowed_roots=[tmp_path]
-        )
+        spark_only = _write("SELECT TRANSFORM(x) USING 'cat' FROM t;", tmp_path, "spark_only.sql")
+        f = read_input_file(spark_only, max_file_bytes=10000, allowed_roots=[tmp_path])
         req = request_for("spark_only.sql", platform=Platform.ATHENA)
         r_trino = ANALYZER.analyze(req, [f])
-        r_spark = ANALYZER.analyze(
-            request_for("spark_only.sql", platform=Platform.SPARK), [f]
-        )
+        r_spark = ANALYZER.analyze(request_for("spark_only.sql", platform=Platform.SPARK), [f])
         assert r_spark.metadata["dialect"] == "spark"
         assert r_trino.metadata["dialect"] == "trino"
         assert r_spark.metadata["dialect"] != r_trino.metadata["dialect"]
 
 
 def result_dialect(platform: Platform) -> str:
-    result = ANALYZER.analyze(
-        request_for("clean.sql", platform=platform), inputs_for("clean.sql")
-    )
+    result = ANALYZER.analyze(request_for("clean.sql", platform=platform), inputs_for("clean.sql"))
     return result.metadata["dialect"]  # type: ignore[return-value]
 
 
@@ -172,10 +158,6 @@ class TestProtocol:
         assert all(c.title and c.rationale and c.suggestion for c in SQL_CHECKS)
 
     def test_evidence_provenance_static(self) -> None:
-        result = ANALYZER.analyze(
-            request_for("select_star.sql"), inputs_for("select_star.sql")
-        )
+        result = ANALYZER.analyze(request_for("select_star.sql"), inputs_for("select_star.sql"))
         assert result.evidence
-        assert all(
-            ev.provenance.value == "static_inferred" for ev in result.evidence
-        )
+        assert all(ev.provenance.value == "static_inferred" for ev in result.evidence)

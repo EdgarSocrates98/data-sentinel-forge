@@ -68,13 +68,12 @@ class IcebergMetadataAnalyzer(Analyzer):
     @property
     def limitations(self) -> tuple[str, ...]:
         return (
-        "Metadados declarados — snapshots/summaries descrevem o catálogo, "
-        "não métricas de execução observadas",
-        "Manifests/data files analisados somente quando fornecidos como "
-        "entrada; locations são referências, nunca URLs seguidas",
-        "Pruning e eficácia de partição são hipóteses sem plano/métricas",
-        "Campos desconhecidos de versões mais novas são preservados, "
-        "não interpretados",
+            "Metadados declarados — snapshots/summaries descrevem o catálogo, "
+            "não métricas de execução observadas",
+            "Manifests/data files analisados somente quando fornecidos como "
+            "entrada; locations são referências, nunca URLs seguidas",
+            "Pruning e eficácia de partição são hipóteses sem plano/métricas",
+            "Campos desconhecidos de versões mais novas são preservados, não interpretados",
         )
 
     def capabilities(self) -> CapabilityManifest:
@@ -238,8 +237,10 @@ class IcebergMetadataAnalyzer(Analyzer):
                     ],
                 )
             )
-        if cur and cur.parent_snapshot_id is not None and all(
-            s.snapshot_id != cur.parent_snapshot_id for s in snaps
+        if (
+            cur
+            and cur.parent_snapshot_id is not None
+            and all(s.snapshot_id != cur.parent_snapshot_id for s in snaps)
         ):
             _ev(
                 f"snapshot atual {cur.snapshot_id} referencia parent "
@@ -361,10 +362,7 @@ class IcebergMetadataAnalyzer(Analyzer):
                 )
             )
         if len(meta.snapshot_log) > _SNAPSHOT_LOG_FLAG:
-            ev = _ev(
-                f"{len(meta.snapshot_log)} entradas de snapshot-log "
-                "declaradas"
-            )
+            ev = _ev(f"{len(meta.snapshot_log)} entradas de snapshot-log declaradas")
             findings.append(
                 Finding(
                     category=FindingCategory.COST,
@@ -375,8 +373,6 @@ class IcebergMetadataAnalyzer(Analyzer):
                         "listagens de catálogo ficam mais caras."
                     ),
                     evidence_ids=[ev.evidence_id],
-                    recommendations=[
-                        "Revisar retenção (history.expire.*) conforme SLA."
-                    ],
+                    recommendations=["Revisar retenção (history.expire.*) conforme SLA."],
                 )
             )

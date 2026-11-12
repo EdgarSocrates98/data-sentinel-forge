@@ -6,6 +6,7 @@ names match the authoritative Python wire shapes (pydantic model_fields
 / dataclass fields / literal endpoint keys). Drift in either direction
 fails here instead of surfacing as silent UI mismatches.
 """
+
 from __future__ import annotations
 
 import re
@@ -18,10 +19,7 @@ from data_sentinel.core.contracts.quality import QualityObservation
 from data_sentinel.core.contracts.snapshot import ExecutionSnapshot
 from data_sentinel.remediation.plans import RemediationPlan
 
-TS_MODELS = (
-    Path(__file__).resolve().parents[2]
-    / "frontend/src/app/core/api.models.ts"
-)
+TS_MODELS = Path(__file__).resolve().parents[2] / "frontend/src/app/core/api.models.ts"
 
 _IFACE = re.compile(r"export interface (\w+)\s*\{(.*?)\n\}", re.S)
 _FIELD = re.compile(r"^\s*(?:readonly\s+)?([A-Za-z_]\w*)\??:", re.M)
@@ -29,10 +27,7 @@ _FIELD = re.compile(r"^\s*(?:readonly\s+)?([A-Za-z_]\w*)\??:", re.M)
 
 def _ts_interfaces() -> dict[str, set[str]]:
     text = TS_MODELS.read_text(encoding="utf-8")
-    return {
-        m.group(1): set(_FIELD.findall(m.group(2)))
-        for m in _IFACE.finditer(text)
-    }
+    return {m.group(1): set(_FIELD.findall(m.group(2))) for m in _IFACE.finditer(text)}
 
 
 # interface name → authoritative wire field names
@@ -66,5 +61,5 @@ def test_field_parity_with_python_wire_shapes() -> None:
         extra = got - expected
         absent = expected - got
         assert not (extra or absent), (
-            f"{name}: campos a mais no TS {sorted(extra)} / "
-            f"ausentes {sorted(absent)}")
+            f"{name}: campos a mais no TS {sorted(extra)} / ausentes {sorted(absent)}"
+        )

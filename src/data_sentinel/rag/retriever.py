@@ -13,13 +13,31 @@ from pathlib import Path
 from data_sentinel.core.contracts.agent import KnowledgeChunk, RetrievalResult
 
 _TOKEN = re.compile(r"[a-z0-9_]+", re.I)
-_STOP = {"a", "o", "e", "de", "do", "da", "em", "um", "uma", "the",
-         "of", "to", "in", "and", "or", "is", "para", "com", "por"}
+_STOP = {
+    "a",
+    "o",
+    "e",
+    "de",
+    "do",
+    "da",
+    "em",
+    "um",
+    "uma",
+    "the",
+    "of",
+    "to",
+    "in",
+    "and",
+    "or",
+    "is",
+    "para",
+    "com",
+    "por",
+}
 
 
 def _terms(text: str) -> list[str]:
-    return [t.lower() for t in _TOKEN.findall(text)
-            if t.lower() not in _STOP and len(t) > 2]
+    return [t.lower() for t in _TOKEN.findall(text) if t.lower() not in _STOP and len(t) > 2]
 
 
 class KnowledgeBase:
@@ -36,30 +54,31 @@ class KnowledgeBase:
         for t in set(_terms(chunk.text)):
             self._df[t] = self._df.get(t, 0) + 1
 
-    def add_text(self, text: str, *, source: str, kind: str = "doc",
-                 provenance: str = "") -> None:
-        self.add(KnowledgeChunk(
-            chunk_id=f"{source}:{len(self._chunks)}",
-            source=source, text=text, kind=kind,
-            provenance=provenance or source))
+    def add_text(self, text: str, *, source: str, kind: str = "doc", provenance: str = "") -> None:
+        self.add(
+            KnowledgeChunk(
+                chunk_id=f"{source}:{len(self._chunks)}",
+                source=source,
+                text=text,
+                kind=kind,
+                provenance=provenance or source,
+            )
+        )
 
-    def load_dir(self, path: Path, *, glob: str = "*.md",
-                 kind: str = "doc") -> int:
+    def load_dir(self, path: Path, *, glob: str = "*.md", kind: str = "doc") -> int:
         n = 0
         for f in sorted(path.rglob(glob)):
             if f.is_file() and f.stat().st_size < 500_000:
-                self.add_text(f.read_text(encoding="utf-8",
-                                          errors="replace"),
-                              source=str(f), kind=kind)
+                self.add_text(
+                    f.read_text(encoding="utf-8", errors="replace"), source=str(f), kind=kind
+                )
                 n += 1
         return n
 
-    def search(self, query: str, *, top_k: int = 5
-               ) -> RetrievalResult:
+    def search(self, query: str, *, top_k: int = 5) -> RetrievalResult:
         q = _terms(query)
         if not q:
-            return RetrievalResult(query=query, limitations=[
-                "query vazia após normalização"])
+            return RetrievalResult(query=query, limitations=["query vazia após normalização"])
         n_docs = max(1, len(self._chunks))
         scored: list[tuple[float, KnowledgeChunk]] = []
         for c in self._chunks.values():
@@ -76,14 +95,14 @@ class KnowledgeBase:
         scored.sort(key=lambda kv: (-kv[0], kv[1].chunk_id))
         out = []
         for score, c in scored[:top_k]:
-            out.append(c.model_copy(update={
-                "metadata": {**c.metadata, "score": f"{score:.3f}"}}))
+            out.append(c.model_copy(update={"metadata": {**c.metadata, "score": f"{score:.3f}"}}))
         return RetrievalResult(
-            query=query, chunks=out, method="lexical-tfidf",
-            limitations=[] if out else [
-                "nenhum chunk relevante — resposta não deve inventar"])
+            query=query,
+            chunks=out,
+            method="lexical-tfidf",
+            limitations=[] if out else ["nenhum chunk relevante — resposta não deve inventar"],
+        )
 
 
-def retrieve(kb: KnowledgeBase, query: str, *, top_k: int = 5
-             ) -> RetrievalResult:
+def retrieve(kb: KnowledgeBase, query: str, *, top_k: int = 5) -> RetrievalResult:
     return kb.search(query, top_k=top_k)

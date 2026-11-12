@@ -29,9 +29,7 @@ def parse_config_text(text: str, *, filename: str = "") -> list[ConfigEntry]:
             continue
         conf = _CONF_RE.findall(line)
         if conf:
-            out.extend(
-                ConfigEntry(k, v, "conf_fragment") for k, v in conf
-            )
+            out.extend(ConfigEntry(k, v, "conf_fragment") for k, v in conf)
             continue
         m = _PROP_RE.match(line)
         if m:

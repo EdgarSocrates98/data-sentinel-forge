@@ -11,6 +11,7 @@ investigação delimitada. Regras duras:
   ciclo — roteamento determinístico atual cobre os casos avaliados e
   loops entre agentes são proibidos (§9.6).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -35,6 +36,7 @@ class TriggerKind(StrEnum):
 
 class CauseLabel(StrEnum):
     """§9.4 — rótulos permitidos. CONFIRMED é propositalmente ausente."""
+
     OBSERVED_REGRESSION = "observed_regression"
     ASSOCIATED_EVENT = "associated_event"
     PROBABLE_CAUSE = "probable_cause"
@@ -50,9 +52,9 @@ class OperationalTrigger:
 
     def to_problem(self) -> str:
         return sanitize_untrusted(
-            f"[{self.kind}] {self.summary} "
-            f"(refs: {', '.join(self.source_refs) or 'nenhuma'})",
-            max_chars=2_000)
+            f"[{self.kind}] {self.summary} (refs: {', '.join(self.source_refs) or 'nenhuma'})",
+            max_chars=2_000,
+        )
 
 
 def trigger_investigation(
@@ -73,7 +75,8 @@ def trigger_investigation(
     if not files:
         rep.limitations.append(
             "trigger operacional sem artefatos locais — análise "
-            "limitada a roteamento/contexto; nenhum achado fabricado")
+            "limitada a roteamento/contexto; nenhum achado fabricado"
+        )
     return rep
 
 
@@ -85,9 +88,12 @@ class Hypothesis:
     limitations: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
-        return {"label": str(self.label), "statement": self.statement,
-                "supporting": self.supporting,
-                "limitations": self.limitations}
+        return {
+            "label": str(self.label),
+            "statement": self.statement,
+            "supporting": self.supporting,
+            "limitations": self.limitations,
+        }
 
 
 def evaluate_hypothesis(
@@ -105,46 +111,45 @@ def evaluate_hypothesis(
                 CauseLabel.OBSERVED_REGRESSION,
                 "falha observada sem regressão de métricas",
                 supporting=["current.failure=True"],
-                limitations=["falha sem contexto de métricas — "
-                             "causa não inferida"])
+                limitations=["falha sem contexto de métricas — causa não inferida"],
+            )
         return Hypothesis(
             CauseLabel.UNKNOWN,
             "sem regressão detectável — dados insuficientes",
-            limitations=["histórico ou métricas ausentes"])
+            limitations=["histórico ou métricas ausentes"],
+        )
 
-    supporting = [f"{f['metric']}: {f['rationale']}"
-                  for f in findings]
+    supporting = [f"{f['metric']}: {f['rationale']}" for f in findings]
     changes = _related_changes(history, current)
     if changes:
         return Hypothesis(
             CauseLabel.ASSOCIATED_EVENT,
             "regressão observada com alterações correlatas",
             supporting=supporting + changes,
-            limitations=["correlação temporal não é causalidade — "
-                         "investigar antes de remediar"])
+            limitations=["correlação temporal não é causalidade — investigar antes de remediar"],
+        )
     return Hypothesis(
         CauseLabel.OBSERVED_REGRESSION,
         "regressão observada sem alterações correlatas",
         supporting=supporting,
-        limitations=["sem mudança declarada no período — "
-                     "causa não inferida por esta camada"])
+        limitations=["sem mudança declarada no período — causa não inferida por esta camada"],
+    )
 
 
-def _related_changes(history: list[ExecutionSnapshot],
-                     current: ExecutionSnapshot) -> list[str]:
+def _related_changes(history: list[ExecutionSnapshot], current: ExecutionSnapshot) -> list[str]:
     out: list[str] = []
     if not history:
         return out
     prev = sorted(history, key=lambda s: s.started_at or "")[-1]
-    if (prev.runtime and current.runtime
-            and prev.runtime != current.runtime):
+    if prev.runtime and current.runtime and prev.runtime != current.runtime:
         out.append(f"runtime {prev.runtime} -> {current.runtime}")
-    if (prev.config_fingerprint and current.config_fingerprint
-            and prev.config_fingerprint
-            != current.config_fingerprint):
+    if (
+        prev.config_fingerprint
+        and current.config_fingerprint
+        and prev.config_fingerprint != current.config_fingerprint
+    ):
         out.append("config fingerprint alterado")
-    if (prev.input_bytes and current.input_bytes
-            and prev.input_bytes > 0):
+    if prev.input_bytes and current.input_bytes and prev.input_bytes > 0:
         ratio = current.input_bytes / prev.input_bytes
         if ratio > 1.5 or ratio < 0.66:
             out.append(f"volume de entrada {ratio:.1f}x")
@@ -156,23 +161,26 @@ def trigger_from_alert(alert: dict[str, Any]) -> OperationalTrigger:
         kind=TriggerKind.ALERT,
         summary=str(alert.get("message", "alerta")),
         source_refs=[str(alert.get("alert_id", ""))],
-        payload={"watch_id": str(alert.get("watch_id", "")),
-                 "kind": str(alert.get("kind", "")),
-                 "severity": str(alert.get("severity", "")),
-                 "findings": list(alert.get("findings", []))})
+        payload={
+            "watch_id": str(alert.get("watch_id", "")),
+            "kind": str(alert.get("kind", "")),
+            "severity": str(alert.get("severity", "")),
+            "findings": list(alert.get("findings", [])),
+        },
+    )
 
 
 def trigger_from_regression(
-    job_id: str, findings: list[dict[str, Any]],
+    job_id: str,
+    findings: list[dict[str, Any]],
 ) -> OperationalTrigger:
-    metrics = ", ".join(str(f.get("metric", "?"))
-                       for f in findings[:10]) or "?"
+    metrics = ", ".join(str(f.get("metric", "?")) for f in findings[:10]) or "?"
     return OperationalTrigger(
         kind=TriggerKind.REGRESSION,
         summary=f"regressão em {job_id}: {metrics}",
         source_refs=[job_id],
-        payload={"job_id": job_id,
-                 "findings": findings[:20]})
+        payload={"job_id": job_id, "findings": findings[:20]},
+    )
 
 
 def new_trigger_id() -> str:

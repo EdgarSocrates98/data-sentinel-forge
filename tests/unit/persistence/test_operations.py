@@ -1,4 +1,5 @@
 """ds-0091 / §2.1 — operational persistence: versioned schema."""
+
 from __future__ import annotations
 
 import sqlite3
@@ -19,25 +20,34 @@ from data_sentinel.remediation.plans import (
 from data_sentinel.watch.engine import Alert, WatchDefinition
 
 
-def _snap(sid: str, job: str = "j1", dur: float = 10.0,
-          start: str = "2026-01-01T00:00:00Z"):
+def _snap(sid: str, job: str = "j1", dur: float = 10.0, start: str = "2026-01-01T00:00:00Z"):
     return ExecutionSnapshot(
-        snapshot_id=sid, platform="glue", job_id=job,
-        started_at=start, duration_s=dur, failure=False,
-        provenance="test")
+        snapshot_id=sid,
+        platform="glue",
+        job_id=job,
+        started_at=start,
+        duration_s=dur,
+        failure=False,
+        provenance="test",
+    )
 
 
 def _watch(wid: str = "w1", enabled: bool = False):
-    return WatchDefinition(watch_id=wid, workload="j1",
-                           platform="glue", source="local",
-                           enabled=enabled)
+    return WatchDefinition(
+        watch_id=wid, workload="j1", platform="glue", source="local", enabled=enabled
+    )
 
 
 def _plan(state: PlanState = PlanState.DRAFT):
-    f = Finding(category=FindingCategory.OUT_OF_MEMORY,
-                severity=Severity.HIGH, status=FindingStatus.CONFIRMED,
-                explanation="oom", evidence_ids=["e"],
-                recommendations=["r"], validation_steps=["v"])
+    f = Finding(
+        category=FindingCategory.OUT_OF_MEMORY,
+        severity=Severity.HIGH,
+        status=FindingStatus.CONFIRMED,
+        explanation="oom",
+        evidence_ids=["e"],
+        recommendations=["r"],
+        validation_steps=["v"],
+    )
     p = plan_for_finding(f)
     if state == PlanState.APPROVED:
         p = submit_for_approval(p)
@@ -93,9 +103,15 @@ class TestWatches:
 class TestAlerts:
     def test_execution_and_alerts(self, tmp_path):
         s = OpsStore(tmp_path / "o.db")
-        a = Alert(alert_id="a1", watch_id="w1", kind="job_failure",
-                  severity="HIGH", message="falhou", ts=1.0,
-                  dedup_key="w1:failure")
+        a = Alert(
+            alert_id="a1",
+            watch_id="w1",
+            kind="job_failure",
+            severity="HIGH",
+            message="falhou",
+            ts=1.0,
+            dedup_key="w1:failure",
+        )
         s.save_watch_execution("w1", [a])
         assert s.list_alerts()[0]["kind"] == "job_failure"
         assert s.list_watch_executions("w1")[0]["result"] == "ok"
@@ -143,8 +159,8 @@ class TestOps:
             for i in range(10):
                 st.save_snapshot(_snap(f"t{n}-{i}"))
             st.close()
-        threads = [threading.Thread(target=work, args=(n,))
-                   for n in range(4)]
+
+        threads = [threading.Thread(target=work, args=(n,)) for n in range(4)]
         for t in threads:
             t.start()
         for t in threads:
@@ -154,14 +170,12 @@ class TestOps:
 
     def test_retention(self, tmp_path):
         from datetime import UTC, datetime, timedelta
+
         s = OpsStore(tmp_path / "o.db")
         now = datetime.now(UTC)
-        s.save_snapshot(_snap(
-            "old", start=(now - timedelta(days=30)).isoformat()))
-        s.save_snapshot(_snap(
-            "new", start=now.isoformat()))
-        removed = s.prune(
-            snapshots_older_than_s=86400)
+        s.save_snapshot(_snap("old", start=(now - timedelta(days=30)).isoformat()))
+        s.save_snapshot(_snap("new", start=now.isoformat()))
+        removed = s.prune(snapshots_older_than_s=86400)
         assert removed["snapshots"] == 1
         assert s.get_snapshot("new") is not None
 
@@ -179,15 +193,14 @@ class TestOps:
 
     def test_versioned_migration(self, tmp_path):
         from data_sentinel.persistence.operations import SCHEMA_VERSION
+
         db = tmp_path / "o.db"
         OpsStore(db).close()
-        v = sqlite3.connect(db).execute(
-            "PRAGMA user_version").fetchone()[0]
+        v = sqlite3.connect(db).execute("PRAGMA user_version").fetchone()[0]
         assert v == SCHEMA_VERSION
         # reabrir é idempotente
         OpsStore(db).close()
-        assert sqlite3.connect(db).execute(
-            "PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
+        assert sqlite3.connect(db).execute("PRAGMA user_version").fetchone()[0] == SCHEMA_VERSION
 
     def test_v1_to_v2_upgrade_preserves_data(self, tmp_path):
         """Cycle 09: an existing v1 DB upgrades in place — no data loss."""
@@ -195,6 +208,7 @@ class TestOps:
         con = sqlite3.connect(db)
         # simulate a v1 database: run only the v1 DDL, stamp version 1
         from data_sentinel.persistence.operations import _MIGRATIONS
+
         con.executescript(_MIGRATIONS[1])
         con.execute("PRAGMA user_version=1")
         con.commit()
@@ -202,8 +216,7 @@ class TestOps:
         s = OpsStore(db)
         s.save_snapshot(_snap("kept"))
         s.close()
-        v = sqlite3.connect(db).execute(
-            "PRAGMA user_version").fetchone()[0]
+        v = sqlite3.connect(db).execute("PRAGMA user_version").fetchone()[0]
         assert v == 2
         # checkpoint table exists after upgrade and data survived
         s2 = OpsStore(db)
@@ -245,9 +258,11 @@ class TestOps:
         s.save_snapshot(_snap("ok"))
         s._conn.execute(
             "INSERT INTO snapshots (snapshot_id, platform,"
-            " payload_json, created_ts) VALUES ('bad','x','{no',0)")
+            " payload_json, created_ts) VALUES ('bad','x','{no',0)"
+        )
         s._conn.commit()
         import pydantic
+
         with pytest.raises((sqlite3.DatabaseError, pydantic.ValidationError)):
             s.list_snapshots()  # corrupção é erro explícito, não skip
         assert s.get_snapshot("ok") is not None

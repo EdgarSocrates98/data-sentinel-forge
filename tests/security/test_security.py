@@ -152,8 +152,7 @@ class TestRedaction:
 
     def test_private_key_block_removed(self) -> None:
         text = (
-            "log start\n-----BEGIN RSA PRIVATE KEY-----\n"
-            "MIIE\n-----END RSA PRIVATE KEY-----\nend"
+            "log start\n-----BEGIN RSA PRIVATE KEY-----\nMIIE\n-----END RSA PRIVATE KEY-----\nend"
         )
         out = redact_secrets(text)
         assert "MIIE" not in out

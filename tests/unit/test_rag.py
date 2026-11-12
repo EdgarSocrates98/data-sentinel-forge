@@ -8,12 +8,9 @@ from data_sentinel.rag import InvestigationMemory, KnowledgeBase
 
 def _kb() -> KnowledgeBase:
     kb = KnowledgeBase()
-    kb.add_text("Iceberg snapshot expiration limpa metadados antigos",
-                source="kb:iceberg")
-    kb.add_text("Glue job falha por falta de memória no driver",
-                source="kb:glue")
-    kb.add_text("Política IAM nega s3:GetObject no bucket",
-                source="kb:iam")
+    kb.add_text("Iceberg snapshot expiration limpa metadados antigos", source="kb:iceberg")
+    kb.add_text("Glue job falha por falta de memória no driver", source="kb:glue")
+    kb.add_text("Política IAM nega s3:GetObject no bucket", source="kb:iam")
     return kb
 
 

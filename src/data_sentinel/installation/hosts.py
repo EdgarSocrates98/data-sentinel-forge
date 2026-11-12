@@ -136,18 +136,12 @@ UNSUPPORTED_HOSTS: dict[str, str] = {
 # com a razão ao lado; o default silencioso seria publicar sem ninguém ter
 # decidido se ela roda sem poder perguntar.
 DISPATCHABLE_SKILLS: dict[str, str] = {
-    "data-sentinel-spark-plan": (
-        "lê um plano/log já salvo e devolve findings; leitura fechada"
-    ),
-    "data-sentinel-sql-review": (
-        "análise estática de um .sql fechado; a saída é relatório"
-    ),
+    "data-sentinel-spark-plan": ("lê um plano/log já salvo e devolve findings; leitura fechada"),
+    "data-sentinel-sql-review": ("análise estática de um .sql fechado; a saída é relatório"),
     "data-sentinel-quality-drift": (
         "valida contrato e normaliza exports já em disco; leitura fechada"
     ),
-    "data-sentinel-report": (
-        "renderiza relatório persistido/exportado; não decide nada"
-    ),
+    "data-sentinel-report": ("renderiza relatório persistido/exportado; não decide nada"),
 }
 NON_DISPATCHABLE_SKILLS: dict[str, str] = {
     "data-sentinel-investigate": (
@@ -162,16 +156,12 @@ ORCHESTRATOR_PROFILES: frozenset[str] = frozenset({"sentinel-investigator"})
 
 # Perfis embutidos do Devin — colisão de `name:` é proibida pela fonte e
 # o comportamento resultante não é documentado: recusar é a leitura segura.
-DEVIN_BUILTIN_PROFILE_NAMES: frozenset[str] = frozenset(
-    {"subagent_explore", "subagent_general"}
-)
+DEVIN_BUILTIN_PROFILE_NAMES: frozenset[str] = frozenset({"subagent_explore", "subagent_general"})
 
 DEVIN_DROPPED_AGENT_KEYS: frozenset[str] = frozenset({"tools"})
 DEVIN_SKILL_DISPATCH_KEYS: frozenset[str] = frozenset({"subagent", "agent"})
 
-AGENT_PLATFORMS: frozenset[str] = frozenset(
-    {"claude", "github", "devin", "codex"}
-)
+AGENT_PLATFORMS: frozenset[str] = frozenset({"claude", "github", "devin", "codex"})
 
 
 @dataclass(frozen=True)
@@ -241,9 +231,7 @@ def _valor_escalar(key: str, bruto: str, continua: bool) -> str | None:
         raise ValueError(f"escalar_yaml_nao_suportado: `{key}` continua na linha de baixo")
     if bruto[:1] == '"':
         if len(bruto) < 2 or not bruto.endswith('"') or "\\" in bruto:
-            raise ValueError(
-                f"escalar_yaml_nao_suportado: `{key}` entre aspas duplas com escape"
-            )
+            raise ValueError(f"escalar_yaml_nao_suportado: `{key}` entre aspas duplas com escape")
         return bruto[1:-1] or None
     if bruto[:1] == "'":
         miolo = bruto[1:-1]
@@ -265,9 +253,7 @@ def frontmatter_scalar(front: list[str], key: str) -> str | None:
         if match and match.group(1) == key:
             bruto = content.split(":", 1)[1].strip()
             seguinte = front[index + 1].rstrip("\r\n") if index + 1 < len(front) else ""
-            continua = (
-                bool(bruto) and seguinte[:1] in (" ", "\t") and bool(seguinte.strip())
-            )
+            continua = bool(bruto) and seguinte[:1] in (" ", "\t") and bool(seguinte.strip())
             return _valor_escalar(key, bruto, continua)
     return None
 
@@ -292,9 +278,7 @@ def _frontmatter_list(front: list[str], key: str) -> list[str]:
                 collecting = True
             elif inline.startswith("[") and inline.endswith("]"):
                 values.extend(
-                    part.strip().strip("'\"")
-                    for part in inline[1:-1].split(",")
-                    if part.strip()
+                    part.strip().strip("'\"") for part in inline[1:-1].split(",") if part.strip()
                 )
             else:
                 values.append(inline.strip("'\""))
@@ -333,9 +317,7 @@ def _declarants(agents: dict[str, bytes]) -> dict[str, list[str]]:
     return {skill: sorted(stems) for skill, stems in sorted(relation.items())}
 
 
-def _agent_for_skill(
-    name: str, declarants: dict[str, list[str]]
-) -> str | None:
+def _agent_for_skill(name: str, declarants: dict[str, list[str]]) -> str | None:
     """O ``agent:`` da skill, ou ``None`` quando o Devin deve escolher.
 
     Skill declarada por mais de um perfil não nomeia ``agent:`` — ordem
@@ -357,8 +339,7 @@ def render_agent(text: str, platform: str) -> str:
     """
     if platform not in AGENT_PLATFORMS:
         raise ValueError(
-            f"plataforma desconhecida: {platform!r}; "
-            f"conhecidas: {sorted(AGENT_PLATFORMS)}"
+            f"plataforma desconhecida: {platform!r}; conhecidas: {sorted(AGENT_PLATFORMS)}"
         )
     if platform in ("claude", "github"):
         return text
@@ -447,8 +428,7 @@ def _codex_toml(text: str) -> str:
     description = frontmatter_scalar(front, "description")
     if not name or not description:
         raise ValueError(
-            "perfil sem `name` ou sem `description` não vira agent do "
-            f"Codex: {name!r}"
+            f"perfil sem `name` ou sem `description` não vira agent do Codex: {name!r}"
         )
     corpo = "".join(rest[1:]).replace("\r\n", "\n").lstrip("\n")
     return (
@@ -469,9 +449,7 @@ def layout_for(host: str, scope: str) -> HostLayout | None:
     return layouts.get(host)
 
 
-def render_hosts(
-    catalog: AssetCatalog, *, hosts: Sequence[str], scope: str
-) -> dict[str, bytes]:
+def render_hosts(catalog: AssetCatalog, *, hosts: Sequence[str], scope: str) -> dict[str, bytes]:
     """``{caminho relativo à raiz: bytes}`` para cada host homologado.
 
     Host sem layout (``cursor`` e desconhecidos) não rende nada — a
@@ -498,9 +476,7 @@ def render_hosts(
                     out[f"{skill_dir}/{name}/{inner}"] = data
         for stem, data in sorted(catalog.agents.items()):
             if stem in DEVIN_BUILTIN_PROFILE_NAMES:
-                raise ValueError(
-                    f"perfil colide com built-in do Devin: {stem!r}"
-                )
+                raise ValueError(f"perfil colide com built-in do Devin: {stem!r}")
             for agent_dir in layout.agent_dirs:
                 rel = layout.agent_pattern.format(stem=stem)
                 out[f"{agent_dir}/{rel}"] = render_agent(

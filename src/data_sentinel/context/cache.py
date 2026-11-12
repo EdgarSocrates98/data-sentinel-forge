@@ -16,8 +16,7 @@ class ContextCache:
     max_entries: int = 256
     max_bytes: int = 8_000_000
     evictions: int = 0
-    _store: OrderedDict[str, str] = field(
-        default_factory=OrderedDict)
+    _store: OrderedDict[str, str] = field(default_factory=OrderedDict)
     _bytes: int = 0
 
     @staticmethod
@@ -34,8 +33,7 @@ class ContextCache:
         size = len(value.encode())
         if size > self.max_bytes:
             return  # never cache oversized
-        while (len(self._store) >= self.max_entries
-               or self._bytes + size > self.max_bytes):
+        while len(self._store) >= self.max_entries or self._bytes + size > self.max_bytes:
             _, evicted = self._store.popitem(last=False)
             self._bytes -= len(evicted.encode())
             self.evictions += 1

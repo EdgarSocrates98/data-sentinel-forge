@@ -97,8 +97,9 @@ class LakehouseOperationAnalyzer(Analyzer):
         for input_file in inputs:
             digest = hashlib.sha256(input_file.text.encode()).hexdigest()
 
-            def _ev(snippet: str, conf: float = 0.75,
-                    _p: str = str(input_file.path), _d: str = digest) -> Evidence:
+            def _ev(
+                snippet: str, conf: float = 0.75, _p: str = str(input_file.path), _d: str = digest
+            ) -> Evidence:
                 ev = Evidence(
                     source="sql_operation",
                     source_location=_p,
@@ -122,8 +123,7 @@ class LakehouseOperationAnalyzer(Analyzer):
                 limitations.append(f"{input_file.path}: nenhum statement SQL")
                 continue
             for tree in trees:
-                ops_meta.append({"operation": self._op_name(tree),
-                                 "source": str(input_file.path)})
+                ops_meta.append({"operation": self._op_name(tree), "source": str(input_file.path)})
                 self._dispatch(tree, sql, stats, _ev, findings, limitations)
 
         if not findings:
@@ -180,8 +180,13 @@ class LakehouseOperationAnalyzer(Analyzer):
         return type(tree).__name__.lower()
 
     def _dispatch(
-        self, tree: exp.Expr, sql: str, stats: dict[str, object],
-        _ev: _EvFn, findings: list[Finding], limitations: list[str],
+        self,
+        tree: exp.Expr,
+        sql: str,
+        stats: dict[str, object],
+        _ev: _EvFn,
+        findings: list[Finding],
+        limitations: list[str],
     ) -> None:
         if isinstance(tree, exp.Merge):
             self._merge(tree, stats, _ev, findings, limitations)
@@ -193,7 +198,10 @@ class LakehouseOperationAnalyzer(Analyzer):
             self._ddl(tree, _ev, limitations)
 
     def _log_conflicts(
-        self, log: str, _ev: _EvFn, findings: list[Finding],
+        self,
+        log: str,
+        _ev: _EvFn,
+        findings: list[Finding],
     ) -> None:
         if not log:
             return
@@ -219,17 +227,18 @@ class LakehouseOperationAnalyzer(Analyzer):
             )
 
     def _merge(
-        self, tree: exp.Merge, stats: dict[str, object],
-        _ev: _EvFn, findings: list[Finding], limitations: list[str],
+        self,
+        tree: exp.Merge,
+        stats: dict[str, object],
+        _ev: _EvFn,
+        findings: list[Finding],
+        limitations: list[str],
     ) -> None:
         on = tree.args.get("on") or tree.args.get("using_cond")
         whens = tree.args.get("whens") or tree.args.get("when")
         on_sql = on.sql(dialect="spark") if on else ""
         n_when = len(list(whens.find_all(exp.When))) if whens else 0
-        ev = _ev(
-            f"MERGE INTO {self._target(tree)} — ON: {on_sql[:120]}; "
-            f"{n_when} cláusula(s) WHEN"
-        )
+        ev = _ev(f"MERGE INTO {self._target(tree)} — ON: {on_sql[:120]}; {n_when} cláusula(s) WHEN")
         if not on:
             findings.append(
                 Finding(
@@ -256,8 +265,7 @@ class LakehouseOperationAnalyzer(Analyzer):
                     ),
                     evidence_ids=[ev.evidence_id],
                     recommendations=[
-                        "Preferir ON conjuntivo por chave completa; "
-                        "validar cardinalidade da fonte."
+                        "Preferir ON conjuntivo por chave completa; validar cardinalidade da fonte."
                     ],
                 )
             )
@@ -266,8 +274,7 @@ class LakehouseOperationAnalyzer(Analyzer):
         unique_declared = stats.get("source_key_unique")
         if isinstance(dups, (int, float)) and dups > 0:
             ev2 = _ev(
-                f"stats declaram {int(dups)} chaves-fonte duplicadas no "
-                "merge source",
+                f"stats declaram {int(dups)} chaves-fonte duplicadas no merge source",
             )
             findings.append(
                 Finding(
@@ -312,7 +319,10 @@ class LakehouseOperationAnalyzer(Analyzer):
             )
 
     def _insert(
-        self, tree: exp.Insert, _ev: _EvFn, findings: list[Finding],
+        self,
+        tree: exp.Insert,
+        _ev: _EvFn,
+        findings: list[Finding],
     ) -> None:
         overwrite = bool(tree.args.get("overwrite"))
         target = self._target(tree)
@@ -339,7 +349,10 @@ class LakehouseOperationAnalyzer(Analyzer):
             _ev(f"INSERT OVERWRITE {target} — overwrite declarado")
 
     def _row_op(
-        self, tree: exp.Expr, _ev: _EvFn, findings: list[Finding],
+        self,
+        tree: exp.Expr,
+        _ev: _EvFn,
+        findings: list[Finding],
     ) -> None:
         where = tree.find(exp.Where)
         if where is None:
@@ -359,7 +372,10 @@ class LakehouseOperationAnalyzer(Analyzer):
             )
 
     def _ddl(
-        self, tree: exp.Expr, _ev: _EvFn, limitations: list[str],
+        self,
+        tree: exp.Expr,
+        _ev: _EvFn,
+        limitations: list[str],
     ) -> None:
         limitations.append(
             f"{self._op_name(tree).upper()} parseado mas não executado — "

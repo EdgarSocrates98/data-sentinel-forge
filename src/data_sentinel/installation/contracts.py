@@ -158,9 +158,7 @@ class InstallReceipt(BaseModel):
     status: str = "applied"  # applied | partial | failed | rolled-back
 
 
-RECEIPT_SECRET_KEYS = frozenset(
-    {"token", "secret", "password", "key", "credential", "auth"}
-)
+RECEIPT_SECRET_KEYS = frozenset({"token", "secret", "password", "key", "credential", "auth"})
 
 
 def assert_no_secrets(receipt: InstallReceipt) -> None:
@@ -170,9 +168,7 @@ def assert_no_secrets(receipt: InstallReceipt) -> None:
 
     from data_sentinel.core.exceptions import SentinelError
 
-    kv = re.compile(
-        r"(?i)\b(?:token|secret|password|credential|api[-_]?key|auth)\b\s*[=:]\s*\S+"
-    )
+    kv = re.compile(r"(?i)\b(?:token|secret|password|credential|api[-_]?key|auth)\b\s*[=:]\s*\S+")
 
     def _scan(obj: Any, trail: str) -> None:
         if isinstance(obj, dict):

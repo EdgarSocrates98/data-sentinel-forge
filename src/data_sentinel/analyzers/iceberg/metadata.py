@@ -79,11 +79,26 @@ class TableMetadata:
 
 
 _KNOWN_TOP = {
-    "format-version", "table-uuid", "location", "last-updated-ms",
-    "last-column-id", "schemas", "current-schema-id", "partition-specs",
-    "default-spec-id", "last-partition-id", "properties", "current-snapshot-id",
-    "snapshots", "snapshot-log", "metadata-log", "sort-orders",
-    "default-sort-order-id", "refs", "statistics", "partition-statistics",
+    "format-version",
+    "table-uuid",
+    "location",
+    "last-updated-ms",
+    "last-column-id",
+    "schemas",
+    "current-schema-id",
+    "partition-specs",
+    "default-spec-id",
+    "last-partition-id",
+    "properties",
+    "current-snapshot-id",
+    "snapshots",
+    "snapshot-log",
+    "metadata-log",
+    "sort-orders",
+    "default-sort-order-id",
+    "refs",
+    "statistics",
+    "partition-statistics",
 }
 
 
@@ -171,9 +186,7 @@ def parse_metadata(text: str, *, source: str = "") -> TableMetadata:
     snapshots: list[SnapshotInfo] = []
     raw_snaps = raw.get("snapshots") or []
     if len(raw_snaps) > MAX_SNAPSHOTS:
-        warnings.append(
-            f"{len(raw_snaps)} snapshots excedem o limite {MAX_SNAPSHOTS} — truncado"
-        )
+        warnings.append(f"{len(raw_snaps)} snapshots excedem o limite {MAX_SNAPSHOTS} — truncado")
         raw_snaps = raw_snaps[:MAX_SNAPSHOTS]
     for s in raw_snaps:
         if not isinstance(s, dict):
@@ -214,9 +227,7 @@ def parse_metadata(text: str, *, source: str = "") -> TableMetadata:
         location=loc,
         metadata_location=source,
         current_snapshot_id=(
-            int(raw["current-snapshot-id"])
-            if raw.get("current-snapshot-id") is not None
-            else None
+            int(raw["current-snapshot-id"]) if raw.get("current-snapshot-id") is not None else None
         ),
         schemas=schemas,
         current_schema_id=(

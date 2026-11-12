@@ -25,6 +25,7 @@ MAX_WATCHES = 50
 @dataclass
 class WatchDefinition:
     """§5.1 — what to monitor and how."""
+
     watch_id: str
     workload: str
     platform: str
@@ -41,6 +42,7 @@ class WatchDefinition:
 @dataclass
 class Alert:
     """One emitted alert (§5.4)."""
+
     alert_id: str
     watch_id: str
     kind: str  # job_failure | sla_breach | duration_regression |
@@ -63,61 +65,77 @@ class AlertEngine:
         self._seq = 0  # per-engine counter — ms timestamps collide
         self.history: list[Alert] = []
 
-    def evaluate(self, watch: WatchDefinition,
-                 history: list[ExecutionSnapshot],
-                 current: ExecutionSnapshot) -> list[Alert]:
+    def evaluate(
+        self, watch: WatchDefinition, history: list[ExecutionSnapshot], current: ExecutionSnapshot
+    ) -> list[Alert]:
         """Evaluate one check — returns alerts to emit (deduped)."""
         out: list[Alert] = []
         findings = detect_regressions(history, current)
 
         if current.failure is True:
-            out.append(self._mk(watch, "job_failure",
-                                f"{watch.workload} falhou",
-                                dedup="failure"))
+            out.append(self._mk(watch, "job_failure", f"{watch.workload} falhou", dedup="failure"))
         fail_key = f"{watch.watch_id}:failure"
         if current.failure is False and fail_key in self._open:
             out.append(self._recover(watch, "failure"))
 
         for f in findings:
             kind = _kind_for(str(f["metric"]))
-            out.append(self._mk(
-                watch, kind,
-                f"{watch.workload}: {f['metric']} "
-                f"{f['rationale']}", dedup=str(f["metric"]),
-                findings=[f]))
+            out.append(
+                self._mk(
+                    watch,
+                    kind,
+                    f"{watch.workload}: {f['metric']} {f['rationale']}",
+                    dedup=str(f["metric"]),
+                    findings=[f],
+                )
+            )
 
         # missing-data behavior (§5.5): declare it, don't alert silently.
         # Fires only when the evaluation produced NO other signal —
         # a recovery or regression already carries the state; missing_data
         # must never compete with them in the same eval (Cycle 08.1 §7.3).
-        if (current.duration_s is None and not current.resource_metrics
-                and not out):
-            out.append(self._mk(watch, "missing_data",
-                                f"{watch.workload}: sem métricas "
-                                "suficientes — UNKNOWN", dedup="missing",
-                                sev="INFO"))
+        if current.duration_s is None and not current.resource_metrics and not out:
+            out.append(
+                self._mk(
+                    watch,
+                    "missing_data",
+                    f"{watch.workload}: sem métricas suficientes — UNKNOWN",
+                    dedup="missing",
+                    sev="INFO",
+                )
+            )
         return self._dedupe(out)
 
     def _kind_sev(self, watch: WatchDefinition, sev: str | None) -> str:
         return sev or watch.severity
 
-    def _mk(self, watch: WatchDefinition, kind: str, msg: str,
-            *, dedup: str, sev: str | None = None,
-            findings: list[dict[str, Any]] | None = None) -> Alert:
+    def _mk(
+        self,
+        watch: WatchDefinition,
+        kind: str,
+        msg: str,
+        *,
+        dedup: str,
+        sev: str | None = None,
+        findings: list[dict[str, Any]] | None = None,
+    ) -> Alert:
         key = f"{watch.watch_id}:{dedup}"
         self._seq += 1
         return Alert(
             alert_id=f"alert-{int(time.time() * 1000)}-{self._seq}",
-            watch_id=watch.watch_id, kind=kind,
-            severity=self._kind_sev(watch, sev), message=msg,
-            ts=time.time(), dedup_key=key, findings=findings or [])
+            watch_id=watch.watch_id,
+            kind=kind,
+            severity=self._kind_sev(watch, sev),
+            message=msg,
+            ts=time.time(),
+            dedup_key=key,
+            findings=findings or [],
+        )
 
     def _recover(self, watch: WatchDefinition, dedup: str) -> Alert:
         key = f"{watch.watch_id}:{dedup}"
         prev = self._open.pop(key, None)
-        a = self._mk(watch, "recovery",
-                     f"{watch.workload} recuperado", dedup=dedup,
-                     sev="INFO")
+        a = self._mk(watch, "recovery", f"{watch.workload} recuperado", dedup=dedup, sev="INFO")
         a.recovered = True
         if prev:
             a.findings = prev.findings
@@ -147,21 +165,23 @@ class AlertEngine:
 class WatchRuntime:
     """Bounded local scheduler (§5.2) — thread daemon, cancellable."""
 
-    def __init__(self, engine: AlertEngine | None = None,
-                 *, max_watches: int = MAX_WATCHES) -> None:
+    def __init__(
+        self, engine: AlertEngine | None = None, *, max_watches: int = MAX_WATCHES
+    ) -> None:
         self.engine = engine or AlertEngine()
         self.max_watches = max_watches
-        self._watches: dict[str, tuple[WatchDefinition,
-                                       Callable[[], tuple[list[ExecutionSnapshot],
-                                                          ExecutionSnapshot]]]] = {}
+        self._watches: dict[
+            str,
+            tuple[WatchDefinition, Callable[[], tuple[list[ExecutionSnapshot], ExecutionSnapshot]]],
+        ] = {}
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
         self._errors: dict[str, int] = {}
 
     def register(
-        self, watch: WatchDefinition,
-        collector: Callable[[], tuple[list[ExecutionSnapshot],
-                                     ExecutionSnapshot]],
+        self,
+        watch: WatchDefinition,
+        collector: Callable[[], tuple[list[ExecutionSnapshot], ExecutionSnapshot]],
     ) -> None:
         """Register a watch with its data collector callable.
 
@@ -171,9 +191,7 @@ class WatchRuntime:
         if len(self._watches) >= self.max_watches:
             raise ValueError(f"watch limit {self.max_watches} reached")
         if watch.interval_s < MIN_INTERVAL_S:
-            raise ValueError(
-                f"interval {watch.interval_s}s below min "
-                f"{MIN_INTERVAL_S}s")
+            raise ValueError(f"interval {watch.interval_s}s below min {MIN_INTERVAL_S}s")
         self._watches[watch.watch_id] = (watch, collector)
 
     def unregister(self, watch_id: str) -> None:
@@ -189,8 +207,7 @@ class WatchRuntime:
         if self._thread and self._thread.is_alive():
             return
         self._stop.clear()
-        self._thread = threading.Thread(
-            target=self._loop, daemon=True, name="sentinel-watch")
+        self._thread = threading.Thread(target=self._loop, daemon=True, name="sentinel-watch")
         self._thread.start()
 
     def _loop(self) -> None:
@@ -208,8 +225,8 @@ class WatchRuntime:
                     self._stop.wait(min(60.0 * n, 600.0))
             # cadence: shortest configured interval (still >= min)
             interval = min(
-                (w.interval_s for w, _ in self._watches.values()),
-                default=MIN_INTERVAL_S)
+                (w.interval_s for w, _ in self._watches.values()), default=MIN_INTERVAL_S
+            )
             self._stop.wait(max(interval, MIN_INTERVAL_S))
 
     def stop(self, timeout: float = 5.0) -> None:
