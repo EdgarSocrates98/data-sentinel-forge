@@ -133,7 +133,7 @@ def test_i_no_mutating_aws() -> None:
 
 
 def test_j_clean_wheel_offline(tmp_path: Path) -> None:
-    wheel = subprocess.run(  # noqa: S603
+    wheel = subprocess.run(
         ["uv", "build", "--wheel", "-o", str(tmp_path)],  # noqa: S607
         capture_output=True,
         text=True,
@@ -142,17 +142,13 @@ def test_j_clean_wheel_offline(tmp_path: Path) -> None:
     assert wheel.returncode == 0, wheel.stderr
     whl = next(tmp_path.glob("*.whl"))
     venv = tmp_path / "venv"
-    subprocess.run(  # noqa: S603 — venv do próprio teste
-        [sys.executable, "-m", "venv", str(venv)], check=True, capture_output=True
-    )
+    subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True, capture_output=True)
     scripts = "Scripts" if sys.platform == "win32" else "bin"
     pip = venv / scripts / "pip"
-    r = subprocess.run(  # noqa: S603 — venv do próprio teste
-        [str(pip), "install", "-q", str(whl)], capture_output=True, text=True
-    )
+    r = subprocess.run([str(pip), "install", "-q", str(whl)], capture_output=True, text=True)
     assert r.returncode == 0, r.stderr
     ds = venv / scripts / "data-sentinel"
-    out = subprocess.run(  # noqa: S603 — venv do próprio teste
+    out = subprocess.run(
         [
             str(ds),
             "emr",

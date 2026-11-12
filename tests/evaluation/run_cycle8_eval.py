@@ -115,7 +115,7 @@ def _git_sha() -> str:
     if git is None:
         return "unknown"
     try:
-        out = subprocess.run(  # noqa: S603 — fixed argv, no shell
+        out = subprocess.run(
             [git, "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, timeout=10
         )
         return out.stdout.strip() if out.returncode == 0 else "unknown"

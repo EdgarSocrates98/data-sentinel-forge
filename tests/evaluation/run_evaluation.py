@@ -225,7 +225,7 @@ def _write(root: Path, files: dict[str, str]) -> None:
 
 def run_doctor(project: Path) -> dict[str, Any]:
     t0 = time.perf_counter()
-    proc = subprocess.run(  # noqa: S603
+    proc = subprocess.run(
         [DOCTOR_BIN, "scan", "--format", "json", str(project)],
         capture_output=True,
         text=True,

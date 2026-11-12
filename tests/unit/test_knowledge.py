@@ -174,7 +174,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
         dist = tmp_path / "dist"
         dist.mkdir()
         try:
-            subprocess.run(  # noqa: S603 - wheel construído pelo próprio teste
+            subprocess.run(
                 ["uv", "build", "--wheel", "--out-dir", str(dist)],  # noqa: S607
                 cwd=ROOT,
                 check=True,
@@ -182,7 +182,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
                 text=True,
             )
         except (subprocess.CalledProcessError, FileNotFoundError):
-            subprocess.run(  # noqa: S603 - fallback pip em ausência de uv
+            subprocess.run(
                 [sys.executable, "-m", "pip", "wheel", ".", "--no-deps", "-w", str(dist)],
                 cwd=ROOT,
                 check=True,
@@ -194,7 +194,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
         venv.create(td, with_pip=True)
         scripts = "Scripts" if sys.platform == "win32" else "bin"
         pip = Path(td) / scripts / "pip"
-        subprocess.run(  # noqa: S603 - wheel local construído pelo próprio teste
+        subprocess.run(
             [str(pip), "install", "-q", str(wheel.resolve())],
             check=True,
             capture_output=True,
@@ -206,7 +206,7 @@ def test_wheel_contains_rules_and_loads_outside_checkout(tmp_path: Path):
             "assert len(rules) >= 7;"
             "print(len(rules))"
         )
-        out = subprocess.run(  # noqa: S603 - python da venv criada pelo teste
+        out = subprocess.run(
             [str(Path(td) / scripts / "python"), "-c", code],
             check=True,
             capture_output=True,

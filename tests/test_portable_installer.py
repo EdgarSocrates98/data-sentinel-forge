@@ -11,7 +11,7 @@ SCRIPT = ROOT / "scripts" / "install_portable.py"
 
 def test_portable_installer_dry_run_is_side_effect_free(tmp_path: Path) -> None:
     env = {**os.environ, "FORGE_INSTALL_HOME": str(tmp_path / "install")}
-    result = subprocess.run(  # noqa: S603
+    result = subprocess.run(
         [sys.executable, str(SCRIPT), "--dry-run"],
         cwd=ROOT,
         env=env,

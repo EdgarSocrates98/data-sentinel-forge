@@ -40,7 +40,7 @@ def server(tmp_path_factory: pytest.TempPathFactory) -> str:
     db = tmp_path_factory.mktemp("db") / "sse.db"
     port = _free_port()
     env = dict(os.environ, DATA_SENTINEL_TOKEN=TEST_TOKEN)
-    proc = subprocess.Popen(  # noqa: S603 - local test server
+    proc = subprocess.Popen(
         [
             sys.executable,
             "-c",
