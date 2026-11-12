@@ -1,0 +1,9 @@
+{
+  "cycle": "2.7-patch",
+  "repository": "data-sentinel-forge",
+  "version": "0.5.4",
+  "tag": "v0.5.4",
+  "source_commit": "c61c54c3ea7d37d8e6a6e940ee71ba3414f42722",
+  "version_source": "src/data_sentinel/__init__.py",
+  "verified_at": "2026-11-12"
+}
