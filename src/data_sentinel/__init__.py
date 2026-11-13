@@ -1,3 +1,3 @@
 """Data Sentinel — Intelligent Data Engineering & Agentic Diagnostics Platform."""
 
-__version__ = "0.5.4"
+__version__ = "0.5.5"
