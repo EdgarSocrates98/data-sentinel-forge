@@ -102,7 +102,14 @@ def install_cmd(
     profile: Annotated[
         str | None, typer.Option("--profile", help="minimal|recommended|full")
     ] = None,
-    gateway: Annotated[str | None, typer.Option("--gateway", help="economy|balanced|deep")] = None,
+    gateway: Annotated[
+        str | None,
+        typer.Option(
+            "--gateway-profile",
+            "--gateway",
+            help="economy|balanced|deep (--gateway é o alias legado)",
+        ),
+    ] = None,
     components: Annotated[
         str | None, typer.Option("--components", help="csv de componentes")
     ] = None,
@@ -221,7 +228,10 @@ def _life(verb: str) -> Callable[..., None]:
             typer.echo(f"erro: {exc}", err=True)
             raise typer.Exit(code=1) from exc
         _emit(doc, json_mode)
-        if doc.get("status") in ("failed", "broken"):
+        # Canonical pass-set (mesmo do the-forge): estados nomeados não-
+        # falhos saem 0; degraded/broken/failed saem 1 — um doctor
+        # "degraded" nunca é sucesso silencioso.
+        if doc.get("status") not in ("completed", "planned", "healthy", "unverified", "PASS"):
             raise typer.Exit(code=1)
 
     return cmd
@@ -253,7 +263,9 @@ def mcp_verify_cmd(json_mode: _JSON = False) -> None:
     """Verifica o handshake MCP (initialize + tools/list)."""
     doc = service.mcp_verify()
     _emit(doc, json_mode)
-    if doc.get("status") == "degraded":
+    # Canonical: só um handshake verificado (healthy/PASS) sai 0 — FAIL,
+    # BLOCKED e NOT_APPLICABLE saem 1 (não-verificável ≠ sucesso).
+    if doc.get("status") != "healthy":
         raise typer.Exit(code=1)
 
 

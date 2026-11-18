@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
@@ -123,16 +122,11 @@ def test_discover_projects_never_follows_symlinks(tmp_path: Path) -> None:
     target = tmp_path / "elsewhere"
     target.mkdir()
     (target / "forge.json").write_text("{}", encoding="utf-8")
-    link = tmp_path / "linked"
-    try:
-        os.symlink(target, link, target_is_directory=True)
-    except OSError:
-        pytest.skip("symlinks unavailable on this platform")
     target_inside = tmp_path / "ws-root"
     target_inside.mkdir()
     inner_link = target_inside / "linked"
     try:
-        os.symlink(target, inner_link, target_is_directory=True)
+        inner_link.symlink_to(target, target_is_directory=True)
     except OSError:
         pytest.skip("symlinks unavailable on this platform")
 

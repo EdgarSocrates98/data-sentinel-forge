@@ -686,4 +686,4 @@ def approve_plan(doc: dict[str, Any], *, ctx: UIContext | None = None) -> bool:
         raise NonInteractive("approve_plan requires a TTY")
     sys.stdout.write(format_status_doc(doc, ctx=ctx) + "\n")
     sys.stdout.flush()
-    return confirm(t("apply_q", ctx.language), default=True, ctx=ctx)
+    return confirm(t("apply_q", ctx.language), default=False, ctx=ctx)
