@@ -126,6 +126,18 @@ def test_manifest_static_matches_programmatic(tmp_path: Path) -> None:
         assert static == emitted, f"{name} drifted — regenerate via install manifest"
 
 
+def test_manifest_hosts_stay_in_contract_enum() -> None:
+    """`install.hosts` is the federation-delegable surface: it must stay
+    inside the closed canonical enum even when the standalone CLI supports
+    extra host_partial targets like `cursor`."""
+    from data_sentinel import _forgecontext as fctx
+
+    result = runner.invoke(app, ["install", "manifest"])
+    assert result.exit_code == 0
+    emitted = json.loads(result.output)
+    assert set(emitted["install"]["hosts"]) <= set(fctx.HOSTS)
+
+
 def test_env_report(tmp_path: Path) -> None:
     result = runner.invoke(app, ["install", "env", "--root", str(tmp_path), "--json"])
     assert result.exit_code == 0, result.output
