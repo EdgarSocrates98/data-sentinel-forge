@@ -219,8 +219,19 @@ def install(
             _drop_stale_doc_entries(ctx)
             receipt["source"] = _detect_source()
             receipt["source_version"] = __version__
+            # A context-registry BLOCKED check (appended by
+            # ``_register_context``, status -> "failed") can never ride on
+            # the kit's pre-context PASS verification — recompute over the
+            # extended check list so verification and status agree.
+            checks = receipt.get("checks") or []
+            receipt["verification"] = {
+                "status": "PASS"
+                if all(c.get("status") in ("PASS", "NOT_APPLICABLE") for c in checks)
+                else "FAIL"
+            }
             kit._write_receipt(state, receipt)
-            _register(ctx)
+            if receipt.get("status") == "completed":
+                _register(ctx)
     return receipt
 
 
@@ -232,8 +243,11 @@ def status(*, scope: str = "project", root: Path | None = None) -> dict[str, Any
 def doctor(*, scope: str = "project", root: Path | None = None) -> dict[str, Any]:
     ctx = _ctx(scope, root, (), "recommended", dry_run=True)
     doc = kit.doctor(ctx)
+    checks = list(doc["checks"])
     if importlib.util.find_spec("mcp") is None:
-        doc["checks"] = [
+        # Sem o extra `mcp` o handshake nao pode ser testado — a sonda
+        # reporta UNVERIFIED nomeado, nunca um FAIL fabricado nem um PASS.
+        checks = [
             c
             if c["id"] != "mcp-handshake"
             else {
@@ -241,10 +255,21 @@ def doctor(*, scope: str = "project", root: Path | None = None) -> dict[str, Any
                 "status": "UNVERIFIED",
                 "detail": "extra 'mcp' not installed — handshake not tested",
             }
-            for c in doc["checks"]
+            for c in checks
         ]
-        if not any(c["status"] == "FAIL" for c in doc["checks"]):
-            doc["status"] = "healthy" if doc["status"] != "broken" else doc["status"]
+    doc["checks"] = checks
+    # Agregado honesto (mesmo desenho dos siblings): FAIL degrada um
+    # install existente e quebra um ausente; nada instalado reporta
+    # "unverified"; UNVERIFIED nunca derruba nem promove — ele so
+    # permanece nomeado no proprio check.
+    contexto = doc.get("context")
+    installed = bool(isinstance(contexto, dict) and contexto.get("managed_entries"))
+    if any(c["status"] == "FAIL" for c in checks):
+        doc["status"] = "degraded" if installed else "broken"
+    elif not installed:
+        doc["status"] = "unverified"
+    else:
+        doc["status"] = "healthy"
     return doc
 
 
@@ -469,28 +494,6 @@ def mcp_verify() -> dict[str, Any]:
     }
 
 
-def _receipt(operation: str, checks: list[dict[str, Any]], status: str) -> dict[str, Any]:
-    return {
-        "schema": kit.SCHEMA_RECEIPT,
-        "forge_id": FORGE_ID,
-        "operation": operation,
-        "managed_files": [],
-        "checks": checks,
-        "verification": {
-            "status": "PASS"
-            if all(c["status"] in ("PASS", "NOT_APPLICABLE", "UNVERIFIED") for c in checks)
-            else "FAIL"
-        },
-        "status": status,
-        "created_at": kit._utc_now(),
-        "created_by": f"{FORGE_ID}/{__version__}",
-    }
-
-
-def _failed(check_id: str, detail: str, status: str = "failed") -> dict[str, Any]:
-    return _receipt("update", [{"id": check_id, "status": "FAIL", "detail": detail}], status)
-
-
 def _installation_manifest() -> dict[str, Any]:
     path = kit.installations_dir() / f"{FORGE_ID}.json"
     doc = kit._load_json(path, None)
@@ -531,6 +534,12 @@ def _register(ctx: kit.InstallContext) -> None:
             "verified": False,
         },
     )
+    mcp_doc = doc.get("mcp")
+    if isinstance(mcp_doc, dict):
+        # O orquestrador descobre a tool de verificacao aqui — setdefault
+        # preserva um `verify_tool` ja registrado pelo bootstrap.
+        mcp_doc.setdefault("verify_tool", "sentinel.status")
+    doc.update(_declared_install_fields())
     kit.register_installation(doc)
 
 
@@ -569,6 +578,55 @@ def _mds(base: Path) -> list[str]:
     return sorted(p.stem for p in base.glob("*.md")) if base.is_dir() else []
 
 
+def _bundled_json(name: str) -> dict[str, Any] | None:
+    """JSON declarativo empacotado com o forge: primeiro o manifesto
+    bundled em ``installation/assets/manifest/`` (wheel), depois a raiz
+    do pacote e do checkout (editable)."""
+    for cand in (
+        _ASSETS_DIR / "manifest" / name,
+        _PKG_DIR / name,
+        _REPO_DIR / name,
+    ):
+        data = kit._load_json(cand, None)
+        if isinstance(data, dict):
+            return data
+    return None
+
+
+def _declared_install_fields() -> dict[str, Any]:
+    """As declaracoes install-2.1 do ``forge.json`` deste forge — copiadas
+    verbatim para o manifesto registrado em ``~/.forge/installations/``,
+    nunca fabricadas (espelha o passo ``register`` do ``forge_bootstrap``
+    e o helper dos siblings):
+
+    - ``installation_kind``: ``content``|``service``|``control-tool`` —
+      a classe que o plano consolidado usa na ordenacao estavel.
+    - ``install``: a superficie declarada (operations/flags/hosts/scopes/
+      profiles/approval) — o argv builder do orquestrador so envia o que
+      esta declarado; ausente, o manifesto fica no default v1.
+    - ``depends_on``: forge_ids que devem instalar antes — declarado
+      mesmo quando vazio (``[]``): a presenca da chave e declaracao
+      explicita, nao ausencia de dado.
+    """
+    cfg = _bundled_json("forge.json")
+    if not cfg:
+        return {}
+    doc: dict[str, Any] = {}
+    if cfg.get("installation_kind"):
+        kind = str(cfg["installation_kind"])
+        if kind not in kit.INSTALLATION_KINDS:
+            raise kit.InstallError(
+                kit.E_UNSUPPORTED,
+                f"forge.json installation_kind {kind!r} — expected {kit.INSTALLATION_KINDS}",
+            )
+        doc["installation_kind"] = kind
+    if cfg.get("install"):
+        doc["install"] = dict(cfg["install"])
+    if "depends_on" in cfg:
+        doc["depends_on"] = [str(d) for d in cfg["depends_on"]]
+    return doc
+
+
 def _drop_stale_doc_entries(ctx: kit.InstallContext) -> None:
     """Remove entradas antigas de ledger para os consumer docs: os arquivos
     agora sao gerenciados pela camada forge_context (blocos `forge:*`), nao
@@ -588,18 +646,6 @@ def _context_manifest(ctx: kit.InstallContext) -> dict[str, Any]:
     """Manifesto forge/context/v1 das fontes reais: `forge.json` (bundled no
     assets manifest ou checkout) + `forge.agentic.json` (checkout) e o
     catalogo de assets que `_render_assets` instala."""
-
-    def _bundled_json(name: str) -> dict[str, Any] | None:
-        for cand in (
-            _ASSETS_DIR / "manifest" / name,
-            _PKG_DIR / name,
-            _REPO_DIR / name,
-        ):
-            data = kit._load_json(cand, None)
-            if isinstance(data, dict):
-                return data
-        return None
-
     forge_json = _bundled_json("forge.json")
     agentic = _bundled_json("forge.agentic.json")
 
