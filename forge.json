@@ -11,6 +11,56 @@
     "mcp",
     "serve"
   ],
+  "mcp_verify_tool": "sentinel.status",
+  "installation_kind": "content",
+  "install": {
+    "operations": [
+      "plan",
+      "apply",
+      "status",
+      "doctor",
+      "repair",
+      "uninstall",
+      "mcp-verify"
+    ],
+    "flags": [
+      "--scope",
+      "--root",
+      "--host",
+      "--profile",
+      "--components",
+      "--gateway-profile",
+      "--gateway",
+      "--yes",
+      "--dry-run",
+      "--purge",
+      "--json"
+    ],
+    "hosts": [
+      "claude",
+      "devin",
+      "codex",
+      "copilot",
+      "cursor"
+    ],
+    "scopes": [
+      "project",
+      "workspace",
+      "user"
+    ],
+    "profiles": [
+      "minimal",
+      "recommended",
+      "full"
+    ],
+    "gateway_profiles": [
+      "economy",
+      "balanced",
+      "deep"
+    ],
+    "approval": "--yes"
+  },
+  "depends_on": [],
   "extras": [
     "mcp",
     "api"

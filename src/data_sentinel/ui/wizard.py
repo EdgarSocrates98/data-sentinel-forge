@@ -289,7 +289,7 @@ def run_wizard(
         if len(planned) > 10:
             print(f"    … {len(planned) - 10} more")
 
-    if not confirm(i18n.t("confirm_q", ctx.language), default=True, ctx=ctx):
+    if not confirm(i18n.t("confirm_q", ctx.language), default=False, ctx=ctx):
         return 130
 
     # --- apply (real governed install) ---------------------------------------

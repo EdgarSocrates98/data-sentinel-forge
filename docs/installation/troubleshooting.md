@@ -11,3 +11,6 @@
 | `install` pede `--yes` | stdin não é TTY | `--yes` ou rode interativo |
 | dry-run não escreve nada | por design | use sem `--dry-run` para aplicar |
 | nada instalado para cursor | Cursor não tem adapter de catálogo | limitação declarada |
+| `install doctor` sai 1 | status `degraded`/`broken` — check `FAIL` presente | leia `checks[].detail` no `--json`; `install repair` restaura managed files |
+| `install mcp-verify` sai 1 | handshake não verificado (`FAIL`/`BLOCKED`) | `data-sentinel` resolvível no PATH + extra `mcp` instalado? |
+| `--gateway` vs `--gateway-profile` | `--gateway` é o alias legado | use `--gateway-profile` (é o que o orquestrador envia) |
