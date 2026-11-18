@@ -60,6 +60,52 @@ Checks: versão do Python, resolução de config, store gravável, analyzers
 registrados, redação de segredos. Saída `[PASS]/[WARN]/[FAIL]` + dica; exit 1
 se houver FAIL.
 
+## `install` — ciclo de vida da instalação
+
+Instala skills/agents/config MCP nos hosts suportados, sob aprovação
+explícita (`--yes`) e ledger de ownership — `--dry-run` nunca escreve.
+
+```bash
+data-sentinel install                       # wizard guiado (TTY)
+data-sentinel install --yes --host all      # não-interativo
+data-sentinel install --dry-run --host claude --json
+```
+
+Opções do apply:
+
+| Flag | Efeito |
+|---|---|
+| `--scope` | `project` (padrão), `workspace`, `user` |
+| `--root` | raiz do alvo — **autoritativa**; nunca substituída por marcador ancestral |
+| `--host` | `claude,devin,codex,copilot,cursor`, `all` (padrão) ou `none` |
+| `--profile` | `minimal`, `recommended` (padrão), `full` (≡ recommended — equivalência declarada) |
+| `--components` | csv de componentes opcionais (`skills,agents,mcp,knowledge,rules,evals,tui,graph-studio`) |
+| `--gateway-profile` | `economy`, `balanced` (padrão), `deep` — advisory, gravado no receipt (`--gateway` é o alias legado) |
+| `--yes`, `-y` | aprovação explícita — obrigatória fora de TTY (senão exit 2) |
+| `--dry-run` | emite o plano sem escrever nada |
+| `--json` | saída `forge/InstallReceipt/v1` em JSON |
+
+Subcomandos de ciclo de vida:
+
+| Comando | Efeito |
+|---|---|
+| `install status` | ledger, drift e saúde da instalação |
+| `install doctor` | checks profundos (ledger, drift, `.mcp.json`, handshake MCP, forge-portal) |
+| `install repair` | reescreve managed files ausentes/divergidos; recusa estrangeiros |
+| `install uninstall` | remove só o que o ledger possui; `--purge` também remove o state dir |
+| `install env` | descoberta de ambiente (python, hosts detectados, registry `~/.forge`) — read-only |
+| `install mcp-verify` | handshake JSON-RPC real (initialize + tools/list) |
+| `install manifest` | emite o `forge.json` (`--agentic` emite `forge/SpecialistAgenticManifest/v1`) |
+
+`repair`/`uninstall` pedem `--yes` fora de TTY e `typer.confirm` num TTY.
+Exit codes dos verbos: `0` em `completed`/`planned`/`healthy`/`unverified`;
+`1` em `degraded`/`broken`/`failed` — um doctor `degraded` nunca é
+sucesso silencioso; `mcp-verify` sai `0` só com handshake verificado.
+Escreve `.forge/context/` (registry compartilhado) em escopos
+`project`/`workspace` mesmo com `--host none` — ver
+[installation/workspace-installation.md](installation/workspace-installation.md).
+Guias por host/OS em [docs/installation/](installation/).
+
 ## `capabilities`
 
 ```bash

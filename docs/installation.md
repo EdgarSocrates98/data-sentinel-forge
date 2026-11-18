@@ -11,10 +11,19 @@ do workspace depois da instalação:
 ```
 
 No PowerShell use `.\install.ps1`; `install.windows.sh` é a rota equivalente
-para Git Bash. O launcher e o receipt ficam em `~/.forjas/data-sentinel-forge/`
-(ou no diretório indicado por `FORGE_INSTALL_HOME`). Adicione `bin/` ao
-`PATH` uma vez. Depois, `data-sentinel install` continua sendo o fluxo
+para Git Bash. Os três wrappers executam `scripts/forge_bootstrap.py`: a
+venv fica em `~/.forge/installs/data-sentinel-forge/.venv` (ou
+`--install-dir`), o shim `data-sentinel` em `~/.local/bin/` e o
+manifesto/receipt em `~/.forge/installations/`. Adicione `~/.local/bin`
+ao `PATH` uma vez. Depois, `data-sentinel install` continua sendo o fluxo
 agentic para skills, agents e integrações de host.
+
+`scripts/install_portable.py` é o instalador portátil **legado** (rote
+alternativa, ainda funcional e coberta por teste): instala em
+`~/.forjas/data-sentinel-forge/` ou `FORGE_INSTALL_HOME` sem depender do
+checkout depois da instalação. O caminho suportado hoje é
+`install.sh`/`install.ps1` → `forge_bootstrap.py`; o legado fica como
+fallback documentado para ambientes restritos.
 
 ## Verificado nesta sessão
 

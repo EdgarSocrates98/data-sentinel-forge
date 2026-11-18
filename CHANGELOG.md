@@ -11,6 +11,44 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed (wave-10 — install 2.1 harmonization)
+
+- `_installkit` re-vendored 1.0.4 → canonical 1.0.6: `--root` explícito
+  agora é autoritativo no escopo `workspace` (marcador ancestral nunca
+  o substitui); `discover_projects` conta membros gitless via
+  `forge.json`/`forge.agentic.json`/`pyproject.toml`/`package.json`, sem
+  seguir symlinks e pulando diretórios ignorados; `manifest_for` carrega
+  os campos install-2.1.
+- `forge.json` (raiz + bundled) declara `installation_kind: "content"`,
+  a superfície `install` tipada (operations/flags/hosts/scopes/profiles/
+  gateway_profiles/approval — sem `update`, que este forge não
+  implementa), `depends_on: []` e `mcp_verify_tool: "sentinel.status"`.
+  O manifesto bundled tinha `distribution`/`version` errados
+  (`data-sentinel` 0.2.1 → `data-sentinel-forge` 0.5.5); `MANIFEST.sha256`
+  e `forge.agentic.json` regenerados.
+- `install` aceita `--gateway-profile` (flag que o orquestrador envia);
+  `--gateway` permanece como alias.
+- `scripts/forge_bootstrap.py` sincronizado com o canonical (propagação
+  install-2.1 no `register`) — byte-idêntico novamente.
+- `install status|doctor` sai `1` em `degraded`/`broken` (antes saía `0`
+  em `degraded`); `install mcp-verify` sai `0` só com handshake
+  verificado.
+- Confirms interativos (`approve_plan`, wizard) agora recusam no Enter
+  (`default=False`), alinhados ao kit canonical.
+
+### Fixed (wave-10 — honesty)
+
+- Falha no registro do contexto (`.forge/context/` BLOCKED) não gera
+  mais recibo `verification: PASS` nem manifesto em
+  `~/.forge/installations/` — a verificação é recalculada sobre os
+  checks estendidos e o status `failed` se mantém.
+- `doctor` não promove mais `unverified` → `healthy` quando o extra
+  `mcp` está ausente; o agregado replica a semântica dos siblings
+  (FAIL degrada, nada instalado reporta `unverified`).
+- `resources.json` usa ids/locations package-relative
+  (`knowledge/rules/*.yaml`, `installation/assets/agents/*.md`) em vez
+  de caminhos de checkout `src/...`.
+
 ## [0.5.4] - 2026-11-12
 
 Cycle 2.7 patch release: federated SDD contracts and adapters, forge-context kind taxonomy, universal Obsidian export verbs, portal and install UX improvements, provider context-registry wiring, CI hardening and generated-artifact refresh.
