@@ -14,6 +14,7 @@ from typing import Annotated, Any
 
 import typer
 
+from data_sentinel import _forgecontext as fctx
 from data_sentinel import _installkit as kit
 from data_sentinel.installation import service
 from data_sentinel.installation.contracts import (
@@ -345,7 +346,11 @@ def manifest_cmd(
                 "--purge",
                 "--json",
             ],
-            "hosts": list(service.HOSTS),
+            # `cursor` is a supported host_partial (marker + .mcp.json,
+            # declared in forge.agentic.json) but is not part of the closed
+            # host enum of the federation contract — install.hosts lists
+            # only the canonical enum so The Forge never delegates it.
+            "hosts": [h for h in service.HOSTS if h in set(fctx.HOSTS)],
             "scopes": list(service.SCOPES),
             "profiles": list(service.PROFILES),
             "gateway_profiles": list(service.GATEWAY_PROFILES),
