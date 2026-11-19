@@ -3,7 +3,7 @@
   "agents/sentinel-reviewer.md": "3df2dc6afa633e8ee0facb63ca4f235867dc0e7ce69ce20a0ce5682750236603",
   "agents/sentinel-spark-specialist.md": "cd856e45288da5aa2cbdfc30c88b5f0c09a90e80c29d499335d0c3c51e4c434b",
   "manifest/forge.json": "a27f8e6a44ca980c8da57aa919e1439148bb4809ccbbef6f88d9d8d48bc49aea",
-  "manifest/resources.json": "9ae95fcea65999731bc04adaf7f98c489567e36fc2c05e1395ea1c677112ee09",
+  "manifest/resources.json": "77a02e6c38f7573e0b5110bd9ae5ac97fdf1d5312f21198aca2e99fbcd6c7f92",
   "skills/data-sentinel-investigate/SKILL.md": "d38723829814eb936e725638ce4ffcce6227876ccd5bf0831dce60a3e6a9bbee",
   "skills/data-sentinel-quality-drift/SKILL.md": "71e3b71694537ce7836d4cca52485aa75234b8cf2ff8c169f0223ed341f3a897",
   "skills/data-sentinel-report/SKILL.md": "2547aa5f783dd36f1479f382b5180ae1105b7634fe5c0934c9ffabfda7710690",

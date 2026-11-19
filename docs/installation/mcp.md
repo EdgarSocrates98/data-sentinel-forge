@@ -1,12 +1,17 @@
 # MCP — servidor data-sentinel
 
-O install escreve `data-sentinel` em `.mcp.json` com comando resolvido
-para o path absoluto do executável (fallback: nome bare).
+O install escreve `data-sentinel` em `.mcp.json` com argv independente de
+PATH (§9.3): o `cli.shim` absoluto registrado pelo bootstrap, ou o
+interpretador corrente + módulo (`python -m data_sentinel mcp serve`) —
+nunca um nome bare resolvido via `PATH` do host.
 
 ```json
-{"mcpServers": {"data-sentinel": {"command": "/abs/data-sentinel",
-"args": ["mcp", "serve"]}}}
+{"mcpServers": {"data-sentinel": {"command": "/abs/python",
+"args": ["-m", "data_sentinel", "mcp", "serve"]}}}
 ```
+
+ou, com shim registrado, `{"command": "/abs/data-sentinel", "args":
+["mcp", "serve"]}`.
 
 - Merge preserva servidores estrangeiros (chaves managed namespaced).
 - Handshake real verificado: `data-sentinel install mcp-verify`

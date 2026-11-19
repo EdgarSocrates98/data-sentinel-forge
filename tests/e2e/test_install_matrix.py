@@ -250,8 +250,12 @@ def test_matrix_mcp_config_and_handshake_entry(tmp_path: Path) -> None:
     _install(tmp_path, "--host", "claude")
     mcp = json.loads((tmp_path / ".mcp.json").read_text(encoding="utf-8"))
     entry = mcp["mcpServers"]["data-sentinel"]
-    assert Path(entry["command"]).stem == "data-sentinel"
-    assert entry["args"] == ["mcp", "serve"]
+    # §9.3 — the managed key never launches through PATH: an absolute
+    # console-script/shim argv or the module-pinned interpreter argv.
+    assert Path(entry["command"]).is_absolute()
+    assert entry["args"] in (["mcp", "serve"], ["-m", "data_sentinel", "mcp", "serve"])
+    if entry["args"] == ["mcp", "serve"]:
+        assert Path(entry["command"]).stem == "data-sentinel"
 
 
 # --- secrets (AN) ----------------------------------------------------------

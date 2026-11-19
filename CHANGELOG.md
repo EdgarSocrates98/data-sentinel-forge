@@ -11,6 +11,40 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed (wave-11 — lifecycle + incremental install)
+
+- `forge/InstallLifecycle/v1` ligado em todos os documentos de
+  instalação: receipts (`install`, `repair`, `uninstall`) e docs de
+  saúde (`status`, `doctor`, `mcp-verify`) carregam `lifecycle.state`
+  derivado da evidência — `planned`/`blocked`/`failed`/`applied`/
+  `partially_applied`/`verified`/`unverified`/`ready`/`certified`.
+  `status: completed` continua compatível, mas nunca prova prontidão.
+- `_installkit`/`_forgecontext` re-vendored do canonical: contabilidade
+  incremental (`counts` por ação + `written`/`written_bytes` — reinstall
+  idêntico reporta `written: 0` e não re-toca arquivos byte-idênticos);
+  `InstallContext.mcp_command_resolved` — `.mcp.json` usa o `cli.shim`
+  absoluto do bootstrap ou `python -m data_sentinel mcp serve`
+  (interpretador absoluto), nunca nome bare dependente de PATH;
+  bloco de contexto compacto (L0: identidade, versão, domains, ponteiros
+  para capability manifest + `AGENT_PROTOCOL.md`).
+- `install status|doctor` reconhece instalação "docs-only" (ledger vazio
+  + registry `.forge/context/` presente) como `healthy` com
+  `context_registered: true` — não mais `unverified` falso.
+- `_register` preserva o `cli.shim` do manifesto global existente
+  (`~/.forge/installations/`) via merge campo-a-campo.
+
+### Fixed (wave-11 — workspace manifest gate)
+
+- `forge.agentic.json` + `installation/assets/manifest/resources.json`
+  corrigidos: recursos `available` declaram `location` relativo ao
+  checkout (`src/data_sentinel/installation/assets/agents/…`,
+  `src/data_sentinel/knowledge/rules/…`) e `packaged_location`
+  relativo ao pacote instalado — `test_workspace_manifest_resources_verify`
+  do the-forge volta a passar.
+- Receipt persistido é reescrito após `_register_context()` — falha de
+  contexto não deixa mais um receipt pre-contexto `completed`/`verified`
+  no disco.
+
 ### Changed (wave-10 — install 2.1 harmonization)
 
 - `_installkit` re-vendored 1.0.4 → canonical 1.0.6: `--root` explícito

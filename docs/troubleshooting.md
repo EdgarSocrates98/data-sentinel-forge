@@ -50,3 +50,18 @@ permissões.
 - `analyze` sem `--file`/`--sql` → exit 2 com mensagem de uso.
 - Achado `UNKNOWN` não é bug: o log não casa padrões conhecidos — a limitação
   no relatório diz quais artefatos ajudariam.
+
+## Lendo receipts e status de instalação
+
+Receipts (`forge/InstallReceipt/v1`) e docs de saúde
+(`forge/InstallationHealth/v1`) carregam `lifecycle`
+(`forge/InstallLifecycle/v1`) — a posição honesta derivada da evidência:
+
+- `status: completed` + `lifecycle.state: verified` → writes + verificação `PASS`.
+- `lifecycle.state: ready` → verificado + saúde verde (`status`/`doctor`).
+- `lifecycle.state: applied` → writes feitos, verificação ausente — rode
+  `install status`.
+- `lifecycle.state: failed`/`blocked` → leia `checks[].detail` no receipt.
+- `lifecycle.state: unverified` → sem evidência de instalação no escopo.
+- `install status` saudável com `context_registered: true` → install
+  "docs-only" (ledger vazio, registry `.forge/context/` é a fonte).

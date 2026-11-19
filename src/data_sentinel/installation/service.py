@@ -23,6 +23,7 @@ from typing import Any
 from data_sentinel import __version__
 from data_sentinel import _forgecontext as fctx
 from data_sentinel import _installkit as kit
+from data_sentinel.installation import lifecycle
 
 FORGE_ID = "data-sentinel-forge"
 STATE_DIR = ".data-sentinel/install"
@@ -47,6 +48,27 @@ def _resolve_mcp_command() -> tuple[str, ...]:
     if resolved:
         return (resolved, "mcp", "serve")
     return ("data-sentinel", "mcp", "serve")
+
+
+def _resolved_mcp_command(spec: kit.ForgeSpec) -> tuple[str, ...] | None:
+    """PATH-independent argv for the managed ``.mcp.json`` key (§9.3).
+
+    Resolution order (mirrors the-forge install service):
+
+    1. the registered install manifest's ``cli.shim`` (absolute launcher
+       written by the bootstrap) → ``(shim, *mcp_command[1:])``;
+    2. ``(sys.executable, "-m", <package>, *mcp_command[1:])`` — the
+       current interpreter, absolute by construction, module-pinned.
+
+    ``None`` when the spec declares no MCP command at all.
+    """
+    if not spec.mcp_command:
+        return None
+    tail = spec.mcp_command[1:]
+    shim = (_installation_manifest().get("cli") or {}).get("shim")
+    if isinstance(shim, str) and shim and Path(shim).is_absolute():
+        return (shim, *tail)
+    return (sys.executable, "-m", spec.package, *tail)
 
 
 def _check_python() -> None:
@@ -154,6 +176,7 @@ def _ctx(
         hosts=hosts,
         dry_run=dry_run,
         options=options,
+        mcp_command_resolved=_resolved_mcp_command(spec),
     )
 
 
@@ -210,6 +233,7 @@ def install(
                 "server": "data-sentinel",
                 "action": "merge-preserve-foreign",
             }
+        plan["lifecycle"] = lifecycle.receipt_block(plan)
         return plan
     with kit.acquire_lock(state):
         receipt = kit.apply_install(ctx, approved=yes)
@@ -229,15 +253,43 @@ def install(
                 if all(c.get("status") in ("PASS", "NOT_APPLICABLE") for c in checks)
                 else "FAIL"
             }
-            kit._write_receipt(state, receipt)
-            if receipt.get("status") == "completed":
-                _register(ctx)
+        # Derived AFTER the context layer — a BLOCKED check there flips the
+        # status to failed, and the lifecycle view must see the final
+        # receipt, never the pre-context one. The kit persisted a
+        # pre-context receipt inside apply_install; rewrite it so the file
+        # reflects the final checks/status.
+        receipt["lifecycle"] = lifecycle.receipt_block(receipt)
+        kit._write_receipt(state, receipt)
+        if receipt.get("status") == "completed":
+            _register(ctx)
     return receipt
+
+
+def _context_registry_truth(root: Path | None) -> bool:
+    """Whether `.forge/context/registry.json` lists this forge.
+
+    install-2.0 moved consumer docs out of the install ledger into the
+    context registry; an install that manages ONLY docs leaves the kit
+    ledger empty while being fully installed. The registry entry is the
+    authoritative "installed here" signal in that case."""
+    if root is None:
+        return False
+    reg = fctx.load_registry(Path(root).resolve())
+    if not reg:
+        return False
+    return any(e.get("forge_id") == FORGE_ID for e in reg.get("forges", []))
 
 
 def status(*, scope: str = "project", root: Path | None = None) -> dict[str, Any]:
     ctx = _ctx(scope, root, (), "recommended", dry_run=True)
-    return kit.status(ctx)
+    doc = kit.status(ctx)
+    if doc.get("status") == "unverified" and _context_registry_truth(ctx.root):
+        # Empty ledger + registry entry = docs-only install — report the
+        # truth instead of a false NOT_INSTALLED.
+        doc["status"] = "healthy"
+        doc["context_registered"] = True
+    doc["lifecycle"] = lifecycle.health_block(doc)
+    return doc
 
 
 def doctor(*, scope: str = "project", root: Path | None = None) -> dict[str, Any]:
@@ -257,19 +309,50 @@ def doctor(*, scope: str = "project", root: Path | None = None) -> dict[str, Any
             }
             for c in checks
         ]
+    # Ledger vazio + entrada no registry = install docs-only (consumer docs
+    # passaram para a camada forge_context no install-2.0): o ledger check
+    # vira NOT_APPLICABLE nomeado e o registry responde pela saude.
+    context_registered = _context_registry_truth(ctx.root)
+    if context_registered:
+        checks = [
+            c
+            if c["id"] != "ledger" or c["status"] != "UNVERIFIED"
+            else {
+                **c,
+                "status": "NOT_APPLICABLE",
+                "detail": (
+                    "0 managed entries — consumer docs owned by "
+                    ".forge/context registry (docs-only install)"
+                ),
+            }
+            for c in checks
+        ]
+        checks.append(
+            {
+                "id": "context-registry",
+                "status": "PASS",
+                "detail": f"{FORGE_ID} present in .forge/context/registry.json",
+            }
+        )
     doc["checks"] = checks
     # Agregado honesto (mesmo desenho dos siblings): FAIL degrada um
     # install existente e quebra um ausente; nada instalado reporta
     # "unverified"; UNVERIFIED nunca derruba nem promove — ele so
     # permanece nomeado no proprio check.
     contexto = doc.get("context")
-    installed = bool(isinstance(contexto, dict) and contexto.get("managed_entries"))
+    installed = bool(
+        (isinstance(contexto, dict) and contexto.get("managed_entries"))
+        or context_registered
+    )
     if any(c["status"] == "FAIL" for c in checks):
         doc["status"] = "degraded" if installed else "broken"
     elif not installed:
         doc["status"] = "unverified"
     else:
         doc["status"] = "healthy"
+    if context_registered:
+        doc["context_registered"] = True
+    doc["lifecycle"] = lifecycle.health_block(doc)
     return doc
 
 
@@ -278,7 +361,9 @@ def repair(
 ) -> dict[str, Any]:
     ctx = _ctx(scope, root, HOSTS, "full", dry_run)
     if dry_run:
-        return kit.status(ctx)
+        doc = kit.status(ctx)
+        doc["lifecycle"] = lifecycle.health_block(doc)
+        return doc
     with kit.acquire_lock(ctx.state_dir):
         receipt = kit.repair(ctx)
         # Registry de contexto (recuperacao §9.2): refaz journal encalhado,
@@ -328,6 +413,7 @@ def repair(
             receipt.setdefault("checks", []).append(
                 {"id": "consumer-docs", "status": "BLOCKED", "detail": f"{exc.kind}: {exc.detail}"}
             )
+        receipt["lifecycle"] = lifecycle.receipt_block(receipt)
         return receipt
 
 
@@ -341,7 +427,7 @@ def uninstall(
     ctx = _ctx(scope, root, (), "recommended", dry_run)
     if dry_run:
         kit.status(ctx)
-        return {
+        doc: dict[str, Any] = {
             "schema": kit.SCHEMA_RECEIPT,
             "forge_id": FORGE_ID,
             "operation": "uninstall",
@@ -353,6 +439,8 @@ def uninstall(
             "verification": {"status": "UNVERIFIED"},
             "created_at": kit._utc_now(),
         }
+        doc["lifecycle"] = lifecycle.receipt_block(doc)
+        return doc
     with kit.acquire_lock(ctx.state_dir):
         doc = kit.uninstall(ctx, purge_state=purge)
         # So chama a camada de contexto quando ha residuo — a transacao
@@ -362,6 +450,11 @@ def uninstall(
             doc.setdefault("checks", []).extend(checks)
             if any(c.get("status") == "BLOCKED" for c in checks):
                 doc["status"] = "failed"
+        doc["lifecycle"] = lifecycle.receipt_block(doc)
+        if not purge:
+            # kit.uninstall persisted the receipt before the context layer
+            # ran — rewrite so the file reflects the final checks/status.
+            kit._write_receipt(ctx.state_dir, doc)
         kit.deregister_installation(FORGE_ID)  # M3 — registry must not lie
     return doc
 
@@ -477,8 +570,12 @@ def _env_knobs() -> tuple[str, ...]:
 
 def mcp_verify() -> dict[str, Any]:
     """Health doc for the MCP handshake check."""
-    check = kit.mcp_verify(_spec())
-    return {
+    spec = _spec()
+    resolved = _resolved_mcp_command(spec)
+    if resolved:
+        spec = dataclasses.replace(spec, mcp_command=resolved)
+    check = kit.mcp_verify(spec)
+    doc: dict[str, Any] = {
         "schema": kit.SCHEMA_HEALTH,
         "forge_id": FORGE_ID,
         "status": (
@@ -492,6 +589,8 @@ def mcp_verify() -> dict[str, Any]:
         "checked_at": kit._utc_now(),
         "repair_hint": None,
     }
+    doc["lifecycle"] = lifecycle.health_block(doc)
+    return doc
 
 
 def _installation_manifest() -> dict[str, Any]:
@@ -504,16 +603,19 @@ def _register(ctx: kit.InstallContext) -> None:
     """Merge ``~/.forge/installations/data-sentinel-forge.json``."""
     existing = _installation_manifest()
     doc: dict[str, Any] = dict(existing)
+    # Merge ``cli`` field-wise: the bootstrap may have registered an
+    # absolute ``cli.shim`` launcher — a wholesale replace would erase the
+    # only PATH-independent argv ``mcp_command_resolved`` can use.
+    raw_cli = existing.get("cli")
+    cli_doc = dict(raw_cli) if isinstance(raw_cli, dict) else {}
+    cli_doc.update({"name": "data-sentinel", "version_cmd": ["data-sentinel", "--version"]})
     doc.update(
         {
             "schema": kit.SCHEMA_MANIFEST,
             "forge_id": FORGE_ID,
             "package": "data_sentinel",
             "distribution": "data-sentinel-forge",  # M1 — pyproject name
-            "cli": {
-                "name": "data-sentinel",
-                "version_cmd": ["data-sentinel", "--version"],
-            },
+            "cli": cli_doc,
             "version": __version__,
             "updated_at": kit._utc_now(),
             "installed_at": doc.get("installed_at", kit._utc_now()),
