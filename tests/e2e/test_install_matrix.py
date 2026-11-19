@@ -503,3 +503,31 @@ def test_vendored_installkit_stamp() -> None:
 
     assert _installkit._SOURCE_SHA256 not in ("", "canonical")
     assert len(_installkit._SOURCE_SHA256) >= 12
+
+
+def test_setup_sh_python_ausente_recusa_nomeada(tmp_path) -> None:
+    """cycle-16.1.1 wave-07e — probe tolera PATH sem python (rc=2)."""
+    import shutil
+    import subprocess
+
+    bash = shutil.which("bash")
+    if not bash:
+        import pytest
+
+        pytest.skip("bash indisponivel")
+    stub = tmp_path / "stubbin"
+    stub.mkdir()
+    dn = shutil.which("dirname")
+    if dn:
+        (stub / "dirname").symlink_to(dn)
+    out = subprocess.run(
+        [bash, "setup.sh"],
+        cwd=str(Path(__file__).resolve().parents[2]),
+        env={"PATH": str(stub), "HOME": str(tmp_path)},
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    assert out.returncode == 2
+    assert "FORGE-PYTHON-NOT-FOUND" in out.stderr

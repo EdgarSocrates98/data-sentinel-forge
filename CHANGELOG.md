@@ -3,6 +3,16 @@
 All notable changes to Data Sentinel are documented here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased — Cycle 16.1.1
+
+### Fixed
+- `setup.sh`: probe de python tolera ausência total (`|| true`) — sob
+  `set -euo pipefail` saía `rc=1` silencioso antes de
+  `FORGE-PYTHON-NOT-FOUND` (defeito vendored; correção canônica no
+  the-forge wave-01).
+- `ui/{kit,i18n,wizard}.py` re-vendored do canônico the-forge (drift
+  silencioso). Regressão em `tests/e2e/test_install_matrix.py`.
+
 ## [0.5.5] — 2026-11-13
 
 ### Changed
