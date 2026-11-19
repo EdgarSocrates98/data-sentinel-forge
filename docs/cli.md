@@ -101,6 +101,15 @@ Subcomandos de ciclo de vida:
 Exit codes dos verbos: `0` em `completed`/`planned`/`healthy`/`unverified`;
 `1` em `degraded`/`broken`/`failed` — um doctor `degraded` nunca é
 sucesso silencioso; `mcp-verify` sai `0` só com handshake verificado.
+
+Todo receipt (`forge/InstallReceipt/v1`) e doc de saúde
+(`forge/InstallationHealth/v1`) carrega `lifecycle`
+(`forge/InstallLifecycle/v1`): `state` derivado da evidência —
+`planned`/`blocked`/`failed`/`applied`/`partially_applied`/`verified`/
+`unverified`/`ready`/`certified`. `status: completed` é só o veredito do
+writer. Receipts de install trazem `counts` (contabilidade incremental
+por ação + `written`/`written_bytes`): reinstall idêntico reporta
+`written: 0` e não re-toca arquivos byte-idênticos.
 Escreve `.forge/context/` (registry compartilhado) em escopos
 `project`/`workspace` mesmo com `--host none` — ver
 [installation/workspace-installation.md](installation/workspace-installation.md).

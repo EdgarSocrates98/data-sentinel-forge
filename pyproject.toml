@@ -101,6 +101,12 @@ select = [
 # Vendored shared forge-context engine — byte-identical to the canonical
 # the-forge copy; linted there.
 "src/data_sentinel/_forgecontext.py" = ["ALL"]
+# Vendored install-lifecycle model — byte-identical to the canonical
+# the-forge/src/theforge/install/lifecycle.py (drift-gated); linted there.
+"src/data_sentinel/installation/lifecycle.py" = ["ALL"]
+# Vendored canonical bootstrap — byte-identical to
+# the-forge/scripts/forge_bootstrap.py; linted in the canonical repo.
+"scripts/forge_bootstrap.py" = ["ALL"]
 "src/data_sentinel/_forge_obsidian/*" = ["ALL"]
 # Vendored Forge UI kit (canonical: the-forge/src/theforge/ui) —
 # byte-identical to the shared source; linted in the canonical repo.

@@ -49,9 +49,13 @@ def test_install_yes_creates_assets(tmp_path: Path) -> None:
     assert entry["kind"] == "diagnostic-provider"
     mcp = json.loads((tmp_path / ".mcp.json").read_text())
     entry = mcp["mcpServers"]["data-sentinel"]
-    # §7.1 — absolute console script preferred, bare name is the fallback
-    assert Path(entry["command"]).stem == "data-sentinel"
-    assert entry["args"] == ["mcp", "serve"]
+    # §7.1/§9.3 — the managed key must never depend on PATH: an absolute
+    # console-script/shim argv ("data-sentinel mcp serve") or the
+    # module-pinned interpreter argv ("python -m data_sentinel mcp serve").
+    assert Path(entry["command"]).is_absolute()
+    assert entry["args"] in (["mcp", "serve"], ["-m", "data_sentinel", "mcp", "serve"])
+    if entry["args"] == ["mcp", "serve"]:
+        assert Path(entry["command"]).stem == "data-sentinel"
 
 
 def test_install_json_output(tmp_path: Path) -> None:

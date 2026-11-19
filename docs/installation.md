@@ -29,7 +29,7 @@ fallback documentado para ambientes restritos.
 
 | Verificação | Método | Resultado |
 |---|---|---|
-| Wheel limpa | `uv build` → `dist/data_sentinel-0.1.0-py3-none-any.whl` | OK |
+| Wheel limpa | `uv build` → `dist/data_sentinel_forge-*.whl` | OK |
 | Instalação em venv limpa | `uv venv --seed /tmp/ds8-venv` + `uv pip install dist/*.whl` | OK |
 | Import | `python -c "import data_sentinel"` | OK |
 | CLI | `data-sentinel --help`, `capabilities`, `investigate run` | OK — 2 findings reais em fixture Spark |
@@ -44,8 +44,8 @@ fallback documentado para ambientes restritos.
 
 ## Extras
 
-aws (boto3), api (fastapi/uvicorn), mcp, stats (numpy/scipy), dev — nomes exatos em pyproject.toml.
-`api` (fastapi/uvicorn), `mcp`, `stats` (numpy/scipy), `dev`.
+`aws` (boto3), `api` (fastapi/uvicorn), `mcp`, `stats` (numpy/scipy),
+`dev` — nomes exatos em `pyproject.toml`.
 
 ## Offline
 
@@ -77,6 +77,30 @@ usuário nunca são sobrescritos; conflitos geram backup + receipt.
 | `data-sentinel install repair` | restaura managed files corrompidos; recusa arquivos estrangeiros |
 | `data-sentinel install uninstall` | remove só o que o ledger possui (`--purge` remove o state dir) |
 | `data-sentinel install mcp-verify` | handshake MCP real (initialize + tools/list) |
+
+### Receipts honestos (cycle 16.1)
+
+Todo documento `forge/InstallReceipt/v1` e `forge/InstallationHealth/v1`
+emite um bloco `lifecycle` (`forge/InstallLifecycle/v1`) com o estado
+derivado da evidência — `planned`, `blocked`, `failed`, `applied`,
+`partially_applied`, `verified`, `unverified`, `ready`, `certified`.
+`status: completed` significa apenas "o writer terminou"; a posição fina
+é `lifecycle.state` (`verified` = writes + verificação `PASS`, `ready` =
+verificado + saúde verde).
+
+O receipt de install também carrega `counts` — contabilidade incremental
+por ação (`created`/`updated`/`unchanged`/`adopted`/`skipped`,
+`written`, `written_bytes`). Um reinstall sobre instalação idêntica
+reporta `written: 0`/`written_bytes: 0` e não re-toca arquivos
+byte-idênticos (só ledger/receipts de estado mudam).
+
+Em `.mcp.json`, a chave gerenciada usa argv independente de PATH: o
+`cli.shim` absoluto registrado pelo bootstrap, ou `python -m
+data_sentinel mcp serve` (interpretador absoluto + módulo) — nunca um
+nome bare que dependa do `PATH` do host. `install status|doctor`
+reconhece install "docs-only" (ledger vazio + entrada em
+`.forge/context/registry.json`) como `healthy` com
+`context_registered: true`, nunca `unverified` falso.
 
 ### Variáveis de ambiente
 

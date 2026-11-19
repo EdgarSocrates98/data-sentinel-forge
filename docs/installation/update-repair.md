@@ -6,8 +6,10 @@
 data-sentinel install --yes   # idempotente — arquivos idênticos são adotados
 ```
 
-Reinstall sobre instalação existente é no-op limpo (`unchanged`/`adopted`
-no ledger).
+Reinstall sobre instalação existente é no-op limpo: o receipt reporta a
+contabilidade incremental em `counts` — arquivos byte-idênticos saem como
+`unchanged`/`adopted` e `written`/`written_bytes` ficam `0` (arquivos
+gerenciados não são re-tocados).
 
 ## Repair
 
