@@ -438,7 +438,6 @@ def run_guided_install() -> int:
         install_fn=_install,
         doctor_fn=_doctor,
         hosts_available=service.HOSTS,
-        next_hint="data-sentinel install status · data-sentinel install doctor",
         ctx=UIContext.detect(),
     )
 
